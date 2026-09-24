@@ -76,6 +76,8 @@
 .cards-stage.walkout .reveal-side.right{display:none}
 .cards-stage.double .reveal-side{display:none}
 #cards-skip{position:absolute;right:10px;bottom:8px;z-index:3;font-size:10px}
+.cards-headline{position:absolute;left:0;right:0;bottom:64px;z-index:3;text-align:center;font-family:'Barlow Condensed',Impact,sans-serif;font-size:clamp(26px,4.4vw,52px);letter-spacing:1px;color:var(--tier,#e8c15a);text-shadow:0 3px 18px #000a;animation:headlineIn .7s ease-out;pointer-events:none}
+@keyframes headlineIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 .cards-continue{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:4;min-height:42px;padding:12px 32px;gap:0;justify-content:center;animation:continueIn .4s ease-out}
 @keyframes continueIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translateX(-50%)}}
 .player-card{width:232px;padding:16px 17px 17px;color:#221c0c;border-radius:6px 6px 3px 3px;background:linear-gradient(168deg,color-mix(in srgb,var(--tier) 88%,#fff) 0%,var(--tier) 34%,color-mix(in srgb,var(--tier) 72%,#000) 100%);animation:cardIn .4s ease-out}

@@ -61,6 +61,7 @@ export class CardPackUI{
  clearStage(){
   this.cinema?.stop();
   $('cards-continue').classList.add('hidden');
+  $('cards-headline').classList.add('hidden');
   $('cards-walkout').classList.remove('live');
   $('cards-white').style.opacity='0';
   $('cards-stage').classList.add('hidden');
@@ -81,6 +82,11 @@ export class CardPackUI{
      else if(id==='tunnel')this.sound('cut');
      else if(id==='stadium'){
       this.sound('walkout');
+      // 실제 개봉 화면처럼 등급과 이름을 큰 글씨로 한 줄 띄웁니다.
+      const headline=$('cards-headline');
+      headline.textContent=`${TIERS[pick.tier].name} · ${pick.card.name}`;
+      headline.style.setProperty('--tier',TIERS[pick.tier].color);
+      headline.classList.remove('hidden');
       stage.replaceChildren(...this.revealCluster(pick));
       await this.countUp([...stage.querySelectorAll('.card-ovr,.side-ovr')],pick.overall);
       // 자동으로 넘어가지 않고, 충분히 본 뒤 직접 확인을 눌러야 끝납니다.

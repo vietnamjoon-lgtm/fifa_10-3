@@ -6,13 +6,16 @@ import {flagUrl} from './card-data.js';
 const HALL={x:2.6,y:3.4,front:4,back:-16};
 const TUNNEL={x:3.2,y:4.2,front:-22,back:-46};
 const STAGE={z:-57,floor:-48};
-const RUN_TIME=2.6;
+const RUN_TIME=4.2,RUN_FROM=-11.4,RUN_DISTANCE=10.6;
+const TIER_LABEL={bronze:'bronze',silver:'silver',gold:'gold',special:'special'};
+// 전체를 천천히 보여 주려고 구간 길이를 한꺼번에 늘립니다.
+const PACE=1.5;
 const PHASES=[
- {id:'pack',time:.9},
- {id:'charge',time:1.5},
- {id:'whiteout',time:.25},
- {id:'tunnel',time:2.4},
- {id:'exit',time:1},
+ {id:'pack',time:.9*PACE},
+ {id:'charge',time:1.5*PACE},
+ {id:'whiteout',time:.25*PACE},
+ {id:'tunnel',time:2.4*PACE},
+ {id:'exit',time:1*PACE},
  {id:'stadium',time:99}
 ];
 const ease=t=>t<.5?2*t*t:1-((-2*t+2)**2)/2;
@@ -86,6 +89,8 @@ export class CardReveal{
   this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.15;
   this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   this.scene=new THREE.Scene();
+  // 옅은 안개로 깊이를 살려 복도와 스타디움이 납작해 보이지 않게 합니다.
+  this.scene.fog=new THREE.Fog(0x05080a,14,72);
   this.camera=new THREE.PerspectiveCamera(46,1,.05,140);
   this.buildLights();this.buildHall();this.buildTunnel();this.buildStadium();
   this.resize=new ResizeObserver(()=>this.draw());this.resize.observe(canvas);
@@ -129,8 +134,10 @@ export class CardReveal{
   const frame=new THREE.BoxGeometry(.09,2.9,.09),bar=new THREE.BoxGeometry(1.9,.09,.09);
   for(const x of [-.95,.95]){const mat=new THREE.MeshBasicMaterial({color:0xffffff});this.neon.push(mat);const post=new THREE.Mesh(frame,mat);post.position.set(x,1.45,0);this.door.add(post);}
   for(const y of [.02,2.88]){const mat=new THREE.MeshBasicMaterial({color:0xffffff});this.neon.push(mat);const cross=new THREE.Mesh(bar,mat);cross.position.set(0,y,0);this.door.add(cross);}
-  this.packMat=new THREE.MeshStandardMaterial({color:0x2a1c10,emissive:0x000000,roughness:.5,metalness:.3});
-  this.pack=new THREE.Mesh(new THREE.BoxGeometry(.78,1.12,.05),this.packMat);
+  // 문 안에 뜨는 팩. 앞면에 등급 이름이 찍혀 있어 그냥 상자처럼 보이지 않습니다.
+  this.packFaceMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.42,metalness:.25});
+  this.packMat=new THREE.MeshStandardMaterial({color:0x2a1c10,roughness:.5,metalness:.3});
+  this.pack=new THREE.Mesh(new THREE.BoxGeometry(.78,1.12,.05),[this.packMat,this.packMat,this.packMat,this.packMat,this.packFaceMat,this.packMat]);
   this.pack.position.set(0,1.5,-.3);this.door.add(this.pack);
   this.flare=new THREE.Mesh(new THREE.PlaneGeometry(2.4,3.2),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false}));
   this.flare.position.set(0,1.5,-.25);this.door.add(this.flare);
@@ -199,12 +206,47 @@ export class CardReveal{
   podium.position.set(1.35,.15,STAGE.z-.8);podium.receiveShadow=true;podium.castShadow=true;this.scene.add(podium);
   const rim=new THREE.Mesh(new THREE.TorusGeometry(1.08,.035,8,40),new THREE.MeshBasicMaterial({color:0xffd9a0}));
   rim.rotation.x=Math.PI/2;rim.position.set(1.35,.31,STAGE.z-.8);this.scene.add(rim);
-  const sparkGeometry=new THREE.ConeGeometry(.05,1.5,6);
-  for(let i=0;i<6;i++){
-   const mat=new THREE.MeshBasicMaterial({color:0xffd27a,transparent:true,opacity:0,depthWrite:false});
-   const spark=new THREE.Mesh(sparkGeometry,mat);
-   spark.position.set(i<3?-3.1-i*.9:3.1+(i-3)*.9,.9,STAGE.z-.4-(i%3)*1.1);
-   this.sparks.push(spark);this.scene.add(spark);
+  this.buildFireworks();
+ }
+ // 불꽃 하나마다 사방으로 퍼지는 입자 묶음을 만들어 둡니다.
+ buildFireworks(){
+  const spots=[[-5.6,2.4,STAGE.z-3.2],[5.6,2.6,STAGE.z-3.6],[-2.6,3.4,STAGE.z-7],[3.2,3.2,STAGE.z-7.4]];
+  const colors=[0xffd27a,0xfff0c4,0xffb4d8,0xa8e8ff];
+  for(const [index,spot] of spots.entries()){
+   const count=70,positions=new Float32Array(count*3),directions=[];
+   let seed=index*911+37;
+   const next=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+   for(let i=0;i<count;i++){
+    const theta=next()*Math.PI*2,phi=Math.acos(2*next()-1),reach=.55+next()*.45;
+    directions.push([Math.sin(phi)*Math.cos(theta)*reach,Math.abs(Math.cos(phi))*reach*.9+.2,Math.sin(phi)*Math.sin(theta)*reach]);
+   }
+   const geometry=new THREE.BufferGeometry();
+   geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));
+   const material=new THREE.PointsMaterial({color:colors[index],size:.26,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true,fog:false});
+   const burst=new THREE.Points(geometry,material);
+   burst.position.set(...spot);
+   burst.userData={directions,count,offset:index*1.35};
+   this.sparks.push(burst);this.scene.add(burst);
+  }
+ }
+ // 천천히 퍼졌다가 아래로 처지며 사그라듭니다.
+ updateFireworks(since){
+  const cycle=5.4;
+  for(const burst of this.sparks){
+   const {directions,count,offset}=burst.userData;
+   const phase=((since+offset)%cycle)/cycle;
+   const grow=(phase-.06)/.62;
+   if(grow<0||grow>1){burst.material.opacity=0;continue;}
+   burst.material.opacity=Math.min(1,grow*6)*(1-grow)**1.5;
+   const spread=3.6*(1-(1-grow)**2.4),fall=2.6*grow*grow;
+   const array=burst.geometry.attributes.position.array;
+   for(let i=0;i<count;i++){
+    const direction=directions[i];
+    array[i*3]=direction[0]*spread;
+    array[i*3+1]=direction[1]*spread-fall;
+    array[i*3+2]=direction[2]*spread;
+   }
+   burst.geometry.attributes.position.needsUpdate=true;
   }
  }
  tint(color){
@@ -225,6 +267,9 @@ export class CardReveal{
   this.stop();
   this.tint(color);
   this.setScreen([pick.overall,pick.card.club],color);
+  if(this.packFaceMat.map)this.packFaceMat.map.dispose();
+  this.packFaceMat.map=panelTexture(['PACK',(TIER_LABEL[pick.tier]||'').toUpperCase()],'#f4f8f2','#151a16');
+  this.packFaceMat.needsUpdate=true;
   this.cues=[['국가',pick.card.nation],['포지션',pick.card.role],['소속팀',pick.card.club]];
   this.cueIndex=-1;this.flag=null;
   loadFlag(flagUrl(pick.card.nation)).then(image=>{
@@ -290,20 +335,24 @@ export class CardReveal{
   if(!this.rig&&this.pick.profile){
    const rig=this.rig=createPlayer(0,this.pick.profile.number,this.pick.profile.role==='GK',this.pick.profile);
    rig.root.traverse(node=>{if(node.isMesh){node.castShadow=true;node.receiveShadow=true;}});
-   rig.root.position.set(1.35,.3,STAGE.z-8);this.scene.add(rig.root);
+   rig.root.position.set(1.35,0,STAGE.z+RUN_FROM);this.scene.add(rig.root);
    this.playerStart=time;
   }
   if(this.rig){
    // 멀리서 천천히 걸어 나와 단상 위에 선 뒤 세리머니로 넘어갑니다.
-   const run=Math.min(1,(time-this.playerStart)/RUN_TIME),z=STAGE.z-8+7.2*run,running=run<1;
+   const run=Math.min(1,(time-this.playerStart)/RUN_TIME),running=run<1;
+   const z=STAGE.z+RUN_FROM+RUN_DISTANCE*run;
+   // 걸음 속도를 실제 이동량에서 뽑아 다리 움직임과 어긋나지 않게 합니다.
+   const speed=RUN_DISTANCE/RUN_TIME;
    // 마지막 구간에서만 단상 높이로 올라서게 합니다.
-   const lift=.3*Math.max(0,(run-.86)/.14);
+   const lift=.3*Math.max(0,(run-.88)/.12);
    this.rig.root.position.set(1.35,lift,z);
-   this.rig.root.rotation.y=running?0:Math.sin(since*.5)*.16;
-   const state={...this.pick.profile,id:this.pick.profile.number,x:1.35,z,yaw:0,vx:0,vz:running?3:0,stamina:1};
+   this.rig.root.rotation.y=running?0:Math.sin(since*.4)*.16;
+   const state={...this.pick.profile,id:this.pick.profile.number,x:1.35,z,yaw:0,vx:0,vz:running?speed:0,stamina:1};
    if(!running)state.celebrationStart=this.playerStart+RUN_TIME;
-   animatePlayer(this.rig,running?3:0,dt,time,!running,state);
+   animatePlayer(this.rig,running?speed:0,dt,time,!running,state);
   }
+  this.updateFireworks(since);
   // 멈춰 선 뒤에도 카메라가 아주 천천히 다가가 정지 화면처럼 보이지 않게 합니다.
   const drift=Math.min(1,since/6);
   this.camera.position.set(Math.sin(since*.18)*.35,1.3-drift*.1,STAGE.z+4.3-drift*1.1);
