@@ -5,7 +5,7 @@ import {rollLaunchSpeed} from './physics.js';
 
 // Foot touches and initial targeting. Target-following pass velocity is handled
 // separately by guided-pass.js; shots retain their unassisted physical flight.
-export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:3,pendingKick:1.5,kickStart:1.35,footReach:.22,footLane:.12,underfootReach:.45,stretchReach:.6,turnReach:.9,turnCarry:.2,laneLead:.1,dribbleGap:.7,turnKnock:.6,closeGap:.45,touchLead:.3,touchGap:.3,sprintGap:.1,sprintTouchGap:.22,trapPace:2.5,lunge:.2,footForward:.35,dribbleStride:.35,startTouch:2.5,receiveRadius:1.04,contactRadius:.49};
+export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:3,pendingKick:1.5,kickStart:1.35,footReach:.22,footLane:.12,underfootReach:.45,stretchReach:.6,turnReach:.9,turnCarry:.2,laneLead:.1,dribbleGap:.7,turnKnock:.6,closeGap:.45,touchLead:.3,touchGap:.3,sprintGap:.25,sprintTouchGap:.22,trapPace:2.5,lunge:.2,footForward:.35,dribbleStride:.35,startTouch:2.5,receiveRadius:1.04,contactRadius:.49};
 
 export const footPosition=logicalFoot;
 
@@ -71,8 +71,8 @@ export function dribbleTouch(match,p,preparing=false){
  // A faster run in open space puts it further ahead; a nearby opponent or close control keeps it tight. A ball
  // behind or under the player is therefore played firmly out in front instead of being carried along.
  const space=clamp((Math.min(...match.players.filter(q=>q.active&&q.team!==p.team).map(q=>distance(p,q)),99)-2.5)/5,0,1);
- // Sprinting (FC reference footage): the ball is played a little further ahead in open space and touched on the
- // quicker sprint stride; it still rarely runs more than about 1 m ahead of the body.
+ // Sprinting knocks the ball further ahead in open space (about 0.9 m against 0.66 m at a jog) and touches it on the
+ // quicker sprint stride once the player catches it. The longer knock makes a sharp turn at a sprint slower.
  const pace=p.sprinting&&!p.closeControl?clamp((speed-TUNING.jog)/1.5,0,1):0;
  const ahead=(b.x-p.x)*f.x+(b.z-p.z)*f.z,gap=p.closeControl?ASSIST.closeGap:(ASSIST.dribbleGap+pace*space*ASSIST.sprintGap+space*.03*speed)*(1.3-.5*(p.control||.8)),knock=clamp((gap-ahead)/ASSIST.touchLead,.15,4);
  // Every touch plays the ball in the stick's direction, however sharp the turn; only releasing the stick traps it.
