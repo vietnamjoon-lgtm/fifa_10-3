@@ -1,6 +1,7 @@
 import {celebrationOptions} from './celebrations.js';
 import {cleanBody,cleanWeight} from './body-shape.js';
 import {cleanFace,validFaceTexture} from './face-settings.js';
+import {variedFace} from './face-variation.js';
 import {roster,clamp} from './config.js';
 export const STAT_FIELDS={pace:['최고 속도 · m/s',5,10,.01],acceleration:['가속',8,20,.1],agility:['민첩성',.2,1,.01],balance:['균형',.2,1,.01],control:['볼 컨트롤',.2,1,.01],passing:['짧은 패스',.2,1,.01],longPass:['긴 패스',.2,1,.01],shooting:['슛 정확도',.2,1,.01],power:['슛 파워',.2,1,.01],tackling:['태클',.2,1,.01],strength:['몸싸움',.2,1,.01],reflexes:['골키퍼 반응',.2,1,.01],reach:['골키퍼 도달 거리 · m',1.2,2.1,.01],weakFoot:['약한 발',.2,1,.01]};
 const text=(v,f,n)=>typeof v==='string'?v.replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,n)||f:f;
@@ -11,7 +12,7 @@ export function cleanProfile(raw={},fallback=roster(0)[9]){raw=raw&&typeof raw==
  for(const [key,[,min,max]]of Object.entries(STAT_FIELDS))p[key]=numeric(raw[key],fallback[key],min,max);
  p.weight=cleanWeight(raw.weight,p);p.body=cleanBody(raw.body);
  p.celebration=Object.hasOwn(celebrationOptions,raw.celebration)?raw.celebration:'auto';
- p.face=cleanFace(raw.face);p.faceTexture=p.face.enabled?validFaceTexture(raw.faceTexture):null;
+ p.face=cleanFace(variedFace(raw.face,p.uid||p.name));p.faceTexture=p.face.enabled?validFaceTexture(raw.faceTexture):null;
  return p;
 }
 export function defaultSquads(){const players=[...roster(0),...roster(1)].map(p=>cleanProfile({...p,uid:`default-${p.id}`,skin:['#bf8561','#976143','#deb18a','#74482f','#c89572','#e1ad88'][p.number%6],hairStyle:p.number%3===0?'crest':'short'}));return {version:1,players,lineups:[players.slice(0,11).map(p=>p.uid),players.slice(11).map(p=>p.uid)]};}
