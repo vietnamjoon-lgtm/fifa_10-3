@@ -4,7 +4,8 @@ import {Match} from '../src/match.js';
 import {defaults} from '../src/settings.js';
 const input={axis:{x:0,z:0},sprint:false};
 const advance=(m,seconds,i=input)=>{for(let n=0;n<seconds*120;n++)m.step(1/120,i)};
-test('practice movement accelerates and decelerates',()=>{const m=new Match({...defaults});m.start(true);advance(m,1.5);const x=m.controlled.x;advance(m,1,{axis:{x:1,z:0}});assert.ok(m.controlled.x>x+3);const speed=Math.hypot(m.controlled.vx,m.controlled.vz);assert.ok(speed>4);advance(m,.5);assert.ok(Math.hypot(m.controlled.vx,m.controlled.vz)<.1);});
+test('practice movement accelerates and decelerates',()=>{const m=new Match({...defaults});m.start(true);advance(m,1.5);const x=m.controlled.x;advance(m,1,{axis:{x:1,z:0}});assert.ok(m.controlled.x>x+3);const speed=Math.hypot(m.controlled.vx,m.controlled.vz);assert.ok(speed>4);// Releasing the stick: the player first reaches the rolling ball and stops it, then stands.
+ advance(m,1.6);assert.ok(Math.hypot(m.controlled.vx,m.controlled.vz)<.1);assert.ok(m.physics.ball.velocity.length()<.1);});
 test('shot waits for animation contact and ends its recovery',()=>{let kicks=0;const m=new Match({...defaults},t=>{if(t==='kick')kicks++});m.start(true);advance(m,1.5);m.action('charge');advance(m,.3);m.action('shoot');advance(m,.1);assert.equal(kicks,0);advance(m,.17);assert.equal(kicks,1);assert.ok(m.physics.ball.velocity.x>10);advance(m,.5);assert.equal(m.controlled.action,null);});
 test('one goal is counted once and kickoff resumes',()=>{const m=new Match({...defaults});m.start(true);advance(m,1.5);m.owner=null;m.physics.reset(51,0,.6);m.physics.kick({x:1,z:0},25,0);advance(m,.15);assert.equal(m.score[0],1);advance(m,1);assert.equal(m.score[0],1);advance(m,12);assert.equal(m.state,'playing');});
 test('touchline exit restarts as a throw-in',()=>{const m=new Match({...defaults});m.start(false);advance(m,1.5);m.owner=null;m.physics.reset(0,33.9,.4);m.physics.kick({x:0,z:1},14,0);advance(m,.1);assert.equal(m.state,'restart');assert.equal(m.restart.kind,'throw');advance(m,2);assert.equal(m.state,'playing');});
@@ -25,6 +26,6 @@ test('sprint dribbling knocks the ball ahead and runs onto it in both attack dir
   assert.ok((r.touches.at(-1)-r.touches[0])/(r.touches.length-1)>.45,`touches ${r.touches}`);}
 });
 test('releasing the stick after a knock traps the ball instead of letting it run away',()=>{
- for(const team of [0,1]){const r=dribbleRun(team,[[2.5,1,true],[1.5,0,false]]);
+ for(const team of [0,1]){const r=dribbleRun(team,[[2.5,1,true],[3,0,false]]);
   assert.ok(r.owned);assert.ok(r.m.physics.ball.velocity.length()<.2);assert.ok(Math.hypot(r.m.physics.ball.position.x-r.p.x,r.m.physics.ball.position.z-r.p.z)<1.1);}
 });
