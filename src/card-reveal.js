@@ -6,6 +6,7 @@ import {flagUrl} from './card-data.js';
 const HALL={x:2.6,y:3.4,front:4,back:-16};
 const TUNNEL={x:3.2,y:4.2,front:-22,back:-46};
 const STAGE={z:-57,floor:-48};
+const RUN_TIME=2.6;
 const PHASES=[
  {id:'pack',time:.9},
  {id:'charge',time:1.5},
@@ -30,6 +31,24 @@ function flagTexture(image,label){
  ctx.fillText(String(label),width/2,(height+h)/2+22);
  const texture=new THREE.CanvasTexture(canvas);
  texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=8;
+ return texture;
+}
+// 관중석에 쓸 점묘 질감. 멀리서 보면 사람들이 앉아 있는 것처럼 보입니다.
+function crowdTexture(){
+ const size=256;
+ const canvas=document.createElement('canvas');canvas.width=canvas.height=size;
+ const ctx=canvas.getContext('2d');
+ ctx.fillStyle='#14181c';ctx.fillRect(0,0,size,size);
+ let seed=97;
+ const next=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+ for(let row=0;row<26;row++)for(let i=0;i<70;i++){
+  const shade=120+Math.floor(next()*90);
+  ctx.fillStyle=`rgba(${shade},${shade-16},${shade-34},${.32+next()*.4})`;
+  ctx.fillRect(next()*size,row*10+next()*5,2.4,2.4);
+ }
+ const texture=new THREE.CanvasTexture(canvas);
+ texture.colorSpace=THREE.SRGBColorSpace;
+ texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(16,1);
  return texture;
 }
 const flagCache=new Map();
@@ -137,12 +156,37 @@ export class CardReveal{
   this.panel=new THREE.Mesh(new THREE.PlaneGeometry(3.4,2.55),this.panelMat);
   this.panel.position.set(0,2,TUNNEL.back+.1);this.scene.add(this.panel);
  }
- // 3구역: 터널을 빠져나오면 펼쳐지는 스타디움. 곡면 스크린과 단상, 불꽃이 있습니다.
+ // 3구역: 터널을 빠져나오면 펼쳐지는 스타디움. 관중석, 조명탑, 스크린, 단상, 불꽃이 있습니다.
  buildStadium(){
   const grass=new THREE.Mesh(new THREE.PlaneGeometry(70,40),new THREE.MeshStandardMaterial({color:0x1f4a22,roughness:.95}));
   grass.rotation.x=-Math.PI/2;grass.position.z=STAGE.floor-16;grass.receiveShadow=true;this.scene.add(grass);
-  const stands=new THREE.Mesh(new THREE.CylinderGeometry(26,26,7,40,1,true),new THREE.MeshStandardMaterial({color:0x1a1f24,roughness:1,side:THREE.BackSide}));
-  stands.position.set(0,3.5,STAGE.z-6);this.scene.add(stands);
+  // 잔디 줄무늬와 흰 라인으로 경기장 느낌을 냅니다.
+  const stripe=new THREE.MeshStandardMaterial({color:0x245227,roughness:.95});
+  for(let i=-5;i<=5;i+=2){
+   const band=new THREE.Mesh(new THREE.PlaneGeometry(70,3.6),stripe);
+   band.rotation.x=-Math.PI/2;band.position.set(0,.01,STAGE.z+4+i*3.6);this.scene.add(band);
+  }
+  const lineMat=new THREE.MeshBasicMaterial({color:0xdcefdc,transparent:true,opacity:.5});
+  for(const z of [STAGE.z+9,STAGE.z-11]){
+   const line=new THREE.Mesh(new THREE.PlaneGeometry(52,.16),lineMat);
+   line.rotation.x=-Math.PI/2;line.position.set(0,.02,z);this.scene.add(line);
+  }
+  // 관중석을 세 단으로 쌓고 점점이 박힌 관중 질감을 입힙니다.
+  const crowd=new THREE.MeshStandardMaterial({map:crowdTexture(),roughness:1,side:THREE.BackSide});
+  for(const [i,radius] of [23,26,29].entries()){
+   const tier=new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,4.5,48,1,true),crowd);
+   tier.position.set(0,2.6+i*4.2,STAGE.z-6);this.scene.add(tier);
+  }
+  const roof=new THREE.Mesh(new THREE.CylinderGeometry(30,30,.5,48,1,true),new THREE.MeshStandardMaterial({color:0x15181c,roughness:1,side:THREE.BackSide}));
+  roof.position.set(0,15.4,STAGE.z-6);this.scene.add(roof);
+  // 조명탑 네 개가 스타디움 모서리에서 빛납니다.
+  const lampMat=new THREE.MeshBasicMaterial({color:0xfff6dc});
+  for(const [x,z] of [[-15,STAGE.z+9],[15,STAGE.z+9],[-15,STAGE.z-17],[15,STAGE.z-17]]){
+   const mast=new THREE.Mesh(new THREE.CylinderGeometry(.18,.26,13,8),new THREE.MeshStandardMaterial({color:0x2a2f33,roughness:.8}));
+   mast.position.set(x,6.5,z);this.scene.add(mast);
+   const head=new THREE.Mesh(new THREE.BoxGeometry(2.6,1.1,.35),lampMat);
+   head.position.set(x,13.2,z);head.lookAt(0,2,STAGE.z);this.scene.add(head);
+  }
   this.screenMat=new THREE.MeshBasicMaterial();
   this.screen=new THREE.Mesh(new THREE.PlaneGeometry(11.5,3.4),this.screenMat);
   this.screen.position.set(0,4.3,STAGE.z-5.2);this.scene.add(this.screen);
@@ -150,8 +194,11 @@ export class CardReveal{
    const wing=new THREE.Mesh(new THREE.PlaneGeometry(4,3.4),this.screenMat);
    wing.position.set(side*7.3,4.3,STAGE.z-3.8);wing.rotation.y=-side*.42;this.scene.add(wing);
   }
-  const podium=new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.7,.3,32),new THREE.MeshStandardMaterial({color:0x4a0d18,roughness:.8}));
-  podium.position.set(.6,.15,STAGE.z-.4);podium.receiveShadow=true;podium.castShadow=true;this.scene.add(podium);
+  // 선수가 올라설 작은 단상. 카드가 가운데를 차지하므로 오른쪽에 둡니다.
+  const podium=new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.2,.3,32),new THREE.MeshStandardMaterial({color:0x4a0d18,roughness:.8}));
+  podium.position.set(1.35,.15,STAGE.z-.8);podium.receiveShadow=true;podium.castShadow=true;this.scene.add(podium);
+  const rim=new THREE.Mesh(new THREE.TorusGeometry(1.08,.035,8,40),new THREE.MeshBasicMaterial({color:0xffd9a0}));
+  rim.rotation.x=Math.PI/2;rim.position.set(1.35,.31,STAGE.z-.8);this.scene.add(rim);
   const sparkGeometry=new THREE.ConeGeometry(.05,1.5,6);
   for(let i=0;i<6;i++){
    const mat=new THREE.MeshBasicMaterial({color:0xffd27a,transparent:true,opacity:0,depthWrite:false});
@@ -243,17 +290,24 @@ export class CardReveal{
   if(!this.rig&&this.pick.profile){
    const rig=this.rig=createPlayer(0,this.pick.profile.number,this.pick.profile.role==='GK',this.pick.profile);
    rig.root.traverse(node=>{if(node.isMesh){node.castShadow=true;node.receiveShadow=true;}});
-   rig.root.position.set(1.35,.3,STAGE.z-3.4);this.scene.add(rig.root);
+   rig.root.position.set(1.35,.3,STAGE.z-8);this.scene.add(rig.root);
    this.playerStart=time;
   }
   if(this.rig){
-   const run=Math.min(1,(time-this.playerStart)/1.3),z=STAGE.z-3.4+3.2*run,running=run<1;
-   this.rig.root.position.set(1.35,.3,z);
-   this.rig.root.rotation.y=running?0:Math.sin(since*.8)*.12;
-   const state={...this.pick.profile,id:this.pick.profile.number,x:1.35,z,yaw:0,vx:0,vz:running?3.4:0,stamina:1};
-   if(!running)state.celebrationStart=this.playerStart+1.3;
-   animatePlayer(this.rig,running?3.4:0,dt,time,!running,state);
+   // 멀리서 천천히 걸어 나와 단상 위에 선 뒤 세리머니로 넘어갑니다.
+   const run=Math.min(1,(time-this.playerStart)/RUN_TIME),z=STAGE.z-8+7.2*run,running=run<1;
+   // 마지막 구간에서만 단상 높이로 올라서게 합니다.
+   const lift=.3*Math.max(0,(run-.86)/.14);
+   this.rig.root.position.set(1.35,lift,z);
+   this.rig.root.rotation.y=running?0:Math.sin(since*.5)*.16;
+   const state={...this.pick.profile,id:this.pick.profile.number,x:1.35,z,yaw:0,vx:0,vz:running?3:0,stamina:1};
+   if(!running)state.celebrationStart=this.playerStart+RUN_TIME;
+   animatePlayer(this.rig,running?3:0,dt,time,!running,state);
   }
+  // 멈춰 선 뒤에도 카메라가 아주 천천히 다가가 정지 화면처럼 보이지 않게 합니다.
+  const drift=Math.min(1,since/6);
+  this.camera.position.set(Math.sin(since*.18)*.35,1.3-drift*.1,STAGE.z+4.3-drift*1.1);
+  this.camera.lookAt(0,1.15,STAGE.z-.6);
   for(const [i,spark] of this.sparks.entries()){
    const phase=(since*.75+i*.19)%1.6;
    const live=Math.min(1,phase/.9);

@@ -60,6 +60,7 @@ export class CardPackUI{
  }
  clearStage(){
   this.cinema?.stop();
+  $('cards-continue').classList.add('hidden');
   $('cards-walkout').classList.remove('live');
   $('cards-white').style.opacity='0';
   $('cards-stage').classList.add('hidden');
@@ -82,7 +83,8 @@ export class CardPackUI{
       this.sound('walkout');
       stage.replaceChildren(...this.revealCluster(pick));
       await this.countUp([...stage.querySelectorAll('.card-ovr,.side-ovr')],pick.overall);
-      await this.wait(2800);
+      // 자동으로 넘어가지 않고, 충분히 본 뒤 직접 확인을 눌러야 끝납니다.
+      await this.waitForContinue();
       settle();
      }
     }
@@ -154,6 +156,17 @@ export class CardPackUI{
   for(const node of list){node.textContent=String(target);node.classList.add('locked');}
  }
  wait(ms){return new Promise(resolve=>{if(this.skipped)return resolve(false);setTimeout(()=>resolve(!this.skipped),this.skipped?0:ms);});}
+ // 확인을 누르거나 건너뛰기를 누를 때까지 스타디움 화면을 그대로 둡니다.
+ waitForContinue(){
+  const button=$('cards-continue');
+  if(this.skipped)return Promise.resolve();
+  button.classList.remove('hidden');
+  return new Promise(resolve=>{
+   const done=()=>{clearInterval(watch);button.classList.add('hidden');button.onclick=null;resolve();};
+   button.onclick=done;
+   const watch=setInterval(()=>{if(this.skipped)done();},120);
+  });
+ }
  showResults(picks){
   const results=$('cards-results'),list=$('cards-result-list');
   list.replaceChildren();
