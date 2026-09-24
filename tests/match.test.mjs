@@ -55,3 +55,13 @@ test('setting off with the ball behind or beside the player plays it round and r
   const a=run(true),b=run(false);
   assert.ok(a.owned);assert.ok(a.run>b.run*.9,`ran ${a.run} of ${b.run}`);assert.ok(a.ahead>.6,`ball still behind: ${a.ahead}`);}
 });
+test('every dribble touch after a change of direction sends the ball along the stick, not the old run',()=>{
+ for(const team of [0,1])for(const deg of [45,90,135,180]){
+  const m=new Match({...defaults,userTeam:team});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled,d=m.direction(team);
+  Object.assign(p,{x:-20*d,z:0});p.target={x:p.x,z:0};m.physics.reset(p.x+.54*d,-.11*d);
+  for(let i=0;i<180;i++)m.step(1/120,{axis:{x:d,z:0},sprint:true});
+  const a=deg*Math.PI/180,axis={x:Math.cos(a)*d,z:Math.sin(a)};let first=null;const kick=m.physics.kick;m.physics.kick=(v,s,...r)=>{if(first===null&&s>.05)first=v;return kick(v,s,...r)};
+  for(let i=0;i<120&&!first;i++)m.step(1/120,{axis,sprint:true});
+  assert.ok(first,`no touch after a ${deg} degree turn`);const off=Math.acos((first.x*axis.x+first.z*axis.z)/Math.hypot(first.x,first.z))*180/Math.PI;
+  assert.ok(off<20,`touch ${off.toFixed(1)} degrees off the stick after a ${deg} degree turn`);assert.equal(m.owner,p);}
+});

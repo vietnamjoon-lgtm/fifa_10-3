@@ -5,7 +5,7 @@ import {rollLaunchSpeed} from './physics.js';
 
 // Foot touches and initial targeting. Target-following pass velocity is handled
 // separately by guided-pass.js; shots retain their unassisted physical flight.
-export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:3,pendingKick:1.5,kickStart:1.35,footReach:.28,footLane:.12,underfootReach:.45,stretchReach:.6,turnReach:.75,dribbleGap:1.1,turnKnock:.6,closeGap:.8,touchLead:.45,trapPace:2.5,lunge:.2,footForward:.5,startTouch:2.5,receiveRadius:1.04,contactRadius:.49};
+export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:3,pendingKick:1.5,kickStart:1.35,footReach:.28,footLane:.12,underfootReach:.45,stretchReach:.6,turnReach:.9,turnCarry:.3,dribbleGap:1.1,turnKnock:.6,closeGap:.8,touchLead:.45,trapPace:2.5,lunge:.2,footForward:.5,startTouch:2.5,receiveRadius:1.04,contactRadius:.49};
 
 export const footPosition=logicalFoot;
 
@@ -53,8 +53,10 @@ export function dribbleTouch(match,p,preparing=false){
  if(b.y>.38||p.touchCooldown>0)return false;
  const left=distance(logicalFoot(p,'left'),b),right=distance(logicalFoot(p,'right'),b),foot=left<right?'left':'right';
  const speed=Math.hypot(p.vx,p.vz),aim=p.dribbleAim,v=ball.velocity,ballSpeed=Math.hypot(v.x,v.z);
- // When the stick turns away from the ball's line, the player stretches for a turning touch.
- const turning=!!aim&&!preparing&&(ballSpeed<.5||(v.x*aim.x+v.z*aim.z)/ballSpeed<Math.cos(Math.PI/7));
+ // When the stick turns away from the ball's line, or the ball has dropped beside or behind the player on the
+ // stick's line, the player stretches or swivels for it (the same reach the run is steered by).
+ const lagging=!!aim&&(b.x-p.x)*aim.x+(b.z-p.z)*aim.z<ASSIST.footForward*.5;
+ const turning=!!aim&&!preparing&&(lagging||ballSpeed<.5||(v.x*aim.x+v.z*aim.z)/ballSpeed<Math.cos(Math.PI/7));
  if(!footCanPlay(p,b,turning))return false;
  // A set-up touch before a kick keeps the ball on the kicking line the player faces.
  const f=preparing?{x:Math.sin(p.yaw),z:Math.cos(p.yaw)}:aim||(speed>.35?{x:p.vx/speed,z:p.vz/speed}:{x:Math.sin(p.yaw),z:Math.cos(p.yaw)});
@@ -63,15 +65,16 @@ export function dribbleTouch(match,p,preparing=false){
  // behind or under the player is therefore played firmly out in front instead of being carried along.
  const space=clamp((Math.min(...match.players.filter(q=>q.active&&q.team!==p.team).map(q=>distance(p,q)),99)-2.5)/5,0,1);
  const ahead=(b.x-p.x)*f.x+(b.z-p.z)*f.z,gap=p.closeControl?ASSIST.closeGap:(ASSIST.dribbleGap+space*.08*speed)*(1.3-.5*(p.control||.8)),knock=clamp((gap-ahead)/ASSIST.touchLead,.3,4);
- // Turning back at pace (the stick against a fast run) traps the ball under the sole. Any other turn, including
- // setting off with the ball behind or beside the player, plays it round into the stick's direction at once.
- const along=p.vx*f.x+p.vz*f.z,trap=p.dribbleStop&&!preparing||turning&&along<-ASSIST.trapPace;
- const run=Math.max(turning?Math.max(along,speed*.7):speed,aim?ASSIST.startTouch:0);
- // A turn taken at pace is a short touch round the body; only a standing start plays the ball firmly out in front.
- const forward=preparing||p.shield?speed*.9:p.pendingKick?run+.35:run+(turning&&speed>ASSIST.startTouch?Math.min(knock,ASSIST.turnKnock):knock);
- // Sideways part: keep the player's own sideways pace and bring the ball back to the touching foot's side
- // of the running line within about a third of a second.
- const across=(b.x-p.x)*f.z-(b.z-p.z)*f.x,lane=(foot==='left'?-1:1)*ASSIST.footLane,side=p.vx*f.z-p.vz*f.x+clamp((lane-across)/.35,-3,3);
+ // Every touch plays the ball in the stick's direction, however sharp the turn; only releasing the stick traps it.
+ // A sharp turn plays it softly (about 3 m/s) so the turning player can follow; a gentle one keeps more of the pace.
+ const along=p.vx*f.x+p.vz*f.z,trap=p.dribbleStop&&!preparing;
+ const run=Math.max(turning?Math.max(along,speed*.7*Math.max(0,along/(speed||1))):speed,aim?ASSIST.startTouch:0);
+ // A turn taken at pace is a short touch round the body; a standing start, or a ball that dropped behind on a
+ // straight run, is played firmly out in front.
+ const forward=preparing||p.shield?speed*.9:p.pendingKick?run+.35:run+(turning&&speed>ASSIST.startTouch&&along<speed*.8?Math.min(knock,ASSIST.turnKnock):knock);
+ // Sideways part: a quarter of the player's own sideways momentum (the body carries on through a cut) plus a small
+ // correction toward the touching foot's side of the stick's line, so the ball goes where the stick points.
+ const across=(b.x-p.x)*f.z-(b.z-p.z)*f.x,lane=(foot==='left'?-1:1)*ASSIST.footLane,side=(p.vx*f.z-p.vz*f.x)*ASSIST.turnCarry+clamp((lane-across)/.35,-1.5,1.5);
  const vx=trap?0:f.x*forward+f.z*side,vz=trap?0:f.z*forward-f.x*side;
  match.physics.kick({x:vx,z:vz},Math.hypot(vx,vz),.015);match.lastTouch=p;match.lastTouchTeam=p.team;
  if(!preparing)p.dribblePose={start:match.time,foot,duration:.20};
@@ -79,9 +82,9 @@ export function dribbleTouch(match,p,preparing=false){
  return true;
 }
 
-/** The owner follows the stick while the ball stays playable: within stretching reach, or ahead inside the
- * stick's 30-degree cone. Only a ball left behind or out to the side pulls the run toward the spot behind it.
- * Sets p.dribbleAim, p.dribbleStop and p.dribbleChase for dribbleTouch and move(). */
+/** The owner runs at the stick's pace to where the next touch can send the ball along the stick: straight on when
+ * a foot can reach it, otherwise toward the spot just behind it on the stick's line (or straight at a ball left
+ * behind). Sets p.dribbleAim, p.dribbleStop and p.dribbleChase for dribbleTouch and move(). */
 export function dribbleSteer(match,p,axis){
  const ball=match.physics.ball,b=ball.position,v=ball.velocity,n=Math.hypot(axis.x,axis.z);
  p.dribbleStop=n<.05;p.dribbleAim=n>=.05?{x:axis.x/n,z:axis.z/n}:null;p.dribbleChase=false;
@@ -97,11 +100,13 @@ export function dribbleSteer(match,p,axis){
   if(t<.06||t<.25&&ballSpeed<.3)return {x:0,z:0};
   const magnitude=p.dribbleChase?1:clamp(t*1.6,0,1);return {x:tx/t*magnitude,z:tz/t*magnitude};
  }
- const playable=footCanPlay(p,b,true)||(dir.x*bx+dir.z*bz)/reach>Math.cos(Math.PI/6);
- if(playable||t<.06)return p.dribbleChase?{x:dir.x,z:dir.z}:axis;
+ // A ball the foot can reach now is simply played in the stick's direction by the next touch. A ball ahead is
+ // chased toward the spot just behind it on the stick's line, at the stick's pace, so the next touch sends it on.
+ if(footCanPlay(p,b,true)||t<.06)return p.dribbleChase?{x:dir.x,z:dir.z}:axis;
  const magnitude=p.dribbleChase?1:n;
- // A ball on the far side of the stick (turning back) is met directly and dragged round, not run around.
- if(dir.x*bx+dir.z*bz<0)return {x:bx/reach*magnitude,z:bz/reach*magnitude};
+ // A ball well off the stick's line (more than 45 degrees, e.g. on the right while the stick says left) is met by
+ // the shortest route and played across by the first touch; the player never runs around it the wrong way.
+ if(dir.x*bx+dir.z*bz<reach*Math.cos(Math.PI/4))return {x:bx/reach*magnitude,z:bz/reach*magnitude};
  return {x:tx/t*magnitude,z:tz/t*magnitude};
 }
 
