@@ -22,17 +22,17 @@ function dribbleRun(team,plan){
 }
 test('sprint dribbling plays the ball ahead with repeated foot touches in both attack directions',()=>{
  for(const team of [0,1]){const r=dribbleRun(team,[[4,1,true]]);
-  // FC Online reference footage (jog dribble): ball about 0.3-0.8 m from the body, touched about every 0.3 s.
-  assert.ok(r.owned);assert.ok(r.near>.3&&r.far<1.2,`ball must stay close ahead of the body: ${r.near}-${r.far}`);
-  const every=(r.touches.at(-1)-r.touches[0])/(r.touches.length-1);assert.ok(every>.25&&every<.8,`touch interval ${every}`);}
+  // Sprinting knocks the ball a little further than a jog (the jog matches FC reference footage, 0.3-0.8 m), but never loses it.
+  assert.ok(r.owned);assert.ok(r.near>.3&&r.far<1.5,`ball must stay close ahead of the body: ${r.near}-${r.far}`);
+  const every=(r.touches.at(-1)-r.touches[0])/(r.touches.length-1);assert.ok(every>.25&&every<1.3,`touch interval ${every}`);}
 });
-test('a sprint dribble keeps the ball further ahead than a jog, as in FC reference footage',()=>{
- // FC Online reference footage: sprinting with the ball keeps it about 1.2-1.35 times as far ahead as jogging, rarely beyond 1 m.
+test('a sprint dribble keeps the ball further ahead than a jog',()=>{
+ // FC Online reference footage keeps a sprinting ball about 1.2-1.35 times as far ahead as a jogging one; play asked for a little more.
  for(const team of [0,1]){const gaps={};for(const sprint of [false,true]){const m=new Match({...defaults,userTeam:team});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled,d=m.direction(team);
    p.x=d*-20;p.z=0;p.target={x:p.x,z:0};m.physics.reset(p.x+d*.54,0);const g=[];
    for(let i=0;i<5*120;i++){m.step(1/120,{axis:{x:d,z:0},sprint});if(m.time>1.5)g.push(Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z));}
-   assert.equal(m.owner,p);g.sort((a,b)=>a-b);gaps[sprint]=g[g.length>>1];assert.ok(g.at(-1)<1.2,`ball ran ${g.at(-1)} m ahead`);}
-  assert.ok(gaps.true>gaps.false*1.08,`sprint ${gaps.true} vs jog ${gaps.false}`);}
+   assert.equal(m.owner,p);g.sort((a,b)=>a-b);gaps[sprint]=g[g.length>>1];assert.ok(g.at(-1)<1.5,`ball ran ${g.at(-1)} m ahead`);}
+  assert.ok(gaps.true>gaps.false*1.25,`sprint ${gaps.true} vs jog ${gaps.false}`);}
 });
 test('releasing the stick after a knock traps the ball instead of letting it run away',()=>{
  for(const team of [0,1]){const r=dribbleRun(team,[[2.5,1,true],[3,0,false]]);
