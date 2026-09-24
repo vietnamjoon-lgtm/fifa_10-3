@@ -22,7 +22,7 @@ function dribbleRun(team,plan){
 }
 test('sprint dribbling knocks the ball ahead and runs onto it in both attack directions',()=>{
  for(const team of [0,1]){const r=dribbleRun(team,[[4,1,true]]);
-  assert.ok(r.owned);assert.ok(r.far-r.near>.25,`gap ${r.near}-${r.far}`);assert.ok(r.far<1.4,`far ${r.far}`);
+  assert.ok(r.owned);assert.ok(r.far-r.near>.6,`the knock must visibly open and close the gap: ${r.near}-${r.far}`);assert.ok(r.far<3.6,`far ${r.far}`);
   assert.ok((r.touches.at(-1)-r.touches[0])/(r.touches.length-1)>.45,`touches ${r.touches}`);}
 });
 test('releasing the stick after a knock traps the ball instead of letting it run away',()=>{
