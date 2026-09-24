@@ -98,3 +98,10 @@ test('from a standstill a sprint knocks the ball over 2 m ahead first, and a fas
   assert.ok(mid.first>2.2,`first knock ${mid.first}`);assert.ok(mid.median>1.7&&mid.median<2.3,`median ${mid.median}`);
   assert.ok(slow.median<mid.median-.2&&fast.median>mid.median+.1,`${slow.median} ${mid.median} ${fast.median}`);}
 });
+test('pressing sprint while walking or jogging knocks the very next touch about 2.5 m ahead',()=>{
+ for(const team of [0,1])for(const mag of [.35,1]){const m=new Match({...defaults,userTeam:team});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled,d=m.direction(team);p.pace=8.3;p.control=.8;
+  p.x=-35*d;p.z=0;p.target={x:p.x,z:0};p.yaw=d>0?Math.PI/2:-Math.PI/2;m.physics.reset(p.x+.54*d,0);advance(m,2,{axis:{x:d*mag,z:0}});
+  let touched=null;const kick=m.physics.kick;m.physics.kick=(...a)=>{if(touched===null)touched=m.time;return kick(...a)};const t0=m.time;let peak=0;
+  for(let i=0;i<1.5*120;i++){m.step(1/120,{axis:{x:d,z:0},sprint:true});peak=Math.max(peak,Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z));}
+  assert.ok(touched!==null&&touched-t0<.4,`first touch ${touched-t0}s after pressing sprint`);assert.ok(peak>2.2&&peak<2.9,`knock ${peak} m`);assert.equal(m.owner,p);}
+});

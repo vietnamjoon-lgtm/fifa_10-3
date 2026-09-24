@@ -10,3 +10,5 @@ export const TEAMS=[{name:'APEX FC',short:'APX',color:'#c6ff5d'},{name:'VOLT UNI
 export function roster(team){return formation.map(([x,z],i)=>({id:team*11+i,team,index:i,name:names[team][i],number:numbers[i],role:i===0?'GK':i<5?'DEF':i<8?'MID':'FWD',homeX:x,homeZ:z,height:1.74+((i*7+team*3)%15)/100,build:.93+((i*3+team)%6)*.026,foot:i%4===0?'left':'right',weakFoot:.68+(i%4)*.07,pace:8.05+(i%4)*.22,acceleration:13+(i%3),agility:.76+(i%4)*.05,balance:.77+(i%3)*.06,control:.76+(i%5)*.04,passing:.76+(i%4)*.05,longPass:.71+(i%3)*.08,shooting:.72+(i%5)*.05,power:.85+(i%3)*.06,tackling:i<5?.9:.7,strength:i<5?.87:.75,reflexes:.8,reach:1.7}));}
 // Speed without the sprint button: TUNING.jog for a player of reference pace, a quarter of it scaled by the pace stat.
 export const jogSpeed=p=>TUNING.jog*(1-TUNING.jogPaceShare+TUNING.jogPaceShare*clamp(Number.isFinite(p.pace)?p.pace:TUNING.jogPaceRef,5,10)/TUNING.jogPaceRef);
+// Top sprint speed for the pace stat and stamina, never below the player's own jog.
+export const sprintSpeed=p=>Math.max(jogSpeed(p),p.pace*(.75+(p.stamina??1)*.25));
