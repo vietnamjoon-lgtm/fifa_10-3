@@ -87,9 +87,10 @@ test('coins are added and spent exactly, and a short balance is left untouched',
  const storage=fakeStorage();
  saveWallet({coins:300},storage);
  assert.equal(addCoins(150,storage).coins,450);
- assert.equal(spendCoins(PACKS.bronze.price,storage).coins,350);
+ const left=450-PACKS.bronze.price;
+ assert.equal(spendCoins(PACKS.bronze.price,storage).coins,left);
  assert.equal(spendCoins(9999,storage),null);
- assert.equal(loadWallet(storage).coins,350);
+ assert.equal(loadWallet(storage).coins,left);
 });
 test('match rewards follow the result for either side of the tie',()=>{
  assert.equal(matchReward([3,1],0),150);

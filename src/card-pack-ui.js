@@ -165,7 +165,9 @@ export class CardPackUI{
   for(const pick of picks)list.append(this.cardElement(pick,true));
   results.classList.remove('hidden');
   const best=picks.reduce((a,b)=>b.overall>a.overall?b:a);
-  this.status(`${picks.length}장을 선수 라이브러리에 담았습니다. 최고 카드는 ${best.card.name} · ${best.overall}입니다.`);
+  this.status(picks.length===1
+   ?`${best.card.name} · ${best.overall}을(를) 선수 라이브러리에 담았습니다.`
+   :`${picks.length}장을 선수 라이브러리에 담았습니다. 최고 카드는 ${best.card.name} · ${best.overall}입니다.`);
   this.coins();
  }
 }

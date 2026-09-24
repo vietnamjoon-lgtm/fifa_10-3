@@ -1,8 +1,8 @@
 import {CARD_POOL,TIERS,TIER_ORDER,cardOverall,cardTier,cardProfile} from './card-data.js';
 export const PACKS={
- bronze:{id:'bronze',name:'브론즈 팩',price:100,cards:3,note:'브론즈 위주로 3장',odds:{bronze:.65,silver:.30,gold:.05,special:0}},
- silver:{id:'silver',name:'실버 팩',price:250,cards:3,note:'실버·골드 중심 3장',odds:{bronze:.20,silver:.55,gold:.23,special:.02}},
- gold:{id:'gold',name:'골드 팩',price:500,cards:3,note:'골드 중심, 스페셜 10%',odds:{bronze:0,silver:.30,gold:.60,special:.10}}
+ bronze:{id:'bronze',name:'브론즈 팩',price:40,cards:1,note:'브론즈 위주 1장',odds:{bronze:.65,silver:.30,gold:.05,special:0}},
+ silver:{id:'silver',name:'실버 팩',price:90,cards:1,note:'실버·골드 중심 1장',odds:{bronze:.20,silver:.55,gold:.23,special:.02}},
+ gold:{id:'gold',name:'골드 팩',price:180,cards:1,note:'골드 중심, 스페셜 10%',odds:{bronze:0,silver:.30,gold:.60,special:.10}}
 };
 export const PACK_ORDER=['bronze','silver','gold'];
 export const LIBRARY_LIMIT=200;
