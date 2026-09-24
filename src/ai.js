@@ -19,6 +19,9 @@ export function updateTeamAI(match){
  const dir=match.direction(team),flight=activePass(match),hasBall=owner?.team===team||flight?.team===team;
  const assistance=match.assistanceForTeam?.(team)||match.settings;
  const candidates=match.players.filter(p=>p.active&&p.team===team&&p.role!=='GK'&&(!match.isHumanControlled(p)||assistance.looseBallAssist!==false&&Math.hypot(match.inputForTeam(p.team).axis?.x||0,match.inputForTeam(p.team).axis?.z||0)<.12)).sort((a,c)=>distance(a,b)-distance(c,b));const chaser=flight?.team===team?match.players.find(p=>p.id===flight.receiver):candidates[0];
+ // A second defender closes the carrier down from the goal side once the ball is in or near our half,
+ // so a single presser is not the only resistance to a dribble.
+ const cover=owner&&owner.team!==team&&owner.x*dir<12?candidates.filter(p=>p!==chaser&&!match.isHumanControlled(p)&&(owner.x-p.x)*dir>-1).sort((a,c)=>distance(a,owner)-distance(c,owner))[0]:null;
  for(const p of match.players){if(!p.active||p.team!==team||match.isHumanControlled(p))continue;
  if(p.role==='GK'){keeperTarget(match,p);continue;}
  if(!owner&&flight?.receiver===p.id){if(flight.follow){p.aiState=flight.type==='through'?'THROUGH RUN':'HOLD PASS LANE';p.target={...flight.runTarget};p.sprinting=flight.type==='through';continue;}const target=interceptPoint(match,p);if(target){p.aiState='MEET PASS';p.target=target;p.sprinting=distance(p,target)>2.2;continue;}}
@@ -31,11 +34,12 @@ export function updateTeamAI(match){
  if(goalDistance<24&&Math.abs(p.z)<16){const targetZ=clamp(-Math.sign(match.players.find(q=>q.team!==team&&q.role==='GK')?.z||1)*2.1+p.z*.04,-2.7,2.7);match.queueKick(p,'shoot',.56+match.random()*.25,{x:dir*52.5-p.x,z:targetZ-p.z});}
  else if(pressure<2.8||match.random()<.13){const type=match.random()>.6?'through':'pass',pass=choosePass(match,p,null,type);if(pass)match.queueKick(p,Math.abs(p.z)>24&&goalDistance<28?'lob':type,.5,{x:pass.x-p.x,z:pass.z-p.z},pass.player);}
  }
- }else if(p===chaser&&(!hasBall||!owner)){p.aiState='PRESS';const target=interceptPoint(match,p);p.target=target||{x:b.x,z:b.z};p.sprinting=distance(p,b)>7;if(owner&&owner.team!==team&&distance(p,b)<.95&&p.cooldown<=0&&match.random()<.28)match.tackle(p);}
+ }else if(p===cover){p.aiState='CLOSE DOWN';const gx=-dir*52.5,dx=gx-owner.x,dz=-owner.z,n=Math.hypot(dx,dz)||1,gap=clamp(distance(p,owner)*.35,1.6,3);p.target={x:owner.x+dx/n*gap,z:owner.z+dz/n*gap};p.sprinting=distance(p,p.target)>2;if(distance(p,b)<.95&&p.cooldown<=0&&match.random()<.2)match.tackle(p);}
+ else if(p===chaser&&(!hasBall||!owner)){p.aiState='PRESS';const target=interceptPoint(match,p);p.target=target||{x:b.x,z:b.z};p.sprinting=distance(p,b)>7;if(owner&&owner.team!==team&&distance(p,b)<.95&&p.cooldown<=0&&match.random()<.28)match.tackle(p);}
  else {p.aiState=hasBall?'SUPPORT':'COVER';const progress=b.x*dir,shift=clamp(progress*.5+(hasBall?20:7),-10,36);let x=(p.homeX+shift)*dir,z=p.homeZ+b.z*.19;
  if(hasBall&&p.role==='FWD'){x=clamp((progress+12)*dir,-46,46);z=p.homeZ*.88+b.z*.12;}
  if(hasBall&&p.role==='MID'&&owner){x=owner.x-dir*(p.index%2?7:12);z=owner.z+(p.homeZ<0?-11:11);}
- if(!hasBall&&p.role==='DEF'){x=dir*clamp(progress-10,-42,-10);z=p.homeZ*.8+b.z*.25;}
+ if(!hasBall&&p.role==='DEF'){x=dir*clamp(progress-10,-42,-10);z=p.homeZ*.65+b.z*.45;}
  p.target={x:clamp(x,-49,49),z:clamp(z,-30,30)};p.sprinting=distance(p,p.target)>15;}
  }
  }
@@ -49,7 +53,8 @@ export function keeperTarget(match,p){const b=match.physics.ball.position,v=matc
  if(!toward||arrival<=0||match.lastTouchTeam===p.team)p.keeperRead=null;
  if(toward&&arrival>0&&arrival<1.5&&match.lastTouchTeam!==p.team&&match.time-match.lastKickTime>keeper.reaction){
   // Commit to the observed shot instead of tracking its future destination perfectly.
-  if(!p.keeperRead||p.keeperRead.kickTime!==match.lastKickTime){const travel=Math.max(.01,(goalX-b.x)/(v.x||.001)),error=(match.random()-.5)*(KEEPER.readError+(1-p.reflexes)*KEEPER.readErrorReflex);p.keeperRead={kickTime:match.lastKickTime,at:match.time+travel,z:b.z+v.z*travel+error,height:clamp(b.y+v.y*travel-4.905*travel*travel,.18,2.25)};}
+  // Read where the ball crosses the keeper's own line, not the goal line: an angled shot moves sideways in between.
+  if(!p.keeperRead||p.keeperRead.kickTime!==match.lastKickTime){const travel=Math.max(.01,(p.x-b.x)/(v.x||.001)),error=(match.random()-.5)*(KEEPER.readError+(1-p.reflexes)*KEEPER.readErrorReflex);p.keeperRead={kickTime:match.lastKickTime,at:match.time+travel,z:b.z+v.z*travel+error,height:clamp(b.y+v.y*travel-4.905*travel*travel,.18,2.25)};}
   const read=p.keeperRead;tz=clamp(read.z,-3.45,3.45);p.intercept={x:p.x,z:read.z};
   if(read.at-match.time<KEEPER.diveTriggerTime&&Math.abs(tz-p.z)>KEEPER.diveTriggerDistance&&p.dive<=0&&p.cooldown<=0){p.dive=p.diveDuration=KEEPER.diveDuration;p.diveDirection=Math.sign(tz-p.z);p.diveHeight=read.height;p.cooldown=KEEPER.diveCooldown;p.aiState='DIVE';}
  }

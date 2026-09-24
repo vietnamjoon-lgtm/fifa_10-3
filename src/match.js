@@ -163,7 +163,7 @@ export class Match{
  if(this.setPiece){axis={x:0,z:0};sprint=false;}
  if(p.action?.type==='slide'){axis={x:Math.sin(p.yaw)*.8,z:Math.cos(p.yaw)*.8};sprint=true;}
  if(p.action?.aim&&!p.action.hit){const a=p.action,b=this.physics.ball.position,v=this.physics.ball.velocity,side=footSign(a.foot)*.11,dx=b.x-a.aim.x*.48-a.aim.z*side-p.x+v.x*.08,dz=b.z-a.aim.z*.48+a.aim.x*side-p.z+v.z*.08;axis={x:clamp(dx*6,-1,1),z:clamp(dz*6,-1,1)};const n=Math.hypot(axis.x,axis.z);if(n>1){axis.x/=n;axis.z/=n}sprint=true;}
- p.sprinting=sprint;this.move(p,axis,sprint,defend,dt);prepareReception(this,p,dt,input);if(p.dive>0)p.z+=p.diveDirection*dt*KEEPER.diveSpeed;this.updateAction(p,dt);
+ p.sprinting=sprint;this.move(p,axis,sprint,defend,dt);prepareReception(this,p,dt,input);if(p.dive>0){/* The dive carries the keeper to the read point, not past it. */const goal=p.keeperRead?clamp(p.keeperRead.z,-3.45,3.45):null,left=goal===null?Infinity:(goal-p.z)*p.diveDirection;if(left>0)p.z+=p.diveDirection*Math.min(dt*KEEPER.diveSpeed,left);}this.updateAction(p,dt);
  }
  step(dt,input=this.input){if(['menu','paused','fulltime'].includes(this.state))return;this.input=input;this.time+=dt;
  if(this.state==='kickoff'||this.state==='halftime'){this.timer-=dt;if(this.timer<=0){if(this.state==='halftime'){this.half=2;this.elapsed=0;this.stoppageSeconds=0;this.addedTime=null;this.kickoff(1-this.settings.userTeam);}else{this.state='playing';this.emit('resumePlay');}}return;}

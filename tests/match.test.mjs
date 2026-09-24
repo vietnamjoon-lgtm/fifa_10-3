@@ -37,3 +37,12 @@ test('dribbling follows a changing stick without holding the player back or losi
   lat.sort((a,b)=>a-b);return {speed:speed/n,lat90:lat[Math.floor(lat.length*.9)],owned};};
  for(const team of [0,1]){const a=run(team,true),b=run(team,false);assert.ok(a.owned);assert.ok(a.speed>b.speed*.85,`${a.speed} vs ${b.speed}`);assert.ok(a.lat90<1,`sideways ${a.lat90}`);}
 });
+test('the keeper reads an angled shot where it crosses the keeper line and dives no further than that point',async()=>{
+ const {keeperTarget}=await import('../src/ai.js');
+ for(const team of [0,1]){const m=new Match({...defaults,userTeam:team,seed:4});m.start(false);m.state='playing';const g=m.players[(1-team)*11],d=m.direction(team);
+  Object.assign(g,{x:d*48.7,z:-1.2,vx:0,vz:0,dive:0,cooldown:0,reflexes:1});m.lastTouchTeam=team;m.lastKickTime=0;m.time=1;
+  m.physics.reset(d*42,-3.9,.7);m.physics.ball.velocity.set(d*20,0,9);keeperTarget(m,g);
+  const expected=-3.9+9*(6.7/20);assert.ok(Math.abs(g.keeperRead.z-expected)<.25,`read ${g.keeperRead.z} vs ${expected}`);
+  g.dive=.5;g.diveDirection=Math.sign(g.keeperRead.z-g.z);for(let i=0;i<60;i++)m.updatePlayer(g,1/120,{axis:{x:0,z:0}});
+  assert.ok((g.z-g.keeperRead.z)*g.diveDirection<=1e-9,`dived past the read point: ${g.z}`);}
+});
