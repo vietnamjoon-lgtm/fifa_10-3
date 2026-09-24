@@ -17,7 +17,7 @@ import {resolveBodyContacts} from './contacts.js';
 import {FIELD,TUNING,roster,clamp,distance,turnToward} from './config.js';
 import {updateTeamAI,choosePass,keeperTarget} from './ai.js';
 import {boundaryRestart,offsideSnapshot} from './rules.js';
-import {ASSIST,footPosition,shotTarget,groundPassSpeed,passTarget,setKickTarget,dribbleTouch,cushionFirstTouch,possessionRadius,dribbleSteer,controlReach} from './assists.js';
+import {ASSIST,footPosition,shotTarget,groundPassSpeed,passTarget,setKickTarget,dribbleTouch,cushionFirstTouch,possessionRadius,dribbleSteer,controlReach,kickApproach} from './assists.js';
 import {resetReferee,resolveTackle,flushCards,updateAdvantage,inPenaltyArea} from './referee.js';
 import {executeCommand,controlContext,throwIn} from './commands.js';
 import {selectControlled,updateAutoControl,runTarget} from './control-assist.js';
@@ -31,7 +31,8 @@ export class Match{
  this.state='kickoff';this.timer=1.35;this.emit('kickoff',{team});}
  queueKick(p,type,power=.4,aim=null,receiver=null,options={}){
  const ball=this.physics.ball.position;
- if(!p||!p.active||p.action||p.down>0||distance(p,ball)>ASSIST.touchRadius||ball.y>2.2)return false;
+ // The owner may start a kick on a ball knocked slightly ahead; the windup runs onto it before contact.
+ if(!p||!p.active||p.action||p.down>0||distance(p,ball)>(this.owner===p&&ball.y<.5?ASSIST.kickReach:ASSIST.touchRadius)||ball.y>2.2)return false;
  let target=null,assistOffset=null;
  if(!aim){
   const axis=this.input.axis||{x:0,z:0},hasInput=Math.hypot(axis.x,axis.z)>.2;
@@ -48,7 +49,9 @@ export class Match{
  const length=Math.hypot(aim.x,aim.z)||1;
  const source=p===this.controlled?this.input:{};
  p.action={id:++this.actionId,foot:chooseKickFoot(p,ball,aim),inputTime:this.time,acceptedTime:this.time,animationStart:this.time,type,elapsed:0,contactAt:type==='shoot'?.24:.18,hit:false,power:clamp(power,0,1),aim:{x:aim.x/length,z:aim.z/length},distance:length,target,receiver,assistOffset,...options,curve:(options.curve??source.curve)?18:0,low:options.low??source.low,chip:options.chip??source.chip,aerial:ball.y>.65};
- const plan=planKick(p,p.action,ball,this.time);if(!plan){p.action=null;return false;}Object.assign(p.action,plan);p.action.contactTarget={x:ball.x,y:ball.y,z:ball.z};
+ // A knocked-on ball is planned at touching range: the windup closes the gap before contact.
+ const gap=distance(p,ball),near=ASSIST.touchRadius*.98,planBall=gap>near?{x:p.x+(ball.x-p.x)*near/gap,y:ball.y,z:p.z+(ball.z-p.z)*near/gap}:ball;
+ const plan=planKick(p,p.action,planBall,this.time);if(!plan){p.action=null;return false;}Object.assign(p.action,plan);p.action.contactTarget={x:ball.x,y:ball.y,z:ball.z};
  if(this.setPiece?.kind==='free')p.action.flightStyle=this.setPiece.style||'inside';
  if(this.setPiece?.kind==='free'&&p.action.chip){p.action.chip=false;p.action.low=true;}
  this.receiving=null;
@@ -93,7 +96,7 @@ export class Match{
  finishRestart(){const r=this.restart;this.physics.reset(r.kind==='penalty'?this.direction(r.team)*41.5:r.x,r.kind==='penalty'?0:r.z,r.kind==='throw'?1.7:.115);const b=this.physics.ball.position;let p=this.players.filter(p=>p.team===r.team&&p.active).sort((a,c)=>distance(a,b)-distance(c,b))[0];if(r.kind==='goalkick'&&this.players[r.team*11].active)p=this.players[r.team*11];if(!p){this.kickoff(this.settings.userTeam);return}const d=this.direction(r.team);p.x=b.x-d*.55;p.z=b.z-.1;p.vx=p.vz=0;p.yaw=d*Math.PI/2;p.action=null;
  for(const q of this.players){q.action=null;if(q!==p&&distance(q,b)<(r.kind==='penalty'?9:3)){q.x=clamp(q.x-d*5,-51,51);q.z=clamp(q.z+Math.sign(q.z||1)*4,-32,32);}}
  this.owner=r.kind==='throw'?null:p;this.lastTouch=p;this.lastTouchTeam=p.team;this.lock=.2;this.state='playing';this.setPiece={...r,taker:p,expires:this.time+8};p.touchCooldown=0;if(p.team===this.settings.userTeam)this.controlled=p;this.emit('resumePlay');}
- move(p,axis,sprint,defend,dt){if(this.owner===p&&!this.heldBy&&!p.action)axis=dribbleSteer(this,p,axis);else{p.dribbleAim=null;p.dribbleStop=false;}if(!p.action&&!p.turnPlan&&Math.hypot(p.vx,p.vz)>2&&Math.hypot(axis.x,axis.z)>.5){const angle=Math.atan2(Math.sin(Math.atan2(axis.x,axis.z)-p.yaw),Math.cos(Math.atan2(axis.x,axis.z)-p.yaw));if(Math.abs(angle)>1.4)p.turnPlan={start:this.time,duration:.24+Math.abs(angle)*.035,angle,foot:chooseKickFoot(p,this.physics.ball.position,axis)};}if(p.turnPlan&&this.time>p.turnPlan.start+p.turnPlan.duration)p.turnPlan=null;let n=Math.hypot(axis.x,axis.z),speed=(sprint?TUNING.jog+(p.pace*(.75+p.stamina*.25)-TUNING.jog)*(typeof sprint==='number'?sprint:1):TUNING.jog)*(defend?(p.autoDefending&&distance(p,this.physics.ball.position)>3.4?.93:.68):1)*(this.owner===p?.93:1)*(p.closeControl?.72:1);if(p.action?.hit)speed*=.65;if(['drag-back','drag-to-heel','ball-roll'].includes(p.action?.skill))speed=Math.min(speed,2.4);if(p.action?.type==='tackle')speed*=.65;if(p.down>0)speed=0;
+ move(p,axis,sprint,defend,dt){if(this.owner===p&&!this.heldBy&&!p.action){axis=dribbleSteer(this,p,axis);if(p.dribbleChase)sprint=true;}else if(this.owner===p&&p.action?.aim&&!p.action.hit&&!p.action.aerial){axis=kickApproach(this,p,axis);}else{p.dribbleAim=null;p.dribbleStop=p.dribbleChase=false;}if(!p.action&&!p.turnPlan&&Math.hypot(p.vx,p.vz)>2&&Math.hypot(axis.x,axis.z)>.5){const angle=Math.atan2(Math.sin(Math.atan2(axis.x,axis.z)-p.yaw),Math.cos(Math.atan2(axis.x,axis.z)-p.yaw));if(Math.abs(angle)>1.4)p.turnPlan={start:this.time,duration:.24+Math.abs(angle)*.035,angle,foot:chooseKickFoot(p,this.physics.ball.position,axis)};}if(p.turnPlan&&this.time>p.turnPlan.start+p.turnPlan.duration)p.turnPlan=null;let n=Math.hypot(axis.x,axis.z),speed=(sprint?TUNING.jog+(p.pace*(.75+p.stamina*.25)-TUNING.jog)*(typeof sprint==='number'?sprint:1):TUNING.jog)*(defend?(p.autoDefending&&distance(p,this.physics.ball.position)>3.4?.93:.68):1)*(this.owner===p?.93:1)*(p.closeControl?.72:1);if(p.action?.hit)speed*=.65;if(['drag-back','drag-to-heel','ball-roll'].includes(p.action?.skill))speed=Math.min(speed,2.4);if(p.action?.type==='tackle')speed*=.65;if(p.down>0)speed=0;
  if(p.role==='GK'&&!this.isHumanControlled(p))speed=Math.min(speed,p.dive>0?.65:KEEPER.moveSpeed);const previousSpeed=Math.hypot(p.vx,p.vz),previousYaw=p.yaw,profile=movementProfile(p,previousSpeed,axis);profile.acceleration*=gameplayValue(this,'acceleration');profile.braking*=gameplayValue(this,'braking');profile.turn*=gameplayValue(this,'turnResponse');const align=previousSpeed>.2&&n>.05?(p.vx*axis.x+p.vz*axis.z)/(previousSpeed*n):1;speed*=1-clamp((1-align)*.5,0,1)*clamp(previousSpeed/8,0,1)*.28;const targetX=axis.x*speed,targetZ=axis.z*speed,acc=n>.05?(align<-.1?profile.braking:profile.acceleration):profile.braking;let dx=targetX-p.vx,dz=targetZ-p.vz,change=Math.hypot(dx,dz),max=acc*dt*(p===this.controlled&&this.settings.defenceAssist&&this.owner?.team!==p.team&&defend?1.3:1);if(change>max){dx*=max/change;dz*=max/change}p.vx+=dx;p.vz+=dz;
  const beforeMove={x:p.x,z:p.z};p.x=clamp(p.x+p.vx*dt,-53.5,53.5);p.z=clamp(p.z+p.vz*dt,-35.5,35.5);
  resolvePostMotion(p,beforeMove);

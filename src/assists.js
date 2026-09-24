@@ -5,7 +5,7 @@ import {rollLaunchSpeed} from './physics.js';
 
 // Foot touches and initial targeting. Target-following pass velocity is handled
 // separately by guided-pass.js; shots retain their unassisted physical flight.
-export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:2.6,footReach:.3,underfootReach:.38,footForward:.5,startTouch:3.5,receiveRadius:1.04,contactRadius:.49};
+export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:2.2,footReach:.4,underfootReach:.45,footForward:.5,startTouch:2.5,receiveRadius:1.04,contactRadius:.49};
 
 export const footPosition=logicalFoot;
 
@@ -52,19 +52,19 @@ export function dribbleTouch(match,p,preparing=false){
  // Long knocks are only played into space: a nearby opponent shortens the touch.
  const space=clamp((Math.min(...match.players.filter(q=>q.active&&q.team!==p.team).map(q=>distance(p,q)),99)-2.5)/5,0,1);
  const knock=(.3+space*.2*speed)*(1.3-.5*(p.control||.8));
- // With the stick held, the first touch from a standstill already plays the ball ahead of the accelerating player.
- const run=aim?Math.max(speed,ASSIST.startTouch):speed;
- const out=p.dribbleStop&&!preparing?0:preparing||p.shield?speed*.9:p.closeControl?run+.35:run+knock;
+ // The touch matches the player's run along the new line: a turn is a short touch, a straight run can be knocked on.
+ const along=Math.max(0,p.vx*f.x+p.vz*f.z),straight=along>speed*.85,run=aim?Math.max(along,ASSIST.startTouch):along;
+ const out=p.dribbleStop&&!preparing?0:preparing||p.shield?speed*.9:p.closeControl||!straight?run+.35:run+knock;
  match.physics.kick(f,out,.015);match.lastTouch=p;match.lastTouchTeam=p.team;
  if(!preparing)p.dribblePose={start:match.time,foot,duration:.20};
  p.dribbleTouch=.16;p.touchCooldown=preparing?.07:.2;
  return true;
 }
 
-/** The owner runs onto the ball: toward the spot where a foot meets it on the wanted line. Sets p.dribbleAim and p.dribbleStop. */
+/** The owner runs onto the ball: toward the spot where a foot meets it on the wanted line. Sets p.dribbleAim, p.dribbleStop and p.dribbleChase. */
 export function dribbleSteer(match,p,axis){
  const ball=match.physics.ball,b=ball.position,v=ball.velocity,n=Math.hypot(axis.x,axis.z);
- p.dribbleStop=n<.05;p.dribbleAim=n>=.05?{x:axis.x/n,z:axis.z/n}:null;
+ p.dribbleStop=n<.05;p.dribbleAim=n>=.05?{x:axis.x/n,z:axis.z/n}:null;p.dribbleChase=false;
  if(b.y>.5)return axis;
  const speed=Math.hypot(p.vx,p.vz),ahead=Math.min(.45,distance(p,b)/(speed+2));
  const bx=b.x+v.x*ahead,bz=b.z+v.z*ahead,toBall=Math.hypot(bx-p.x,bz-p.z)||1;
@@ -72,8 +72,18 @@ export function dribbleSteer(match,p,axis){
  const tx=bx-dir.x*ASSIST.footForward-p.x,tz=bz-dir.z*ASSIST.footForward-p.z,d=Math.hypot(tx,tz);
  if(d<.06||n<.05&&d<.25&&Math.hypot(v.x,v.z)<.3)return n<.05?{x:0,z:0}:axis;
  // Without input the player still goes after a loose touch, then stops on the ball.
- const magnitude=n>=.05?n:clamp(d*1.6,0,1);
+ // A ball running away is chased at full speed whatever the sprint button says.
+ p.dribbleChase=d>1&&Math.hypot(v.x,v.z)>speed-.3;
+ const magnitude=p.dribbleChase?1:n>=.05?n:clamp(d*1.6,0,1);
  return {x:tx/d*magnitude,z:tz/d*magnitude};
+}
+
+/** During a kick windup the owner runs to the spot behind the ball on the kicking line so the foot meets it. */
+export function kickApproach(match,p,axis){
+ const b=match.physics.ball.position,a=p.action,n=Math.hypot(a.aim.x,a.aim.z)||1,ax=a.aim.x/n,az=a.aim.z/n;
+ if(distance(footPosition(p),b)<ASSIST.contactRadius*.8)return axis;
+ const tx=b.x-ax*ASSIST.footForward-p.x,tz=b.z-az*ASSIST.footForward-p.z,d=Math.hypot(tx,tz);
+ return d<.05?axis:{x:tx/d,z:tz/d};
 }
 
 /** Radius within which the owner keeps possession: the last player to touch a rolling ball stays its owner until it is out of reach. */
