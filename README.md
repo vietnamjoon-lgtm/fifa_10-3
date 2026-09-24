@@ -4,7 +4,7 @@
 
 ## 실행
 
-Windows 배포 ZIP에서는 PLAY.cmd를 더블클릭해 실행합니다. GitHub에서 받은 소스는 Node.js 22 이상 설치 후 `node server.mjs`를 실행하고 http://localhost:4173/을 엽니다. Three.js/Cannon-es는 저장소에 포함돼 있습니다. Chrome/Edge의 WebGL2가 필요합니다. 메인 메뉴에서 킥오프, 친구와 1대1, 자유 훈련을 선택하세요. 온라인 접속과 추천 조작 설정은 [친구 대전 안내](reports/ONLINE-PLAY.md)를 참고하세요.
+Windows 배포 ZIP에서는 PLAY.cmd를 더블클릭해 실행합니다. GitHub에서 받은 소스는 Node.js 22 이상 설치 후 `node server.mjs`를 실행하고 [로컬 게임](http://localhost:4173/)을 엽니다. Three.js/Cannon-es는 저장소에 포함돼 있습니다. Chrome/Edge의 WebGL2가 필요합니다. 메인 메뉴에서 킥오프, 친구와 1대1, 자유 훈련을 선택하세요. 온라인 접속과 추천 조작 설정은 [친구 대전 안내](reports/ONLINE-PLAY.md)를 참고하세요.
 
 ## 조작
 
@@ -54,7 +54,7 @@ Windows 배포 ZIP에서는 PLAY.cmd를 더블클릭해 실행합니다. GitHub�
 
 ## 검증
 
-명령: tools/node.exe --test --experimental-test-isolation=none tests/*.test.mjs
+명령: node --test --experimental-test-isolation=none tests/*.test.mjs
 
 2026-09-24 기준 자동 검사 183개 통과. 이번 물리·판정 변경의 자동 경기 3회가 모두 전후반과 종료까지 진행했으며 비정상 좌표는 없었습니다. 기록은 reports/gameplay-overhaul-soak.json입니다. 최신 검증은 reports/DEPLOYMENT.md에 있습니다. 여러 3D 탭을 동시에 켜면 성능이 낮아질 수 있으며 60 FPS를 보장하지 않습니다. 느리면 PERFORMANCE와 렌더 해상도 80%를 사용하세요.
 
@@ -62,7 +62,7 @@ Windows 배포 ZIP에서는 PLAY.cmd를 더블클릭해 실행합니다. GitHub�
 
 ## 웹 배포와 Windows 묶음
 
-웹 빌드: tools/node.exe tools/build-web.mjs
+웹 빌드: node tools/build-web.mjs
 
 Vercel CLI 계정 인증 후 배포: vercel deploy --prebuilt --prod
 
