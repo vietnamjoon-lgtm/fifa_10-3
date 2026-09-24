@@ -1,10 +1,11 @@
 import {logicalFoot,footSign} from './contact-model.js';
-import {FIELD,TUNING,clamp,distance} from './config.js';
+import {FIELD,clamp,distance} from './config.js';
 import {gameplayValue} from './gameplay-settings.js';
+import {rollLaunchSpeed} from './physics.js';
 
 // Foot touches and initial targeting. Target-following pass velocity is handled
 // separately by guided-pass.js; shots retain their unassisted physical flight.
-export const ASSIST={touchRadius:1.12,releaseRadius:1.65,receiveRadius:1.04,contactRadius:.49};
+export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:3.2,strideReach:.62,receiveRadius:1.04,contactRadius:.49};
 
 export const footPosition=logicalFoot;
 
@@ -18,11 +19,9 @@ export function shotTarget(match,p,axis={x:0,z:0}){
  return {x:dir*(FIELD.halfLength+.25),z:corner};
 }
 
-export function groundPassSpeed(length,type='pass'){
- // Invert dv/ds = -rollingDrag - airDrag*v for a useful receiving speed.
- const k=.5*TUNING.airDensity*TUNING.dragCoefficient*Math.PI*FIELD.ballRadius**2/.43;
- const r=TUNING.rollingDrag+.012,arrival=type==='through'?6.2:4.5;
- return clamp((arrival+r/k)*Math.exp(k*length)-r/k,7,34);
+export function groundPassSpeed(length,type='pass',ballRoll=100){
+ // Invert the shared ground-roll model so the ball still arrives with a useful receiving speed.
+ return clamp(rollLaunchSpeed(length,type==='through'?9.5:8,ballRoll),7,34);
 }
 
 export function passTarget(match,p,receiver,type='pass'){
@@ -39,21 +38,54 @@ export function setKickTarget(action,ball,target){
  action.aim={x:dx/n,z:dz/n};action.distance=n;
 }
 
+// Knock-on dribbling: the player plays the ball ahead of the stride and runs onto it.
+// A faster run knocks it further; close control, shielding and a pending kick keep it short.
 export function dribbleTouch(match,p,preparing=false){
- const ball=match.physics.ball,b=ball.position;
+ const ball=match.physics.ball,b=ball.position,v=ball.velocity;
  if(distance(p,b)>ASSIST.touchRadius||b.y>.38||p.touchCooldown>0)return false;
  const speed=Math.hypot(p.vx,p.vz),moving=speed>.35;
  const f=moving&&!preparing?{x:p.vx/speed,z:p.vz/speed}:{x:Math.sin(p.yaw),z:Math.cos(p.yaw)};
- const lead=preparing?.48:p.shield?.34:p.closeControl?.4:.5+Math.min(speed,9)*.016;
+ const rx=b.x-p.x,rz=b.z-p.z,ahead=rx*f.x+rz*f.z,across=Math.abs(rx*f.z-rz*f.x),ballSpeed=Math.hypot(v.x,v.z);
+ const onLine=ballSpeed>.5&&(v.x*f.x+v.z*f.z)/ballSpeed>.9&&across<.45;
+ const pending=preparing||p.shield||!!p.intent;
+ // A ball still running ahead on the player's line is not touched again until it is back within the stride.
+ if(p.knockOn&&!pending&&onLine&&ahead>ASSIST.strideReach)return false;
+ // Stopping without input: the ball is trapped under the sole instead of placed ahead of a run that is ending.
+ const stopping=p.dribbleStop&&!preparing;
+ const lead=preparing?.48:stopping?.45:p.shield?.34:p.closeControl?.4:.5+Math.min(speed,9)*.016;
  const side=footSign(p.action?.foot||p.turnPlan?.foot||p.foot)*.09;const target={x:p.x+f.x*lead+f.z*side,z:p.z+f.z*lead-f.x*side};
- const gain=moving||preparing?7:4;let dx=(target.x-b.x)*gain,dz=(target.z-b.z)*gain;
- const correction=Math.hypot(dx,dz),limit=3.6+p.control;
+ const gain=stopping?3:moving||preparing?7:4;let dx=(target.x-b.x)*gain,dz=(target.z-b.z)*gain;
+ const correction=Math.hypot(dx,dz),limit=stopping?1.5:3.6+p.control;
  if(correction>limit){dx*=limit/correction;dz*=limit/correction;}
- const vx=p.vx+dx,vz=p.vz+dz,n=Math.hypot(vx,vz);
+ // Long knocks are only played into space: a nearby opponent shortens the touch.
+ const space=pending||p.closeControl||!moving||!p.knockOn?0:clamp((Math.min(...match.players.filter(q=>q.active&&q.team!==p.team).map(q=>distance(p,q)),99)-2.5)/5,0,1);
+ const knock=space*clamp(.08+.2*(speed-3)/5.6,.08,.28)*(1.3-.5*(p.control||.8))*speed;
+ const carry=stopping?.4:1;let vx=p.vx*carry+dx,vz=p.vz*carry+dz;
+ // The knock tops the ball up to run speed + knock; it does not stack on the placement correction,
+ // so the ball stays within touching range for a stop, pass or shot.
+ if(knock){const forward=vx*f.x+vz*f.z,extra=Math.max(0,speed+knock-forward);vx+=f.x*extra;vz+=f.z*extra;}
+ const n=Math.hypot(vx,vz);
  match.physics.kick({x:vx,z:vz},n,.015);
  if(!preparing)p.dribblePose={start:match.time,foot:p.foot,duration:.20};
  p.dribbleTouch=.16;p.touchCooldown=preparing?.07:p.closeControl?.16:p.sprinting?.22:.20;
  return true;
+}
+
+/** The owner reaches a knocked-on ball before turning away from it. Sets p.knockOn and p.dribbleStop for dribbleTouch. */
+export function dribbleSteer(match,p,axis){
+ const b=match.physics.ball.position,d=distance(p,b),n=Math.hypot(axis.x,axis.z),speed=Math.hypot(p.vx,p.vz);
+ p.knockOn=n>.5&&speed>2&&(p.vx*axis.x+p.vz*axis.z)/(speed*n)>.82;p.dribbleStop=n<.05;
+ if(b.y>.5||d<=ASSIST.strideReach+.15)return axis;
+ const bx=(b.x-p.x)/d,bz=(b.z-p.z)/d;
+ return n>.05&&(axis.x*bx+axis.z*bz)/n<.5?{x:bx*n,z:bz*n}:axis;
+}
+
+/** Radius within which the owner keeps possession. A knocked-on ball ahead of the owner's run stays theirs. */
+export function possessionRadius(match,p){
+ const b=match.physics.ball.position,speed=Math.hypot(p.vx,p.vz);
+ if(match.lastTouch!==p||speed<2)return ASSIST.releaseRadius;
+ const rx=b.x-p.x,rz=b.z-p.z,ahead=(rx*p.vx+rz*p.vz)/speed,across=Math.abs(rx*p.vz-rz*p.vx)/speed;
+ return ahead>0&&across<.6?ASSIST.knockReleaseRadius:ASSIST.releaseRadius;
 }
 
 export function cushionFirstTouch(match,p){
