@@ -60,9 +60,54 @@ export const CARD_POOL=[
  GK('알리송 베커','리버풀','브라질',1,'right',1.93,91,80,76,52)
 ];
 const statDisplay=card=>({pace:card.pac,acceleration:card.pac,shooting:card.sho,power:card.sho,passing:card.pas,longPass:card.pas,control:card.dri,agility:card.dri,balance:card.dri,tackling:card.def,strength:card.phy,reflexes:card.ref??38,reach:card.reach??60,weakFoot:card.weak??62});
+// 공개된 신체 정보(키·몸무게·체형 인상)를 바탕으로 한 부위 비율입니다. 상용 게임의 스캔 데이터가 아닙니다.
+export const BODY_TYPES={
+ slim:{muscle:34,softness:18,shoulders:95,chest:93,waist:88,upperArm:90,thigh:92,calf:93},
+ lean:{muscle:52,softness:24,shoulders:100,chest:98,waist:93,upperArm:98,thigh:98},
+ athletic:{muscle:72,softness:26,shoulders:106,chest:105,waist:95,upperArm:107,thigh:108,calf:105},
+ compact:{muscle:74,softness:30,shoulders:103,chest:104,waist:97,upperArm:104,thigh:116,calf:110,legLength:96},
+ power:{muscle:86,softness:34,shoulders:113,chest:112,waist:101,upperArm:116,thigh:114,calf:108,neckWidth:108},
+ rangy:{muscle:58,softness:22,shoulders:104,chest:99,waist:91,upperArm:97,thigh:97,legLength:105,armLength:104}
+};
+// 키·몸무게 외에 눈에 띄는 외형만 따로 잡아 줍니다. 나머지는 포지션 기본값을 씁니다.
+const LOOKS={
+ '리오넬 메시':{body:'compact',build:1.02,hair:'#2a1c13',hairStyle:'short',skin:'#d6a077'},
+ '킬리안 음바페':{body:'athletic',build:1.04,hair:'#181009',hairStyle:'crop',skin:'#8a5733'},
+ '엘링 홀란':{body:'power',build:1.14,hair:'#c2a052',hairStyle:'crest',skin:'#e4bb96'},
+ '라민 야말':{body:'slim',build:.94,hair:'#191009',hairStyle:'crop',skin:'#9c6a44'},
+ '우스만 뎀벨레':{body:'athletic',build:1.02,hair:'#140d07',hairStyle:'crest',skin:'#7c4e2f'},
+ '크리스티아누 호날두':{body:'power',build:1.1,hair:'#20150d',hairStyle:'short',skin:'#d9a97f'},
+ '비니시우스 주니오르':{body:'slim',build:.95,hair:'#150e08',hairStyle:'crest',skin:'#8c5b39'},
+ '해리 케인':{body:'power',build:1.09,hair:'#3a2a1b',hairStyle:'short',skin:'#e2b491'},
+ '손흥민':{body:'athletic',build:1.02,hair:'#120c08',hairStyle:'short',skin:'#e0b48f'},
+ '플로리안 비르츠':{body:'slim',build:.95,hair:'#4a3420',hairStyle:'short',skin:'#e6bd9a'},
+ '비르질 반 다이크':{body:'power',build:1.15,hair:'#140d08',hairStyle:'crop',skin:'#7a4c2e'},
+ '윌리엄 살리바':{body:'rangy',build:1.06,hair:'#130c07',hairStyle:'crop',skin:'#75472b'},
+ '아슈라프 하키미':{body:'athletic',build:1.02,hair:'#171009',hairStyle:'crest',skin:'#b07a4e'},
+ '김민재':{body:'power',build:1.1,hair:'#100b07',hairStyle:'short',skin:'#dcae88'},
+ '이강인':{body:'compact',build:1,hair:'#110b07',hairStyle:'short',skin:'#e0b58f'},
+ '로드리':{body:'rangy',build:1.06,hair:'#2c1d12',hairStyle:'short',skin:'#dcaf87'},
+ '주드 벨링엄':{body:'athletic',build:1.05,hair:'#2a1a10',hairStyle:'crop',skin:'#c99468'},
+ '자말 무시알라':{body:'slim',build:.96,hair:'#150e09',hairStyle:'crest',skin:'#9a6742'},
+ '잔루이지 돈나룸마':{body:'power',build:1.16,hair:'#1c120b',hairStyle:'short',skin:'#dcae88'},
+ '티보 쿠르투아':{body:'rangy',build:1.1,hair:'#3c2a1a',hairStyle:'short',skin:'#e6bd9a'}
+};
+const ROLE_LOOK={GK:{body:'rangy',build:1.06},DEF:{body:'athletic',build:1.05},MID:{body:'lean',build:1},FWD:{body:'lean',build:1}};
 const SKIN=['#bf8561','#976143','#deb18a','#74482f','#c89572','#e1ad88'];
+const HAIR=['#211a15','#2f2017','#150e0a','#3a2718'];
+export function cardLook(card){
+ const base=ROLE_LOOK[card.role]||ROLE_LOOK.MID,look=LOOKS[card.name]||{};
+ return {
+  body:BODY_TYPES[look.body||base.body]||{},
+  build:look.build??base.build,
+  skin:look.skin||SKIN[card.name.length%6],
+  hair:look.hair||HAIR[card.number%4],
+  hairStyle:look.hairStyle||(card.number%3===0?'crest':'short')
+ };
+}
 export function cardProfile(card,uid){
- const raw={uid:uid||`card-${card.name}-${Date.now()}`,name:card.name,number:card.number,role:card.role,foot:card.foot,height:card.height,weight:card.weight,build:card.role==='GK'?1.02:.96,skin:SKIN[card.name.length%6],hairStyle:card.number%3===0?'crest':'short'};
+ const look=cardLook(card);
+ const raw={uid:uid||`card-${card.name}-${Date.now()}`,name:card.name,number:card.number,role:card.role,foot:card.foot,height:card.height,weight:card.weight,build:look.build,skin:look.skin,hair:look.hair,hairStyle:look.hairStyle,body:look.body};
  for(const [key,value] of Object.entries(statDisplay(card)))raw[key]=engineValue(key,value);
  return cleanProfile(raw);
 }
