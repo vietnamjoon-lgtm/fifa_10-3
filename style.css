@@ -33,3 +33,38 @@
 
 /* Keep the taker and stationary ball visible in the set-piece camera. */
 .setpiece-aiming .radar-panel,.setpiece-aiming .bottom-controls{visibility:hidden}
+.cards-dialog{width:min(980px,96vw);max-height:94dvh;overflow:auto;padding:28px;text-align:left}
+.cards-wallet{margin-left:auto;text-align:right}.cards-wallet small{display:block;font-size:9px;letter-spacing:2px;color:#8fa699}.cards-wallet strong{font-family:'Barlow Condensed',Impact,sans-serif;font-size:32px;color:var(--lime);font-variant-numeric:tabular-nums}
+.cards-shop{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:8px 0 18px}
+.pack-tile{display:flex;flex-direction:column;align-items:flex-start;gap:7px;padding:20px 18px;border:1px solid #ffffff2b;background:#0d1d17;text-align:left}
+.pack-tile:hover:not(:disabled){background:#14291f;border-color:var(--lime)}
+.pack-tile:disabled{opacity:.42;cursor:not-allowed;transform:none}
+.pack-name{font-size:15px;font-weight:800}.pack-note{font-size:10px;color:#9db3a5}.pack-price{font-size:13px;color:var(--lime);margin-top:4px}.pack-odds{font-size:9px;color:#7f9389;letter-spacing:.3px}
+.cards-stage{position:relative;height:min(430px,58dvh);border:1px solid #ffffff1c;background:#060f0c;overflow:hidden;display:grid;place-items:center}
+#cards-walkout{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .35s}
+#cards-walkout.live{opacity:1}
+.cards-flash{position:relative;z-index:2;text-align:center}
+.cards-flash small{display:block;font-size:10px;letter-spacing:4px;color:var(--lime)}
+.cards-flash strong{display:block;font-family:'Barlow Condensed',Impact,sans-serif;font-size:clamp(38px,6vw,72px);letter-spacing:1px;margin-top:8px}
+.flash-in{animation:cardFlash .34s ease-out}
+@keyframes cardFlash{from{opacity:0;transform:scale(1.18)}to{opacity:1;transform:scale(1)}}
+.cards-reveal{position:relative;z-index:2}
+.cards-stage.walkout .cards-reveal{justify-self:start;margin-left:6%}
+#cards-skip{position:absolute;right:10px;bottom:8px;z-index:3;font-size:10px}
+.player-card{width:212px;padding:16px;border:2px solid var(--tier,#e8c15a);background:linear-gradient(170deg,#101c17f2,#070f0cf2);animation:cardIn .4s ease-out}
+@keyframes cardIn{from{opacity:0;transform:translateY(22px) scale(.94)}to{opacity:1;transform:none}}
+.card-head{display:flex;align-items:baseline;gap:9px;border-bottom:1px solid #ffffff1f;padding-bottom:10px}
+.card-ovr{font-family:'Barlow Condensed',Impact,sans-serif;font-size:46px;line-height:.9;color:var(--tier);font-variant-numeric:tabular-nums}
+.card-ovr.locked{animation:ovrLock .3s ease-out}
+@keyframes ovrLock{from{transform:scale(1.25)}to{transform:scale(1)}}
+.card-role{font-size:12px;font-weight:800;letter-spacing:1px}.card-tier{margin-left:auto;font-size:9px;letter-spacing:2px;color:var(--tier)}
+.card-body{padding:11px 0 9px}.card-name{display:block;font-size:15px;letter-spacing:-.3px}.card-club{display:block;font-size:10px;color:#93a89c;margin-top:5px}
+.card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 6px;border-top:1px solid #ffffff1f;padding-top:10px}
+.card-stats div{display:flex;flex-direction:column;gap:2px}.card-stats b{font-size:15px;font-variant-numeric:tabular-nums}.card-stats span{font-size:8px;letter-spacing:.6px;color:#8ba095}
+.tier-special{box-shadow:0 0 34px #d96bd155}.tier-gold{box-shadow:0 0 24px #e8c15a33}
+.cards-results{margin-top:6px}
+.cards-result-list{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.cards-result-actions{display:flex;gap:10px;margin-top:18px}.cards-result-actions button{flex:1}
+#cards-status{font-size:12px;color:#c7ff59;min-height:24px;margin:14px 0 0}
+.cards-note{display:block;font-size:10px;line-height:1.7;color:#7f9389}
+@media(max-width:700px){.cards-shop{grid-template-columns:1fr}.cards-stage{height:340px}.player-card{width:184px}.cards-result-actions{flex-direction:column}}
