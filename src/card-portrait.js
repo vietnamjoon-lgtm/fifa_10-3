@@ -2,10 +2,12 @@ import * as THREE from 'three';
 import {createPlayer,animatePlayer,disposePlayerRig} from './player.js';
 // 카드에 넣을 선수 상반신 그림을 3D 선수 모델에서 직접 뽑습니다. 외부 사진을 쓰지 않습니다.
 export class CardPortrait{
- constructor(width=260,height=300){
-  this.canvas=document.createElement('canvas');this.canvas.width=width;this.canvas.height=height;
+ // 카드에 올릴 그림이라 화면에 보이는 크기의 세 배로 그려 선명도를 확보합니다.
+ constructor(width=260,height=300,scale=3){
+  this.canvas=document.createElement('canvas');
+  this.canvas.width=width*scale;this.canvas.height=height*scale;
   this.renderer=new THREE.WebGLRenderer({canvas:this.canvas,antialias:true,alpha:true,preserveDrawingBuffer:true});
-  this.renderer.setPixelRatio(1);this.renderer.setSize(width,height,false);
+  this.renderer.setPixelRatio(1);this.renderer.setSize(width*scale,height*scale,false);
   this.renderer.outputColorSpace=THREE.SRGBColorSpace;
   this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.06;
   this.scene=new THREE.Scene();

@@ -16,25 +16,29 @@ const PHASES=[
 const ease=t=>t<.5?2*t*t:1-((-2*t+2)**2)/2;
 const easeIn=t=>t*t*t;
 function panelTexture(lines,color='#ffffff',background='#0b0f0d'){
- const canvas=document.createElement('canvas');canvas.width=512;canvas.height=384;
+ const width=1024,height=768;
+ const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
  const ctx=canvas.getContext('2d');
- ctx.fillStyle=background;ctx.fillRect(0,0,512,384);
+ ctx.fillStyle=background;ctx.fillRect(0,0,width,height);
  ctx.fillStyle=color;ctx.textAlign='center';ctx.textBaseline='middle';
  const items=[].concat(lines);
  items.forEach((text,i)=>{
-  ctx.font=`700 ${i?46:120}px 'Barlow Condensed',Impact,sans-serif`;
-  ctx.fillText(String(text),256,items.length>1?(i?258:170):192);
+  ctx.font=`700 ${i?92:240}px 'Barlow Condensed',Impact,sans-serif`;
+  ctx.fillText(String(text),width/2,items.length>1?(i?516:340):384);
  });
- const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
+ const texture=new THREE.CanvasTexture(canvas);
+ texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=8;
+ texture.minFilter=THREE.LinearMipmapLinearFilter;texture.generateMipmaps=true;
  return texture;
 }
 export class CardReveal{
  constructor(canvas){
   this.canvas=canvas;this.rig=null;this.frame=null;this.neon=[];this.sparks=[];
-  this.renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
-  this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+  this.renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'high-performance'});
+  this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));
   this.renderer.outputColorSpace=THREE.SRGBColorSpace;
-  this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.1;
+  this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.15;
+  this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   this.scene=new THREE.Scene();
   this.camera=new THREE.PerspectiveCamera(46,1,.05,140);
   this.buildLights();this.buildHall();this.buildTunnel();this.buildStadium();
@@ -44,6 +48,14 @@ export class CardReveal{
   this.scene.add(new THREE.HemisphereLight(0xcfe4ff,0x1a1d18,1.2));
   const key=new THREE.DirectionalLight(0xfff4e6,2.6);key.position.set(-2,4,6);this.scene.add(key);
   const fill=new THREE.DirectionalLight(0xe9f4ff,1.2);fill.position.set(3,2,4);this.scene.add(fill);
+  // 스타디움 전용 주광만 그림자를 만들어 선수 발밑이 떠 보이지 않게 합니다.
+  const stageKey=new THREE.DirectionalLight(0xfff6ea,2.2);
+  stageKey.position.set(-3,7,STAGE.z+7);stageKey.target.position.set(.6,0,STAGE.z);
+  stageKey.castShadow=true;stageKey.shadow.mapSize.set(1024,1024);
+  stageKey.shadow.camera.near=1;stageKey.shadow.camera.far=22;
+  for(const [edge,value] of [['left',-7],['right',7],['top',7],['bottom',-5]])stageKey.shadow.camera[edge]=value;
+  stageKey.shadow.bias=-.0012;
+  this.scene.add(stageKey.target);this.scene.add(stageKey);
   this.glow=new THREE.PointLight(0xffffff,20,26,2);this.glow.position.set(0,1.9,HALL.back);this.scene.add(this.glow);
   this.stageLight=new THREE.PointLight(0xffffff,26,30,2);this.stageLight.position.set(0,3.4,STAGE.z+3);this.scene.add(this.stageLight);
  }
@@ -101,18 +113,18 @@ export class CardReveal{
  // 3구역: 터널을 빠져나오면 펼쳐지는 스타디움. 곡면 스크린과 단상, 불꽃이 있습니다.
  buildStadium(){
   const grass=new THREE.Mesh(new THREE.PlaneGeometry(70,40),new THREE.MeshStandardMaterial({color:0x1f4a22,roughness:.95}));
-  grass.rotation.x=-Math.PI/2;grass.position.z=STAGE.floor-16;this.scene.add(grass);
+  grass.rotation.x=-Math.PI/2;grass.position.z=STAGE.floor-16;grass.receiveShadow=true;this.scene.add(grass);
   const stands=new THREE.Mesh(new THREE.CylinderGeometry(26,26,7,40,1,true),new THREE.MeshStandardMaterial({color:0x1a1f24,roughness:1,side:THREE.BackSide}));
   stands.position.set(0,3.5,STAGE.z-6);this.scene.add(stands);
   this.screenMat=new THREE.MeshBasicMaterial();
   this.screen=new THREE.Mesh(new THREE.PlaneGeometry(11.5,3.4),this.screenMat);
-  this.screen.position.set(0,3.5,STAGE.z-5.2);this.scene.add(this.screen);
+  this.screen.position.set(0,4.3,STAGE.z-5.2);this.scene.add(this.screen);
   for(const side of [-1,1]){
    const wing=new THREE.Mesh(new THREE.PlaneGeometry(4,3.4),this.screenMat);
-   wing.position.set(side*7.3,3.5,STAGE.z-3.8);wing.rotation.y=-side*.42;this.scene.add(wing);
+   wing.position.set(side*7.3,4.3,STAGE.z-3.8);wing.rotation.y=-side*.42;this.scene.add(wing);
   }
   const podium=new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.7,.3,32),new THREE.MeshStandardMaterial({color:0x4a0d18,roughness:.8}));
-  podium.position.set(.6,.15,STAGE.z-.4);this.scene.add(podium);
+  podium.position.set(.6,.15,STAGE.z-.4);podium.receiveShadow=true;podium.castShadow=true;this.scene.add(podium);
   const sparkGeometry=new THREE.ConeGeometry(.05,1.5,6);
   for(let i=0;i<6;i++){
    const mat=new THREE.MeshBasicMaterial({color:0xffd27a,transparent:true,opacity:0,depthWrite:false});
@@ -193,6 +205,7 @@ export class CardReveal{
   const since=elapsed-PHASES.slice(0,5).reduce((sum,p)=>sum+p.time,0);
   if(!this.rig&&this.pick.profile){
    const rig=this.rig=createPlayer(0,this.pick.profile.number,this.pick.profile.role==='GK',this.pick.profile);
+   rig.root.traverse(node=>{if(node.isMesh){node.castShadow=true;node.receiveShadow=true;}});
    rig.root.position.set(1.35,.3,STAGE.z-3.4);this.scene.add(rig.root);
    this.playerStart=time;
   }
