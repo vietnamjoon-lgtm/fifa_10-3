@@ -20,10 +20,10 @@ function dribbleRun(team,plan){
  for(const [seconds,x,sprint] of plan)for(let i=0;i<seconds*120;i++){m.step(1/120,{axis:{x:x*d,z:0},sprint});const gap=Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z);if(m.time>1){near=Math.min(near,gap);far=Math.max(far,gap);}owned&&=m.owner===p;}
  return {m,p,touches:touches.filter(t=>t>1),near,far,owned};
 }
-test('sprint dribbling knocks the ball ahead and runs onto it in both attack directions',()=>{
+test('sprint dribbling plays the ball ahead with repeated foot touches in both attack directions',()=>{
  for(const team of [0,1]){const r=dribbleRun(team,[[4,1,true]]);
-  assert.ok(r.owned);assert.ok(r.far-r.near>.6,`the knock must visibly open and close the gap: ${r.near}-${r.far}`);assert.ok(r.far<3.6,`far ${r.far}`);
-  assert.ok((r.touches.at(-1)-r.touches[0])/(r.touches.length-1)>.45,`touches ${r.touches}`);}
+  assert.ok(r.owned);assert.ok(r.near>.6,`ball must stay ahead of the body, not under it: ${r.near}`);assert.ok(r.far-r.near>.2&&r.far<2,`touches must open and close a small gap: ${r.near}-${r.far}`);
+  const every=(r.touches.at(-1)-r.touches[0])/(r.touches.length-1);assert.ok(every>.45&&every<1.3,`touch interval ${every}`);}
 });
 test('releasing the stick after a knock traps the ball instead of letting it run away',()=>{
  for(const team of [0,1]){const r=dribbleRun(team,[[2.5,1,true],[3,0,false]]);
@@ -45,4 +45,13 @@ test('the keeper reads an angled shot where it crosses the keeper line and dives
   const expected=-3.9+9*(6.7/20);assert.ok(Math.abs(g.keeperRead.z-expected)<.25,`read ${g.keeperRead.z} vs ${expected}`);
   g.dive=.5;g.diveDirection=Math.sign(g.keeperRead.z-g.z);for(let i=0;i<60;i++)m.updatePlayer(g,1/120,{axis:{x:0,z:0}});
   assert.ok((g.z-g.keeperRead.z)*g.diveDirection<=1e-9,`dived past the read point: ${g.z}`);}
+});
+test('setting off with the ball behind or beside the player plays it round and runs at full pace',()=>{
+ for(const team of [0,1])for(const angle of [Math.PI,Math.PI/2,-Math.PI/2]){
+  const run=withBall=>{const m=new Match({...defaults,userTeam:team});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled,d=m.direction(team);
+   Object.assign(p,{x:-20*d,z:0,vx:0,vz:0,yaw:d*Math.PI/2});m.physics.reset(p.x+Math.cos(angle)*.5*d,Math.sin(angle)*.5);
+   if(withBall){m.owner=p;m.lastTouch=p;}else{m.owner=null;m.physics.ball.position.set(0,30,0);}
+   const x0=p.x;for(let i=0;i<120;i++)m.step(1/120,{axis:{x:d,z:0},sprint:true});return {run:(p.x-x0)*d,ahead:(m.physics.ball.position.x-p.x)*d,owned:m.owner===p};};
+  const a=run(true),b=run(false);
+  assert.ok(a.owned);assert.ok(a.run>b.run*.9,`ran ${a.run} of ${b.run}`);assert.ok(a.ahead>.6,`ball still behind: ${a.ahead}`);}
 });
