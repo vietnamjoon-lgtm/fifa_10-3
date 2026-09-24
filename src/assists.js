@@ -1,5 +1,5 @@
 import {logicalFoot} from './contact-model.js';
-import {FIELD,TUNING,clamp,distance} from './config.js';
+import {FIELD,clamp,distance,jogSpeed} from './config.js';
 import {gameplayValue} from './gameplay-settings.js';
 import {rollLaunchSpeed} from './physics.js';
 
@@ -73,7 +73,7 @@ export function dribbleTouch(match,p,preparing=false){
  const space=clamp((Math.min(...match.players.filter(q=>q.active&&q.team!==p.team).map(q=>distance(p,q)),99)-2.5)/5,0,1);
  // Sprinting knocks the ball further ahead in open space (about 0.9 m against 0.66 m at a jog) and touches it on the
  // quicker sprint stride once the player catches it. The longer knock makes a sharp turn at a sprint slower.
- const pace=p.sprinting&&!p.closeControl?clamp((speed-TUNING.jog)/1.5,0,1):0;
+ const pace=p.sprinting&&!p.closeControl?clamp((speed-jogSpeed(p))/1.5,0,1):0;
  const ahead=(b.x-p.x)*f.x+(b.z-p.z)*f.z,gap=p.closeControl?ASSIST.closeGap:(ASSIST.dribbleGap+pace*space*ASSIST.sprintGap+space*.03*speed)*(1.3-.5*(p.control||.8)),knock=clamp((gap-ahead)/ASSIST.touchLead,.15,4);
  // Every touch plays the ball in the stick's direction, however sharp the turn; only releasing the stick traps it.
  // A sharp turn plays it softly (about 3 m/s) so the turning player can follow; a gentle one keeps more of the pace.
