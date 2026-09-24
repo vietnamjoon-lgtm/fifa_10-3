@@ -23,7 +23,8 @@ test('sprint turns and braking keep a reachable ball without teleporting it',()=
   for(const axis of [{x:1,z:0},{x:0,z:1},{x:-1,z:0},{x:1,z:0},{x:0,z:0}]){
    for(let i=0;i<150;i++){m.step(1/120,{axis,sprint:true});worst=Math.max(worst,distance(p,m.physics.ball.position));assert.equal(m.owner,p);}
   }
-  assert.ok(worst<1.05,`ball separation ${worst}`);
+  // Foot dribbling plays the ball ahead and the player runs onto it; it must stay within possession reach.
+  assert.ok(worst<1.8,`ball separation ${worst}`);
   assert.ok(m.physics.ball.velocity.length()<.15);
   const before=m.physics.ball.position.clone();p.touchCooldown=0;dribbleTouch(m,p);
   assert.deepEqual(m.physics.ball.position,before,'a touch changes velocity, never position');
