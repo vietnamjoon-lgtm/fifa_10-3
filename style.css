@@ -83,8 +83,9 @@
 .card-ovr.locked{animation:ovrLock .3s ease-out}
 @keyframes ovrLock{from{transform:scale(1.25)}to{transform:scale(1)}}
 .card-role{font-size:12px;font-weight:800;letter-spacing:1px;margin-top:3px;opacity:.82}
-.card-art{height:78px;margin:6px 0 4px;display:grid;place-items:end center}
-.card-tier{font-size:9px;letter-spacing:3px;opacity:.55}
+.card-art{position:relative;height:104px;margin:2px 0 4px;display:grid;place-items:end center}
+.card-face{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);height:132px;width:auto;pointer-events:none}
+.card-tier{position:relative;z-index:1;font-size:9px;letter-spacing:3px;opacity:.55}
 .card-name{display:block;text-align:center;font-size:15px;letter-spacing:-.3px;border-top:1px solid #2b230f33;padding-top:7px}
 .card-meta{display:flex;justify-content:center;gap:7px;margin:6px 0 8px;font-size:8px;opacity:.72}
 .card-meta span{white-space:nowrap}.card-meta span+span{border-left:1px solid #2b230f44;padding-left:7px}

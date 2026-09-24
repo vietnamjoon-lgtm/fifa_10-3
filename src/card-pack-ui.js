@@ -2,6 +2,7 @@ import {PACKS,PACK_ORDER,openPack,withPicks} from './card-packs.js';
 import {TIERS,leagueOf} from './card-data.js';
 import {loadWallet,spendCoins,addCoins} from './wallet.js';
 import {CardWalkout} from './card-walkout.js';
+import {CardPortrait} from './card-portrait.js';
 const $=id=>document.getElementById(id);
 const el=(tag,text,className)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;};
 const STAT_ROWS=[['pac','PAC'],['sho','SHO'],['pas','PAS'],['dri','DRI'],['def','DEF'],['phy','PHY']];
@@ -100,6 +101,14 @@ export class CardPackUI{
   this.walkout.stop();
   $('cards-walkout').classList.remove('live');
  }
+ portraitInto(art,profile){
+  this.portrait??=new CardPortrait();
+  this.portrait.imageFor(profile).then(url=>{
+   if(!url||!art.isConnected)return;
+   const image=el('img',undefined,'card-face');image.alt='';image.src=url;
+   art.prepend(image);
+  }).catch(()=>{});
+ }
  // 카드 양옆에 큰 종합 능력치와 세부 스탯 패널을 세워 실제 개봉 화면 구성을 따릅니다.
  revealCluster(pick){
   const rows=pick.card.role==='GK'?GK_ROWS:STAT_ROWS;
@@ -136,9 +145,10 @@ export class CardPackUI{
   card.style.setProperty('--tier',tier.color);
   const head=el('div',undefined,'card-head');
   head.append(el('b',showOverall?String(pick.overall):'0','card-ovr'),el('span',pick.card.role,'card-role'));
-  // 실제 카드의 선수 사진 자리. 사진이 없어 등급 이름만 넣고, 공개가 끝나면 밝아집니다.
+  // 선수 사진 자리에는 이 게임의 3D 선수 모델을 그려 넣습니다.
   const art=el('div',undefined,'card-art');
   art.append(el('span',tier.name,'card-tier'));
+  if(pick.profile)this.portraitInto(art,pick.profile);
   const name=el('strong',pick.card.name,'card-name');
   const meta=el('div',undefined,'card-meta');
   meta.append(el('span',pick.card.nation),el('span',leagueOf(pick.card.club)),el('span',pick.card.club));
