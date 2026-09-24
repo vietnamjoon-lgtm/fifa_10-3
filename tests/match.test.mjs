@@ -75,3 +75,9 @@ test('every dribble touch after a change of direction sends the ball along the s
   assert.ok(first,`no touch after a ${deg} degree turn`);const off=Math.acos((first.x*axis.x+first.z*axis.z)/Math.hypot(first.x,first.z))*180/Math.PI;
   assert.ok(off<(sprint?40:25),`touch ${off.toFixed(1)} degrees off the stick after a ${deg} degree turn`);assert.equal(m.owner,p);}
 });
+test('jog speed follows the pace stat a little and a sprint is never slower than a jog',()=>{
+ const run=(pace,sprint)=>{const m=new Match({...defaults,userTeam:0});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled;p.pace=pace;p.x=-30;p.z=0;p.target={x:p.x,z:0};m.owner=null;m.physics.reset(0,30,.11);advance(m,3,{axis:{x:1,z:0},sprint});return Math.hypot(p.vx,p.vz);};
+ const slow=run(6,false),mid=run(8.3,false),fast=run(10,false);
+ assert.ok(Math.abs(mid-5.8)<.05,`reference pace keeps the 5.8 m/s jog: ${mid}`);assert.ok(slow<mid-.2&&fast>mid+.2,`${slow} ${mid} ${fast}`);assert.ok(fast<6.3);
+ assert.ok(run(5,true)>=run(5,false)-.01);
+});
