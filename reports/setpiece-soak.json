@@ -1,0 +1,177 @@
+[
+  {
+    "run": 1,
+    "state": "fulltime",
+    "simulationSeconds": 346.48333333333335,
+    "score": [
+      3,
+      4
+    ],
+    "stats": {
+      "shots": [
+        4,
+        8
+      ],
+      "passes": [
+        37,
+        38
+      ],
+      "saves": [
+        2,
+        1
+      ],
+      "possession": [
+        70.50000000000217,
+        57.74166666666403
+      ],
+      "fouls": [
+        2,
+        1
+      ],
+      "yellows": [
+        0,
+        0
+      ],
+      "reds": [
+        0,
+        0
+      ]
+    },
+    "events": {
+      "kickoff": 9,
+      "start": 1,
+      "resumePlay": 15,
+      "kick": 87,
+      "control": 120,
+      "restart": 6,
+      "miss": 18,
+      "tackle": 3,
+      "goal": 7,
+      "bodyContact": 5,
+      "addedTime": 2,
+      "halftime": 1,
+      "save": 3,
+      "fulltime": 1
+    },
+    "minBallY": 0.11,
+    "maxBallSpeed": 30.105596962552323,
+    "cpuSeconds": 7.1442936
+  },
+  {
+    "run": 2,
+    "state": "fulltime",
+    "simulationSeconds": 333.125,
+    "score": [
+      4,
+      2
+    ],
+    "stats": {
+      "shots": [
+        5,
+        4
+      ],
+      "passes": [
+        43,
+        49
+      ],
+      "saves": [
+        1,
+        1
+      ],
+      "possession": [
+        62.21666666666378,
+        55.9083333333308
+      ],
+      "fouls": [
+        0,
+        5
+      ],
+      "yellows": [
+        0,
+        0
+      ],
+      "reds": [
+        0,
+        0
+      ]
+    },
+    "events": {
+      "kickoff": 8,
+      "start": 1,
+      "resumePlay": 14,
+      "kick": 101,
+      "control": 148,
+      "goal": 6,
+      "restart": 6,
+      "miss": 18,
+      "bodyContact": 3,
+      "save": 2,
+      "addedTime": 2,
+      "halftime": 1,
+      "tackle": 2,
+      "fulltime": 1
+    },
+    "minBallY": 0.11,
+    "maxBallSpeed": 29.581250041113748,
+    "cpuSeconds": 9.908341799999999
+  },
+  {
+    "run": 3,
+    "state": "fulltime",
+    "simulationSeconds": 350.0083333333333,
+    "score": [
+      4,
+      4
+    ],
+    "stats": {
+      "shots": [
+        8,
+        7
+      ],
+      "passes": [
+        41,
+        38
+      ],
+      "saves": [
+        3,
+        2
+      ],
+      "possession": [
+        57.341666666664054,
+        64.65833333333086
+      ],
+      "fouls": [
+        1,
+        1
+      ],
+      "yellows": [
+        1,
+        1
+      ],
+      "reds": [
+        0,
+        0
+      ]
+    },
+    "events": {
+      "kickoff": 10,
+      "start": 1,
+      "resumePlay": 12,
+      "kick": 94,
+      "control": 130,
+      "bodyContact": 3,
+      "goal": 8,
+      "miss": 16,
+      "tackle": 2,
+      "card": 2,
+      "restart": 2,
+      "save": 5,
+      "addedTime": 2,
+      "halftime": 1,
+      "fulltime": 1
+    },
+    "minBallY": 0.11,
+    "maxBallSpeed": 28.876723305199047,
+    "cpuSeconds": 12.321231899999999
+  }
+]

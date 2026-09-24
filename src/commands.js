@@ -28,6 +28,8 @@ export function executeCommand(m,action,options={}){
  if(m.state!=='playing')return;
  const p=m.controlled;if(!p?.active)return;
  if(action==='setpieceStyle'&&m.setPiece?.kind==='free'&&m.setPiece.team===p.team&&Object.hasOwn(SETPIECE_STYLES,options.style)){m.setPiece.style=options.style;m.emit('command',{text:SETPIECE_STYLES[options.style]});return;}
+ if(m.setPiece&&m.setPiece.taker!==p)return;
+ if(m.setPiece&&['switch','tackle','slide','skill','knock'].includes(action))return;
  if(action==='switch'){m.switchPlayer();return;}
  if(action.startsWith('keeper')){keeperRelease(m,action,options);return;}
  if(action==='cancel'||action==='fake'){
