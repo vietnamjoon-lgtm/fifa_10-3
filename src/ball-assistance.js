@@ -1,9 +1,10 @@
 import {FIELD,TUNING,clamp,distance} from './config.js';
+import {rollAfter} from './physics.js';
 
 export function activePass(match){const f=match.passFlight;return f&&!match.owner&&!match.heldBy&&match.time<f.expires&&(match.lastTouch?.id===f.kicker||f.follow&&match.lastTouch?.id===f.receiver&&match.lastTouchKind==='control')?f:null;}
 
 // Meeting points remain useful for loose balls and optional legacy reception.
-export function predictBall(match,t){const b=match.physics.ball.position,v=match.physics.ball.velocity,speed=Math.hypot(v.x,v.z),ground=b.y<.22&&Math.abs(v.y)<1,r=ground?TUNING.rollingDrag+.012:.012,k=.5*TUNING.airDensity*TUNING.dragCoefficient*Math.PI*FIELD.ballRadius**2/.43,travel=speed<.01?0:Math.log1p(k*speed/r*(1-Math.exp(-r*t)))/k;
+export function predictBall(match,t){const b=match.physics.ball.position,v=match.physics.ball.velocity,speed=Math.hypot(v.x,v.z),ground=b.y<.22&&Math.abs(v.y)<1,k=.5*TUNING.airDensity*TUNING.dragCoefficient*Math.PI*FIELD.ballRadius**2/.43,travel=speed<.01?0:ground?rollAfter(speed,t,match.gameplay?.ballRoll).travel:Math.log1p(k*speed*t)/k;
  return {x:b.x+(speed?v.x/speed*travel:0),z:b.z+(speed?v.z/speed*travel:0),y:ground?FIELD.ballRadius:Math.max(FIELD.ballRadius,b.y+v.y*t-4.905*t*t)};
 }
 export function interceptPoint(match,p,horizon=2.6){const pace=p.pace*(.75+.25*p.stamina),acc=p.acceleration*.85;let best=null,bestCost=Infinity;

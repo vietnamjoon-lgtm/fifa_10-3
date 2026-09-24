@@ -1,5 +1,5 @@
 export const FIELD={halfLength:52.5,halfWidth:34,goalHalf:3.66,goalHeight:2.44,ballRadius:.11};
-export const TUNING={step:1/120,jog:5.8,sprint:8.6,acceleration:14,deceleration:19,turn:7,pass:16,shotMin:19,shotMax:34,rollingDrag:.52,airDensity:1.225,dragCoefficient:.25,magnus:.00034,controlRadius:.78,tackleRange:1.25,tackleCooldown:1.1,aiInterval:.16,staminaDrain:.065,staminaRecovery:.033};
+export const TUNING={step:1/120,jog:5.8,sprint:8.6,acceleration:14,deceleration:19,turn:7,pass:16,shotMin:19,shotMax:34,rollResistance:.8,rollDamping:.2,turfFriction:.5,turfRestitution:.62,airDensity:1.225,dragCoefficient:.25,liftCoefficientMax:.35,controlRadius:.78,tackleRange:1.25,tackleCooldown:1.1,aiInterval:.16,staminaDrain:.065,staminaRecovery:.033};
 export const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 export const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 export function turnToward(a,b,amount){let d=((b-a+Math.PI*3)%(Math.PI*2))-Math.PI;return a+clamp(d,-amount,amount);}
