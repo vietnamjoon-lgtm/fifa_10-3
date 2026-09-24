@@ -5,7 +5,7 @@ import {rollLaunchSpeed} from './physics.js';
 
 // Foot touches and initial targeting. Target-following pass velocity is handled
 // separately by guided-pass.js; shots retain their unassisted physical flight.
-export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:2.2,footReach:.4,underfootReach:.45,stretchReach:.6,lunge:.35,footForward:.5,startTouch:2.5,receiveRadius:1.04,contactRadius:.49};
+export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:3,pendingKick:1.5,kickStart:1.35,footReach:.28,footLane:.12,underfootReach:.45,stretchReach:.6,lunge:.2,footForward:.5,startTouch:2.5,receiveRadius:1.04,contactRadius:.49};
 
 export const footPosition=logicalFoot;
 
@@ -59,15 +59,15 @@ export function dribbleTouch(match,p,preparing=false){
  const f=preparing?{x:Math.sin(p.yaw),z:Math.cos(p.yaw)}:aim||(speed>.35?{x:p.vx/speed,z:p.vz/speed}:{x:Math.sin(p.yaw),z:Math.cos(p.yaw)});
  // Long knocks are only played into space: a nearby opponent shortens the touch.
  const space=clamp((Math.min(...match.players.filter(q=>q.active&&q.team!==p.team).map(q=>distance(p,q)),99)-2.5)/5,0,1);
- const knock=(.25+space*.12*speed)*(1.3-.5*(p.control||.8));
+ const knock=(.6+space*.3*speed)*(1.3-.5*(p.control||.8));
  // Turning back (the stick against the run) traps the ball under the sole; the player stops and comes round.
  // Other turns play the ball at up to 70% of the run; a straight run is never slower than the player.
  const along=p.vx*f.x+p.vz*f.z,trap=p.dribbleStop&&!preparing||turning&&along<0;
  const run=Math.max(turning?Math.max(along,speed*.7):speed,aim?ASSIST.startTouch:0);
- const forward=preparing||p.shield?speed*.9:p.closeControl||turning?run+.35:run+knock;
- // Sideways part: keep the player's own sideways pace and bring the ball back onto the running line
- // within about a third of a second.
- const across=(b.x-p.x)*f.z-(b.z-p.z)*f.x,side=p.vx*f.z-p.vz*f.x+clamp(-across/.35,-3,3);
+ const forward=preparing||p.shield?speed*.9:p.closeControl||turning||p.pendingKick?run+.35:run+knock;
+ // Sideways part: keep the player's own sideways pace and bring the ball back to the touching foot's side
+ // of the running line within about a third of a second.
+ const across=(b.x-p.x)*f.z-(b.z-p.z)*f.x,lane=(foot==='left'?-1:1)*ASSIST.footLane,side=p.vx*f.z-p.vz*f.x+clamp((lane-across)/.35,-3,3);
  const vx=trap?0:f.x*forward+f.z*side,vz=trap?0:f.z*forward-f.x*side;
  match.physics.kick({x:vx,z:vz},Math.hypot(vx,vz),.015);match.lastTouch=p;match.lastTouchTeam=p.team;
  if(!preparing)p.dribblePose={start:match.time,foot,duration:.20};
@@ -104,7 +104,8 @@ export function dribbleSteer(match,p,axis){
 /** Extra reach of a lengthened last stride when the ball runs ahead of a moving kicker. */
 export function kickLunge(p,a,b){
  const dx=b.x-p.x,dz=b.z-p.z,d=Math.hypot(dx,dz)||1,speed=Math.hypot(p.vx,p.vz);
- return speed>2&&(dx*p.vx+dz*p.vz)/(d*speed)>Math.cos(Math.PI/6)?ASSIST.lunge:0;
+ // A faster run lengthens the last stride more.
+ return speed>2&&(dx*p.vx+dz*p.vz)/(d*speed)>Math.cos(Math.PI/4)?ASSIST.lunge+.05*speed:0;
 }
 
 /** Radius within which the owner keeps possession: the last player to touch a rolling ball stays its owner until it is out of reach. */
