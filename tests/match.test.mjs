@@ -29,3 +29,20 @@ test('releasing the stick after a knock traps the ball instead of letting it run
  for(const team of [0,1]){const r=dribbleRun(team,[[2.5,1,true],[3,0,false]]);
   assert.ok(r.owned);assert.ok(r.m.physics.ball.velocity.length()<.2);assert.ok(Math.hypot(r.m.physics.ball.position.x-r.p.x,r.m.physics.ball.position.z-r.p.z)<1.1);}
 });
+test('dribbling follows a changing stick without holding the player back or losing the ball sideways',()=>{
+ const run=(team,withBall)=>{const m=new Match({...defaults,userTeam:team,seed:3});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled;if(!withBall){m.owner=null;m.physics.ball.position.set(0,30,0);}
+  let angle=team?Math.PI:0,speed=0,n=0,lat=[],owned=true;
+  for(let t=0;t<8*120;t++){if(t%72===0)angle+=[.9,-1.1,.6,-.8,1][(t/72)%5];if(Math.abs(p.x)>40||Math.abs(p.z)>25)angle=Math.atan2(-p.z,-p.x);const axis={x:Math.cos(angle),z:Math.sin(angle)};m.step(1/120,{axis,sprint:true});
+   if(t>120){speed+=Math.hypot(p.vx,p.vz);n++;if(withBall){const b=m.physics.ball.position;lat.push(Math.abs((b.x-p.x)*axis.z-(b.z-p.z)*axis.x));owned&&=m.owner===p;}}}
+  lat.sort((a,b)=>a-b);return {speed:speed/n,lat90:lat[Math.floor(lat.length*.9)],owned};};
+ for(const team of [0,1]){const a=run(team,true),b=run(team,false);assert.ok(a.owned);assert.ok(a.speed>b.speed*.85,`${a.speed} vs ${b.speed}`);assert.ok(a.lat90<1,`sideways ${a.lat90}`);}
+});
+test('the keeper reads an angled shot where it crosses the keeper line and dives no further than that point',async()=>{
+ const {keeperTarget}=await import('../src/ai.js');
+ for(const team of [0,1]){const m=new Match({...defaults,userTeam:team,seed:4});m.start(false);m.state='playing';const g=m.players[(1-team)*11],d=m.direction(team);
+  Object.assign(g,{x:d*48.7,z:-1.2,vx:0,vz:0,dive:0,cooldown:0,reflexes:1});m.lastTouchTeam=team;m.lastKickTime=0;m.time=1;
+  m.physics.reset(d*42,-3.9,.7);m.physics.ball.velocity.set(d*20,0,9);keeperTarget(m,g);
+  const expected=-3.9+9*(6.7/20);assert.ok(Math.abs(g.keeperRead.z-expected)<.25,`read ${g.keeperRead.z} vs ${expected}`);
+  g.dive=.5;g.diveDirection=Math.sign(g.keeperRead.z-g.z);for(let i=0;i<60;i++)m.updatePlayer(g,1/120,{axis:{x:0,z:0}});
+  assert.ok((g.z-g.keeperRead.z)*g.diveDirection<=1e-9,`dived past the read point: ${g.z}`);}
+});
