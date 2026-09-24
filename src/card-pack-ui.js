@@ -1,5 +1,5 @@
 import {PACKS,PACK_ORDER,openPack,withPicks} from './card-packs.js';
-import {TIERS} from './card-data.js';
+import {TIERS,leagueOf} from './card-data.js';
 import {loadWallet,spendCoins,addCoins} from './wallet.js';
 import {CardWalkout} from './card-walkout.js';
 const $=id=>document.getElementById(id);
@@ -7,8 +7,8 @@ const el=(tag,text,className)=>{const e=document.createElement(tag);if(text!==un
 const STAT_ROWS=[['pac','속력'],['sho','슛'],['pas','패스'],['dri','드리블'],['def','수비'],['phy','피지컬']];
 const GK_ROWS=[['ref','반응'],['reach','도달'],['dri','안정'],['pas','배급'],['phy','피지컬'],['pac','반사 이동']];
 export class CardPackUI{
- constructor(editor){
-  this.editor=editor;this.busy=false;this.skipped=false;this.walkout=null;
+ constructor(editor,audio){
+  this.editor=editor;this.audio=audio;this.busy=false;this.skipped=false;this.walkout=null;
   $('cards-open').onclick=()=>this.open();
   $('cards-close').onclick=()=>this.close();
   $('cards-skip').onclick=()=>{this.skipped=true;};
@@ -53,30 +53,75 @@ export class CardPackUI{
   $('cards-shop').classList.add('hidden');$('cards-results').classList.add('hidden');$('cards-stage').classList.remove('hidden');
   this.coins();
   if(!this.walkout)this.walkout=new CardWalkout($('cards-walkout'));
-  for(const pick of picks)await this.revealOne(pick);
-  this.walkout.stop();
-  $('cards-walkout').classList.remove('live');
-  $('cards-stage').classList.remove('walkout');
-  $('cards-stage').classList.add('hidden');
+  const specials=picks.filter(pick=>pick.walkout);
+  // 스페셜 두 장이면 각자 공개한 뒤 둘이 함께 나오는 더블 워크아웃으로 마무리합니다.
+  const double=specials.length>1;
+  for(const pick of picks)await this.revealOne(pick,double);
+  if(double&&!this.skipped)await this.doubleWalkout(specials);
+  this.clearStage();
   this.showResults(picks);
  }
- async revealOne(pick){
+ clearStage(){
+  this.walkout?.stop();
+  $('cards-walkout').classList.remove('live');
+  $('cards-stage').classList.remove('walkout','hidden');
+  $('cards-stage').classList.add('hidden');
+  $('cards-flash').classList.add('hidden');
+  $('cards-reveal').replaceChildren();
+ }
+ async revealOne(pick,double=false){
   const flash=$('cards-flash'),stage=$('cards-reveal'),tier=TIERS[pick.tier];
   stage.replaceChildren();flash.replaceChildren();
-  $('cards-walkout').classList.remove('live');
+  $('cards-stage').classList.remove('walkout');
+  // 스페셜은 팩이 열리자마자 빈 터널을 먼저 보여 줍니다. 그 아래 등급은 곧바로 포지션으로 넘어갑니다.
+  if(pick.walkout){
+   $('cards-walkout').classList.add('live');this.walkout.showTunnel(tier.color);
+   this.sound('tunnel');
+   if(!await this.wait(620))return;
+   $('cards-walkout').classList.remove('live');
+  }
+  flash.dataset.rail=pick.walkout?'walkout':pick.tier==='gold'?'board':'plain';
+  flash.classList.toggle('steady',double);
   flash.classList.remove('hidden');
-  for(const [label,value] of [['포지션',pick.card.role],['국가',pick.card.nation],['소속팀',pick.card.club]]){
-   flash.replaceChildren(el('small',label),el('strong',value));
+  for(const [label,value] of [['포지션',pick.card.role],['국가',pick.card.nation],['리그',leagueOf(pick.card.club)],['소속팀',pick.card.club]]){
+   flash.replaceChildren(el('small',label),el('strong',value),el('i',undefined,'rail left'),el('i',undefined,'rail right'));
    flash.classList.remove('flash-in');void flash.offsetWidth;flash.classList.add('flash-in');
-   if(!await this.wait(340))break;
+   this.sound('cut');
+   if(!await this.wait(320))break;
   }
   flash.classList.add('hidden');
-  $('cards-stage').classList.toggle('walkout',!!pick.walkout);
-  if(pick.walkout){$('cards-walkout').classList.add('live');this.walkout.play(pick.profile,tier.color);}
   stage.append(this.cardElement(pick));
   await this.countUp(stage.querySelector('.card-ovr'),pick.overall);
-  await this.wait(pick.walkout?3200:900);
+  // 카드가 확정된 다음에 선수가 달려 나와 카드 앞에서 세리머니를 합니다.
+  if(pick.walkout&&!this.skipped){
+   $('cards-stage').classList.add('walkout');
+   $('cards-walkout').classList.add('live');
+   this.walkout.play(pick.profile,tier.color);
+   this.sound('walkout');
+   await this.wait(3400);
+  }else await this.wait(900);
   this.walkout.stop();
+  $('cards-walkout').classList.remove('live');
+ }
+ async doubleWalkout(specials){
+  const stage=$('cards-reveal'),flash=$('cards-flash'),pair=specials.slice(0,2);
+  flash.classList.add('hidden');
+  stage.replaceChildren(...pair.map(pick=>this.cardElement(pick,true)));
+  $('cards-stage').classList.add('walkout','double');
+  $('cards-walkout').classList.add('live');
+  this.walkout.play(pair.map(pick=>pick.profile),TIERS.special.color);
+  this.sound('walkout');
+  await this.wait(4200);
+  $('cards-stage').classList.remove('double');
+ }
+ sound(kind){
+  const audio=this.audio;
+  if(!audio)return;
+  try{
+   if(kind==='cut')audio.tone(880,.06,.05,'square',1180);
+   else if(kind==='tunnel')audio.noise(.5,.08,420);
+   else if(kind==='walkout')audio.goal();
+  }catch{}
  }
  cardElement(pick,showOverall=false){
   const tier=TIERS[pick.tier],card=el('div',undefined,`player-card tier-${pick.tier}`);

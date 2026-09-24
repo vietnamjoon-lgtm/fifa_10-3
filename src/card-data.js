@@ -8,6 +8,8 @@ export const TIERS={
  special:{id:'special',name:'스페셜',min:85,max:99,color:'#d96bd1',walkout:true}
 };
 export const TIER_ORDER=['bronze','silver','gold','special'];
+const LEAGUES={'맨체스터 시티':'프리미어리그','리버풀':'프리미어리그','아스널':'프리미어리그','첼시':'프리미어리그','아스톤 빌라':'프리미어리그','레알 마드리드':'라리가','바르셀로나':'라리가','아틀레티코 마드리드':'라리가','바이에른 뮌헨':'분데스리가','파리 생제르맹':'리그 1','유벤투스':'세리에 A','인터 밀란':'세리에 A','인터 마이애미':'MLS','로스앤젤레스 FC':'MLS','알 나스르':'사우디 프로 리그'};
+export const leagueOf=club=>LEAGUES[club]||'인터내셔널';
 export function tierOf(overall){return TIER_ORDER.findLast(id=>overall>=TIERS[id].min)||'bronze';}
 const FWD=(name,club,nation,number,foot,height,weight,pac,sho,pas,dri,def,phy)=>({name,club,nation,role:'FWD',number,foot,height,weight,pac,sho,pas,dri,def,phy});
 const MID=(name,club,nation,number,foot,height,weight,pac,sho,pas,dri,def,phy)=>({name,club,nation,role:'MID',number,foot,height,weight,pac,sho,pas,dri,def,phy});
