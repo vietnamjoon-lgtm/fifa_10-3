@@ -78,8 +78,9 @@ export function dribbleTouch(match,p,preparing=false){
  // Knock and run: every sprint touch in open space knocks the ball knockDistance ahead (about 2 m; 0.66 m at a jog) and
  // the player runs onto it for the next knock; the first knock after pressing sprint (or from a standstill) goes about
  // 2.5 m. A nearby opponent
- // shortens it back to a close touch. A kick waits until the ball is in reach (see kickInReach).
- const knockOn=p.sprinting&&!p.closeControl&&!preparing?space:0;
+ // shortens an AI dribbler's knock back to a close touch; a human's sprint knocks past defenders too. A kick waits
+ // until the ball is in reach (see kickInReach).
+ const human=match.isHumanControlled(p),knockOn=p.sprinting&&!p.closeControl&&!preparing?(human?1:space):0;
  const carry=(ASSIST.dribbleGap+space*.03*speed)*(1.3-.5*(p.control||.8));
  const ahead=(b.x-p.x)*f.x+(b.z-p.z)*f.z,start=knockOn*Math.max(clamp(1-speed/jogSpeed(p),0,1),p.knockFresh?1:0),gap=p.closeControl?ASSIST.closeGap:carry+(knockDistance(p)*(1+ASSIST.knockStart*start)-carry)*knockOn,knock=clamp((gap-ahead)/ASSIST.touchLead,.15,4+ASSIST.knockPace*knockOn);
  // Every touch plays the ball in the stick's direction, however sharp the turn; only releasing the stick traps it.
@@ -88,7 +89,7 @@ export function dribbleTouch(match,p,preparing=false){
  const run=Math.max(turning?Math.max(along,speed*.7*Math.max(0,along/(speed||1))):speed,aim?ASSIST.startTouch:0);
  // A turn taken at pace is a short touch round the body; a standing start, or a ball that dropped behind on a
  // straight run, is played firmly out in front.
- const fresh=p.knockFresh&&knockOn>0&&!turning&&!p.pendingKick&&!preparing&&!p.shield;
+ const fresh=human&&p.knockFresh&&knockOn>0&&!turning&&!p.pendingKick&&!preparing&&!p.shield;
  // The first knock after pressing sprint runs a fixed amount faster than the player's own top sprint, so it lands about
  // 2.5 m ahead whether the player was standing, walking or jogging.
  const forward=fresh?sprintSpeed(p)*.96+ASSIST.freshKnock*(knockDistance(p)/ASSIST.knockGap)**1.5*knockOn:preparing||p.shield?speed*.9:p.pendingKick?run+.35:run+(turning&&speed>ASSIST.startTouch&&along<speed*.8?Math.min(knock,ASSIST.turnKnock):knock);
@@ -110,7 +111,7 @@ export function dribbleTouch(match,p,preparing=false){
 export function dribbleSteer(match,p,axis){
  const ball=match.physics.ball,b=ball.position,v=ball.velocity,n=Math.hypot(axis.x,axis.z);
  p.dribbleStop=n<.05;p.dribbleAim=n>=.05?{x:axis.x/n,z:axis.z/n}:null;p.dribbleChase=false;
- // Pressing sprint arms a long first knock for the next touch (see dribbleTouch); releasing it disarms it.
+ // Pressing sprint, or winning the ball with sprint held, arms a long first knock for the next touch (see dribbleTouch).
  if(p.sprinting&&!p.sprintHeld)p.knockFresh=true;if(!p.sprinting)p.knockFresh=false;p.sprintHeld=!!p.sprinting;
  if(b.y>.5)return axis;
  const speed=Math.hypot(p.vx,p.vz),ballSpeed=Math.hypot(v.x,v.z),d=distance(p,b);

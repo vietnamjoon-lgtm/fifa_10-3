@@ -105,3 +105,12 @@ test('pressing sprint while walking or jogging knocks the very next touch about 
   for(let i=0;i<1.5*120;i++){m.step(1/120,{axis:{x:d,z:0},sprint:true});peak=Math.max(peak,Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z));}
   assert.ok(touched!==null&&touched-t0<.4,`first touch ${touched-t0}s after pressing sprint`);assert.ok(peak>2.2&&peak<2.9,`knock ${peak} m`);assert.equal(m.owner,p);}
 });
+test('a human sprint knocks the ball past a nearby defender and winning the ball with sprint held knocks at once',()=>{
+ for(const team of [0,1]){const m=new Match({...defaults,userTeam:team});m.start(false);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled,d=m.direction(team);
+  const opp=m.players.find(q=>q.team!==p.team&&q.role!=='GK'&&q.active);Object.assign(opp,{x:-7.5*d,z:1.8,vx:0,vz:0});
+  Object.assign(p,{x:-10*d,z:0,vx:0,vz:0,yaw:d>0?Math.PI/2:-Math.PI/2});p.target={x:p.x,z:0};m.owner=null;m.physics.reset(p.x+.54*d,0);
+  // The player holds sprint before the ball becomes theirs, as when winning it in a duel.
+  advance(m,.05,{axis:{x:d,z:0},sprint:true});m.owner=p;m.lastTouch=p;let peak=0;
+  for(let i=0;i<120;i++){opp.target={x:opp.x,z:opp.z};m.step(1/120,{axis:{x:d,z:0},sprint:true});peak=Math.max(peak,Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z));}
+  assert.ok(peak>2,`knock beside a defender ${peak} m`);}
+});
