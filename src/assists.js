@@ -5,7 +5,7 @@ import {rollLaunchSpeed} from './physics.js';
 
 // Foot touches and initial targeting. Target-following pass velocity is handled
 // separately by guided-pass.js; shots retain their unassisted physical flight.
-export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:3,pendingKick:1.5,kickStart:1.35,footReach:.28,footLane:.12,underfootReach:.45,stretchReach:.6,lunge:.2,footForward:.5,startTouch:2.5,receiveRadius:1.04,contactRadius:.49};
+export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:3,pendingKick:1.5,kickStart:1.35,footReach:.28,footLane:.12,underfootReach:.45,stretchReach:.6,turnReach:.75,dribbleGap:1.1,turnKnock:.6,closeGap:.8,touchLead:.45,trapPace:2.5,lunge:.2,footForward:.5,startTouch:2.5,receiveRadius:1.04,contactRadius:.49};
 
 export const footPosition=logicalFoot;
 
@@ -38,10 +38,11 @@ export function setKickTarget(action,ball,target){
  action.aim={x:dx/n,z:dz/n};action.distance=n;
 }
 
-/** Whether a foot can play the ball now: within foot reach, under the body, or at a stretch while turning. */
+/** Whether a foot can play the ball now: within foot reach, under the body, or, while turning, anywhere
+ * around the body that a swivel and the inside or sole of the foot can reach. */
 export function footCanPlay(p,b,turning=false){
  const foot=Math.min(distance(logicalFoot(p,'left'),b),distance(logicalFoot(p,'right'),b));
- return foot<=(turning?ASSIST.stretchReach:ASSIST.footReach)||distance(p,b)<=ASSIST.underfootReach;
+ return foot<=(turning?ASSIST.stretchReach:ASSIST.footReach)||distance(p,b)<=(turning?ASSIST.turnReach:ASSIST.underfootReach);
 }
 
 // Foot dribbling: a touch happens only when one of the player's feet reaches the ball. Each touch plays
@@ -57,14 +58,17 @@ export function dribbleTouch(match,p,preparing=false){
  if(!footCanPlay(p,b,turning))return false;
  // A set-up touch before a kick keeps the ball on the kicking line the player faces.
  const f=preparing?{x:Math.sin(p.yaw),z:Math.cos(p.yaw)}:aim||(speed>.35?{x:p.vx/speed,z:p.vz/speed}:{x:Math.sin(p.yaw),z:Math.cos(p.yaw)});
- // Long knocks are only played into space: a nearby opponent shortens the touch.
+ // Each touch plays the ball to a spot ahead of the stride that the player reaches about half a second later.
+ // A faster run in open space puts it further ahead; a nearby opponent or close control keeps it tight. A ball
+ // behind or under the player is therefore played firmly out in front instead of being carried along.
  const space=clamp((Math.min(...match.players.filter(q=>q.active&&q.team!==p.team).map(q=>distance(p,q)),99)-2.5)/5,0,1);
- const knock=(.6+space*.3*speed)*(1.3-.5*(p.control||.8));
- // Turning back (the stick against the run) traps the ball under the sole; the player stops and comes round.
- // Other turns play the ball at up to 70% of the run; a straight run is never slower than the player.
- const along=p.vx*f.x+p.vz*f.z,trap=p.dribbleStop&&!preparing||turning&&along<0;
+ const ahead=(b.x-p.x)*f.x+(b.z-p.z)*f.z,gap=p.closeControl?ASSIST.closeGap:(ASSIST.dribbleGap+space*.08*speed)*(1.3-.5*(p.control||.8)),knock=clamp((gap-ahead)/ASSIST.touchLead,.3,4);
+ // Turning back at pace (the stick against a fast run) traps the ball under the sole. Any other turn, including
+ // setting off with the ball behind or beside the player, plays it round into the stick's direction at once.
+ const along=p.vx*f.x+p.vz*f.z,trap=p.dribbleStop&&!preparing||turning&&along<-ASSIST.trapPace;
  const run=Math.max(turning?Math.max(along,speed*.7):speed,aim?ASSIST.startTouch:0);
- const forward=preparing||p.shield?speed*.9:p.closeControl||turning||p.pendingKick?run+.35:run+knock;
+ // A turn taken at pace is a short touch round the body; only a standing start plays the ball firmly out in front.
+ const forward=preparing||p.shield?speed*.9:p.pendingKick?run+.35:run+(turning&&speed>ASSIST.startTouch?Math.min(knock,ASSIST.turnKnock):knock);
  // Sideways part: keep the player's own sideways pace and bring the ball back to the touching foot's side
  // of the running line within about a third of a second.
  const across=(b.x-p.x)*f.z-(b.z-p.z)*f.x,lane=(foot==='left'?-1:1)*ASSIST.footLane,side=p.vx*f.z-p.vz*f.x+clamp((lane-across)/.35,-3,3);
