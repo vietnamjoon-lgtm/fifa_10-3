@@ -1,0 +1,90 @@
+﻿TAP version 13
+# Subtest: practice movement accelerates and decelerates
+ok 1 - practice movement accelerates and decelerates
+  ---
+  duration_ms: 60.3237
+  ...
+# Subtest: shot waits for animation contact and ends its recovery
+ok 2 - shot waits for animation contact and ends its recovery
+  ---
+  duration_ms: 30.4906
+  ...
+# Subtest: one goal is counted once and kickoff resumes
+ok 3 - one goal is counted once and kickoff resumes
+  ---
+  duration_ms: 93.2864
+  ...
+# Subtest: touchline exit restarts as a throw-in
+ok 4 - touchline exit restarts as a throw-in
+  ---
+  duration_ms: 14.1535
+  ...
+# Subtest: full match changes ends and finishes, then can restart
+ok 5 - full match changes ends and finishes, then can restart
+  ---
+  duration_ms: 156.9893
+  ...
+# Subtest: pause freezes the ball, clock and kick intent
+ok 6 - pause freezes the ball, clock and kick intent
+  ---
+  duration_ms: 4.0498
+  ...
+# Subtest: ball rests above the turf without gaining energy
+ok 7 - ball rests above the turf without gaining energy
+  ---
+  duration_ms: 43.2406
+  ...
+# Subtest: ground passes slow down and strong kicks travel farther
+ok 8 - ground passes slow down and strong kicks travel farther
+  ---
+  duration_ms: 8.2386
+  ...
+# Subtest: fast shot hits the thin post without tunnelling
+ok 9 - fast shot hits the thin post without tunnelling
+  ---
+  duration_ms: 5.0501
+  ...
+# Subtest: ball must cross completely; wide and high shots are not goals
+ok 10 - ball must cross completely; wide and high shots are not goals
+  ---
+  duration_ms: 2.6259
+  ...
+# Subtest: opposite sidespin produces opposite lateral movement
+ok 11 - opposite sidespin produces opposite lateral movement
+  ---
+  duration_ms: 7.9956
+  ...
+# Subtest: endline restart changes between corner and goal kick by last touch
+ok 12 - endline restart changes between corner and goal kick by last touch
+  ---
+  duration_ms: 1.4365
+  ...
+# Subtest: offside is captured at the pass, not recomputed at reception
+ok 13 - offside is captured at the pass, not recomputed at reception
+  ---
+  duration_ms: 0.7324
+  ...
+# Subtest: airborne ball deflects off a swept player body
+ok 14 - airborne ball deflects off a swept player body
+  ---
+  duration_ms: 1.1016
+  ...
+# Subtest: replay stores independent snapshots and never changes live score
+ok 15 - replay stores independent snapshots and never changes live score
+  ---
+  duration_ms: 1.0682
+  ...
+# Subtest: unreachable ball cannot be kicked
+ok 16 - unreachable ball cannot be kicked
+  ---
+  duration_ms: 0.5989
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 542.0745

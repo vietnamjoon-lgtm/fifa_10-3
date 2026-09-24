@@ -1,0 +1,6 @@
+import fs from 'node:fs';
+const folder='assets-source/makehuman/',vertices=fs.readFileSync(folder+'base.obj','utf8').split('\n').filter(l=>l.startsWith('v ')).map(l=>l.trim().split(/\s+/).slice(1).map(Number));
+for(const [name,w]of [['asian-male-young',1],['universal-male-young-averagemuscle-averageweight',.35],['universal-male-young-maxmuscle-averageweight',.65]])for(const line of fs.readFileSync(folder+name+'.target','utf8').split('\n')){if(!/^\d/.test(line))continue;const [i,...d]=line.trim().split(/\s+/).map(Number);for(let k=0;k<3;k++)vertices[i][k]+=d[k]*w;}
+const s=JSON.parse(fs.readFileSync(folder+'default.mhskel'));const joint=name=>s.joints[name].reduce((a,i)=>a.map((v,k)=>v+vertices[i][k]/s.joints[name].length),[0,0,0]);
+for(const name of ['root','spine01','spine05','upperarm01.L','upperarm02.L','lowerarm01.L','lowerarm02.L','wrist.L','upperleg01.L','upperleg02.L','lowerleg01.L','lowerleg02.L','foot.L','head','neck01','eye.L','jaw'])console.log(name,joint(s.bones[name].head).map(x=>x.toFixed(3)).join(','),joint(s.bones[name].tail).map(x=>x.toFixed(3)).join(','));
+console.log('bounds',...[0,1,2].map(k=>[Math.min(...vertices.slice(0,13380).map(v=>v[k])),Math.max(...vertices.slice(0,13380).map(v=>v[k]))]));

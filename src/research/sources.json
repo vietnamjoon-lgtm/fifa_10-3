@@ -1,0 +1,344 @@
+[
+  {
+    "id": "F01",
+    "title": "FC 온라인 12차 정식 반영 상세",
+    "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq.html",
+    "date": "2026-03-26",
+    "scope": "FC 온라인 직접 근거",
+    "reviewed": "본문·영상 주소",
+    "application": "턴·선방·차단·개인기의 실제 반영 항목. 페이지 속 영상 표기는 테스트 기준도 포함하므로 현행 클라이언트와 별도 대조."
+  },
+  {
+    "id": "F02",
+    "title": "FC 온라인 2026년 3월 개발자 노트",
+    "url": "https://m.fconline.nexon.com/news/play/view?n4ArticleSN=48",
+    "date": "2026-03-26",
+    "scope": "FC 온라인 직접 근거",
+    "reviewed": "본문",
+    "application": "12차 변경의 정식 업데이트 맥락과 공식 상세 페이지 연결."
+  },
+  {
+    "id": "F03",
+    "title": "12차 2차 테스트 운영 안내",
+    "url": "https://fconline.nexon.com/news/notice/view?n4ArticleSN=5802",
+    "date": "2026-01-19",
+    "scope": "FC 온라인 테스트 근거",
+    "reviewed": "본문",
+    "application": "넓게 도는 턴, 전환 연결, 차단 동작 선택 문제에 관한 개발 설명. 정식 반영 여부는 F01 대조."
+  },
+  {
+    "id": "F04",
+    "title": "12차 1차 테스트 비교 영상",
+    "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz2.html",
+    "date": "2026-01 테스트 자료",
+    "scope": "FC 온라인 테스트 근거",
+    "reviewed": "설명·21개 주소",
+    "application": "턴·양발·골키퍼·차단 비교용. 프레임 측정은 수행하지 않음."
+  },
+  {
+    "id": "F05",
+    "title": "12차 2차 테스트 비교 영상",
+    "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t.html",
+    "date": "2026-01 테스트 자료",
+    "scope": "FC 온라인 테스트 근거",
+    "reviewed": "설명·18개 주소",
+    "application": "턴의 이동 경로와 연결, 차단 발동 비교용. 프레임 측정은 수행하지 않음."
+  },
+  {
+    "id": "F06",
+    "title": "FC 온라인 11차 반영 상세",
+    "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk.html",
+    "date": "2025-06 자료",
+    "scope": "FC 온라인 직접 근거",
+    "reviewed": "본문·86개 주소",
+    "application": "지상/공중 첫 터치, 아웃사이드 슛, 킥 방식, 세리머니를 찾는 출발점."
+  },
+  {
+    "id": "F07",
+    "title": "퍼스트 터치·골키퍼 주춤 개발 설명",
+    "url": "https://m.fconline.nexon.com/news/play/view?n4ArticleSN=37",
+    "date": "2023-12-14",
+    "scope": "FC 온라인 직접 근거",
+    "reviewed": "본문",
+    "application": "늦은 입력 당시 이미 시작된 트래핑과 입력 분류가 동작 선택에 미치는 영향."
+  },
+  {
+    "id": "F08",
+    "title": "플레이 체감 개발 설명",
+    "url": "https://m.fconline.nexon.com/news/play/view?n4ArticleSN=21",
+    "date": "2022-03-31",
+    "scope": "FC 온라인 직접 근거",
+    "reviewed": "본문",
+    "application": "논스톱 불가 조건, 공까지 거리, 드리블 터치 이후 움직임을 구분하는 근거."
+  },
+  {
+    "id": "F09",
+    "title": "2024 여름 쇼케이스",
+    "url": "https://fconline.nexon.com/news/notice/view?n4ArticleSN=4865",
+    "date": "2024-06-20",
+    "scope": "FC 온라인 직접 근거",
+    "reviewed": "모션 관련 본문",
+    "application": "컨트롤드 스프린트와 일부 킥 모션 추가 설명. 시각적 변형과 성능 변경을 분리해 읽기."
+  },
+  {
+    "id": "F10",
+    "title": "2024년 10월 개발자 노트",
+    "url": "https://m.fconline.nexon.com/news/play/view?n4ArticleSN=42",
+    "date": "2024-10-02",
+    "scope": "FC 온라인 직접 근거",
+    "reviewed": "모션 관련 본문",
+    "application": "프리킥 동작 속도와 골키퍼 공 처리 자세에 관한 수정 사례."
+  },
+  {
+    "id": "E01",
+    "title": "Animation Warping for Responsiveness in FIFA Soccer",
+    "url": "https://gdcvault.com/play/1012580/Animation-Warping-for-Responsiveness-in",
+    "date": "GDC 2010",
+    "scope": "다른 FIFA/EA 기술",
+    "reviewed": "공식 발표 초록",
+    "application": "Paul McComas·Jason Sanmiya. 턴을 런타임에 보정하고 특정 위치·시간 목표로 확장. 전체 강연·슬라이드는 이번에 검토하지 않음."
+  },
+  {
+    "id": "E02",
+    "title": "EA Presents N-teract",
+    "url": "https://www.gdcvault.com/play/1024015/EA-Presents-N-teract-Next",
+    "date": "GDC 2017",
+    "scope": "다른 EA 기술",
+    "reviewed": "공식 발표 초록",
+    "application": "Henry Allen. 다중 캐릭터 동작의 발동 조건·정렬·제작 도구. 예시는 Madden."
+  },
+  {
+    "id": "E03",
+    "title": "Environmental and Motion Matched Interactions",
+    "url": "https://www.gdcvault.com/play/1027465/Animation-Summit-Environmental-and-Motion",
+    "date": "GDC 2021",
+    "scope": "다른 FIFA/EA 기술",
+    "reviewed": "공식 발표 초록",
+    "application": "Henry Allen. FIFA/Madden 사례, 미래 물체 교차점과 동기화된 다중 캐릭터 모션 매칭."
+  },
+  {
+    "id": "E04",
+    "title": "FIFA 22 Hypermotion Full-Match Mocap",
+    "url": "https://www.gdcvault.com/play/1027746/Animation-Summit-FIFA-22-s",
+    "date": "GDC 2022",
+    "scope": "다른 FIFA 기술",
+    "reviewed": "공식 발표 초록",
+    "application": "Ryan Cardinal·Luke Shier·David Wong. 11대11 경기 캡처, 위치 추적, 영상, ML Flow의 연결."
+  },
+  {
+    "id": "E05",
+    "title": "Motion Matching at EA: Five Years Later",
+    "url": "https://www.gdcvault.com/play/1028821/Animation-Summit-Motion-Matching-at",
+    "date": "GDC 2023",
+    "scope": "다른 EA 기술",
+    "reviewed": "공식 검색 색인의 초록",
+    "application": "JC Delannoy. EA의 모션 매칭 도입 경험. 페이지 직접 열기 시간 초과, 전체 강연은 검토하지 않음."
+  },
+  {
+    "id": "E06",
+    "title": "FIFA 22 Gameplay Deep Dive",
+    "url": "https://www.ea.com/games/fifa/pitch-notes/news/pitch-notes-fifa-22-gameplay-deep-dive?cid=69434&ts=1750193738926",
+    "date": "2021-07",
+    "scope": "다른 FIFA 기술",
+    "reviewed": "모션 관련 본문",
+    "application": "공에 접근하는 보폭 보정, 함께 캡처한 공중 경합 등. FC 온라인 적용을 입증하지 않음."
+  },
+  {
+    "id": "E07",
+    "title": "FIFA 23 Gameplay Deep Dive",
+    "url": "https://www.ea.com/news/pitch-notes-fifa-23-gameplay-deep-dive",
+    "date": "2022",
+    "scope": "다른 FIFA 기술",
+    "reviewed": "공식 검색 색인의 상세 본문",
+    "application": "Technical Dribbling·ML-Jockey·연속 공 처리의 비교 연구. FC 온라인 기능 이름으로 옮기지 않기."
+  },
+  {
+    "id": "E08",
+    "title": "FC 26 Gameplay Responsiveness Update",
+    "url": "https://www.ea.com/games/ea-sports-fc/fc-26/news/pitch-notes-fc26-gameplay-responsiveness-update",
+    "date": "2025-07",
+    "scope": "다른 FC 기술",
+    "reviewed": "본문",
+    "application": "동작 데이터 부족, 발 선택, 분기와 전환이 반응성에 미치는 영향."
+  },
+  {
+    "id": "E09",
+    "title": "DeepPhase 연구 소개",
+    "url": "https://www.ea.com/news/deepphase-periodic-autoencoders-learning-motion-phase-manifolds",
+    "date": "2022-07-01",
+    "scope": "EA 공개 연구",
+    "reviewed": "공식 연구 초록",
+    "application": "Sebastian Starke·Ian Mason·Taku Komura. 다차원 동작 위상과 축구 드리블 합성 연구. 상용 FCO 사용 증거는 아님."
+  },
+  {
+    "id": "T01",
+    "title": "Phase-Functioned Neural Networks",
+    "url": "https://theorangeduck.com/page/phase-functioned-neural-networks-character-control",
+    "date": "2017-04-30",
+    "scope": "일반 재현 기술",
+    "reviewed": "저자 설명·초록",
+    "application": "동작 주기를 제어 입력과 함께 모델링하는 출발점."
+  },
+  {
+    "id": "T02",
+    "title": "Learned Motion Matching",
+    "url": "https://theorangeduck.com/page/learned-motion-matching",
+    "date": "2020-08-01",
+    "scope": "일반 재현 기술",
+    "reviewed": "저자 설명·초록",
+    "application": "검색·진행·복원의 학습형 대안. 먼저 원본 데이터와 검색 기준이 필요함."
+  },
+  {
+    "id": "T03",
+    "title": "Code vs Data Driven Displacement",
+    "url": "https://theorangeduck.com/page/code-vs-data-driven-displacement",
+    "date": "2021-09-23",
+    "scope": "일반 재현 기술",
+    "reviewed": "본문·접지 부분",
+    "application": "물리 이동체와 시각 캐릭터의 차이, 보정, 발 고정의 실제 구현 설명."
+  },
+  {
+    "id": "T04",
+    "title": "Spring-It-On",
+    "url": "https://theorangeduck.com/page/spring-roll-call",
+    "date": "2021-03-04",
+    "scope": "일반 재현 기술",
+    "reviewed": "감쇠·스프링·전환 관련 부분",
+    "application": "프레임 간격에 덜 의존하는 감쇠와 속도 연속성. 단순 보간과 관성 전환의 차이."
+  },
+  {
+    "id": "T05",
+    "title": "Creating Looping Animations from Motion Capture",
+    "url": "https://theorangeduck.com/page/creating-looping-animations-motion-capture",
+    "date": "2022-09-19",
+    "scope": "일반 재현 기술",
+    "reviewed": "루프 경계 보정 본문·코드",
+    "application": "루프 시작·끝의 위치뿐 아니라 속도 불연속도 제거해야 함."
+  },
+  {
+    "id": "T06",
+    "title": "Inertialization Transition Cost",
+    "url": "https://theorangeduck.com/page/inertialization-transition-cost",
+    "date": "2022-06-02",
+    "scope": "일반 재현 기술",
+    "reviewed": "비용식 관련 본문",
+    "application": "현재 자세가 가까운 후보와 실제로 전환이 자연스러운 후보가 다를 수 있음."
+  },
+  {
+    "id": "T07",
+    "title": "Dead Blending",
+    "url": "https://theorangeduck.com/page/dead-blending",
+    "date": "2023-02-25",
+    "scope": "일반 재현 기술",
+    "reviewed": "본문 요점",
+    "application": "이전 동작을 외삽해 새 동작과 연결하는 관성 전환 계열의 비교."
+  },
+  {
+    "id": "T08",
+    "title": "Inertialization: Gears of War",
+    "url": "https://www.gdcvault.com/play/1025331/Inertialization",
+    "date": "GDC 2018",
+    "scope": "일반 재현 기술",
+    "reviewed": "공식 발표 초록",
+    "application": "David Bollo. 기존·신규 동작을 계속 이중 평가하지 않는 전환 처리."
+  },
+  {
+    "id": "T09",
+    "title": "Epic Motion Warping",
+    "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/motion-warping-in-unreal-engine",
+    "date": "열람 2026-09-22",
+    "scope": "일반 구현 문서",
+    "reviewed": "본문",
+    "application": "지정 구간에서 루트 이동·회전을 목표점에 맞추는 도구. FCO 엔진 증거 아님."
+  },
+  {
+    "id": "T10",
+    "title": "Epic Pose Warping",
+    "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/pose-warping-in-unreal-engine",
+    "date": "열람 2026-09-22",
+    "scope": "일반 구현 문서",
+    "reviewed": "방향·보폭 부분",
+    "application": "방향·보폭·경사 보정의 서로 다른 목적."
+  },
+  {
+    "id": "T11",
+    "title": "Epic Distance Matching",
+    "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/distance-matching-in-unreal-engine",
+    "date": "열람 2026-09-22",
+    "scope": "일반 구현 문서",
+    "reviewed": "개요",
+    "application": "남은 이동 거리로 정지·착지 클립의 진행 시점을 맞추는 접근."
+  },
+  {
+    "id": "T12",
+    "title": "Epic Motion Matching",
+    "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/motion-matching-in-unreal-engine",
+    "date": "열람 2026-09-22",
+    "scope": "일반 구현 문서",
+    "reviewed": "개요·검색 구성",
+    "application": "자세와 궤적 특성으로 데이터베이스에서 동작 후보를 고르는 구조."
+  },
+  {
+    "id": "T13",
+    "title": "Lyra Animation",
+    "url": "https://dev.epicgames.com/documentation/en-us/unreal-engine/animation-in-lyra-sample-game-in-unreal-engine",
+    "date": "열람 2026-09-22",
+    "scope": "일반 구현 문서",
+    "reviewed": "거리·보폭 보정 부분",
+    "application": "출발과 지속 이동에서 거리 매칭·보폭 보정의 역할을 달리 쓰는 예."
+  },
+  {
+    "id": "T14",
+    "title": "UnderPressure",
+    "url": "https://arxiv.org/abs/2208.04598",
+    "date": "2022-08-09",
+    "scope": "일반 연구",
+    "reviewed": "저자 제출 초록",
+    "application": "접지 감지·지면 반력 추정·발 미끄러짐 정리. 높이 기준만으로 접지를 완벽히 알 수는 없음."
+  },
+  {
+    "id": "T15",
+    "title": "CMU Motion Capture Database",
+    "url": "https://mocap.cs.cmu.edu/search.php",
+    "date": "열람 2026-09-22",
+    "scope": "원본 동작 데이터",
+    "reviewed": "공식 목록·로컬 ASF/AMC",
+    "application": "현재 프로젝트의 09_01 달리기와 10_01 축구 킥 출처. EA 원본 자료가 아님."
+  },
+  {
+    "id": "T16",
+    "title": "ozz-animation Foot IK",
+    "url": "https://guillaumeblanc.github.io/ozz-animation/samples/foot_ik/",
+    "date": "열람 2026-09-22",
+    "scope": "작성자 구현 문서",
+    "reviewed": "공식 샘플 설명",
+    "application": "두 관절 IK, 발목 방향·골반 높이 조정. 완성된 모든 접지 문제를 해결하는 샘플은 아님."
+  },
+  {
+    "id": "T17",
+    "title": "Three.js SkeletonUtils",
+    "url": "https://threejs.org/docs/pages/module-SkeletonUtils.html",
+    "date": "열람 2026-09-22",
+    "scope": "공식 구현 문서",
+    "reviewed": "API 문서",
+    "application": "리타기팅의 본 이름·기준 자세·크기·힙 설정 확인용."
+  },
+  {
+    "id": "C01",
+    "title": "Motion Matching 공개 구현",
+    "url": "https://github.com/orangeduck/Motion-Matching",
+    "date": "열람 2026-09-22",
+    "scope": "저자 공개 코드",
+    "reviewed": "README·세 파일의 핵심 함수",
+    "application": "controller.cpp 접지 상태 전환, database.h 후보 검색, spring.h 관성 전환을 실제로 확인."
+  },
+  {
+    "id": "C02",
+    "title": "AI4Animation",
+    "url": "https://github.com/sebastianstarke/AI4Animation",
+    "date": "열람 2026-09-22",
+    "scope": "저자 공개 코드",
+    "reviewed": "README·프로젝트 목록",
+    "application": "DeepPhase 등 연구 구현 탐색용. 이번 조사에서 학습·실행 검증은 하지 않음."
+  }
+]

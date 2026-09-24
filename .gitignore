@@ -1,0 +1,13 @@
+.vercel/
+node_modules/
+.env*
+.wrangler/
+.deploy-tools/
+.balance-reference/
+tools/node.exe
+*.zip
+*.log
+auth.json
+credentials.json
+Thumbs.db
+.DS_Store

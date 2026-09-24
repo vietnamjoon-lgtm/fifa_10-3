@@ -1,0 +1,120 @@
+TAP version 13
+# Subtest: gameplay settings migrate safely and reject invalid or unbounded values
+ok 1 - gameplay settings migrate safely and reject invalid or unbounded values
+  ---
+  duration_ms: 11.0923
+  ...
+# Subtest: movement settings change acceleration, stopping distance and turn response independently
+ok 2 - movement settings change acceleration, stopping distance and turn response independently
+  ---
+  duration_ms: 76.089
+  ...
+# Subtest: rolling and bounce settings change physical ball travel without adding energy
+ok 3 - rolling and bounce settings change physical ball travel without adding energy
+  ---
+  duration_ms: 163.1206
+  ...
+# Subtest: first touch stability changes cushioning without moving the ball or editing player ratings
+ok 4 - first touch stability changes cushioning without moving the ball or editing player ratings
+  ---
+  duration_ms: 7.8019
+  ...
+# Subtest: online room fixes the host gameplay for both seats and rejects guest overrides
+ok 5 - online room fixes the host gameplay for both seats and rejects guest overrides
+  ---
+  duration_ms: 22.0713
+  ...
+# Subtest: body collision removes closing velocity while preserving momentum and sideways movement
+ok 6 - body collision removes closing velocity while preserving momentum and sideways movement
+  ---
+  duration_ms: 2.6236
+  ...
+# Subtest: exactly overlapping players separate deterministically without invalid coordinates
+ok 7 - exactly overlapping players separate deterministically without invalid coordinates
+  ---
+  duration_ms: 2.0046
+  ...
+# Subtest: strong rear charge is a foul while a comparable side shoulder challenge can continue
+ok 8 - strong rear charge is a foul while a comparable side shoulder challenge can continue
+  ---
+  duration_ms: 4.5177
+  ...
+# Subtest: ball hits the first swept body regardless of player list order
+ok 9 - ball hits the first swept body regardless of player list order
+  ---
+  duration_ms: 10.2749
+  ...
+# Subtest: a ball passing exactly through a body centre cannot skip the collision
+ok 10 - a ball passing exactly through a body centre cannot skip the collision
+  ---
+  duration_ms: 2.6367
+  ...
+# Subtest: nearby body outside the tackle path does not turn a clean ball tackle into a foul
+ok 11 - nearby body outside the tackle path does not turn a clean ball tackle into a foul
+  ---
+  duration_ms: 2.1533
+  ...
+# Subtest: a tackle through the opponent to reach the ball is penalized
+ok 12 - a tackle through the opponent to reach the ball is penalized
+  ---
+  duration_ms: 1.5059
+  ...
+# Subtest: dangerous sliding remains a red-card foul even if the ball is contacted first
+ok 13 - dangerous sliding remains a red-card foul even if the ball is contacted first
+  ---
+  duration_ms: 1.9653
+  ...
+# Subtest: a low-speed careless slide foul does not automatically give a yellow card
+ok 14 - a low-speed careless slide foul does not automatically give a yellow card
+  ---
+  duration_ms: 1.4162
+  ...
+# Subtest: last defender near goal is not sent off for DOGSO without ball control or forward progress
+ok 15 - last defender near goal is not sent off for DOGSO without ball control or forward progress
+  ---
+  duration_ms: 2.251
+  ...
+# Subtest: a genuine goal opportunity foul is yellow inside the box when challenging for the ball
+ok 16 - a genuine goal opportunity foul is yellow inside the box when challenging for the ball
+  ---
+  duration_ms: 2.4877
+  ...
+# Subtest: airborne offside reception is penalized before a chest control can clear the flag
+ok 17 - airborne offside reception is penalized before a chest control can clear the flag
+  ---
+  duration_ms: 10.2718
+  ...
+# Subtest: deliberate legal chest control clears the previous opponents offside snapshot
+ok 18 - deliberate legal chest control clears the previous opponents offside snapshot
+  ---
+  duration_ms: 2.6276
+  ...
+# Subtest: corner exit uses the first boundary crossed instead of always preferring the touchline
+ok 19 - corner exit uses the first boundary crossed instead of always preferring the touchline
+  ---
+  duration_ms: 2.5527
+  ...
+# Subtest: unrealized advantage is recalled when the ball leaves play immediately
+ok 20 - unrealized advantage is recalled when the ball leaves play immediately
+  ---
+  duration_ms: 5.1364
+  ...
+# Subtest: gait stance moves the foot backwards at the players actual world speed
+ok 21 - gait stance moves the foot backwards at the players actual world speed
+  ---
+  duration_ms: 2.9435
+  ...
+# Subtest: running has a flight phase and shorter legs increase the required stride cadence
+ok 22 - running has a flight phase and shorter legs increase the required stride cadence
+  ---
+  duration_ms: 9.6381
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 924.1415

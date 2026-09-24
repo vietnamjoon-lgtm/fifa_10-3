@@ -1,0 +1,19 @@
+{
+  "checkedAt": "2026-09-22T14:15:33.644Z",
+  "url": "https://project-touchline-three.vercel.app/",
+  "playerEditorLoaded": true,
+  "defaultPlayers": 22,
+  "practiceStarted": true,
+  "shot": {
+    "inputToContactMs": 241.6666666666538,
+    "contactErrorCm": 7.547305107991184,
+    "renderTargetErrorCm": 0.8987369683970742,
+    "warpAmountCm": 8.19022099583555,
+    "score": [
+      1,
+      0
+    ]
+  },
+  "consoleErrors": [],
+  "note": "Single browser training shot; not a statistical comparison to FC Online."
+}

@@ -1,0 +1,465 @@
+{
+  "checkedAt": "2026-09-23T03:50:42.313Z",
+  "kind": "deterministic isolated keeper shooting drill; not a competitive match win rate",
+  "groups": {
+    "all": {
+      "shots": 48,
+      "goals": 24,
+      "saved": 20
+    },
+    "corners": {
+      "shots": 32,
+      "goals": 24,
+      "saved": 8
+    },
+    "central": {
+      "shots": 16,
+      "goals": 0,
+      "saved": 12
+    },
+    "closeCorners": {
+      "shots": 16,
+      "goals": 16,
+      "saved": 0
+    },
+    "distantCorners": {
+      "shots": 16,
+      "goals": 8,
+      "saved": 8
+    }
+  },
+  "shots": [
+    {
+      "span": 7,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 7,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 7,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 7,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 7,
+      "corner": 0,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "span": 7,
+      "corner": 0,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "span": 7,
+      "corner": 0,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "span": 7,
+      "corner": 0,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "span": 7,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 7,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 7,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 7,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 12,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 12,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 12,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 12,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 12,
+      "corner": 0,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 12,
+      "corner": 0,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 12,
+      "corner": 0,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 12,
+      "corner": 0,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 12,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 12,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 12,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 12,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 18,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 18,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 18,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 18,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 18,
+      "corner": 0,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 18,
+      "corner": 0,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 18,
+      "corner": 0,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 18,
+      "corner": 0,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 18,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 18,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 18,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 18,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 24,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 24,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 24,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 24,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 24,
+      "corner": 0,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 24,
+      "corner": 0,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 24,
+      "corner": 0,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 24,
+      "corner": 0,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 24,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 24,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "span": 24,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "span": 24,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    }
+  ]
+}

@@ -1,0 +1,935 @@
+{
+  "status": "proposed_unmeasured",
+  "target": "FC Online motion reproduction",
+  "baseline": "Pin patch, player card, height/build, effective attributes, camera, input device, frame timestamps before capture. Numeric speed bands must be measured in the reference, not guessed.",
+  "axes": {
+    "action": [
+      "straight_run",
+      "accelerate",
+      "decelerate",
+      "turn_left_45",
+      "turn_right_45",
+      "turn_left_90",
+      "turn_right_90",
+      "turn_left_135",
+      "turn_right_135",
+      "turn_left_180",
+      "turn_right_180",
+      "dribble_forward",
+      "ground_receive",
+      "ground_pass",
+      "normal_shot",
+      "finesse_shot"
+    ],
+    "preferredFoot": [
+      "left",
+      "right"
+    ],
+    "entrySpeedBand": [
+      "low",
+      "medium",
+      "high"
+    ]
+  },
+  "cases": [
+    {
+      "id": "C001",
+      "action": "straight_run",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C002",
+      "action": "straight_run",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C003",
+      "action": "straight_run",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C004",
+      "action": "straight_run",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C005",
+      "action": "straight_run",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C006",
+      "action": "straight_run",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C007",
+      "action": "accelerate",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C008",
+      "action": "accelerate",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C009",
+      "action": "accelerate",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C010",
+      "action": "accelerate",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C011",
+      "action": "accelerate",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C012",
+      "action": "accelerate",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C013",
+      "action": "decelerate",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C014",
+      "action": "decelerate",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C015",
+      "action": "decelerate",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C016",
+      "action": "decelerate",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C017",
+      "action": "decelerate",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C018",
+      "action": "decelerate",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C019",
+      "action": "turn_left_45",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C020",
+      "action": "turn_left_45",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C021",
+      "action": "turn_left_45",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C022",
+      "action": "turn_left_45",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C023",
+      "action": "turn_left_45",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C024",
+      "action": "turn_left_45",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C025",
+      "action": "turn_right_45",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C026",
+      "action": "turn_right_45",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C027",
+      "action": "turn_right_45",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C028",
+      "action": "turn_right_45",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C029",
+      "action": "turn_right_45",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C030",
+      "action": "turn_right_45",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C031",
+      "action": "turn_left_90",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C032",
+      "action": "turn_left_90",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C033",
+      "action": "turn_left_90",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C034",
+      "action": "turn_left_90",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C035",
+      "action": "turn_left_90",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C036",
+      "action": "turn_left_90",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C037",
+      "action": "turn_right_90",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C038",
+      "action": "turn_right_90",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C039",
+      "action": "turn_right_90",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C040",
+      "action": "turn_right_90",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C041",
+      "action": "turn_right_90",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C042",
+      "action": "turn_right_90",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C043",
+      "action": "turn_left_135",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C044",
+      "action": "turn_left_135",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C045",
+      "action": "turn_left_135",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C046",
+      "action": "turn_left_135",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C047",
+      "action": "turn_left_135",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C048",
+      "action": "turn_left_135",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C049",
+      "action": "turn_right_135",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C050",
+      "action": "turn_right_135",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C051",
+      "action": "turn_right_135",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C052",
+      "action": "turn_right_135",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C053",
+      "action": "turn_right_135",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C054",
+      "action": "turn_right_135",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C055",
+      "action": "turn_left_180",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C056",
+      "action": "turn_left_180",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C057",
+      "action": "turn_left_180",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C058",
+      "action": "turn_left_180",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C059",
+      "action": "turn_left_180",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C060",
+      "action": "turn_left_180",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C061",
+      "action": "turn_right_180",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C062",
+      "action": "turn_right_180",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C063",
+      "action": "turn_right_180",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C064",
+      "action": "turn_right_180",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C065",
+      "action": "turn_right_180",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C066",
+      "action": "turn_right_180",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C067",
+      "action": "dribble_forward",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C068",
+      "action": "dribble_forward",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C069",
+      "action": "dribble_forward",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C070",
+      "action": "dribble_forward",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C071",
+      "action": "dribble_forward",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C072",
+      "action": "dribble_forward",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C073",
+      "action": "ground_receive",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C074",
+      "action": "ground_receive",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C075",
+      "action": "ground_receive",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C076",
+      "action": "ground_receive",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C077",
+      "action": "ground_receive",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C078",
+      "action": "ground_receive",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C079",
+      "action": "ground_pass",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C080",
+      "action": "ground_pass",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C081",
+      "action": "ground_pass",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C082",
+      "action": "ground_pass",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C083",
+      "action": "ground_pass",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C084",
+      "action": "ground_pass",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C085",
+      "action": "normal_shot",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C086",
+      "action": "normal_shot",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C087",
+      "action": "normal_shot",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C088",
+      "action": "normal_shot",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C089",
+      "action": "normal_shot",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C090",
+      "action": "normal_shot",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C091",
+      "action": "finesse_shot",
+      "preferredFoot": "left",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C092",
+      "action": "finesse_shot",
+      "preferredFoot": "left",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C093",
+      "action": "finesse_shot",
+      "preferredFoot": "left",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C094",
+      "action": "finesse_shot",
+      "preferredFoot": "right",
+      "entrySpeedBand": "low",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C095",
+      "action": "finesse_shot",
+      "preferredFoot": "right",
+      "entrySpeedBand": "medium",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    },
+    {
+      "id": "C096",
+      "action": "finesse_shot",
+      "preferredFoot": "right",
+      "entrySpeedBand": "high",
+      "clip": null,
+      "measurements": null,
+      "status": "not_captured"
+    }
+  ],
+  "repeatPolicy": "At least 3 repeats initially; increase when clip choice varies. This is a project sampling proposal, not a statistical proof of equivalence. Mark infeasible combinations N/A.",
+  "extensionFamilies": [
+    "aerial_receive",
+    "lob_pass",
+    "cross",
+    "header",
+    "volley",
+    "jockey",
+    "standing_tackle",
+    "slide_tackle",
+    "pass_block",
+    "shoulder_duel",
+    "aerial_duel",
+    "keeper_save",
+    "keeper_claim",
+    "keeper_recover",
+    "skill_move",
+    "set_piece",
+    "celebration"
+  ],
+  "measurements": [
+    "inputTimeIfVisible",
+    "motionStart",
+    "commitWindowEstimate",
+    "footPlantIntervals",
+    "ballContacts",
+    "ballRelease",
+    "exitReady",
+    "bodyHeading",
+    "travelHeading",
+    "ballRelativePosition",
+    "cameraCalibration",
+    "uncertainty"
+  ],
+  "emptyObservation": null
+}

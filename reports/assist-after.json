@@ -1,0 +1,21 @@
+{
+  "jogTurns": {
+    "possessionPercent": 100,
+    "maxDistance": 0.69,
+    "endingDistance": 0.51
+  },
+  "sprintTurns": {
+    "possessionPercent": 100,
+    "maxDistance": 0.74,
+    "endingDistance": 0.51
+  },
+  "movingKicks": {
+    "attempts": 16,
+    "kicks": 16,
+    "misses": 0
+  },
+  "diagonalShot": {
+    "crossingZ": 2.78,
+    "speed": 24.2
+  }
+}

@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {Match} from '../src/match.js';
+import {defaults} from '../src/settings.js';
+import {sampleMotion} from '../src/motion.js';
+const plan=JSON.parse(fs.readFileSync('src/research/capture-plan.json','utf8'));
+const results=[];
+for(const condition of plan.cases){const m=new Match({...defaults,seed:31});m.start(true);m.state='playing';m.aiClock=1e6;m.lock=0;const p=m.controlled;p.x=p.z=0;p.yaw=0;p.foot=condition.preferredFoot;p.cooldown=p.touchCooldown=0;const speed={low:1.5,medium:4.5,high:8}[condition.entrySpeedBand];p.vz=speed;const action=condition.action;let axis={x:0,z:1};const turn=action.match(/turn_(left|right)_(\d+)/);if(turn){const angle=Number(turn[2])*Math.PI/180*(turn[1]==='left'?-1:1);axis={x:Math.sin(angle),z:Math.cos(angle)};}if(action==='decelerate')axis={x:0,z:0};if(action==='accelerate')p.vz=0;m.physics.reset(p.foot==='left'?-.11:.11,.53);if(action==='ground_receive'){m.owner=null;m.physics.reset(0,3);m.physics.kick({x:0,z:-1},12,0);}if(['ground_pass','normal_shot','finesse_shot'].includes(action))m.queueKick(p,action==='ground_pass'?'pass':'shoot',.6,{x:0,z:1},null,{curve:action==='finesse_shot'});
+ let minBallY=Infinity,states=new Set();for(let i=0;i<180;i++){m.step(1/120,{axis,sprint:speed>6});const b=m.physics.ball.position;minBallY=Math.min(minBallY,b.y);const pose=sampleMotion(p,p.motionPhase,m.time,b,false,{turn:p.motionTurn,acceleration:p.motionAcceleration});states.add(pose.state);for(const n of [p.x,p.z,p.yaw,b.x,b.y,b.z,pose.hipY,...pose.hips,...pose.legs.flatMap(l=>[...l.upper,...l.lower])])assert.ok(Number.isFinite(n),condition.id);assert.ok(b.y>=.1099,condition.id);}
+ assert.ok(m.contacts.length<=1,condition.id+' repeated contact');results.push({id:condition.id,action,foot:p.foot,entrySpeed:speed,finite:true,minBallY,states:[...states],contacts:m.contacts.map(c=>({clip:c.clipId,delayMs:(c.actualContact-c.inputTime)*1000,contactError:c.contactError})),referenceComparison:'not_measured'});
+}
+fs.writeFileSync('reports/research-case-audit.json',JSON.stringify({checkedAt:new Date().toISOString(),description:'96 own-engine condition checks. Not a comparison against FC Online footage.',count:results.length,results},null,2));console.log(JSON.stringify({cases:results.length,finite:true,groundConstraint:true,duplicateContacts:false,referenceComparison:'not_measured'}));

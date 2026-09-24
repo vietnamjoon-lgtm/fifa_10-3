@@ -1,0 +1,11 @@
+tools/
+tests/
+reports/
+screenshots/
+PLAY.cmd
+BUILD.ps1
+server.mjs
+README.md
+*.zip
+node_modules/
+.env*

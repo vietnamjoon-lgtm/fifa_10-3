@@ -1,0 +1,8 @@
+﻿Motion capture source: Carnegie Mellon University Graphics Lab Motion Capture Database
+https://mocap.cs.cmu.edu/
+Source trials: 09_01 (running), 10_01 (soccer kick), 120 Hz ASF/AMC.
+The database home page states: "This dataset of motions is free for all uses."
+The collection was supported by NSF Grant #0196217.
+Downloaded from http://mocap.cs.cmu.edu/subjects/09/ and /subjects/10/ on 2026-09-22.
+The game includes retargeted, trimmed and resampled joint angles; raw capture files remain development inputs.
+These are CMU captures, not EA/FC Online assets.

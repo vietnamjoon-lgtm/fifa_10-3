@@ -1,0 +1,101 @@
+{
+  "dist": {
+    "shasum": "7ab992e2415d48e526934abd6390ffc208699fb1",
+    "tarball": "https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-1.0.1.tgz",
+    "fileCount": 14,
+    "integrity": "sha512-rvRE2FmAZ6ZxKSw7wq+e+jQDpN3t1B/tD2mJz9SmAzb1msoDkd4dMoE4wAh8Z30Um0PQwLiHr9QtomhmXk3aUQ==",
+    "signatures": [
+      {
+        "sig": "MEUCIBTAVi+K/Xs8bkJAwXPRQVyq+h1NYEHxsnJa5K4xUlr1AiEA0G1nexm3zh/RLFqjHAQB1bxj7W+keWs4gdMlKz+G7CY=",
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+      },
+      {
+        "sig": "MEUCIQCgSJ3guJ+BxdpsNil4dBjkZZINqQXARbT+v3Z0Bz12YgIgW4B2hqMaZhLCpDfupEsTqyeQ4JV/sN2ORRZR8BwY8Qg=",
+        "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+      }
+    ],
+    "unpackedSize": 36831894
+  },
+  "main": "vision_bundle.cjs",
+  "name": "@mediapipe/tasks-vision",
+  "type": "module",
+  "types": "vision.d.ts",
+  "author": {
+    "name": "mediapipe@google.com"
+  },
+  "module": "vision_bundle.mjs",
+  "browser": "vision_bundle.mjs",
+  "exports": {
+    ".": {
+      "types": "./vision.d.ts",
+      "import": "./vision_bundle.mjs",
+      "default": "./vision_bundle.mjs",
+      "require": "./vision_bundle.cjs"
+    },
+    "./vision_bundle.js": "./vision_bundle.js",
+    "./vision_wasm_internal.js": "./wasm/vision_wasm_internal.js",
+    "./vision_wasm_internal.wasm": "./wasm/vision_wasm_internal.wasm",
+    "./vision_wasm_module_internal.js": "./wasm/vision_wasm_module_internal.js",
+    "./vision_wasm_nosimd_internal.js": "./wasm/vision_wasm_nosimd_internal.js",
+    "./vision_wasm_module_internal.wasm": "./wasm/vision_wasm_module_internal.wasm",
+    "./vision_wasm_nosimd_internal.wasm": "./wasm/vision_wasm_nosimd_internal.wasm"
+  },
+  "license": "Apache-2.0",
+  "_npmUser": {
+    "name": "mrschmidt",
+    "email": "mrschmidt@google.com"
+  },
+  "homepage": "http://mediapipe.dev",
+  "keywords": [
+    "AR",
+    "ML",
+    "Augmented",
+    "MediaPipe",
+    "MediaPipe Tasks"
+  ],
+  "_npmVersion": "9.2.0",
+  "description": "MediaPipe Vision Tasks. See the privacy notice at https://goo.gle/mediapipe-privacy.",
+  "directories": {},
+  "maintainers": [
+    {
+      "name": "mrschmidt",
+      "email": "mrschmidt@google.com"
+    },
+    {
+      "name": "dancingplatypus",
+      "email": "dancingplatypus@gmail.com"
+    },
+    {
+      "name": "google-wombot",
+      "email": "node-team-npm+wombot@google.com"
+    },
+    {
+      "name": "tmullen",
+      "email": "tmullen@google.com"
+    },
+    {
+      "name": "delhibabu",
+      "email": "delhibabu@google.com"
+    },
+    {
+      "name": "linchan",
+      "email": "linchan@google.com"
+    },
+    {
+      "name": "cctang0425",
+      "email": "cctang@google.com"
+    },
+    {
+      "name": "akashvverma1995",
+      "email": "akashvverma@google.com"
+    }
+  ],
+  "_nodeVersion": "22.22.2",
+  "_hasShrinkwrap": false,
+  "_npmOperationalInternal": {
+    "tmp": "tmp/tasks-vision_1.0.1_1785531819030_0.4213967450618876",
+    "host": "s3://npm-registry-packages-npm-production"
+  },
+  "_id": "@mediapipe/tasks-vision@1.0.1",
+  "version": "1.0.1"
+}

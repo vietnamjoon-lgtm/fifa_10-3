@@ -1,0 +1,2713 @@
+{
+  "method": "Six sampled frames per clip at 8,24,40,56,72,88 percent; no input timing measurements or extracted motion capture",
+  "total": 200,
+  "decoded": 200,
+  "storyboardsReviewed": 200,
+  "fullClipsWatched": 0,
+  "records": [
+    {
+      "id": "fco12-live-001",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Before_dribble_turn_1.mp4",
+      "duration": 7.34,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "bef042848bc531f30e371f6d3d49ab50a22ee930eb087f7ce8d65bba02151d09"
+    },
+    {
+      "id": "fco12-live-002",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/After_dribble_turn_1.mp4",
+      "duration": 6.36,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "2576ab27f703fb7c73fedc29471192d8e8119d2deee7905ce1d6b1377178147b"
+    },
+    {
+      "id": "fco12-live-003",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Before_dribble_turn_2.mp4",
+      "duration": 5.62,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "630dc1a72a3ec86990f4cfb9cd7426eb719c7dbcd2fdbf5a7de0da282980fa0f"
+    },
+    {
+      "id": "fco12-live-004",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/After_dribble_turn_2.mp4",
+      "duration": 5.02,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "2cb2e9a0b860e5c57dddc41d433bc0847dd1efee59445ecee4a8cc787ce7538c"
+    },
+    {
+      "id": "fco12-live-005",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Before_outside%20turn.mp4",
+      "duration": 7.24,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "78418a39a98ec86c9efa4b9bd5d8a49251dfe5cc8a0b949d3dac0f464c75e603"
+    },
+    {
+      "id": "fco12-live-006",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/After_outside%20turn.mp4",
+      "duration": 5.94,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9ce32ea6ba06cb2d5f8f756baa18f912b1ba76e066fd8d9ddf12320f2a4a2c54"
+    },
+    {
+      "id": "fco12-live-007",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Before_weak%20foot%20turn.mp4",
+      "duration": 6.32,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "f076f974f43c6d4d916d8f81d60768567250badd00228e85282765cd3741bdd5"
+    },
+    {
+      "id": "fco12-live-008",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/After_weak%20foot%20turn.mp4",
+      "duration": 4.64,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "6d7f7fb4357cb1782223f8483872df526cc70a2a588fded3981877d07bf8dcc8"
+    },
+    {
+      "id": "fco12-live-009",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/2player_support%20call_2.mp4",
+      "duration": 7.76,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "587bd07536bfff3567123776754d1def3cad629d74b25ba2c311e127a67f0d62"
+    },
+    {
+      "id": "fco12-live-010",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Before_GK_Reaction_1.mp4",
+      "duration": 5.11,
+      "application": "골키퍼 반응 지연·도달 한계·캐치/펀칭·손 접촉 보정",
+      "files": [
+        "keeper-balance.js",
+        "hand-contact.js",
+        "ai.js"
+      ],
+      "motion": "dive",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "8e95c46e962c7e961892d4305536da6db810355a12d5f142434b35e2f9b67732"
+    },
+    {
+      "id": "fco12-live-011",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/After_GK_Reaction_1.mp4",
+      "duration": 4.41,
+      "application": "골키퍼 반응 지연·도달 한계·캐치/펀칭·손 접촉 보정",
+      "files": [
+        "keeper-balance.js",
+        "hand-contact.js",
+        "ai.js"
+      ],
+      "motion": "dive",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "587cd019a2b3825ae08549168f49aefaf8f4f142ffeeb9e6a0eee974ce38b5c6"
+    },
+    {
+      "id": "fco12-live-012",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Before_GK_Reaction_2.mp4",
+      "duration": 6.36,
+      "application": "골키퍼 반응 지연·도달 한계·캐치/펀칭·손 접촉 보정",
+      "files": [
+        "keeper-balance.js",
+        "hand-contact.js",
+        "ai.js"
+      ],
+      "motion": "dive",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "3f82538279f397a3ea46dbaddd6676d3596f6e4e4b9cda39dd79d0125a0bed7c"
+    },
+    {
+      "id": "fco12-live-013",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/After_GK_Reaction_2.mp4",
+      "duration": 4.74,
+      "application": "골키퍼 반응 지연·도달 한계·캐치/펀칭·손 접촉 보정",
+      "files": [
+        "keeper-balance.js",
+        "hand-contact.js",
+        "ai.js"
+      ],
+      "motion": "dive",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "39294b5d757f598bac19e871f921819577785585476118229140528b2335a428"
+    },
+    {
+      "id": "fco12-live-014",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Before_Heeltoballroll_GK_Reaction_1.mp4",
+      "duration": 7.48,
+      "application": "골키퍼 반응 지연·도달 한계·캐치/펀칭·손 접촉 보정",
+      "files": [
+        "keeper-balance.js",
+        "hand-contact.js",
+        "ai.js"
+      ],
+      "motion": "dive",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "0a6ceea9567e1ebbbc0262a21dea114da0c771ca183da7f14c53be461835bc0d"
+    },
+    {
+      "id": "fco12-live-015",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/After_Heeltoballroll_GK_Reaction_1.mp4",
+      "duration": 4.5,
+      "application": "골키퍼 반응 지연·도달 한계·캐치/펀칭·손 접촉 보정",
+      "files": [
+        "keeper-balance.js",
+        "hand-contact.js",
+        "ai.js"
+      ],
+      "motion": "dive",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "f9b656b556a80eb54cebdaabca19e07f5aace994fc24fe26b72b83c935f46afe"
+    },
+    {
+      "id": "fco12-live-016",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/passing%20between%20a%20legs%20before%201.mp4",
+      "duration": 2.47,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "1562319852cf0463907188eebf5b5638ffe529bb9e8d30017f2456d36e469c10"
+    },
+    {
+      "id": "fco12-live-017",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/passing%20between%20a%20legs%20after%201.mp4",
+      "duration": 2.5,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "43b339dbe6f322ca8bafa03ce2f238003b9e728904e25edf113d7378f9864382"
+    },
+    {
+      "id": "fco12-live-018",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/passing%20between%20a%20legs%20before%202.mp4",
+      "duration": 3.11,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "aeb3eaa2dac3b304a7142c2b56501500277055570aaef40208cad89bfbb23236"
+    },
+    {
+      "id": "fco12-live-019",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/passing%20between%20a%20legs%20after%202.mp4",
+      "duration": 3.33,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9a432303172df3630d7d83181420231b2ed9e03526da70b1b81ead4f1c6c529c"
+    },
+    {
+      "id": "fco12-live-020",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/passing%20between%20a%20legs%20before%203.mp4",
+      "duration": 2.89,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "c79d3637caa67a41113a61ff9cc764aacae748e1dcb885bc4ab70d98814be171"
+    },
+    {
+      "id": "fco12-live-021",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/passing%20between%20a%20legs%20after%203.mp4",
+      "duration": 2.93,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "e7c1b4dc306037a35fc19939f80c1e2faea46255c7802c6e594f1d75dff498a7"
+    },
+    {
+      "id": "fco12-live-022",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/1_Before_in_box_normal_shot.mp4",
+      "duration": 3.03,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "1914a7c86dd5ec22a75dbde232a81c82d94e0b1676326ce36361163bb4d68158"
+    },
+    {
+      "id": "fco12-live-023",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/1_After_in_box_normal_shot.mp4",
+      "duration": 2.82,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "3649013a8577890b91d64c8050be8ae99b5ee950c2c3698f5df45b78ec0e2316"
+    },
+    {
+      "id": "fco12-live-024",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/2_Before_in_box_normal_shot.mp4",
+      "duration": 2.71,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "237892ac3a1c6e8f739c34be882ad38458bee115ac57c1f5dd0978062bca13d5"
+    },
+    {
+      "id": "fco12-live-025",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/2_After_in_box_normal_shot.mp4",
+      "duration": 2.84,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "97306e467ced401d545e562e86bab62db890ef212b6b0b4a101fb18c23ff7da2"
+    },
+    {
+      "id": "fco12-live-026",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/3_Before_in_box_normal_shot.mp4",
+      "duration": 2.13,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "ef1f48619192c7889da65a79cc6244e25a1d20635e5456f2c70abdcf382d919e"
+    },
+    {
+      "id": "fco12-live-027",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/3_After_in_box_normal_shot.mp4",
+      "duration": 2.24,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "84a1d07d9ea40cfd8bbda06c2c839c8616a2e53dbd811ce6b36c1399d875e7db"
+    },
+    {
+      "id": "fco12-live-028",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/1_Before_in_box_finesse_shot.mp4",
+      "duration": 2.71,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "39e81b2972ed899dc260d7afbaa1a5244807d3fa562b8ef6c4cdab46f96b8295"
+    },
+    {
+      "id": "fco12-live-029",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/1_After_in_box_finesse_shot.mp4",
+      "duration": 2.45,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "62932232e3430067846252a6743d2f4d20e149684b2c30e1781284ac0dcb18d7"
+    },
+    {
+      "id": "fco12-live-030",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/2_Before_in_box_finesse_shot.mp4",
+      "duration": 3.16,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "f9ea602b82dc4ee4c2d380f6d1107263ed9a373a5c9208736dc76850968ff9fb"
+    },
+    {
+      "id": "fco12-live-031",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/2_After_in_box_finesse_shot.mp4",
+      "duration": 2.9,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "31818a1d0be5e4ea1e29812074f9130fb3c2e5c77a1bafb345ace3690828e80d"
+    },
+    {
+      "id": "fco12-live-032",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/1_Before_out_box_normal_shot.mp4",
+      "duration": 2.79,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "c44ee67ccb3ce14c92f898dd5af697b0da589dab54f2a8ef23d59e01edbb30d8"
+    },
+    {
+      "id": "fco12-live-033",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/1_After_out_box_normal_shot.mp4",
+      "duration": 2.35,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "48cd6eb482042ff7df835853a4fc032fa6886223cc14c00f5ea343f96a510da4"
+    },
+    {
+      "id": "fco12-live-034",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/2_Before_out_box_normal_shot.mp4",
+      "duration": 2.67,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "d777a5df1fb65965d323ed18f87790858627f05205a1653d2728eadb9b855cdd"
+    },
+    {
+      "id": "fco12-live-035",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/2_After_out_box_normal_shot.mp4",
+      "duration": 2.79,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "a90e597bb7d4f9b5e53b318fef5227bcee6a50a113dfe036621779a9678db356"
+    },
+    {
+      "id": "fco12-live-036",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/1_Before_out_box_finesse_shot.mp4",
+      "duration": 3.03,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "e0f07156f417a11bd3a9d849b4b961aa998bfa6dbbfd9079ed5fcb5e1349c43d"
+    },
+    {
+      "id": "fco12-live-037",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/1_After_out_box_finesse_shot.mp4",
+      "duration": 2.99,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "8ea4028be481d132a6c6bd6a158542f92f69b358ac19aad93892c3db551b21aa"
+    },
+    {
+      "id": "fco12-live-038",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/2_Before_out_box_finesse_shot.mp4",
+      "duration": 2.67,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "c857fea0d626b7f788a0d1695cdde0bd8ac5e6044d7ebca803eea6894f3b6979"
+    },
+    {
+      "id": "fco12-live-039",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/2_After_out_box_finesse_shot.mp4",
+      "duration": 3.05,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "3845d13e3b865679e8b13e117259d4d49c2b35de98f3aabd068f14552158c692"
+    },
+    {
+      "id": "fco12-live-040",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Net%28Befroe%29%20%281%29.mp4",
+      "duration": 2.52,
+      "application": "공 접촉 위치 주변 골망 흔들림과 감쇠",
+      "files": [
+        "goal-net.js",
+        "stadium.js"
+      ],
+      "motion": null,
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "a076e0646117fcaba196f36b6e1d6b0e66d43c54361c82be3f7897540e5e5cf7"
+    },
+    {
+      "id": "fco12-live-041",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Net%28After%29%20%281%29.mp4",
+      "duration": 1.98,
+      "application": "공 접촉 위치 주변 골망 흔들림과 감쇠",
+      "files": [
+        "goal-net.js",
+        "stadium.js"
+      ],
+      "motion": null,
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "af9ed4b507abe2dbaf0951cf4d78b83fa7dc6a7108c847cd45abbf01585a8669"
+    },
+    {
+      "id": "fco12-live-042",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/lineout_change%28before%29%20%281%29.mp4",
+      "duration": 4.4,
+      "application": "달리기 캡처, 가속·감속·수비 스텝, 골대 회피",
+      "files": [
+        "motion.js",
+        "post-contact.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "1c9dc12bcc3218b0936418ee67aabcf80f377a72812dd716397192ba46e4443b"
+    },
+    {
+      "id": "fco12-live-043",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/lineout_change%28after%29%20%281%29.mp4",
+      "duration": 3.8,
+      "application": "달리기 캡처, 가속·감속·수비 스텝, 골대 회피",
+      "files": [
+        "motion.js",
+        "post-contact.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "4d50544f752a951deb84c8679538bf06d825d26a97a760dd413cbb7a50066eee"
+    },
+    {
+      "id": "fco12-live-044",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Ball%20Roll%20Drag_left.mp4",
+      "duration": 2.71,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · drag-back",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "drag-back",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "6aafd958ff01a53420321a3f1bc30cb8d99ee952bb66b3c0af4d692dd0074bf0"
+    },
+    {
+      "id": "fco12-live-045",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Ball%20Roll%20Drag_right.mp4",
+      "duration": 4.07,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · drag-back",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "drag-back",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "bcb516df269494b10efa3ef68351ed2755b6c495b5ec884605ab18c941462c2d"
+    },
+    {
+      "id": "fco12-live-046",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Flair%20Nutmeg_1.mp4",
+      "duration": 3.22,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · nutmeg",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "nutmeg",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "289aeb8cc45821575fb835bd023b388ed7ab43c28d5d70680357b7b39e41b26b"
+    },
+    {
+      "id": "fco12-live-047",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Flair%20Nutmeg_2.mp4",
+      "duration": 4.25,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · nutmeg",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "nutmeg",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "03327d6627135f10a1b01c490f1df3c1d03b9d0417d5f8686c1102177211dfc0"
+    },
+    {
+      "id": "fco12-live-048",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Elastico%20Variation.mp4",
+      "duration": 3.16,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · elastico",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "elastico",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "e9bae3cf040dc884b785563cd99bce08e14045a4a02ffbe0099d7b2373eb8f19"
+    },
+    {
+      "id": "fco12-live-049",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Before_Heel%20flick.mp4",
+      "duration": 4.07,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · heel-flick",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "heel-flick",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9155482fcd2fa1a94da7eeaa4ba0c2a32866f2ff4749437be64000b763a10338"
+    },
+    {
+      "id": "fco12-live-050",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/After_Heel%20flick.mp4",
+      "duration": 2.65,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · heel-flick",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "heel-flick",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "1dc3d7258741330be995a3c00a1458356e56b1da265f873a6b47bed8ec154842"
+    },
+    {
+      "id": "fco12-live-051",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Before_drag_back.mp4",
+      "duration": 4.6,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · drag-back",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "drag-back",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "c97c89485bb248cd465461b34aa79941fadcaaf6c8bdcab86356e73b24ea16ee"
+    },
+    {
+      "id": "fco12-live-052",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/After_drag_back.mp4",
+      "duration": 5.13,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · drag-back",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "drag-back",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "0b2f14f1a8b0c3ca73d3582ba71809123b153088fd1f155e190f37a28699ac1b"
+    },
+    {
+      "id": "fco12-live-053",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Before_drag%20to%20heel.mp4",
+      "duration": 3.16,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · drag-to-heel",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "drag-to-heel",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "8ee842028c93aeb89fbe7431f511d0404ad37b90ba76bb9934b486a9ddf71394"
+    },
+    {
+      "id": "fco12-live-054",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/After_drag%20to%20heel.mp4",
+      "duration": 2.39,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · drag-to-heel",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "drag-to-heel",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "226d84cdb1cbd97d3fd1e64ca4f114a85ae36166ddcafb92de58dcd7c936b499"
+    },
+    {
+      "id": "fco12-live-055",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/Before_ELASTICO.mp4",
+      "duration": 4.85,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · elastico",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "elastico",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9d1e9d630c1b8de3f1b4ea0d9e551485c7fb1dbf4c64cb92351d5124a4435518"
+    },
+    {
+      "id": "fco12-live-056",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/After_ELASTICO.mp4",
+      "duration": 4.39,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · elastico",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "elastico",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "d9884af647a0c5f7bb998bc1818f97623610e9130870963ec6a334fb8ebebd4e"
+    },
+    {
+      "id": "fco12-live-057",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_1.mp4",
+      "duration": 7.79,
+      "application": "선수별 선택 세리머니 · 회전 인사",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-1",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "c514191f938b519d4325baffbf61953b4373ff2c8be76cb798ba3965110753a7"
+    },
+    {
+      "id": "fco12-live-058",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_2.mp4",
+      "duration": 7.72,
+      "application": "선수별 선택 세리머니 · 한 팔 비행",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-2",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "e080bd662e1f84cb124024dc4ea1a945a34a0a8cf1ca140048493fa258f71f48"
+    },
+    {
+      "id": "fco12-live-059",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_3.mp4",
+      "duration": 7.53,
+      "application": "선수별 선택 세리머니 · 다이빙 인사",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-3",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "6497285f1dc9f6c1d7ff273c3dd04b3d5e54c45865afd16e44fb99c8cce33910"
+    },
+    {
+      "id": "fco12-live-060",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_4.mp4",
+      "duration": 8.04,
+      "application": "선수별 선택 세리머니 · 가벼운 댄스",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-4",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "acd23fab034bcb811cfc3564a23e4c3e472248645b1cc0260ca43b8a16127068"
+    },
+    {
+      "id": "fco12-live-061",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_5.mp4",
+      "duration": 7.55,
+      "application": "선수별 선택 세리머니 · 가슴 펴기",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-5",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "3b5ca66523d7d29d1fdcbb1251e794a85b4a6f72fb08f800a5b51cb81db0ed7e"
+    },
+    {
+      "id": "fco12-live-062",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_6.mp4",
+      "duration": 10.71,
+      "application": "선수별 선택 세리머니 · 리듬 지휘",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-6",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "e0977e92ec795feb640f956b5b06e3169a259bb59c09e9ec4ec2bf5e7e23da9d"
+    },
+    {
+      "id": "fco12-live-063",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_7.mp4",
+      "duration": 9.02,
+      "application": "선수별 선택 세리머니 · 가슴 하트",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-7",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "706395a87b675675026fbf33f7e6bb0b72f36206fd276350b1ac2323daadd311"
+    },
+    {
+      "id": "fco12-live-064",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_8.mp4",
+      "duration": 11.96,
+      "application": "선수별 선택 세리머니 · 스텝 터치",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-8",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "befe2646702a3c86be31b6f19177e8bf0aa24abd240f1c87478a5bf988113dbe"
+    },
+    {
+      "id": "fco12-live-065",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_9.mp4",
+      "duration": 8.64,
+      "application": "선수별 선택 세리머니 · 힘 자랑",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-9",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "c29ab723a7f422c36289b98616d9d0bb2413c30624f49b355c86e74da8cce7fb"
+    },
+    {
+      "id": "fco12-live-066",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_10.mp4",
+      "duration": 5.36,
+      "application": "선수별 선택 세리머니 · 런 앤 보우",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-10",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9ba2a32a0b45ae669c38b3c50dc619ef031c54736b916d9942ee7e553da7fe7b"
+    },
+    {
+      "id": "fco12-live-067",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_11.mp4",
+      "duration": 10.53,
+      "application": "선수별 선택 세리머니 · 차분한 인사",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-11",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "7aff4250de7e303615f5dab8e0b7e84af436d0ea097125a47e7e6b1022bd73f5"
+    },
+    {
+      "id": "fco12-live-068",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_12.mp4",
+      "duration": 4.42,
+      "application": "선수별 선택 세리머니 · 앞구르기",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-12",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "3e0fac01e93f5f64286732b5f91fa5e7c2e1e007c2fb3b0472606cb00b0e61cf"
+    },
+    {
+      "id": "fco12-live-069",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_13.mp4",
+      "duration": 5.24,
+      "application": "선수별 선택 세리머니 · 사이드 포인트",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-13",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "c601ca6c951b0294c05c70e84035df7ec615d7ca9b0e28a0924edb668a637751"
+    },
+    {
+      "id": "fco12-live-070",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_14.mp4",
+      "duration": 11.29,
+      "application": "선수별 선택 세리머니 · 환호 점프",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-14",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "64962e02bb4d01300a2ab979aa581f91ad8df2dbb0dccd7403398c8087d6fa5e"
+    },
+    {
+      "id": "fco12-live-071",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_15.mp4",
+      "duration": 5.53,
+      "application": "선수별 선택 세리머니 · 무릎 슬라이드",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-15",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "b1e0ed3cae212509e5179541a91857ba4368341f69e096854953844d81136bac"
+    },
+    {
+      "id": "fco12-live-072",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_16.mp4",
+      "duration": 7.36,
+      "application": "선수별 선택 세리머니 · 하늘을 향해",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-16",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9fe6b7bf58b7085a57024f7d8093adb232adfb016296317a264dc239fa492941"
+    },
+    {
+      "id": "fco12-live-073",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_17.mp4",
+      "duration": 7.96,
+      "application": "선수별 선택 세리머니 · 푸시업",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-17",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "f8789baf76bc0dc499f29d7a42c863978bb20ad9e8b9f622524b336e4dc0567b"
+    },
+    {
+      "id": "fco12-live-074",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_18.mp4",
+      "duration": 12.71,
+      "application": "선수별 선택 세리머니 · 무릎 인사",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-18",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "47780068cdd3164e6a9cf6eba65bc05ce1884c8642d2877a7e4f077fbd29a7f6"
+    },
+    {
+      "id": "fco12-live-075",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/3/note_FCO_260326_v3hp6S2pq/ceremony_19.mp4",
+      "duration": 8.67,
+      "application": "선수별 선택 세리머니 · 가슴 모으기",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c12-19",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "c46e3e0b5cab90b9cd3172803bc93bd3a4c728652809aedcf48be371ac3d8ee0"
+    },
+    {
+      "id": "fco12-test1-001",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v1_1.mp4",
+      "duration": 7.34,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "bef042848bc531f30e371f6d3d49ab50a22ee930eb087f7ce8d65bba02151d09"
+    },
+    {
+      "id": "fco12-test1-002",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v1_2.mp4",
+      "duration": 6.36,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "2576ab27f703fb7c73fedc29471192d8e8119d2deee7905ce1d6b1377178147b"
+    },
+    {
+      "id": "fco12-test1-003",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v1_3.mp4",
+      "duration": 5.62,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "630dc1a72a3ec86990f4cfb9cd7426eb719c7dbcd2fdbf5a7de0da282980fa0f"
+    },
+    {
+      "id": "fco12-test1-004",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v1_4.mp4",
+      "duration": 5.02,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "2cb2e9a0b860e5c57dddc41d433bc0847dd1efee59445ecee4a8cc787ce7538c"
+    },
+    {
+      "id": "fco12-test1-005",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v1_5.mp4",
+      "duration": 7.24,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "78418a39a98ec86c9efa4b9bd5d8a49251dfe5cc8a0b949d3dac0f464c75e603"
+    },
+    {
+      "id": "fco12-test1-006",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v1_6.mp4",
+      "duration": 5.94,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9ce32ea6ba06cb2d5f8f756baa18f912b1ba76e066fd8d9ddf12320f2a4a2c54"
+    },
+    {
+      "id": "fco12-test1-007",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v1_7.mp4",
+      "duration": 6.32,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "f076f974f43c6d4d916d8f81d60768567250badd00228e85282765cd3741bdd5"
+    },
+    {
+      "id": "fco12-test1-008",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v1_8.mp4",
+      "duration": 4.64,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "6d7f7fb4357cb1782223f8483872df526cc70a2a588fded3981877d07bf8dcc8"
+    },
+    {
+      "id": "fco12-test1-009",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v2_1.mp4",
+      "duration": 7.76,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "587bd07536bfff3567123776754d1def3cad629d74b25ba2c311e127a67f0d62"
+    },
+    {
+      "id": "fco12-test1-010",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v3_1.mp4",
+      "duration": 5.11,
+      "application": "골키퍼 반응 지연·도달 한계·캐치/펀칭·손 접촉 보정",
+      "files": [
+        "keeper-balance.js",
+        "hand-contact.js",
+        "ai.js"
+      ],
+      "motion": "dive",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "8e95c46e962c7e961892d4305536da6db810355a12d5f142434b35e2f9b67732"
+    },
+    {
+      "id": "fco12-test1-011",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v3_2.mp4",
+      "duration": 4.41,
+      "application": "골키퍼 반응 지연·도달 한계·캐치/펀칭·손 접촉 보정",
+      "files": [
+        "keeper-balance.js",
+        "hand-contact.js",
+        "ai.js"
+      ],
+      "motion": "dive",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "587cd019a2b3825ae08549168f49aefaf8f4f142ffeeb9e6a0eee974ce38b5c6"
+    },
+    {
+      "id": "fco12-test1-012",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v3_3.mp4",
+      "duration": 6.36,
+      "application": "골키퍼 반응 지연·도달 한계·캐치/펀칭·손 접촉 보정",
+      "files": [
+        "keeper-balance.js",
+        "hand-contact.js",
+        "ai.js"
+      ],
+      "motion": "dive",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "3f82538279f397a3ea46dbaddd6676d3596f6e4e4b9cda39dd79d0125a0bed7c"
+    },
+    {
+      "id": "fco12-test1-013",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v3_4.mp4",
+      "duration": 4.74,
+      "application": "골키퍼 반응 지연·도달 한계·캐치/펀칭·손 접촉 보정",
+      "files": [
+        "keeper-balance.js",
+        "hand-contact.js",
+        "ai.js"
+      ],
+      "motion": "dive",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "39294b5d757f598bac19e871f921819577785585476118229140528b2335a428"
+    },
+    {
+      "id": "fco12-test1-014",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v3_5.mp4",
+      "duration": 7.48,
+      "application": "골키퍼 반응 지연·도달 한계·캐치/펀칭·손 접촉 보정",
+      "files": [
+        "keeper-balance.js",
+        "hand-contact.js",
+        "ai.js"
+      ],
+      "motion": "dive",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "0a6ceea9567e1ebbbc0262a21dea114da0c771ca183da7f14c53be461835bc0d"
+    },
+    {
+      "id": "fco12-test1-015",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v3_6.mp4",
+      "duration": 4.5,
+      "application": "골키퍼 반응 지연·도달 한계·캐치/펀칭·손 접촉 보정",
+      "files": [
+        "keeper-balance.js",
+        "hand-contact.js",
+        "ai.js"
+      ],
+      "motion": "dive",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "f9b656b556a80eb54cebdaabca19e07f5aace994fc24fe26b72b83c935f46afe"
+    },
+    {
+      "id": "fco12-test1-016",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v4_2.mp4",
+      "duration": 2.47,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "1562319852cf0463907188eebf5b5638ffe529bb9e8d30017f2456d36e469c10"
+    },
+    {
+      "id": "fco12-test1-017",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v4_1.mp4",
+      "duration": 2.5,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "43b339dbe6f322ca8bafa03ce2f238003b9e728904e25edf113d7378f9864382"
+    },
+    {
+      "id": "fco12-test1-018",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v4_4.mp4",
+      "duration": 3.11,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "aeb3eaa2dac3b304a7142c2b56501500277055570aaef40208cad89bfbb23236"
+    },
+    {
+      "id": "fco12-test1-019",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v4_3.mp4",
+      "duration": 3.33,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9a432303172df3630d7d83181420231b2ed9e03526da70b1b81ead4f1c6c529c"
+    },
+    {
+      "id": "fco12-test1-020",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v4_6.mp4",
+      "duration": 2.89,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "c79d3637caa67a41113a61ff9cc764aacae748e1dcb885bc4ab70d98814be171"
+    },
+    {
+      "id": "fco12-test1-021",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/12/info_FCO_251231_fiGl5Bxw1ghkGdz/v4_5.mp4",
+      "duration": 2.93,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "e7c1b4dc306037a35fc19939f80c1e2faea46255c7802c6e594f1d75dff498a7"
+    },
+    {
+      "id": "fco12-test2-001",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v1_1_before.mp4",
+      "duration": 8.05,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "056bf874b9f2b45133017bf5dc9a5d90c8d003b2e3c1b64d58b9d2f30160460f"
+    },
+    {
+      "id": "fco12-test2-002",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v1_1_after.mp4",
+      "duration": 6.07,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "1bb1c002b56b9c9c9405be5481f136d9734dfdc3c86e46c53a45650e03c15ce9"
+    },
+    {
+      "id": "fco12-test2-003",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v1_2_before.mp4",
+      "duration": 4.57,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "a90ed25ae9d9dd30291068bde138daeb09e60121fec7257593d0d74f0b277072"
+    },
+    {
+      "id": "fco12-test2-004",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v1_2_after.mp4",
+      "duration": 5.35,
+      "application": "제동·디딤·터치·출구 자세와 발 선택",
+      "files": [
+        "motion-planner.js",
+        "motion.js"
+      ],
+      "motion": "turn135",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "162072a7d94054d33da2ce0e042bd293070df6aade1244c115f431cb81b4e4ea"
+    },
+    {
+      "id": "fco12-test2-005",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v2_before.mp4",
+      "duration": 5.33,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "3764563fa4fa8b47a2f2b716610197d47429c0f4049c29a6da564b1a6c3336c8"
+    },
+    {
+      "id": "fco12-test2-006",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v2_after.mp4",
+      "duration": 6.57,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "a055ddeada953728645efd67cd81c3f70e52410fbe2253fbbea3de3e89d2829c"
+    },
+    {
+      "id": "fco12-test2-007",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v3_before.mp4",
+      "duration": 2.82,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "297199ce9ba624cfb3d9e7ea190253ea1103a7338e5675d5e31f13e3c373863a"
+    },
+    {
+      "id": "fco12-test2-008",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v3_after.mp4",
+      "duration": 2.53,
+      "application": "받기 전 예측과 발 차단 자세, D 자동 수비",
+      "files": [
+        "receive-control.js",
+        "auto-defence.js",
+        "referee.js"
+      ],
+      "motion": "intercept",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "1f6ca6ab820f831892d20087a76080b8ff2caa6d6bbf5e1c99499dd46f2d2e51"
+    },
+    {
+      "id": "fco12-test2-009",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v4_1_before.mp4",
+      "duration": 3.3,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "bb108d194e2df1865b943669431131b01a0e583088ead0752a16ba685a5a0b04"
+    },
+    {
+      "id": "fco12-test2-010",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v4_1_after.mp4",
+      "duration": 2.87,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "38447e13d7657a312bd6b0999125fcbedcb4c153f1dd9142273053fc089b5e1e"
+    },
+    {
+      "id": "fco12-test2-011",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v4_2_before.mp4",
+      "duration": 5.02,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "dbec4f6d7ec774b8c4eb8b62cfbafaf542c29616934bf4986fec76e341bb0900"
+    },
+    {
+      "id": "fco12-test2-012",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v4_2_after.mp4",
+      "duration": 4.76,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "1b71290fd3a9652fee1ae229eb011e0a6641c8e46522f75d10381806a7919313"
+    },
+    {
+      "id": "fco12-test2-013",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v4_3_before.mp4",
+      "duration": 5.62,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "64e6f325cd7c8fcdf3d9bb705128dce72624af9e7aabf69c8778d1e0b0b4fabb"
+    },
+    {
+      "id": "fco12-test2-014",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v4_3_after.mp4",
+      "duration": 5.3,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "25a2b33916f57b9a32c79f4fe76656a809b4976fabc3e1be6cd5908d2503c58f"
+    },
+    {
+      "id": "fco12-test2-015",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v4_4_before.mp4",
+      "duration": 2.68,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "b2840337c7bfd68f8cee8ebd6629b53083435ef1caf17803025c4ff431a38615"
+    },
+    {
+      "id": "fco12-test2-016",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v4_4_after.mp4",
+      "duration": 4,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "b18981d3ad60eb29ce01f8dd95677d6769ea9aad078bb172e94269a4a35ff89e"
+    },
+    {
+      "id": "fco12-test2-017",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v4_5_before.mp4",
+      "duration": 2.95,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "0f802d4e8273f6dbe79af03e1f8fb12b9120bbd2af0a7116de51b1af748ba996"
+    },
+    {
+      "id": "fco12-test2-018",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2026/1/info_FCO_2601_vlkf3d6Ds2A3t/v4_5_after.mp4",
+      "duration": 2.77,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "shoot",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "aa47134d087e910fde4550dcb8b5a2ad7ffa43bc6b04a1a0551a3c5080b727c5"
+    },
+    {
+      "id": "fco11-live-001",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Before_through%20pass1.mp4",
+      "duration": 8.61,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "e8496b4583b33794d8413b6c50073875c90db7ed3e42495facff488fe1f00a43"
+    },
+    {
+      "id": "fco11-live-002",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/After_through%20pass1.mp4",
+      "duration": 5.39,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "7b2175482f9e461fe71ed1409e3c6a18a15a9dfd72382b418fad1721f0861237"
+    },
+    {
+      "id": "fco11-live-003",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Before_through%20pass%202.mp4",
+      "duration": 5.99,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "f74f3dff1da70609956a91e4e9f36f5384995d81263220eca98147786ff05e39"
+    },
+    {
+      "id": "fco11-live-004",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/After_through%20pass%202.mp4",
+      "duration": 7.22,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "73be1fda26049e5b59170fefbc72b980892d1215c6540e94db71d0c6a7739670"
+    },
+    {
+      "id": "fco11-live-005",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Before_side%20through%20pass1.mp4",
+      "duration": 6.52,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "ea74f6cc2551f4faacde43ee7bda9ec66ad709d9a20a83f722281666d516ea62"
+    },
+    {
+      "id": "fco11-live-006",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/After_side%20through%20pass_1.mp4",
+      "duration": 4.95,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "ae103085f681930a3e3bd1934d82f5a4b6aed11db7187da7bd213d9b0cf67e48"
+    },
+    {
+      "id": "fco11-live-007",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Before_forward%20through%20pass.mp4",
+      "duration": 7.48,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "7f6c615091ab100411103f5f82b319e73363522b08f7217c5f2f2de54d08b249"
+    },
+    {
+      "id": "fco11-live-008",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/After_forward%20through%20pass.mp4",
+      "duration": 7.87,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "47b540c4102aa0dba79fcc3faa18a784b21743b0281d4f982c06f32310d2b185"
+    },
+    {
+      "id": "fco11-live-009",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Before_attack%20zone_turning%20pass%201%20%281%29.mp4",
+      "duration": 6.5,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "0646e5c228dd2f896140966395bbb71f5843272ffbe3615ebd170515b90749de"
+    },
+    {
+      "id": "fco11-live-010",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/After_attack%20zone_turning%20pass%201%20%281%29.mp4",
+      "duration": 6.04,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "25bd0fd22a2ea31997869be1746b52368038d0833078ad6e86b6766ea9d1df7a"
+    },
+    {
+      "id": "fco11-live-011",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Before_attack%20zone_turning%20pass%202.mp4",
+      "duration": 6.22,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "e6320c87081231fe09fbb7b2656673607605b2870ca84f84997a76015d919604"
+    },
+    {
+      "id": "fco11-live-012",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/After_attack%20zone_turning%20pass2.mp4",
+      "duration": 5.02,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "3aa8b00172ed5673e7434ed23c348000daa77935dde19e720928b15db74630e8"
+    },
+    {
+      "id": "fco11-live-013",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Before_center%20%20zone%20turning%20pass1.mp4",
+      "duration": 8.36,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "0b43f7c02ad6cad58d6e32e05d79b3f259219a1863802c5265a22a395d8d9397"
+    },
+    {
+      "id": "fco11-live-014",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/After_center%20zone%20turning%20pass1.mp4",
+      "duration": 6.15,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "pass",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "b0792d8ef9b431fa3e2c9cd50bbd6830a4443c3ea2acb214d8bdc7bb63256357"
+    },
+    {
+      "id": "fco11-live-015",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Cross%201%20%28Before%29.mp4",
+      "duration": 3.68,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "lob",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "e9bfdb1624692e99ffd39ebebd0d1ed384d4ecd96c7a2c5a6627048e3541a18a"
+    },
+    {
+      "id": "fco11-live-016",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Cross%201%20%28After%29.mp4",
+      "duration": 3.83,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "lob",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "52e3130732187baa607cabf045f34970a47459bf75166729f09807e5ec2518ed"
+    },
+    {
+      "id": "fco11-live-017",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Cross%202%20%28Before%29%20%281%29.mp4",
+      "duration": 4.42,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "lob",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "f2270bc0f43acfcdcf72ac93686724094ddf74e9b75a01b1f1160742241d2511"
+    },
+    {
+      "id": "fco11-live-018",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Cross%202%20%28After%29%20%281%29.mp4",
+      "duration": 4.53,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "lob",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "968f26b038529aee2afbd392dc15dea04c8138c7cfb57a9db5e80dcf2614befd"
+    },
+    {
+      "id": "fco11-live-019",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/AI%20Marking%20%28Before%29.mp4",
+      "duration": 7.68,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "046ea087a311fd097715e048d1c3b0340fe0685c2d133a845dbee36ef96527df"
+    },
+    {
+      "id": "fco11-live-020",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/AI%20Marking%20%28After%29.mp4",
+      "duration": 4.47,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "f93b48b29b5c9c895a162dd249cf9cdbf19433872b67a34e08be92f6e1a635d8"
+    },
+    {
+      "id": "fco11-live-021",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Before_lob%20through_1%20%281%29.mp4",
+      "duration": 5.78,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "lob",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "76fb6dedbea10cfb1866b18c2066307a816e2cf7a799708ac99b663426139b03"
+    },
+    {
+      "id": "fco11-live-022",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/After_lob%20through_1%20%281%29.mp4",
+      "duration": 5.92,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "lob",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "fb359745c9f2578dece7b209ab7daee81509987c0f7c054be60a567924f06183"
+    },
+    {
+      "id": "fco11-live-023",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Before_lob%20through_2%20%281%29.mp4",
+      "duration": 7.45,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "lob",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "2f6ce26b5d150f9d2e9f900596279103202a88b1e8fdb518daf68f50e94117f9"
+    },
+    {
+      "id": "fco11-live-024",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/After_lob%20through_2%20%281%29.mp4",
+      "duration": 9.89,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "lob",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "17aad25eb4aa3435cf329380b7b6cb08260a7e3133409279da81a5b21e837f80"
+    },
+    {
+      "id": "fco11-live-025",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Before_lob%20through_3%20%281%29.mp4",
+      "duration": 7.71,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "lob",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "d9a81d761b4da689838caf3e5469bff2093f09c2082195b0c81bb8bcc2e79e15"
+    },
+    {
+      "id": "fco11-live-026",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/reinforcement_before_01%20%281%29.mp4",
+      "duration": 13.33,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9b74d0bc6ac8ca0b1c13e82ca7080df1e6a34b5067f39c996fac367b32e3768c"
+    },
+    {
+      "id": "fco11-live-027",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/reinforcement_after_01%20%281%29.mp4",
+      "duration": 9.33,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "f7a74041f5a4d13e5c5df1999ec1c88f119d29f11761d6a10b5861496a290019"
+    },
+    {
+      "id": "fco11-live-028",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/reinforcement_before_02%20%281%29.mp4",
+      "duration": 18.72,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "c948f399ff06eac2d5ea622f43b74b3ee03e030e43f85570a25e2ebb24e83ddf"
+    },
+    {
+      "id": "fco11-live-029",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/reinforcement_after_02%20%281%29.mp4",
+      "duration": 9.71,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "369a1f86c736a5ccf65196f03e7ce9ab9a54e9766a29ca5d3fb64016ba3bdfb6"
+    },
+    {
+      "id": "fco11-live-030",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Post%20Avoidance%20Before%201%20%281%29.mp4",
+      "duration": 2.09,
+      "application": "골대 기둥을 통과하지 않는 선수 충돌 처리",
+      "files": [
+        "post-contact.js"
+      ],
+      "motion": "jockey",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "03042de15a4607e1a5b254b6cbb78d340f34e519053d6bb0e7f1fb26d63df0d9"
+    },
+    {
+      "id": "fco11-live-031",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Post%20Avoidance%20After%201%20%281%29.mp4",
+      "duration": 1.95,
+      "application": "골대 기둥을 통과하지 않는 선수 충돌 처리",
+      "files": [
+        "post-contact.js"
+      ],
+      "motion": "jockey",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9baf97f70c76f5827055eec08101d82a3480e8cccc6a8bfa1de814acf8ee96c8"
+    },
+    {
+      "id": "fco11-live-032",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Post%20Avoidance%20Before%202%20%281%29.mp4",
+      "duration": 2.74,
+      "application": "골대 기둥을 통과하지 않는 선수 충돌 처리",
+      "files": [
+        "post-contact.js"
+      ],
+      "motion": "jockey",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "7ec1889fe4869c8b2f302e1bd9acfa9e39bc18e6ac4a60e9df8c973f77adeb6b"
+    },
+    {
+      "id": "fco11-live-033",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Post%20Avoidance%20After%202%20%281%29.mp4",
+      "duration": 3.07,
+      "application": "골대 기둥을 통과하지 않는 선수 충돌 처리",
+      "files": [
+        "post-contact.js"
+      ],
+      "motion": "jockey",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "6ea352ec312e367faf7b25084f48ab7349a68cf58b319357c4f382b54477fca6"
+    },
+    {
+      "id": "fco11-live-034",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Heel%20to%20ball%20roll%20%28Before%29%20%281%29.mp4",
+      "duration": 2.32,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · ball-roll",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "ball-roll",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "1945e69594181f86c5e09e3842e1b0645e553ef957bb6810b8a5b3e45738c126"
+    },
+    {
+      "id": "fco11-live-035",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Heel%20to%20ball%20roll%20%28After%29%20%281%29.mp4",
+      "duration": 2.04,
+      "application": "발 접촉 2단계와 실제 공 속도 변화 · ball-roll",
+      "files": [
+        "skills.js",
+        "commands.js",
+        "match.js"
+      ],
+      "motion": "ball-roll",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "316207ce40945b510b43db132580defee6b08fb2102ab40381b958d201bb7648"
+    },
+    {
+      "id": "fco11-live-036",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Short%20Conner%20Cross%20%28Before%29%20%281%29.mp4",
+      "duration": 5.57,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "lob",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "3b571512c3741bf8d35cb962c6ea224dfe44109c5cd7dd25b1a94a1682d185a2"
+    },
+    {
+      "id": "fco11-live-037",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Short%20Conner%20Cross%20%28After%29%20%281%29.mp4",
+      "duration": 4.5,
+      "application": "수신자 예측 위치와 킥 궤적, 감속·열린 몸·인사이드 연결",
+      "files": [
+        "assists.js",
+        "ai.js",
+        "receive-control.js",
+        "motion.js"
+      ],
+      "motion": "lob",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9e4a6727503fe572bb12ba71006f1b909088fa0660216c0e03e74f0d1ff9284d"
+    },
+    {
+      "id": "fco11-live-038",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Ball%20trapping%20motion%20%28Before%29%20%281%29.mp4",
+      "duration": 4.6,
+      "application": "받기 전 자세, 감속, 발 선택, 방향 첫 터치, 공 높이별 완충",
+      "files": [
+        "receive-control.js",
+        "ball-assistance.js",
+        "motion.js",
+        "foot-plant.js"
+      ],
+      "motion": "receive-inside",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "58a395ad2e25aec472b87ee47a5075ba8647250a7b0301656fa67e0bb432eaf0"
+    },
+    {
+      "id": "fco11-live-039",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Ball%20trapping%20motion%20%28After%29%20%281%29.mp4",
+      "duration": 3.39,
+      "application": "받기 전 자세, 감속, 발 선택, 방향 첫 터치, 공 높이별 완충",
+      "files": [
+        "receive-control.js",
+        "ball-assistance.js",
+        "motion.js",
+        "foot-plant.js"
+      ],
+      "motion": "receive-inside",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "87706821b5f13bbf6c7f7f6987d2009736f5fdef0ec668324b37bc3c5d174363"
+    },
+    {
+      "id": "fco11-live-040",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/First_touch_01_before.mp4",
+      "duration": 7.57,
+      "application": "받기 전 자세, 감속, 발 선택, 방향 첫 터치, 공 높이별 완충",
+      "files": [
+        "receive-control.js",
+        "ball-assistance.js",
+        "motion.js",
+        "foot-plant.js"
+      ],
+      "motion": "receive-inside",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "030f80cc697087f043f2c2608b52ddcfd490b6b30dc1de55cb0f08e3d7b46042"
+    },
+    {
+      "id": "fco11-live-041",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/First_touch_01_after.mp4",
+      "duration": 4.86,
+      "application": "받기 전 자세, 감속, 발 선택, 방향 첫 터치, 공 높이별 완충",
+      "files": [
+        "receive-control.js",
+        "ball-assistance.js",
+        "motion.js",
+        "foot-plant.js"
+      ],
+      "motion": "receive-inside",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "11bfa308abcd90ab576d066313649c987a2273d46a42742ac789a17d4f6cbf21"
+    },
+    {
+      "id": "fco11-live-042",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/First_touch_02_before.mp4",
+      "duration": 8.3,
+      "application": "받기 전 자세, 감속, 발 선택, 방향 첫 터치, 공 높이별 완충",
+      "files": [
+        "receive-control.js",
+        "ball-assistance.js",
+        "motion.js",
+        "foot-plant.js"
+      ],
+      "motion": "receive-inside",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "a99b4531c1bc7c3d8560f366956ea6d5482f178da9ed8184fa4a0343599d050c"
+    },
+    {
+      "id": "fco11-live-043",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/First_touch_02_after.mp4",
+      "duration": 6.63,
+      "application": "받기 전 자세, 감속, 발 선택, 방향 첫 터치, 공 높이별 완충",
+      "files": [
+        "receive-control.js",
+        "ball-assistance.js",
+        "motion.js",
+        "foot-plant.js"
+      ],
+      "motion": "receive-inside",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "7a5db2667fe0758f85e761e5261939648e5ec5c2286fa57f7130cc1ee1a62ba3"
+    },
+    {
+      "id": "fco11-live-044",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/air_ball_trapping_01_before.mp4",
+      "duration": 6.32,
+      "application": "받기 전 자세, 감속, 발 선택, 방향 첫 터치, 공 높이별 완충",
+      "files": [
+        "receive-control.js",
+        "ball-assistance.js",
+        "motion.js",
+        "foot-plant.js"
+      ],
+      "motion": "receive-chest",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "d1113acc33a3dad819685fe0971f50f2316d925697e9735d0915b325923717f2"
+    },
+    {
+      "id": "fco11-live-045",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/air_ball_trapping_01_after.mp4",
+      "duration": 6.97,
+      "application": "받기 전 자세, 감속, 발 선택, 방향 첫 터치, 공 높이별 완충",
+      "files": [
+        "receive-control.js",
+        "ball-assistance.js",
+        "motion.js",
+        "foot-plant.js"
+      ],
+      "motion": "receive-chest",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "2bd38586f4773e7862e2da408b8c34c44925d3dee024294b502fc98c45017632"
+    },
+    {
+      "id": "fco11-live-046",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/air_ball_trapping_02_before.mp4",
+      "duration": 6.48,
+      "application": "받기 전 자세, 감속, 발 선택, 방향 첫 터치, 공 높이별 완충",
+      "files": [
+        "receive-control.js",
+        "ball-assistance.js",
+        "motion.js",
+        "foot-plant.js"
+      ],
+      "motion": "receive-chest",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "b6afd85aec993cd33a8fb6071ffa95bfc46f5ad17e37c28e981b9fe5fc678b16"
+    },
+    {
+      "id": "fco11-live-047",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/air_ball_trapping_02_after.mp4",
+      "duration": 6.55,
+      "application": "받기 전 자세, 감속, 발 선택, 방향 첫 터치, 공 높이별 완충",
+      "files": [
+        "receive-control.js",
+        "ball-assistance.js",
+        "motion.js",
+        "foot-plant.js"
+      ],
+      "motion": "receive-chest",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "32f405a33f4678a9858970917896d49b2a4d41b0eda96be53497124a2a650a45"
+    },
+    {
+      "id": "fco11-live-048",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Outside_Shot_01.mp4",
+      "duration": 5.71,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "finesse",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "a3ddf1f30dca99fc60ab36ba0e0adc5599e462ac3f39362001fc4c9c16828f00"
+    },
+    {
+      "id": "fco11-live-049",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Outside_Shot_02.mp4",
+      "duration": 5.62,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "finesse",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "72fa5e39e97554ee900ce8d065f72c8649b63fd0c9ab7bda6e9dc4c981199823"
+    },
+    {
+      "id": "fco11-live-050",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Outside_Shot_03.mp4",
+      "duration": 6.46,
+      "application": "일반·낮은·감아차기·칩·바깥 발 슛과 키퍼 밸런스",
+      "files": [
+        "match.js",
+        "motion.js",
+        "keeper-balance.js"
+      ],
+      "motion": "finesse",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "07dde97acb1b15a113496d4611e99f334f58df66541f6b32051e7daf7e9f54c2"
+    },
+    {
+      "id": "fco11-live-051",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/131.mp4",
+      "duration": 6.81,
+      "application": "선수별 선택 세리머니 · 점프 포인트",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-1",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "ff20a20750278a89e2289d920c3ef397b63f2104dab5c761023fb50500e056a6"
+    },
+    {
+      "id": "fco11-live-052",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/132.mp4",
+      "duration": 7.44,
+      "application": "선수별 선택 세리머니 · 비행 후 환호",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-2",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "27d3e051867022adfbf4f439a4a216310d07cf616455034fa51d65ddf42a8e09"
+    },
+    {
+      "id": "fco11-live-053",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/135.mp4",
+      "duration": 6.61,
+      "application": "선수별 선택 세리머니 · 슬라이드와 인사",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-3",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "448e8cbd348beda31c30f19118f8b50f7743d96c300db552cd0285066dcf5c99"
+    },
+    {
+      "id": "fco11-live-054",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/136.mp4",
+      "duration": 8.11,
+      "application": "선수별 선택 세리머니 · 머리 위 박수",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-4",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "ab50eb86cff1d5f6608068d2a71b2b6e91e65cc2e6f45f03d2702ac24fb97b6e"
+    },
+    {
+      "id": "fco11-live-055",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/137.mp4",
+      "duration": 8.74,
+      "application": "선수별 선택 세리머니 · 키스 인사",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-5",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "f0ec7af7ece9daa4d53af106d7eb246d1394a383f8ee15b6e7cc9b25037a23a1"
+    },
+    {
+      "id": "fco11-live-056",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/138.mp4",
+      "duration": 6.94,
+      "application": "선수별 선택 세리머니 · 쉿",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-6",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "810f3999f79781c894a4fc143414da0eda6d9ae1943088f46894bf96b252a9ee"
+    },
+    {
+      "id": "fco11-live-057",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/139.mp4",
+      "duration": 5.14,
+      "application": "선수별 선택 세리머니 · 턴 스텝",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-7",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "4edb6b38350ceb6586a0ea71d4f36a5a0ecdb94ab8b53ad1943622caf4a6563c"
+    },
+    {
+      "id": "fco11-live-058",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/140.mp4",
+      "duration": 6.01,
+      "application": "선수별 선택 세리머니 · 팔짱 댄스",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-8",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "4c6febd21a5f7e899d830da6720f0feecccca41289de1ec05cae8e13b44fd92f"
+    },
+    {
+      "id": "fco11-live-059",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/141.mp4",
+      "duration": 6.81,
+      "application": "선수별 선택 세리머니 · 리듬 워크",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-9",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "ca94130b593530e1e272f55ceff7c41951da8b84fa2b193d4a84c8099c2b0fc0"
+    },
+    {
+      "id": "fco11-live-060",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/142.mp4",
+      "duration": 5.14,
+      "application": "선수별 선택 세리머니 · 무릎 위 환호",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-10",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9d4aa1978ccb0549cbf0898c9f796c90b46a18eb429cab36b0b7f7f7371a331b"
+    },
+    {
+      "id": "fco11-live-061",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/143.mp4",
+      "duration": 6.81,
+      "application": "선수별 선택 세리머니 · 측면 돌기",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-11",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "e394e34e47467308307fbe48683cc0fd3d318e3f3b58b61261d582aeb78757c3"
+    },
+    {
+      "id": "fco11-live-062",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/144.mp4",
+      "duration": 5.64,
+      "application": "선수별 선택 세리머니 · 앉아서 세리머니",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-12",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "378f222a4abedcce29c23a60932bd600c4d13bb92b1d9eae2e9d37f2c727ae57"
+    },
+    {
+      "id": "fco11-live-063",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/145.mp4",
+      "duration": 7.77,
+      "application": "선수별 선택 세리머니 · 가부좌",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-13",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "4a669a4ac079b75fe9f98e1e78ece9ccc0e6ad88a310b06964c44e44cb12537f"
+    },
+    {
+      "id": "fco11-live-064",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/146.mp4",
+      "duration": 5.54,
+      "application": "선수별 선택 세리머니 · 키스와 손짓",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-14",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "e9e4167bcc4553194beda0ee24c7d11a90d9d43e18eb2d2d6546c8572f515b03"
+    },
+    {
+      "id": "fco11-live-065",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/147.mp4",
+      "duration": 5.41,
+      "application": "선수별 선택 세리머니 · 부드러운 댄스",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-15",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "b5a9c6dce5a69201672647aa98c2d0602d172f213288a0d1598ee974e21bb1f2"
+    },
+    {
+      "id": "fco11-live-066",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/148.mp4",
+      "duration": 5.77,
+      "application": "선수별 선택 세리머니 · 점프 랜딩",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-16",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9ee0419a94d4a1ff0227b838cf9032e7fc63123195dd298c949ec30ffc402730"
+    },
+    {
+      "id": "fco11-live-067",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/149.mp4",
+      "duration": 6.84,
+      "application": "선수별 선택 세리머니 · 관중 박수",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-17",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9dcd07c4e051b384200b32460d575f65f4261f47f81e4d8d885264f3cd89107c"
+    },
+    {
+      "id": "fco11-live-068",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/150.mp4",
+      "duration": 5.84,
+      "application": "선수별 선택 세리머니 · 승리 포즈",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-18",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "84590b8bd6a4388033ed3e030a4225c6f040e2861f5644297cfe4ea1a71b60fa"
+    },
+    {
+      "id": "fco11-live-069",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/151.mp4",
+      "duration": 5.71,
+      "application": "선수별 선택 세리머니 · 앞구르기 환호",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-19",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "e26d23a2f2beb2f336780babdf0d44634887b44b32c44c81683e8a16e620ed2a"
+    },
+    {
+      "id": "fco11-live-070",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/152.mp4",
+      "duration": 5.81,
+      "application": "선수별 선택 세리머니 · 한 손 인사",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-20",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "73bb0b2daadeb3b132a76e650e9c2ed0dcb73a81c8e4840a5ce72f40030c0f2a"
+    },
+    {
+      "id": "fco11-live-071",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/153.mp4",
+      "duration": 4.94,
+      "application": "선수별 선택 세리머니 · 기울여 돌기",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-21",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "f0537dc256dc01734265288276cbf714fa0e6fdcdaa30a43028494ba6afcf8f9"
+    },
+    {
+      "id": "fco11-live-072",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/154.mp4",
+      "duration": 9.81,
+      "application": "선수별 선택 세리머니 · 두 손 환호",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-22",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "90ed5dfb81eec84c8e6043e3ed3659636c830c0b8d79f701ef3d5ed97a3c426c"
+    },
+    {
+      "id": "fco11-live-073",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/155.mp4",
+      "duration": 5.04,
+      "application": "선수별 선택 세리머니 · 무릎 들기",
+      "files": [
+        "celebrations.js"
+      ],
+      "motion": "celebration:c11-23",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "02127a5b7ab831725a0216213738bf3bc65d099c6967c3bf0b4ca977dfadae85"
+    },
+    {
+      "id": "fco11-live-074",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/inside_curved_01.mp4",
+      "duration": 4.22,
+      "application": "프리킥 7종 궤적·회전 선택, 정지 공 킥",
+      "files": [
+        "setpiece-styles.js",
+        "physics.js",
+        "motion.js"
+      ],
+      "motion": "setpiece",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "34c389769d6b70bdc1a155994340b66c0657bdb3dad0d9a076b877beaf6a68d2"
+    },
+    {
+      "id": "fco11-live-075",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/outside_curved_01.mp4",
+      "duration": 3.43,
+      "application": "프리킥 7종 궤적·회전 선택, 정지 공 킥",
+      "files": [
+        "setpiece-styles.js",
+        "physics.js",
+        "motion.js"
+      ],
+      "motion": "setpiece",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "d06cec4a69cdffb9c3bc1137553b7e84a64835f2b00973d768a34a62cf5ef357"
+    },
+    {
+      "id": "fco11-live-076",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/knuckle_01.mp4",
+      "duration": 4.57,
+      "application": "프리킥 7종 궤적·회전 선택, 정지 공 킥",
+      "files": [
+        "setpiece-styles.js",
+        "physics.js",
+        "motion.js"
+      ],
+      "motion": "setpiece",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "5512fbb1a77ccb0e8af5ba013edcd9957bc07dc14607457c66e39fd48086d7f4"
+    },
+    {
+      "id": "fco11-live-077",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/chip_01.mp4",
+      "duration": 4.07,
+      "application": "프리킥 7종 궤적·회전 선택, 정지 공 킥",
+      "files": [
+        "setpiece-styles.js",
+        "physics.js",
+        "motion.js"
+      ],
+      "motion": "setpiece",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "5e2fc28c9eb9d5b629b19632756065065a1f526ad528452746379ba8067fac86"
+    },
+    {
+      "id": "fco11-live-078",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/low_inside_01.mp4",
+      "duration": 2.2,
+      "application": "프리킥 7종 궤적·회전 선택, 정지 공 킥",
+      "files": [
+        "setpiece-styles.js",
+        "physics.js",
+        "motion.js"
+      ],
+      "motion": "setpiece",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "75fff2c1efd58f4c285c4675202149e1dcfe6cb9c9c21426dda3094355e91ce1"
+    },
+    {
+      "id": "fco11-live-079",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/outside_low_02.mp4",
+      "duration": 3.95,
+      "application": "프리킥 7종 궤적·회전 선택, 정지 공 킥",
+      "files": [
+        "setpiece-styles.js",
+        "physics.js",
+        "motion.js"
+      ],
+      "motion": "setpiece",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "28f449d2f4a1959bbb79a02050384ed6f47916b8b9d81dee6ec0adf6b5337fd1"
+    },
+    {
+      "id": "fco11-live-080",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/low_straight_01.mp4",
+      "duration": 4.44,
+      "application": "프리킥 7종 궤적·회전 선택, 정지 공 킥",
+      "files": [
+        "setpiece-styles.js",
+        "physics.js",
+        "motion.js"
+      ],
+      "motion": "setpiece",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "772df2abe8edaafd6c478f96aa33b551e2fcc22dcc5c4d819afb5d1a17e7c85e"
+    },
+    {
+      "id": "fco11-live-081",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/spin_change.mp4",
+      "duration": 7.08,
+      "application": "프리킥 7종 궤적·회전 선택, 정지 공 킥",
+      "files": [
+        "setpiece-styles.js",
+        "physics.js",
+        "motion.js"
+      ],
+      "motion": "setpiece",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "49ecd2694cde246676ac13ef6401493819fc9b9953c57c7e480815957864a47f"
+    },
+    {
+      "id": "fco11-live-082",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/Line_breaker.mp4",
+      "duration": 10.68,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "058c3fa585ff567e9461ce8638ea0ee0f16990df9b78007980cac3fb2e2ae896"
+    },
+    {
+      "id": "fco11-live-083",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/%ED%81%AC%EB%A1%9C%EC%8A%A4%20%ED%8F%AC%EC%B3%90_%EC%BB%B7%EB%B0%B1%20%281%29.mp4",
+      "duration": 6.42,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "554e6d2c8e0d033820e07d36fd48ee11aa54bdf266e28f1ddd7d6b306a0e3054"
+    },
+    {
+      "id": "fco11-live-084",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/%ED%81%AC%EB%A1%9C%EC%8A%A4%20%ED%8F%AC%EC%B3%90_%ED%81%AC%EB%A1%9C%EC%8A%A4%20%281%29.mp4",
+      "duration": 6.13,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "9f4ee484c0a40b2b796bf2713d18bee648af383a444b39f658a8d56eebf9806b"
+    },
+    {
+      "id": "fco11-live-085",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/%EC%99%80%EC%9D%BC%EB%93%9C%20%ED%83%9C%ED%81%B4%EB%9F%AC%20%281%29.mp4",
+      "duration": 6.17,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "28159a7a9f14d86e8ab211597e550a8c66a2683dc61a9b831186324e857ff72e"
+    },
+    {
+      "id": "fco11-live-086",
+      "url": "https://fco.vod.nexoncdn.co.kr/list/2025/6/note_FCO_2506_mnkr2iCkvVk/%EC%B2%B4%EC%9D%B4%EC%84%9C%20%281%29.mp4",
+      "duration": 6,
+      "application": "기존 팀 AI 침투·지원·라인 유지. 원본 전술/특성 수치의 동일 재현은 미검증",
+      "files": [
+        "ai.js",
+        "control-assist.js"
+      ],
+      "motion": "run",
+      "status": "장면 표본 검토 · 자체 구현 / 원본 동일성 미검증",
+      "sha256": "61e613d3349b2542b21ed5c07106659c7d5ed605ba173fb2436094e3f10b1900"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+export class StadiumAudio{
+ constructor(settings){this.settings=settings;this.ctx=null;this.intensity=0;}
+ init(){if(this.ctx){this.ctx.resume();return}const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;this.ctx=new AC();this.master=this.ctx.createGain();this.master.connect(this.ctx.destination);this.setVolume();const n=this.ctx.sampleRate*3,b=this.ctx.createBuffer(1,n,this.ctx.sampleRate),d=b.getChannelData(0);let last=0;for(let i=0;i<n;i++){last=(last+Math.random()*.13-.065)/1.025;d[i]=last;}const noise=this.ctx.createBufferSource();noise.buffer=b;noise.loop=true;const f=this.ctx.createBiquadFilter();f.type='bandpass';f.frequency.value=550;f.Q.value=.55;this.crowd=this.ctx.createGain();this.crowd.gain.value=.19;noise.connect(f).connect(this.crowd).connect(this.master);noise.start();}
+ setVolume(){if(this.master)this.master.gain.setTargetAtTime(this.settings.sound?this.settings.volume:0,this.ctx.currentTime,.08)}
+ tone(freq,duration,volume,type='sine',end=freq){if(!this.ctx)return;const t=this.ctx.currentTime,o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(Math.max(end,20),t+duration);g.gain.setValueAtTime(volume,t);g.gain.exponentialRampToValueAtTime(.001,t+duration);o.connect(g).connect(this.master);o.start(t);o.stop(t+duration);}
+ kick(power=1){this.tone(140+power*30,.12,.3*power,'sine',45);this.noise(.06,.06*power,1300);}
+ noise(duration,vol,freq){if(!this.ctx)return;const size=Math.ceil(duration*this.ctx.sampleRate),buffer=this.ctx.createBuffer(1,size,this.ctx.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<size;i++)data[i]=(Math.random()*2-1)*(1-i/size);const source=this.ctx.createBufferSource(),filter=this.ctx.createBiquadFilter(),gain=this.ctx.createGain();source.buffer=buffer;filter.type='lowpass';filter.frequency.value=freq;gain.gain.value=vol;source.connect(filter).connect(gain).connect(this.master);source.start();}
+ whistle(){this.tone(2450,.3,.07,'sine',2800);setTimeout(()=>this.tone(2700,.15,.05),180)}
+ goal(){if(!this.ctx)return;this.crowd.gain.setTargetAtTime(.85,this.ctx.currentTime,.25);this.crowd.gain.setTargetAtTime(.2,this.ctx.currentTime+3,2);this.tone(450,.5,.09,'triangle',700);}
+ update(danger){if(this.crowd)this.crowd.gain.setTargetAtTime(.17+danger*.16,this.ctx.currentTime,.7)}
+}

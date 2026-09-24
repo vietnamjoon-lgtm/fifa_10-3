@@ -1,0 +1,1673 @@
+{
+  "checkedAt": "2026-09-22T14:05:54.210Z",
+  "description": "96 own-engine condition checks. Not a comparison against FC Online footage.",
+  "count": 96,
+  "results": [
+    {
+      "id": "C001",
+      "action": "straight_run",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C002",
+      "action": "straight_run",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C003",
+      "action": "straight_run",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C004",
+      "action": "straight_run",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C005",
+      "action": "straight_run",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C006",
+      "action": "straight_run",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C007",
+      "action": "accelerate",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "idle",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C008",
+      "action": "accelerate",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "idle",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C009",
+      "action": "accelerate",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "idle",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C010",
+      "action": "accelerate",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "idle",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C011",
+      "action": "accelerate",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "idle",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C012",
+      "action": "accelerate",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "idle",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C013",
+      "action": "decelerate",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "idle"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C014",
+      "action": "decelerate",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "idle"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C015",
+      "action": "decelerate",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "idle"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C016",
+      "action": "decelerate",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "idle"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C017",
+      "action": "decelerate",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "idle"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C018",
+      "action": "decelerate",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "idle"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C019",
+      "action": "turn_left_45",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C020",
+      "action": "turn_left_45",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C021",
+      "action": "turn_left_45",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "sprint",
+        "start"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C022",
+      "action": "turn_left_45",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C023",
+      "action": "turn_left_45",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C024",
+      "action": "turn_left_45",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "sprint",
+        "start"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C025",
+      "action": "turn_right_45",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C026",
+      "action": "turn_right_45",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C027",
+      "action": "turn_right_45",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "sprint",
+        "start"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C028",
+      "action": "turn_right_45",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C029",
+      "action": "turn_right_45",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C030",
+      "action": "turn_right_45",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "sprint",
+        "start"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C031",
+      "action": "turn_left_90",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C032",
+      "action": "turn_left_90",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C033",
+      "action": "turn_left_90",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "turn",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C034",
+      "action": "turn_left_90",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C035",
+      "action": "turn_left_90",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C036",
+      "action": "turn_left_90",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "turn",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C037",
+      "action": "turn_right_90",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C038",
+      "action": "turn_right_90",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C039",
+      "action": "turn_right_90",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "turn",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C040",
+      "action": "turn_right_90",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C041",
+      "action": "turn_right_90",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C042",
+      "action": "turn_right_90",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "turn",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C043",
+      "action": "turn_left_135",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C044",
+      "action": "turn_left_135",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C045",
+      "action": "turn_left_135",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "turn",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C046",
+      "action": "turn_left_135",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C047",
+      "action": "turn_left_135",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C048",
+      "action": "turn_left_135",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "turn",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C049",
+      "action": "turn_right_135",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C050",
+      "action": "turn_right_135",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C051",
+      "action": "turn_right_135",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "turn",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C052",
+      "action": "turn_right_135",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C053",
+      "action": "turn_right_135",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "turn",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C054",
+      "action": "turn_right_135",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "turn",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C055",
+      "action": "turn_left_180",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "idle",
+        "start",
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C056",
+      "action": "turn_left_180",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "idle",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C057",
+      "action": "turn_left_180",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C058",
+      "action": "turn_left_180",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "idle",
+        "start",
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C059",
+      "action": "turn_left_180",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "idle",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C060",
+      "action": "turn_left_180",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C061",
+      "action": "turn_right_180",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "idle",
+        "start",
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C062",
+      "action": "turn_right_180",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "idle",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C063",
+      "action": "turn_right_180",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C064",
+      "action": "turn_right_180",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "idle",
+        "start",
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C065",
+      "action": "turn_right_180",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "idle",
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C066",
+      "action": "turn_right_180",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "turn-brake",
+        "turn-plant",
+        "turn-touch",
+        "turn-exit",
+        "stop",
+        "start",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C067",
+      "action": "dribble_forward",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C068",
+      "action": "dribble_forward",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C069",
+      "action": "dribble_forward",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C070",
+      "action": "dribble_forward",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C071",
+      "action": "dribble_forward",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C072",
+      "action": "dribble_forward",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "stop",
+        "sprint"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C073",
+      "action": "ground_receive",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "receive-redirect",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C074",
+      "action": "ground_receive",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run",
+        "receive-redirect"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C075",
+      "action": "ground_receive",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "sprint",
+        "receive-redirect"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C076",
+      "action": "ground_receive",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "receive-redirect",
+        "run"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C077",
+      "action": "ground_receive",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "run",
+        "receive-redirect"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C078",
+      "action": "ground_receive",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "start",
+        "sprint",
+        "receive-redirect"
+      ],
+      "contacts": [],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C079",
+      "action": "ground_pass",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "pass",
+        "run",
+        "start",
+        "receive-redirect"
+      ],
+      "contacts": [
+        {
+          "clip": "inside-pass",
+          "delayMs": 183.33333333333331,
+          "contactError": 0.10067102568829654
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C080",
+      "action": "ground_pass",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "pass",
+        "run",
+        "start",
+        "receive-redirect"
+      ],
+      "contacts": [
+        {
+          "clip": "moving-pass",
+          "delayMs": 175,
+          "contactError": 0.10895568764522523
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C081",
+      "action": "ground_pass",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "pass",
+        "run",
+        "start",
+        "receive-redirect",
+        "sprint"
+      ],
+      "contacts": [
+        {
+          "clip": "moving-pass",
+          "delayMs": 175,
+          "contactError": 0.06773521675188372
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C082",
+      "action": "ground_pass",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "pass",
+        "run",
+        "start",
+        "receive-redirect"
+      ],
+      "contacts": [
+        {
+          "clip": "inside-pass",
+          "delayMs": 183.33333333333331,
+          "contactError": 0.10067102568829654
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C083",
+      "action": "ground_pass",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "pass",
+        "run",
+        "start",
+        "receive-redirect"
+      ],
+      "contacts": [
+        {
+          "clip": "moving-pass",
+          "delayMs": 175,
+          "contactError": 0.10895568764522523
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C084",
+      "action": "ground_pass",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "pass",
+        "run",
+        "start",
+        "receive-redirect",
+        "sprint"
+      ],
+      "contacts": [
+        {
+          "clip": "moving-pass",
+          "delayMs": 175,
+          "contactError": 0.06773521675188372
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C085",
+      "action": "normal_shot",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "shoot",
+        "run",
+        "start"
+      ],
+      "contacts": [
+        {
+          "clip": "instep-shot",
+          "delayMs": 241.66666666666663,
+          "contactError": 0.11609198392270027
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C086",
+      "action": "normal_shot",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "shoot",
+        "run",
+        "start"
+      ],
+      "contacts": [
+        {
+          "clip": "instep-shot",
+          "delayMs": 241.66666666666663,
+          "contactError": 0.1112598795919531
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C087",
+      "action": "normal_shot",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "shoot",
+        "run",
+        "start",
+        "sprint"
+      ],
+      "contacts": [
+        {
+          "clip": "instep-shot",
+          "delayMs": 241.66666666666663,
+          "contactError": 0.07491391754419507
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C088",
+      "action": "normal_shot",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "shoot",
+        "run",
+        "start"
+      ],
+      "contacts": [
+        {
+          "clip": "instep-shot",
+          "delayMs": 241.66666666666663,
+          "contactError": 0.11609198392270027
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C089",
+      "action": "normal_shot",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "shoot",
+        "run",
+        "start"
+      ],
+      "contacts": [
+        {
+          "clip": "instep-shot",
+          "delayMs": 241.66666666666663,
+          "contactError": 0.1112598795919531
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C090",
+      "action": "normal_shot",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "shoot",
+        "run",
+        "start",
+        "sprint"
+      ],
+      "contacts": [
+        {
+          "clip": "instep-shot",
+          "delayMs": 241.66666666666663,
+          "contactError": 0.07491391754419507
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C091",
+      "action": "finesse_shot",
+      "foot": "left",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "shoot",
+        "run",
+        "start"
+      ],
+      "contacts": [
+        {
+          "clip": "instep-shot",
+          "delayMs": 241.66666666666663,
+          "contactError": 0.11609198392270027
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C092",
+      "action": "finesse_shot",
+      "foot": "left",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "shoot",
+        "run",
+        "start"
+      ],
+      "contacts": [
+        {
+          "clip": "instep-shot",
+          "delayMs": 241.66666666666663,
+          "contactError": 0.1112598795919531
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C093",
+      "action": "finesse_shot",
+      "foot": "left",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "shoot",
+        "run",
+        "start",
+        "sprint"
+      ],
+      "contacts": [
+        {
+          "clip": "instep-shot",
+          "delayMs": 241.66666666666663,
+          "contactError": 0.07491391754419507
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C094",
+      "action": "finesse_shot",
+      "foot": "right",
+      "entrySpeed": 1.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "shoot",
+        "run",
+        "start"
+      ],
+      "contacts": [
+        {
+          "clip": "instep-shot",
+          "delayMs": 241.66666666666663,
+          "contactError": 0.11609198392270027
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C095",
+      "action": "finesse_shot",
+      "foot": "right",
+      "entrySpeed": 4.5,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "shoot",
+        "run",
+        "start"
+      ],
+      "contacts": [
+        {
+          "clip": "instep-shot",
+          "delayMs": 241.66666666666663,
+          "contactError": 0.1112598795919531
+        }
+      ],
+      "referenceComparison": "not_measured"
+    },
+    {
+      "id": "C096",
+      "action": "finesse_shot",
+      "foot": "right",
+      "entrySpeed": 8,
+      "finite": true,
+      "minBallY": 0.11,
+      "states": [
+        "shoot",
+        "run",
+        "start",
+        "sprint"
+      ],
+      "contacts": [
+        {
+          "clip": "instep-shot",
+          "delayMs": 241.66666666666663,
+          "contactError": 0.07491391754419507
+        }
+      ],
+      "referenceComparison": "not_measured"
+    }
+  ]
+}

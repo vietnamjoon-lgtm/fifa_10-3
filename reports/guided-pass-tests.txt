@@ -1,0 +1,55 @@
+TAP version 13
+# Subtest: every unobstructed short, through and lofted pass reaches a stationary receiver with low passing stats
+ok 1 - every unobstructed short, through and lofted pass reaches a stationary receiver with low passing stats
+  ---
+  duration_ms: 777.9824
+  ...
+# Subtest: ball follows a receiver who changes their running direction after the kick
+ok 2 - ball follows a receiver who changes their running direction after the kick
+  ---
+  duration_ms: 66.9475
+  ...
+# Subtest: velocity guidance cannot teleport the ball or move the receiver
+ok 3 - velocity guidance cannot teleport the ball or move the receiver
+  ---
+  duration_ms: 15.2112
+  ...
+# Subtest: an opponent on the passing lane can intercept and stops target following
+ok 4 - an opponent on the passing lane can intercept and stops target following
+  ---
+  duration_ms: 31.9026
+  ...
+# Subtest: unintended teammates do not steal a guided pass from the selected receiver
+ok 5 - unintended teammates do not steal a guided pass from the selected receiver
+  ---
+  duration_ms: 73.4081
+  ...
+# Subtest: disabling target following restores the physical pass without random changes to shots
+ok 6 - disabling target following restores the physical pass without random changes to shots
+  ---
+  duration_ms: 10.9152
+  ...
+# Subtest: AI receivers keep their run lane rather than intercepting the ball trajectory
+ok 7 - AI receivers keep their run lane rather than intercepting the ball trajectory
+  ---
+  duration_ms: 7.8651
+  ...
+# Subtest: online seats sanitize and retain independent target-following preferences
+ok 8 - online seats sanitize and retain independent target-following preferences
+  ---
+  duration_ms: 10.9985
+  ...
+# Subtest: keeper hand passes and throw-ins use the same receiver guidance without dragging the receiver
+ok 9 - keeper hand passes and throw-ins use the same receiver guidance without dragging the receiver
+  ---
+  duration_ms: 64.4425
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1458.2629
