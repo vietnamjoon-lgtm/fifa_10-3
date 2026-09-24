@@ -7,8 +7,8 @@ const el=(tag,text,className)=>{const e=document.createElement(tag);if(text!==un
 const STAT_ROWS=[['pac','PAC'],['sho','SHO'],['pas','PAS'],['dri','DRI'],['def','DEF'],['phy','PHY']];
 const GK_ROWS=[['ref','DIV'],['reach','HAN'],['pas','KIC'],['dri','REF'],['pac','SPD'],['phy','POS']];
 export class CardPackUI{
- constructor(editor,audio){
-  this.editor=editor;this.audio=audio;this.busy=false;this.skipped=false;this.walkout=null;
+ constructor(editor,audio,onWalletChange=()=>{}){
+  this.editor=editor;this.audio=audio;this.onWalletChange=onWalletChange;this.busy=false;this.skipped=false;this.walkout=null;
   $('cards-open').onclick=()=>this.open();
   $('cards-close').onclick=()=>this.close();
   $('cards-skip').onclick=()=>{this.skipped=true;};
@@ -19,7 +19,7 @@ export class CardPackUI{
  open(){$('cards-panel').classList.remove('hidden');this.showShop();}
  close(){this.skipped=true;this.walkout?.stop();$('cards-panel').classList.add('hidden');}
  status(text){$('cards-status').textContent=text;}
- coins(){const wallet=loadWallet();$('cards-coins').textContent=wallet.coins.toLocaleString('ko-KR');return wallet.coins;}
+ coins(){const wallet=loadWallet();$('cards-coins').textContent=wallet.coins.toLocaleString('ko-KR');this.onWalletChange();return wallet.coins;}
  showShop(){
   $('cards-stage').classList.add('hidden');$('cards-results').classList.add('hidden');$('cards-shop').classList.remove('hidden');
   this.walkout?.stop();
