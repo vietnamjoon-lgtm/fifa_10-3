@@ -19,7 +19,7 @@ import {resolveBodyContacts} from './contacts.js';
 import {FIELD,TUNING,roster,clamp,distance,turnToward,jogSpeed} from './config.js';
 import {updateTeamAI,choosePass,keeperTarget} from './ai.js';
 import {boundaryRestart,offsideSnapshot} from './rules.js';
-import {ASSIST,footPosition,shotTarget,groundPassSpeed,passTarget,setKickTarget,dribbleTouch,cushionFirstTouch,possessionRadius,dribbleSteer,controlReach,kickLunge,kickStartDistance} from './assists.js';
+import {ASSIST,footPosition,shotTarget,groundPassSpeed,passTarget,setKickTarget,dribbleTouch,cushionFirstTouch,possessionRadius,dribbleSteer,controlReach,kickLunge,kickInReach} from './assists.js';
 import {resetReferee,resolveTackle,flushCards,updateAdvantage,inPenaltyArea} from './referee.js';
 import {executeCommand,controlContext,throwIn} from './commands.js';
 import {selectControlled,updateAutoControl,runTarget} from './control-assist.js';
@@ -36,7 +36,7 @@ export class Match{
  if(this.setPiece&&this.setPiece.taker!==p)return false;
  if(!p||!p.active||p.action||p.down>0||distance(p,ball)>(this.owner===p&&ball.y<.5?ASSIST.kickReach:ASSIST.touchRadius)||ball.y>2.2)return false;
  // A ball knocked ahead of its owner is not struck from afar: the kick waits until the player has run onto it.
- if(this.owner===p&&!options.deferred&&distance(p,ball)>kickStartDistance(p)){p.pendingKick={args:[type,power,aim,receiver,{...options,deferred:true}],axis:{...(this.input.axis||{x:0,z:0})},expires:this.time+ASSIST.pendingKick};return true;}
+ if(this.owner===p&&!options.deferred&&!kickInReach(p,ball,this.physics.ball.velocity)){p.pendingKick={args:[type,power,aim,receiver,{...options,deferred:true}],axis:{...(this.input.axis||{x:0,z:0})},expires:this.time+ASSIST.pendingKick};return true;}
  let target=null,assistOffset=null;
  if(!aim){
   const axis=this.input.axis||{x:0,z:0},hasInput=Math.hypot(axis.x,axis.z)>.2;
@@ -166,7 +166,7 @@ export class Match{
  if(p.wallHoldUntil>this.time&&!this.isHumanControlled(p)){p.vx=p.vz=0;return;}
  if(p.active&&p.role==='GK'&&!this.isHumanControlled(p))keeperTarget(this,p);
  if(!p.active)return;
- if(p.pendingKick){const k=p.pendingKick;if(this.time>k.expires||this.owner!==p||p.down>0||p.action)p.pendingKick=null;else if(distance(p,this.physics.ball.position)<=kickStartDistance(p)){p.pendingKick=null;const saved=this.input.axis;this.input.axis=k.axis;this.queueKick(p,...k.args);this.input.axis=saved;}}
+ if(p.pendingKick){const k=p.pendingKick;if(this.time>k.expires||this.owner!==p||p.down>0||p.action)p.pendingKick=null;else if(kickInReach(p,this.physics.ball.position,this.physics.ball.velocity)){p.pendingKick=null;const saved=this.input.axis;this.input.axis=k.axis;this.queueKick(p,...k.args);this.input.axis=saved;}}
  if(p.intent){const intent=p.intent;if(this.time>intent.expires||p!==this.controlled||p.down>0)p.intent=null;else if(distance(p,this.physics.ball.position)<ASSIST.touchRadius&&!p.action){const incoming=this.physics.ball.velocity.length();if(incoming<15||this.physics.ball.position.y>.65||this.owner===p){const saved=this.input.axis;this.input.axis=intent.axis;if(this.queueKick(p,intent.type,intent.power,null,null,intent.options)){p.action.inputTime=intent.inputTime;p.intent=null;}this.input.axis=saved;}}}p.closeControl=false;p.shield=false;p.autoDefending=false;let axis,sprint=false,defend=false;if(p===this.controlled&&!this.autoplay){axis=this.carryInput&&this.time<this.carryInput.until?this.carryInput.axis:input.axis||{x:0,z:0};sprint=this.settings.analogSprint&&input.sprintAmount!==undefined?input.sprintAmount:input.sprint;defend=input.defend;p.closeControl=input.closeControl&&this.owner===p;p.shield=input.shield&&this.owner===p;
  const auto=autoDefenceMovement(this,p,input,axis,dt);if(auto){axis=auto.axis;sprint=auto.sprint;defend=true;}
  const assistance=auto?null:collectionMovement(this,p,axis,input);if(assistance){axis=assistance.axis;sprint=assistance.sprint;}
