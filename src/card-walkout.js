@@ -1,35 +1,57 @@
 import * as THREE from 'three';
 import {createPlayer,animatePlayer,disposePlayerRig} from './player.js';
-const RUN_FROM=-6.2,RUN_TO=-1.05,RUN_TIME=1.75,RUN_SPEED=5.4;
-const SOLO_LANE=1,PAIR_LANES=[-.8,.8];
-// 카드 공개 뒤 선수가 터널에서 달려 나와 카드 앞에서 세리머니를 합니다. 스페셜 두 장이면 둘이 함께 나옵니다.
+const RUN_FROM=-9,RUN_TO=-1.05,RUN_TIME=1.9,RUN_SPEED=5.4;
+const SOLO_LANE=1.05,PAIR_LANES=[-.85,.85];
+const HALL_W=2.6,HALL_H=3.4,HALL_Z=-16;
+// FC 온라인 팩 개봉 화면을 참고한 네온 복도. 등급 색이 복도 라인과 끝의 밝은 문에 함께 적용됩니다.
 export class CardWalkout{
  constructor(canvas){
-  this.canvas=canvas;this.rigs=[];this.frame=null;
+  this.canvas=canvas;this.rigs=[];this.frame=null;this.neon=[];
   this.renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
   this.renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
   this.renderer.outputColorSpace=THREE.SRGBColorSpace;
-  this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.08;
+  this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.1;
   this.scene=new THREE.Scene();
-  this.camera=new THREE.PerspectiveCamera(38,1,.05,40);
-  this.scene.add(new THREE.HemisphereLight(0xdceeff,0x2a2418,1.7));
-  const key=new THREE.DirectionalLight(0xfff4e6,3.6);key.position.set(-1.4,2.9,4.6);this.scene.add(key);
-  const fill=new THREE.DirectionalLight(0xe9f4ff,1.5);fill.position.set(2.2,1.7,3.4);this.scene.add(fill);
-  const rim=new THREE.DirectionalLight(0x9fd4ff,1.8);rim.position.set(2.4,2.4,-3);this.scene.add(rim);
-  this.glow=new THREE.PointLight(0xffffff,10,11,2);this.glow.position.set(0,2,-6);this.scene.add(this.glow);
-  const floor=new THREE.Mesh(new THREE.PlaneGeometry(7,16),new THREE.MeshStandardMaterial({color:0x10150e,roughness:.85}));
-  floor.rotation.x=-Math.PI/2;floor.position.z=-4;this.scene.add(floor);
-  const wall=new THREE.BoxGeometry(.5,3.4,15),wallMat=new THREE.MeshStandardMaterial({color:0x0a0d08,roughness:.95});
-  for(const x of [-2.5,2.5]){const side=new THREE.Mesh(wall,wallMat);side.position.set(x,1.7,-4.4);this.scene.add(side);}
-  this.backdrop=new THREE.Mesh(new THREE.PlaneGeometry(5,3.6),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.26}));
-  this.backdrop.position.set(0,1.8,-8.2);this.scene.add(this.backdrop);
+  this.camera=new THREE.PerspectiveCamera(42,1,.05,60);
+  this.scene.add(new THREE.HemisphereLight(0xcfe4ff,0x1a1d18,1.25));
+  const key=new THREE.DirectionalLight(0xfff4e6,3.1);key.position.set(-1.4,2.9,4.6);this.scene.add(key);
+  const fill=new THREE.DirectionalLight(0xe9f4ff,1.4);fill.position.set(2.2,1.7,3.4);this.scene.add(fill);
+  this.glow=new THREE.PointLight(0xffffff,16,16,2);this.glow.position.set(0,1.8,-9);this.scene.add(this.glow);
+  const shell=new THREE.MeshStandardMaterial({color:0x0d1210,roughness:.92,side:THREE.DoubleSide});
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(HALL_W*2,-HALL_Z),shell);
+  floor.rotation.x=-Math.PI/2;floor.position.z=HALL_Z/2;this.scene.add(floor);
+  const ceiling=floor.clone();ceiling.position.y=HALL_H;ceiling.rotation.x=Math.PI/2;this.scene.add(ceiling);
+  for(const side of [-1,1]){
+   const wall=new THREE.Mesh(new THREE.PlaneGeometry(-HALL_Z,HALL_H),shell);
+   wall.rotation.y=side*Math.PI/2;wall.position.set(side*HALL_W,HALL_H/2,HALL_Z/2);this.scene.add(wall);
+  }
+  // 복도 네 모서리를 따라 흐르는 발광 라인과 일정 간격의 세로 리브.
+  const strip=new THREE.BoxGeometry(.055,.055,-HALL_Z);
+  for(const x of [-HALL_W,HALL_W])for(const y of [.03,HALL_H-.03]){
+   const mat=new THREE.MeshBasicMaterial({color:0xffffff});this.neon.push(mat);
+   const line=new THREE.Mesh(strip,mat);line.position.set(x,y,HALL_Z/2);this.scene.add(line);
+  }
+  const rib=new THREE.BoxGeometry(.045,HALL_H,.045);
+  for(let z=-2.5;z>HALL_Z+1;z-=2.6)for(const x of [-HALL_W,HALL_W]){
+   const mat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.5});this.neon.push(mat);
+   const bar=new THREE.Mesh(rib,mat);bar.position.set(x,HALL_H/2,z);this.scene.add(bar);
+  }
+  // 복도 끝의 밝은 문. 포지션 글자가 이 앞에 뜹니다.
+  this.doorMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.92});
+  this.door=new THREE.Mesh(new THREE.PlaneGeometry(HALL_W*1.35,HALL_H*.82),this.doorMat);
+  this.door.position.set(0,HALL_H*.44,HALL_Z+.4);this.scene.add(this.door);
   this.resize=new ResizeObserver(()=>this.draw());this.resize.observe(canvas);
  }
- tint(color){const tone=new THREE.Color(color);this.backdrop.material.color.copy(tone);this.glow.color.copy(tone);}
- // 팩이 열리자마자 보여 주는 빈 터널. 스페셜이 들어 있다는 신호입니다.
+ tint(color){
+  const tone=new THREE.Color(color);
+  for(const mat of this.neon)mat.color.copy(tone);
+  this.glow.color.copy(tone);
+  this.doorMat.color.copy(tone).lerp(new THREE.Color(0xffffff),.72);
+ }
+ // 팩이 열리자마자 보여 주는 빈 복도. 스페셜이 들어 있다는 신호입니다.
  showTunnel(color){
   this.stop();this.tint(color);
-  this.camera.position.set(0,1.45,2.2);this.camera.lookAt(0,1.3,-6);
+  this.camera.position.set(0,1.55,2.4);this.camera.lookAt(0,1.5,HALL_Z);
   this.draw();
  }
  play(profiles,color='#e8c15a',team=0){
@@ -41,8 +63,7 @@ export class CardWalkout{
    rig.profile=profile;rig.lane=lanes[i];rig.root.position.set(rig.lane,0,RUN_FROM);
    this.scene.add(rig.root);return rig;
   });
-  // 혼자 나올 때는 카메라가 카드 쪽을 보게 해서 선수가 화면 오른쪽에 서고 카드가 가려지지 않습니다.
-  const focus=list.length>1?0:SOLO_LANE-.68;
+  const focus=list.length>1?0:SOLO_LANE-.62;
   const tick=now=>{
    this.frame=requestAnimationFrame(tick);
    const time=now/1000,dt=Math.min(.05,Math.max(.012,time-this.last));this.last=time;
@@ -54,8 +75,8 @@ export class CardWalkout{
     if(!running)state.celebrationStart=this.started+RUN_TIME;
     animatePlayer(rig,running?RUN_SPEED:0,dt,time,!running,state);
    }
-   this.camera.position.set(focus*.5,list.length>1?1.6:1.38,list.length>1?3.5:2.35);
-   this.camera.lookAt(focus,list.length>1?1.3:1.02,z-.15);
+   this.camera.position.set(focus*.5,1.45,list.length>1?3.2:2.35);
+   this.camera.lookAt(focus,1.1,z-.15);
    this.draw();
   };
   this.frame=requestAnimationFrame(tick);

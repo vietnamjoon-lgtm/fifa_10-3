@@ -4,8 +4,8 @@ import {loadWallet,spendCoins,addCoins} from './wallet.js';
 import {CardWalkout} from './card-walkout.js';
 const $=id=>document.getElementById(id);
 const el=(tag,text,className)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;};
-const STAT_ROWS=[['pac','속력'],['sho','슛'],['pas','패스'],['dri','드리블'],['def','수비'],['phy','피지컬']];
-const GK_ROWS=[['ref','반응'],['reach','도달'],['dri','안정'],['pas','배급'],['phy','피지컬'],['pac','반사 이동']];
+const STAT_ROWS=[['pac','PAC'],['sho','SHO'],['pas','PAS'],['dri','DRI'],['def','DEF'],['phy','PHY']];
+const GK_ROWS=[['ref','DIV'],['reach','HAN'],['pas','KIC'],['dri','REF'],['pac','SPD'],['phy','POS']];
 export class CardPackUI{
  constructor(editor,audio){
   this.editor=editor;this.audio=audio;this.busy=false;this.skipped=false;this.walkout=null;
@@ -73,13 +73,11 @@ export class CardPackUI{
   const flash=$('cards-flash'),stage=$('cards-reveal'),tier=TIERS[pick.tier];
   stage.replaceChildren();flash.replaceChildren();
   $('cards-stage').classList.remove('walkout');
-  // 스페셜은 팩이 열리자마자 빈 터널을 먼저 보여 줍니다. 그 아래 등급은 곧바로 포지션으로 넘어갑니다.
-  if(pick.walkout){
-   $('cards-walkout').classList.add('live');this.walkout.showTunnel(tier.color);
-   this.sound('tunnel');
-   if(!await this.wait(620))return;
-   $('cards-walkout').classList.remove('live');
-  }
+  // 팩을 열면 먼저 등급 색 네온 복도가 깔리고, 복도 끝 밝은 문 앞에서 정보가 하나씩 뜹니다.
+  $('cards-walkout').classList.add('live');
+  this.walkout.showTunnel(tier.color);
+  this.sound('tunnel');
+  if(!await this.wait(pick.walkout?620:300))return;
   flash.dataset.rail=pick.walkout?'walkout':pick.tier==='gold'?'board':'plain';
   flash.classList.toggle('steady',double);
   flash.classList.remove('hidden');
@@ -90,18 +88,28 @@ export class CardPackUI{
    if(!await this.wait(320))break;
   }
   flash.classList.add('hidden');
-  stage.append(this.cardElement(pick));
-  await this.countUp(stage.querySelector('.card-ovr'),pick.overall);
-  // 카드가 확정된 다음에 선수가 달려 나와 카드 앞에서 세리머니를 합니다.
+  stage.replaceChildren(...this.revealCluster(pick));
+  await this.countUp([...stage.querySelectorAll('.card-ovr,.side-ovr')],pick.overall);
+  // 카드가 확정된 다음에 선수가 달려 나와 카드 옆에서 세리머니를 합니다.
   if(pick.walkout&&!this.skipped){
    $('cards-stage').classList.add('walkout');
-   $('cards-walkout').classList.add('live');
    this.walkout.play(pick.profile,tier.color);
    this.sound('walkout');
    await this.wait(3400);
-  }else await this.wait(900);
+  }else await this.wait(1000);
   this.walkout.stop();
   $('cards-walkout').classList.remove('live');
+ }
+ // 카드 양옆에 큰 종합 능력치와 세부 스탯 패널을 세워 실제 개봉 화면 구성을 따릅니다.
+ revealCluster(pick){
+  const rows=pick.card.role==='GK'?GK_ROWS:STAT_ROWS;
+  const left=el('div',undefined,'reveal-side left'),right=el('div',undefined,'reveal-side right');
+  left.append(el('b','0','side-ovr'),el('small',pick.card.role,'side-role'));
+  right.append(el('b','0','side-ovr'));
+  const grid=el('div',undefined,'side-stats');
+  for(const [key,label] of rows){const cell=el('div');cell.append(el('b',String(pick.card[key]??'-')),el('span',label));grid.append(cell);}
+  right.append(grid);
+  return [left,this.cardElement(pick),right];
  }
  async doubleWalkout(specials){
   const stage=$('cards-reveal'),flash=$('cards-flash'),pair=specials.slice(0,2);
@@ -127,23 +135,28 @@ export class CardPackUI{
   const tier=TIERS[pick.tier],card=el('div',undefined,`player-card tier-${pick.tier}`);
   card.style.setProperty('--tier',tier.color);
   const head=el('div',undefined,'card-head');
-  head.append(el('b',showOverall?String(pick.overall):'0','card-ovr'),el('span',pick.card.role,'card-role'),el('small',tier.name,'card-tier'));
-  const body=el('div',undefined,'card-body');
-  body.append(el('strong',pick.card.name,'card-name'),el('small',`${pick.card.club} · ${pick.card.nation}`,'card-club'));
+  head.append(el('b',showOverall?String(pick.overall):'0','card-ovr'),el('span',pick.card.role,'card-role'));
+  // 실제 카드의 선수 사진 자리. 사진이 없어 등급 이름만 넣고, 공개가 끝나면 밝아집니다.
+  const art=el('div',undefined,'card-art');
+  art.append(el('span',tier.name,'card-tier'));
+  const name=el('strong',pick.card.name,'card-name');
+  const meta=el('div',undefined,'card-meta');
+  meta.append(el('span',pick.card.nation),el('span',leagueOf(pick.card.club)),el('span',pick.card.club));
   const stats=el('div',undefined,'card-stats');
   for(const [key,label] of (pick.card.role==='GK'?GK_ROWS:STAT_ROWS)){
-   const cell=el('div');cell.append(el('b',String(pick.card[key]??'-')),el('span',label));stats.append(cell);
+   const cell=el('div');cell.append(el('span',label),el('b',String(pick.card[key]??'-')));stats.append(cell);
   }
-  card.append(head,body,stats);
+  card.append(head,art,name,meta,stats);
   return card;
  }
- async countUp(node,target){
-  const steps=Math.max(6,Math.min(26,target-40));
+ async countUp(nodes,target){
+  const list=[].concat(nodes),steps=Math.max(6,Math.min(26,target-40));
   for(let i=1;i<=steps;i++){
-   node.textContent=String(Math.round(40+(target-40)*(i/steps)));
+   const value=String(Math.round(40+(target-40)*(i/steps)));
+   for(const node of list)node.textContent=value;
    if(!await this.wait(26))break;
   }
-  node.textContent=String(target);node.classList.add('locked');
+  for(const node of list){node.textContent=String(target);node.classList.add('locked');}
  }
  wait(ms){return new Promise(resolve=>{if(this.skipped)return resolve(false);setTimeout(()=>resolve(!this.skipped),this.skipped?0:ms);});}
  showResults(picks){
