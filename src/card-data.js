@@ -10,6 +10,10 @@ export const TIERS={
 export const TIER_ORDER=['bronze','silver','gold','special'];
 const LEAGUES={'맨체스터 시티':'프리미어리그','리버풀':'프리미어리그','아스널':'프리미어리그','첼시':'프리미어리그','아스톤 빌라':'프리미어리그','레알 마드리드':'라리가','바르셀로나':'라리가','아틀레티코 마드리드':'라리가','바이에른 뮌헨':'분데스리가','파리 생제르맹':'리그 1','유벤투스':'세리에 A','인터 밀란':'세리에 A','인터 마이애미':'MLS','로스앤젤레스 FC':'MLS','알 나스르':'사우디 프로 리그'};
 export const leagueOf=club=>LEAGUES[club]||'인터내셔널';
+// 국기는 위키미디어 커먼스의 퍼블릭 도메인 이미지입니다. 출처는 licenses/FLAGS.md에 있습니다.
+const FLAGS={'아르헨티나':'argentina','프랑스':'france','노르웨이':'norway','스페인':'spain','포르투갈':'portugal','브라질':'brazil','독일':'germany','잉글랜드':'england','대한민국':'korea','튀르키예':'turkey','네덜란드':'netherlands','모로코':'morocco','이탈리아':'italy','벨기에':'belgium','슬로베니아':'slovenia','우루과이':'uruguay'};
+export const flagFile=nation=>FLAGS[nation]||null;
+export const flagUrl=nation=>FLAGS[nation]?new URL(`./assets/flags/${FLAGS[nation]}.png`,import.meta.url).href:null;
 export function tierOf(overall){return TIER_ORDER.findLast(id=>overall>=TIERS[id].min)||'bronze';}
 const FWD=(name,club,nation,number,foot,height,weight,pac,sho,pas,dri,def,phy)=>({name,club,nation,role:'FWD',number,foot,height,weight,pac,sho,pas,dri,def,phy});
 const MID=(name,club,nation,number,foot,height,weight,pac,sho,pas,dri,def,phy)=>({name,club,nation,role:'MID',number,foot,height,weight,pac,sho,pas,dri,def,phy});

@@ -1,5 +1,5 @@
 import {PACKS,PACK_ORDER,openPack,withPicks} from './card-packs.js';
-import {TIERS,leagueOf} from './card-data.js';
+import {TIERS,leagueOf,flagUrl} from './card-data.js';
 import {loadWallet,spendCoins,addCoins} from './wallet.js';
 import {CardReveal} from './card-reveal.js';
 import {CardPortrait} from './card-portrait.js';
@@ -132,7 +132,11 @@ export class CardPackUI{
   if(pick.profile)this.portraitInto(art,pick.profile);
   const name=el('strong',pick.card.name,'card-name');
   const meta=el('div',undefined,'card-meta');
-  meta.append(el('span',pick.card.nation),el('span',leagueOf(pick.card.club)),el('span',pick.card.club));
+  const nation=el('span',undefined,'card-nation');
+  const flag=flagUrl(pick.card.nation);
+  if(flag){const image=el('img',undefined,'card-flag');image.alt='';image.src=flag;nation.append(image);}
+  nation.append(el('i',pick.card.nation));
+  meta.append(nation,el('span',leagueOf(pick.card.club)),el('span',pick.card.club));
   const stats=el('div',undefined,'card-stats');
   for(const [key,label] of (pick.card.role==='GK'?GK_ROWS:STAT_ROWS)){
    const cell=el('div');cell.append(el('span',label),el('b',String(pick.card[key]??'-')));stats.append(cell);

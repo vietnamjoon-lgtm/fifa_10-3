@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import {createPlayer,animatePlayer,disposePlayerRig} from './player.js';
+import {flagUrl} from './card-data.js';
 // FC 온라인 개봉 화면을 참고한 시네마틱. 카메라가 멈추지 않고 세 공간을 통과합니다.
 // 초록 복도 → 문 통과와 화이트아웃 → 회색 터널(국가·포지션·소속팀) → 스타디움 피날레.
 const HALL={x:2.6,y:3.4,front:4,back:-16};
@@ -15,6 +16,32 @@ const PHASES=[
 ];
 const ease=t=>t<.5?2*t*t:1-((-2*t+2)**2)/2;
 const easeIn=t=>t*t*t;
+// 국기 이미지를 패널 가운데에 맞춰 그립니다. 못 불러오면 나라 이름 글자로 돌아갑니다.
+function flagTexture(image,label){
+ const width=1024,height=768;
+ const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+ const ctx=canvas.getContext('2d');
+ ctx.fillStyle='#0b0f0d';ctx.fillRect(0,0,width,height);
+ const box=width*.66,scale=Math.min(box/image.width,box/image.height);
+ const w=image.width*scale,h=image.height*scale;
+ ctx.drawImage(image,(width-w)/2,(height-h)/2-40,w,h);
+ ctx.fillStyle='#e9f2ea';ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.font="700 78px 'Barlow Condensed',Impact,sans-serif";
+ ctx.fillText(String(label),width/2,(height+h)/2+22);
+ const texture=new THREE.CanvasTexture(canvas);
+ texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=8;
+ return texture;
+}
+const flagCache=new Map();
+function loadFlag(url){
+ if(!url)return Promise.resolve(null);
+ if(!flagCache.has(url))flagCache.set(url,new Promise(resolve=>{
+  const image=new Image();
+  image.onload=()=>resolve(image);image.onerror=()=>resolve(null);
+  image.src=url;
+ }));
+ return flagCache.get(url);
+}
 function panelTexture(lines,color='#ffffff',background='#0b0f0d'){
  const width=1024,height=768;
  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
@@ -140,6 +167,7 @@ export class CardReveal{
   this.packMat.color.copy(tone).multiplyScalar(.45);
  }
  setPanel(lines,color){if(this.panelMat.map)this.panelMat.map.dispose();this.panelMat.map=panelTexture(lines,color);this.panelMat.needsUpdate=true;}
+ setFlagPanel(image,label){if(this.panelMat.map)this.panelMat.map.dispose();this.panelMat.map=flagTexture(image,label);this.panelMat.needsUpdate=true;}
  setScreen(lines,color){
   if(this.screenMat.map)this.screenMat.map.dispose();
   this.screenMat.map=panelTexture(lines,color,'#2a1208');
@@ -151,7 +179,12 @@ export class CardReveal{
   this.tint(color);
   this.setScreen([pick.overall,pick.card.club],color);
   this.cues=[['국가',pick.card.nation],['포지션',pick.card.role],['소속팀',pick.card.club]];
-  this.cueIndex=-1;
+  this.cueIndex=-1;this.flag=null;
+  loadFlag(flagUrl(pick.card.nation)).then(image=>{
+   this.flag=image;
+   // 국기가 늦게 도착해도 국가 화면이 아직 떠 있으면 바로 바꿔 줍니다.
+   if(image&&this.phase==='tunnel'&&this.cueIndex===0)this.setFlagPanel(image,pick.card.nation);
+  });
   this.pick=pick;this.color=color;this.onPhase=onPhase;this.onWhite=onWhite;
   this.started=performance.now()/1000;this.last=this.started;this.phase=null;this.skipped=false;
   this.frame=requestAnimationFrame(now=>this.tick(now));
@@ -190,7 +223,11 @@ export class CardReveal{
    this.camera.position.set(0,1.7,TUNNEL.front+(TUNNEL.back+4-TUNNEL.front)*t);
    this.camera.lookAt(0,2,TUNNEL.back);
    const cue=Math.min(this.cues.length-1,Math.floor(t*this.cues.length));
-   if(cue!==this.cueIndex){this.cueIndex=cue;this.setPanel(this.cues[cue][1],'#ffffff');}
+   if(cue!==this.cueIndex){
+    this.cueIndex=cue;
+    if(cue===0&&this.flag)this.setFlagPanel(this.flag,this.cues[0][1]);
+    else this.setPanel(this.cues[cue][1],'#ffffff');
+   }
   }else{
    // 터널 패널은 지나온 뒤라 시야를 가리지 않게 치웁니다.
    this.panel.visible=false;

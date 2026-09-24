@@ -89,6 +89,9 @@
 .card-name{display:block;text-align:center;font-size:15px;letter-spacing:-.3px;border-top:1px solid #2b230f33;padding-top:7px}
 .card-meta{display:flex;justify-content:center;gap:7px;margin:6px 0 8px;font-size:8px;opacity:.72}
 .card-meta span{white-space:nowrap}.card-meta span+span{border-left:1px solid #2b230f44;padding-left:7px}
+.card-nation{display:inline-flex;align-items:center;gap:4px}
+.card-nation i{font-style:normal}
+.card-flag{width:14px;height:auto;border:.5px solid #2b230f55;display:block}
 .card-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:0 2px;border-top:1px solid #2b230f33;padding-top:8px;text-align:center}
 .card-stats div{display:flex;flex-direction:column;gap:2px}
 .card-stats span{font-size:7px;letter-spacing:.8px;font-weight:800;opacity:.6}
