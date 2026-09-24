@@ -2,1017 +2,1017 @@ TAP version 13
 # Subtest: sprint turns and braking keep a reachable ball without teleporting it
 ok 1 - sprint turns and braking keep a reachable ball without teleporting it
   ---
-  duration_ms: 238.1122
+  duration_ms: 239.5234
   ...
 # Subtest: moving shots and passes make contact after windup in both attack directions
 ok 2 - moving shots and passes make contact after windup in both attack directions
   ---
-  duration_ms: 606.9312
+  duration_ms: 409.5014
   ...
 # Subtest: forward diagonal shots cross inside the posts in either half and either team
 ok 3 - forward diagonal shots cross inside the posts in either half and either team
   ---
-  duration_ms: 306.9256
+  duration_ms: 265.8461
   ...
 # Subtest: deliberate backwards shots keep their direction
 ok 4 - deliberate backwards shots keep their direction
   ---
-  duration_ms: 8.7617
+  duration_ms: 9.5302
   ...
 # Subtest: pass selection respects input, available players and offside
 ok 5 - pass selection respects input, available players and offside
   ---
-  duration_ms: 8.2153
+  duration_ms: 3.3944
   ...
 # Subtest: assisted ground passes are received at short, medium and long distances
 ok 6 - assisted ground passes are received at short, medium and long distances
   ---
-  duration_ms: 196.6652
+  duration_ms: 168.6211
   ...
 # Subtest: released passes retain physical direction when target following is disabled
 ok 7 - released passes retain physical direction when target following is disabled
   ---
-  duration_ms: 19.2032
+  duration_ms: 7.9128
   ...
 # Subtest: nearest receiver wins independently of roster order and settles an incoming pass
 ok 8 - nearest receiver wins independently of roster order and settles an incoming pass
   ---
-  duration_ms: 8.443
+  duration_ms: 4.4453
   ...
 # Subtest: secure possession resists flicker, exposed possession can be intercepted and tackled
 ok 9 - secure possession resists flicker, exposed possession can be intercepted and tackled
   ---
-  duration_ms: 7.5139
+  duration_ms: 3.1106
   ...
 # Subtest: assistance does not collect distant or high balls, or instantly control powerful shots
 ok 10 - assistance does not collect distant or high balls, or instantly control powerful shots
   ---
-  duration_ms: 5.2857
+  duration_ms: 2.1152
   ...
-# Subtest: receiver assistance yields immediately to movement and resets on kickoff
-ok 11 - receiver assistance yields immediately to movement and resets on kickoff
+# Subtest: receiver assistance takes the receiver to the ball whatever the stick and resets on kickoff
+ok 11 - receiver assistance takes the receiver to the ball whatever the stick and resets on kickoff
   ---
-  duration_ms: 6.5681
+  duration_ms: 2.9541
   ...
 # Subtest: all default ratings and physical sizes display as bounded integers
 ok 12 - all default ratings and physical sizes display as bounded integers
   ---
-  duration_ms: 17.6589
+  duration_ms: 10.3472
   ...
 # Subtest: legacy minimum and maximum attributes remain valid in the integer editor
 ok 13 - legacy minimum and maximum attributes remain valid in the integer editor
   ---
-  duration_ms: 2.0858
+  duration_ms: 2.9668
   ...
 # Subtest: edited ratings convert to actual simulation attributes without being capped to one
 ok 14 - edited ratings convert to actual simulation attributes without being capped to one
   ---
-  duration_ms: 0.6907
+  duration_ms: 0.6717
   ...
 # Subtest: role-weighted overall reacts to skills relevant to each position
 ok 15 - role-weighted overall reacts to skills relevant to each position
   ---
-  duration_ms: 2.9716
+  duration_ms: 1.7043
   ...
 # Subtest: neutral controlled players collect an unowned ball without manual movement
 ok 16 - neutral controlled players collect an unowned ball without manual movement
   ---
-  duration_ms: 35.4642
+  duration_ms: 25.846
   ...
 # Subtest: loose-ball assistance can be disabled and never overrides a directional input
 ok 17 - loose-ball assistance can be disabled and never overrides a directional input
   ---
-  duration_ms: 8.2006
+  duration_ms: 7.0049
   ...
 # Subtest: pass receivers begin meeting a pass beyond the previous eight-metre limit
 ok 18 - pass receivers begin meeting a pass beyond the previous eight-metre limit
   ---
-  duration_ms: 3.275
+  duration_ms: 4.6297
   ...
 # Subtest: assisted ground passes reach moving receivers in either attack direction
 ok 19 - assisted ground passes reach moving receivers in either attack direction
   ---
-  duration_ms: 191.3188
+  duration_ms: 191.0292
   ...
 # Subtest: assistance excludes opponents in possession, high balls and offside collectors
 ok 20 - assistance excludes opponents in possession, high balls and offside collectors
   ---
-  duration_ms: 1.5249
+  duration_ms: 2.9744
   ...
 # Subtest: pass tracking expires and is invalidated by an interception
 ok 21 - pass tracking expires and is invalidated by an interception
   ---
-  duration_ms: 2.7771
+  duration_ms: 3.1621
   ...
 # Subtest: keepers cannot catch an opponent shot before their reaction delay
 ok 22 - keepers cannot catch an opponent shot before their reaction delay
   ---
-  duration_ms: 0.9548
+  duration_ms: 3.1969
   ...
 # Subtest: keepers cannot save behind themselves or on the opposite side of a dive
 ok 23 - keepers cannot save behind themselves or on the opposite side of a dive
   ---
-  duration_ms: 0.7723
+  duration_ms: 8.9409
   ...
 # Subtest: powerful reachable shots are parried and high reflexes still reduce reaction delay
 ok 24 - powerful reachable shots are parried and high reflexes still reduce reaction delay
   ---
-  duration_ms: 2.2807
+  duration_ms: 1.0477
   ...
 # Subtest: neutral assisted finishing aims at an open side instead of the central keeper
 ok 25 - neutral assisted finishing aims at an open side instead of the central keeper
   ---
-  duration_ms: 2.1293
+  duration_ms: 0.5574
   ...
 # Subtest: online teams use their own loose-ball preference when assigning AI collectors
 ok 26 - online teams use their own loose-ball preference when assigning AI collectors
   ---
-  duration_ms: 15.927
+  duration_ms: 4.9568
   ...
 # Subtest: old player libraries gain safe body defaults without losing identity or abilities
 ok 27 - old player libraries gain safe body defaults without losing identity or abilities
   ---
-  duration_ms: 3.7936
+  duration_ms: 9.2235
   ...
 # Subtest: decimal cm and kg plus all proportions survive storage and network lineup cleaning
 ok 28 - decimal cm and kg plus all proportions survive storage and network lineup cleaning
   ---
-  duration_ms: 13.647
+  duration_ms: 19.5535
   ...
 # Subtest: malformed and extreme body values cannot create invalid scales or unbounded models
 ok 29 - malformed and extreme body values cannot create invalid scales or unbounded models
   ---
-  duration_ms: 1.5639
+  duration_ms: 4.2343
   ...
 # Subtest: head and limb proportions preserve the requested standing skull height
 ok 30 - head and limb proportions preserve the requested standing skull height
   ---
-  duration_ms: 12.9908
+  duration_ms: 12.4156
   ...
 # Subtest: weight, shoulders and waist change the actual weighted body mesh
 ok 31 - weight, shoulders and waist change the actual weighted body mesh
   ---
-  duration_ms: 327.8445
+  duration_ms: 343.5877
   ...
 # Subtest: extreme body sliders retain finite full and distant skin geometry
 ok 32 - extreme body sliders retain finite full and distant skin geometry
   ---
-  duration_ms: 307.8152
+  duration_ms: 331.2991
   ...
 # Subtest: edited arm and leg lengths stay reachable by hand and foot contact solvers
 ok 33 - edited arm and leg lengths stay reachable by hand and foot contact solvers
   ---
-  duration_ms: 4.7817
+  duration_ms: 5.2423
   ...
 # Subtest: higher body weight reduces displacement in an otherwise equal shoulder collision
 ok 34 - higher body weight reduces displacement in an otherwise equal shoulder collision
   ---
-  duration_ms: 3.0398
+  duration_ms: 4.053
   ...
 # Subtest: recommended aerial switching never changes a grounded defensive cursor
 ok 35 - recommended aerial switching never changes a grounded defensive cursor
   ---
-  duration_ms: 0.8547
+  duration_ms: 2.2237
   ...
 # Subtest: aerial selection changes once and respects manual selection lock
 ok 36 - aerial selection changes once and respects manual selection lock
   ---
-  duration_ms: 1.1968
+  duration_ms: 2.9147
   ...
 # Subtest: pass recipient remains selected through a brief incidental teammate touch
 ok 37 - pass recipient remains selected through a brief incidental teammate touch
   ---
-  duration_ms: 2.0372
+  duration_ms: 2.6884
   ...
 # Subtest: no direction carry gives the new player the current input immediately
 ok 38 - no direction carry gives the new player the current input immediately
   ---
-  duration_ms: 2.629
+  duration_ms: 4.4603
   ...
 # Subtest: semi assistance preserves more requested cross direction than automatic mode
 ok 39 - semi assistance preserves more requested cross direction than automatic mode
   ---
-  duration_ms: 1.8192
+  duration_ms: 3.896
   ...
 # Subtest: keyboard sprint remains full speed while analog gamepad triggers can vary
 ok 40 - keyboard sprint remains full speed while analog gamepad triggers can vary
   ---
-  duration_ms: 1.3497
+  duration_ms: 5.6287
   ...
 # Subtest: run type three avoids a defender occupying the straight running lane
 ok 41 - run type three avoids a defender occupying the straight running lane
   ---
-  duration_ms: 0.8643
+  duration_ms: 1.6198
   ...
 # Subtest: crosses reach a playable descending height under the real drag and spin model
 ok 42 - crosses reach a playable descending height under the real drag and spin model
   ---
-  duration_ms: 54.5012
+  duration_ms: 55.9232
   ...
 # Subtest: cross selection from the wing prioritizes an onside penalty-area attacker
 ok 43 - cross selection from the wing prioritizes an onside penalty-area attacker
   ---
-  duration_ms: 2.0429
+  duration_ms: 4.9296
   ...
 # Subtest: free kicks form a four-player wall and retain lawful distances for both teams and halves
 ok 44 - free kicks form a four-player wall and retain lawful distances for both teams and halves
   ---
-  duration_ms: 9.9098
+  duration_ms: 5.6733
   ...
 # Subtest: free kicks and penalties stay stationary while aimed and charged
 ok 45 - free kicks and penalties stay stationary while aimed and charged
   ---
-  duration_ms: 37.0532
+  duration_ms: 40.4332
   ...
 # Subtest: penalty positions put the keeper on the line and everyone else outside the box and arc
 ok 46 - penalty positions put the keeper on the line and everyone else outside the box and arc
   ---
-  duration_ms: 34.7864
+  duration_ms: 41.339
   ...
 # Subtest: a human set piece is not forced after the old eight-second timeout
 ok 47 - a human set piece is not forced after the old eight-second timeout
   ---
-  duration_ms: 109.6274
+  duration_ms: 128.9414
   ...
 # Subtest: penalty and free-kick shots release on contact and keep player aim instead of auto-picking a corner
 ok 48 - penalty and free-kick shots release on contact and keep player aim instead of auto-picking a corner
   ---
-  duration_ms: 35.1885
+  duration_ms: 32.1501
   ...
 # Subtest: the keeper and opponents cannot kick or switch away from the taker before a restart
 ok 49 - the keeper and opponents cannot kick or switch away from the taker before a restart
   ---
-  duration_ms: 2.8597
+  duration_ms: 1.6651
   ...
 # Subtest: a curled free kick clears wall height on its way to the chosen goal position
 ok 50 - a curled free kick clears wall height on its way to the chosen goal position
   ---
-  duration_ms: 2.9372
+  duration_ms: 7.1821
   ...
 # Subtest: restart taker cannot play an untouched rebound twice
 ok 51 - restart taker cannot play an untouched rebound twice
   ---
-  duration_ms: 0.5583
+  duration_ms: 3.9888
   ...
 # Subtest: penalties are allowed to be taken at the end of the half
 ok 52 - penalties are allowed to be taken at the end of the half
   ---
-  duration_ms: 10.4168
+  duration_ms: 9.7644
   ...
 # Subtest: both network seats keep independent penalty aiming and serialize the target
 ok 53 - both network seats keep independent penalty aiming and serialize the target
   ---
-  duration_ms: 31.5966
+  duration_ms: 25.4912
   ...
 # Subtest: corner kicks release toward the box from either end without a missed stationary contact
 ok 54 - corner kicks release toward the box from either end without a missed stationary contact
   ---
-  duration_ms: 156.5295
+  duration_ms: 170.338
   ...
 # Subtest: a penalty played backwards awards an indirect free kick
 ok 55 - a penalty played backwards awards an indirect free kick
   ---
-  duration_ms: 5.4756
+  duration_ms: 6.6255
   ...
 # Subtest: starting a new game clears a previous wall hold
 ok 56 - starting a new game clears a previous wall hold
   ---
-  duration_ms: 2.4989
+  duration_ms: 2.2981
   ...
 # Subtest: short pass and lob use their own skills, independently of shooting
 ok 57 - short pass and lob use their own skills, independently of shooting
   ---
-  duration_ms: 20.115
+  duration_ms: 12.7024
   ...
 # Subtest: agility changes turn response and balance changes braking
 ok 58 - agility changes turn response and balance changes braking
   ---
-  duration_ms: 5.2764
+  duration_ms: 7.0951
   ...
 # Subtest: pressure, fatigue and weak foot widen error without changing stat identity
 ok 59 - pressure, fatigue and weak foot widen error without changing stat identity
   ---
-  duration_ms: 0.6162
+  duration_ms: 1.1733
   ...
 # Subtest: goalkeeper reflexes and reach change reaction, catch and coverage limits
 ok 60 - goalkeeper reflexes and reach change reaction, catch and coverage limits
   ---
-  duration_ms: 0.4544
+  duration_ms: 8.0411
   ...
 # Subtest: preferred feet mirror logical contact and choose the reachable side
 ok 61 - preferred feet mirror logical contact and choose the reachable side
   ---
-  duration_ms: 0.4698
+  duration_ms: 0.9639
   ...
 # Subtest: a buffered incoming pass traps when necessary, then releases once with one contact event
 ok 62 - a buffered incoming pass traps when necessary, then releases once with one contact event
   ---
-  duration_ms: 19.2331
+  duration_ms: 17.4099
   ...
 # Subtest: a distant outgoing ball never becomes a queued kick or a remote contact
 ok 63 - a distant outgoing ball never becomes a queued kick or a remote contact
   ---
-  duration_ms: 1.1327
+  duration_ms: 2.1116
   ...
 # Subtest: position and kick time interpolate on the same contact crossing
 ok 64 - position and kick time interpolate on the same contact crossing
   ---
-  duration_ms: 1.4235
+  duration_ms: 1.1454
   ...
 # Subtest: server time interpolation tolerates irregular packet arrival without rewinding
 ok 65 - server time interpolation tolerates irregular packet arrival without rewinding
   ---
-  duration_ms: 2.7986
+  duration_ms: 1.8105
   ...
 # Subtest: offline presentation is independent from physics and contains intermediate positions
 ok 66 - offline presentation is independent from physics and contains intermediate positions
   ---
-  duration_ms: 2.9766
+  duration_ms: 4.448
   ...
 # Subtest: left and right kicks mirror legs while start, stop, turn and receive have distinct poses
 ok 67 - left and right kicks mirror legs while start, stop, turn and receive have distinct poses
   ---
-  duration_ms: 8.3477
+  duration_ms: 6.8665
   ...
 # Subtest: two-bone IK reaches the contact target and clamps impossible targets without stretching
 ok 68 - two-bone IK reaches the contact target and clamps impossible targets without stretching
   ---
-  duration_ms: 1.3116
+  duration_ms: 0.6537
   ...
 # Subtest: planted foot remains in world space as the body moves
 ok 69 - planted foot remains in world space as the body moves
   ---
-  duration_ms: 0.9792
+  duration_ms: 0.9269
   ...
 # Subtest: continuous limb LODs use normalized multi-bone skin weights and deform with the skeleton
 ok 70 - continuous limb LODs use normalized multi-bone skin weights and deform with the skeleton
   ---
-  duration_ms: 7.7509
+  duration_ms: 10.6073
   ...
 # Subtest: face shape and crop controls sanitize legacy, null and extreme values
 ok 71 - face shape and crop controls sanitize legacy, null and extreme values
   ---
-  duration_ms: 2.4892
+  duration_ms: 15.9032
   ...
 # Subtest: multiview projection has correct front side back and continuous seam weights
 ok 72 - multiview projection has correct front side back and continuous seam weights
   ---
-  duration_ms: 1.4006
+  duration_ms: 2.9763
   ...
 # Subtest: landmark warping preserves endpoints and aligns eyes nose mouth monotonically
 ok 73 - landmark warping preserves endpoints and aligns eyes nose mouth monotonically
   ---
-  duration_ms: 3.3248
+  duration_ms: 2.3652
   ...
 # Subtest: detailed and distant human head meshes are finite, outward facing and anatomically bounded
 ok 74 - detailed and distant human head meshes are finite, outward facing and anatomically bounded
   ---
-  duration_ms: 50.5237
+  duration_ms: 52.523
   ...
 # Subtest: face shape changes actual head geometry while maintaining valid normals
 ok 75 - face shape changes actual head geometry while maintaining valid normals
   ---
-  duration_ms: 39.1924
+  duration_ms: 37.0648
   ...
 # Subtest: photo profiles preserve shape and asset id but keep large image data out of local roster metadata
 ok 76 - photo profiles preserve shape and asset id but keep large image data out of local roster metadata
   ---
-  duration_ms: 8.6921
+  duration_ms: 7.7275
   ...
 # Subtest: face textures accept only bounded inline JPEG and reject remote, script and SVG input
 ok 77 - face textures accept only bounded inline JPEG and reject remote, script and SVG input
   ---
-  duration_ms: 3.0292
+  duration_ms: 3.4209
   ...
 # Subtest: face asset import retains all three views and independent crop alignment
 ok 78 - face asset import retains all three views and independent crop alignment
   ---
-  duration_ms: 12.9828
+  duration_ms: 20.2048
   ...
 # Subtest: online roster strips device asset IDs and rejects oversized photos while preserving shape
 ok 79 - online roster strips device asset IDs and rejects oversized photos while preserving shape
   ---
-  duration_ms: 4.051
+  duration_ms: 3.1263
   ...
 # Subtest: online welcome and start share the same small texture once without putting photos into snapshots
 ok 80 - online welcome and start share the same small texture once without putting photos into snapshots
   ---
-  duration_ms: 36.3078
+  duration_ms: 35.6747
   ...
 # Subtest: gameplay settings migrate safely and reject invalid or unbounded values
 ok 81 - gameplay settings migrate safely and reject invalid or unbounded values
   ---
-  duration_ms: 0.5727
+  duration_ms: 0.8741
   ...
 # Subtest: movement settings change acceleration, stopping distance and turn response independently
 ok 82 - movement settings change acceleration, stopping distance and turn response independently
   ---
-  duration_ms: 7.4863
+  duration_ms: 5.4931
   ...
 # Subtest: rolling and bounce settings change physical ball travel without adding energy
 ok 83 - rolling and bounce settings change physical ball travel without adding energy
   ---
-  duration_ms: 6.97
+  duration_ms: 14.1887
   ...
 # Subtest: first touch stability changes cushioning without moving the ball or editing player ratings
 ok 84 - first touch stability changes cushioning without moving the ball or editing player ratings
   ---
-  duration_ms: 1.1263
+  duration_ms: 4.0904
   ...
 # Subtest: online room fixes the host gameplay for both seats and rejects guest overrides
 ok 85 - online room fixes the host gameplay for both seats and rejects guest overrides
   ---
-  duration_ms: 3.6385
+  duration_ms: 4.6929
   ...
 # Subtest: body collision removes closing velocity while preserving momentum and sideways movement
 ok 86 - body collision removes closing velocity while preserving momentum and sideways movement
   ---
-  duration_ms: 0.8045
+  duration_ms: 2.8221
   ...
 # Subtest: exactly overlapping players separate deterministically without invalid coordinates
 ok 87 - exactly overlapping players separate deterministically without invalid coordinates
   ---
-  duration_ms: 1.4767
+  duration_ms: 1.4679
   ...
 # Subtest: strong rear charge is a foul while a comparable side shoulder challenge can continue
 ok 88 - strong rear charge is a foul while a comparable side shoulder challenge can continue
   ---
-  duration_ms: 6.1781
+  duration_ms: 1.6374
   ...
 # Subtest: ball hits the first swept body regardless of player list order
 ok 89 - ball hits the first swept body regardless of player list order
   ---
-  duration_ms: 5.4401
+  duration_ms: 0.8285
   ...
 # Subtest: a ball passing exactly through a body centre cannot skip the collision
 ok 90 - a ball passing exactly through a body centre cannot skip the collision
   ---
-  duration_ms: 0.9036
+  duration_ms: 0.3527
   ...
 # Subtest: nearby body outside the tackle path does not turn a clean ball tackle into a foul
 ok 91 - nearby body outside the tackle path does not turn a clean ball tackle into a foul
   ---
-  duration_ms: 1.4415
+  duration_ms: 0.3986
   ...
 # Subtest: a tackle through the opponent to reach the ball is penalized
 ok 92 - a tackle through the opponent to reach the ball is penalized
   ---
-  duration_ms: 2.4842
+  duration_ms: 0.366
   ...
 # Subtest: dangerous sliding remains a red-card foul even if the ball is contacted first
 ok 93 - dangerous sliding remains a red-card foul even if the ball is contacted first
   ---
-  duration_ms: 2.2534
+  duration_ms: 0.3951
   ...
 # Subtest: a low-speed careless slide foul does not automatically give a yellow card
 ok 94 - a low-speed careless slide foul does not automatically give a yellow card
   ---
-  duration_ms: 1.9532
+  duration_ms: 0.4898
   ...
 # Subtest: last defender near goal is not sent off for DOGSO without ball control or forward progress
 ok 95 - last defender near goal is not sent off for DOGSO without ball control or forward progress
   ---
-  duration_ms: 0.9606
+  duration_ms: 1.7588
   ...
 # Subtest: a genuine goal opportunity foul is yellow inside the box when challenging for the ball
 ok 96 - a genuine goal opportunity foul is yellow inside the box when challenging for the ball
   ---
-  duration_ms: 0.8459
+  duration_ms: 3.735
   ...
 # Subtest: airborne offside reception is penalized before a chest control can clear the flag
 ok 97 - airborne offside reception is penalized before a chest control can clear the flag
   ---
-  duration_ms: 2.2359
+  duration_ms: 1.451
   ...
 # Subtest: deliberate legal chest control clears the previous opponents offside snapshot
 ok 98 - deliberate legal chest control clears the previous opponents offside snapshot
   ---
-  duration_ms: 1.4462
+  duration_ms: 0.993
   ...
 # Subtest: corner exit uses the first boundary crossed instead of always preferring the touchline
 ok 99 - corner exit uses the first boundary crossed instead of always preferring the touchline
   ---
-  duration_ms: 0.7927
+  duration_ms: 2.9097
   ...
 # Subtest: unrealized advantage is recalled when the ball leaves play immediately
 ok 100 - unrealized advantage is recalled when the ball leaves play immediately
   ---
-  duration_ms: 1.1092
+  duration_ms: 3.839
   ...
 # Subtest: gait stance moves the foot backwards at the players actual world speed
 ok 101 - gait stance moves the foot backwards at the players actual world speed
   ---
-  duration_ms: 1.0711
+  duration_ms: 1.9115
   ...
 # Subtest: running has a flight phase and shorter legs increase the required stride cadence
 ok 102 - running has a flight phase and shorter legs increase the required stride cadence
   ---
-  duration_ms: 3.1956
+  duration_ms: 5.6354
   ...
 # Subtest: every unobstructed short, through and lofted pass is collected by a receiver who moves to meet it
 ok 103 - every unobstructed short, through and lofted pass is collected by a receiver who moves to meet it
   ---
-  duration_ms: 461.8821
+  duration_ms: 298.7057
   ...
 # Subtest: a pass is never steered toward a receiver who changes direction after the kick
 ok 104 - a pass is never steered toward a receiver who changes direction after the kick
   ---
-  duration_ms: 18.9984
+  duration_ms: 17.4247
   ...
 # Subtest: the pass tracker never moves the ball or the receiver
 ok 105 - the pass tracker never moves the ball or the receiver
   ---
-  duration_ms: 3.0174
+  duration_ms: 2.818
   ...
 # Subtest: an opponent on the passing lane can intercept and stops target following
 ok 106 - an opponent on the passing lane can intercept and stops target following
   ---
-  duration_ms: 5.9872
+  duration_ms: 11.9115
   ...
 # Subtest: a teammate standing in the pass path plays the ball like any other player
 ok 107 - a teammate standing in the pass path plays the ball like any other player
   ---
-  duration_ms: 20.502
+  duration_ms: 19.6489
   ...
 # Subtest: disabling target following restores the physical pass without random changes to shots
 ok 108 - disabling target following restores the physical pass without random changes to shots
   ---
-  duration_ms: 6.1662
+  duration_ms: 8.5521
   ...
 # Subtest: AI receivers run to meet the actual ball path
 ok 109 - AI receivers run to meet the actual ball path
   ---
-  duration_ms: 11.8234
+  duration_ms: 6.9272
   ...
 # Subtest: online seats sanitize and retain independent target-following preferences
 ok 110 - online seats sanitize and retain independent target-following preferences
   ---
-  duration_ms: 1.9691
+  duration_ms: 3.264
   ...
 # Subtest: keeper hand passes and throw-ins are physical and collected by the receiver
 ok 111 - keeper hand passes and throw-ins are physical and collected by the receiver
   ---
-  duration_ms: 40.6614
+  duration_ms: 39.4505
   ...
 # Subtest: D holds automatic defending in both defensive layouts and releases without a shot
 ok 112 - D holds automatic defending in both defensive layouts and releases without a shot
   ---
-  duration_ms: 1.892
+  duration_ms: 4.7762
   ...
 # Subtest: D approaches on the goal side, shows a lowered stance and stops on release
 ok 113 - D approaches on the goal side, shows a lowered stance and stops on release
   ---
-  duration_ms: 7.4574
+  duration_ms: 7.2261
   ...
 # Subtest: automatic defence respects manual retreat and never tackles through the opponent
 ok 114 - automatic defence respects manual retreat and never tackles through the opponent
   ---
-  duration_ms: 2.7364
+  duration_ms: 1.3018
   ...
 # Subtest: a distant D press does not start a tackle cooldown
 ok 115 - a distant D press does not start a tackle cooldown
   ---
-  duration_ms: 0.7581
+  duration_ms: 1.0763
   ...
 # Subtest: both online seats retain their automatic-defence input and pose
 ok 116 - both online seats retain their automatic-defence input and pose
   ---
-  duration_ms: 2.1332
+  duration_ms: 8.4468
   ...
 # Subtest: receivers prepare before ownership without rotating against manual input
 ok 117 - receivers prepare before ownership without rotating against manual input
   ---
-  duration_ms: 1.6505
+  duration_ms: 0.696
   ...
 # Subtest: first touch follows an intentional exit direction and never relocates the ball
 ok 118 - first touch follows an intentional exit direction and never relocates the ball
   ---
-  duration_ms: 2.8562
+  duration_ms: 0.4058
   ...
 # Subtest: human body has normalized weights, articulated fingers and a genuinely separate head
 ok 119 - human body has normalized weights, articulated fingers and a genuinely separate head
   ---
-  duration_ms: 12.9365
+  duration_ms: 13.0726
   ...
 # Subtest: sculpt changes facial geometry while keeping the lower neck attached
 ok 120 - sculpt changes facial geometry while keeping the lower neck attached
   ---
-  duration_ms: 32.0822
+  duration_ms: 45.7615
   ...
 # Subtest: all authored celebration sequences have finite poses and survive profile-independent playback
 ok 121 - all authored celebration sequences have finite poses and survive profile-independent playback
   ---
-  duration_ms: 209.4304
+  duration_ms: 317.9194
   ...
 # Subtest: skills and free-kick styles survive online sanitization without arbitrary options
 ok 122 - skills and free-kick styles survive online sanitization without arbitrary options
   ---
-  duration_ms: 13.6108
+  duration_ms: 14.1958
   ...
 # Subtest: post contact keeps the player capsule outside the frame and removes inward speed
 ok 123 - post contact keeps the player capsule outside the frame and removes inward speed
   ---
-  duration_ms: 1.3889
+  duration_ms: 2.2931
   ...
 # Subtest: net deformation is local and decays to the resting shape
 ok 124 - net deformation is local and decays to the resting shape
   ---
-  duration_ms: 1.5868
+  duration_ms: 0.2773
   ...
 # Subtest: online transport includes the D hold flag and privacy opt-out removes derived facial shape
 ok 125 - online transport includes the D hold flag and privacy opt-out removes derived facial shape
   ---
-  duration_ms: 2.5585
+  duration_ms: 0.4182
   ...
 # Subtest: distant anatomy preserves normalized joint influences and reduces geometry
 ok 126 - distant anatomy preserves normalized joint influences and reduces geometry
   ---
-  duration_ms: 68.835
+  duration_ms: 69.889
   ...
 # Subtest: photograph fitting preserves separate feature positions and removes camera roll
 ok 127 - photograph fitting preserves separate feature positions and removes camera roll
   ---
-  duration_ms: 15.1367
+  duration_ms: 12.4209
   ...
 # Subtest: fitted face is visible before any photograph texture has been baked
 ok 128 - fitted face is visible before any photograph texture has been baked
   ---
-  duration_ms: 6.2524
+  duration_ms: 3.0138
   ...
 # Subtest: local identity survives saving and is removed when online sharing is off
 ok 129 - local identity survives saving and is removed when online sharing is off
   ---
-  duration_ms: 12.2053
+  duration_ms: 9.7131
   ...
 # Subtest: face feature deformation stays smooth, finite and leaves the lower neck attached
 ok 130 - face feature deformation stays smooth, finite and leaves the lower neck attached
   ---
-  duration_ms: 79.982
+  duration_ms: 67.9636
   ...
 # Subtest: keeper commits to a delayed observation instead of reversing instantly with a shot
 ok 131 - keeper commits to a delayed observation instead of reversing instantly with a shot
   ---
-  duration_ms: 1.1187
+  duration_ms: 1.5876
   ...
 # Subtest: a central reachable shot remains saveable but a standing keeper cannot grab a wide ball
 ok 132 - a central reachable shot remains saveable but a standing keeper cannot grab a wide ball
   ---
-  duration_ms: 1.4108
+  duration_ms: 3.3327
   ...
 # Subtest: keeper reaction is checked each physics frame independently of the slower team AI clock
 ok 133 - keeper reaction is checked each physics frame independently of the slower team AI clock
   ---
-  duration_ms: 3.5575
+  duration_ms: 10.2274
   ...
 # Subtest: slow movement cadence tends to zero and running elbows stay near their hinge plane
 ok 134 - slow movement cadence tends to zero and running elbows stay near their hinge plane
   ---
-  duration_ms: 31.0862
+  duration_ms: 34.867
   ...
 # Subtest: practice movement accelerates and decelerates
 ok 135 - practice movement accelerates and decelerates
   ---
-  duration_ms: 9.9353
+  duration_ms: 11.8507
   ...
 # Subtest: shot waits for animation contact and ends its recovery
 ok 136 - shot waits for animation contact and ends its recovery
   ---
-  duration_ms: 10.099
+  duration_ms: 10.2311
   ...
 # Subtest: one goal is counted once and kickoff resumes
 ok 137 - one goal is counted once and kickoff resumes
   ---
-  duration_ms: 18.239
+  duration_ms: 23.4355
   ...
 # Subtest: touchline exit restarts as a throw-in
 ok 138 - touchline exit restarts as a throw-in
   ---
-  duration_ms: 18.3091
+  duration_ms: 20.6652
   ...
 # Subtest: full match changes ends and finishes, then can restart
 ok 139 - full match changes ends and finishes, then can restart
   ---
-  duration_ms: 238.2348
+  duration_ms: 283.5513
   ...
 # Subtest: pause freezes the ball, clock and kick intent
 ok 140 - pause freezes the ball, clock and kick intent
   ---
-  duration_ms: 3.2448
+  duration_ms: 2.9751
   ...
 # Subtest: sprint dribbling knocks the ball ahead and runs onto it in both attack directions
 ok 141 - sprint dribbling knocks the ball ahead and runs onto it in both attack directions
   ---
-  duration_ms: 50.6081
+  duration_ms: 32.503
   ...
 # Subtest: releasing the stick after a knock traps the ball instead of letting it run away
 ok 142 - releasing the stick after a knock traps the ball instead of letting it run away
   ---
-  duration_ms: 49.5576
+  duration_ms: 51.0761
   ...
 # Subtest: both humans move independently while AI leaves their commands alone
 ok 143 - both humans move independently while AI leaves their commands alone
   ---
-  duration_ms: 42.6605
+  duration_ms: 45.7484
   ...
 # Subtest: away player charges and shoots with their own input and selects their receiver
 ok 144 - away player charges and shoots with their own input and selects their receiver
   ---
-  duration_ms: 58.9044
+  duration_ms: 69.6267
   ...
 # Subtest: two humans receive separate pass controls and set-piece ownership
 ok 145 - two humans receive separate pass controls and set-piece ownership
   ---
-  duration_ms: 64.6349
+  duration_ms: 56.4024
   ...
 # Subtest: sent-off humans are replaced independently and both controls survive halftime
 ok 146 - sent-off humans are replaced independently and both controls survive halftime
   ---
-  duration_ms: 2.046
+  duration_ms: 4.0926
   ...
 # Subtest: input sanitization bounds axes and refuses client-authored world state
 ok 147 - input sanitization bounds axes and refuses client-authored world state
   ---
-  duration_ms: 0.189
+  duration_ms: 0.1999
   ...
 # Subtest: room seats cap at two, authenticate tokens and require both ready plus host start
 ok 148 - room seats cap at two, authenticate tokens and require both ready plus host start
   ---
-  duration_ms: 6.7007
+  duration_ms: 8.7888
   ...
 # Subtest: clients receive identical authoritative ball, score and player positions
 ok 149 - clients receive identical authoritative ball, score and player positions
   ---
-  duration_ms: 61.8412
+  duration_ms: 65.2451
   ...
 # Subtest: out-of-order inputs and over-capacity action batches cannot replay a shot
 ok 150 - out-of-order inputs and over-capacity action batches cannot replay a shot
   ---
-  duration_ms: 7.0822
+  duration_ms: 9.698
   ...
 # Subtest: disconnect pauses the shared simulation and reconnect resumes the same match
 ok 151 - disconnect pauses the shared simulation and reconnect resumes the same match
   ---
-  duration_ms: 44.326
+  duration_ms: 44.4214
   ...
 # Subtest: abandoned room ends after the reconnect deadline
 ok 152 - abandoned room ends after the reconnect deadline
   ---
-  duration_ms: 10.2511
+  duration_ms: 14.7008
   ...
 # Subtest: stale input releases movement and charge; leaving closes both clients
 ok 153 - stale input releases movement and charge; leaving closes both clients
   ---
-  duration_ms: 64.1919
+  duration_ms: 73.8023
   ...
 # Subtest: motion poses stay finite across run, direction change, kick, slide and recovery
 ok 154 - motion poses stay finite across run, direction change, kick, slide and recovery
   ---
-  duration_ms: 23.9906
+  duration_ms: 54.4717
   ...
 # Subtest: snapshot interpolation takes the shortest route across the yaw wrap
 ok 155 - snapshot interpolation takes the shortest route across the yaw wrap
   ---
-  duration_ms: 9.3598
+  duration_ms: 2.3618
   ...
 # Subtest: online arrows move, E sprints, and WASD are actions rather than movement
 ok 156 - online arrows move, E sprints, and WASD are actions rather than movement
   ---
-  duration_ms: 1.563
+  duration_ms: 0.6112
   ...
 # Subtest: attack modifier chords preserve their options through release
 ok 157 - attack modifier chords preserve their options through release
   ---
-  duration_ms: 13.9041
+  duration_ms: 0.64
   ...
 # Subtest: basic and tactical defence map switch, pressing and slide by context
 ok 158 - basic and tactical defence map switch, pressing and slide by context
   ---
-  duration_ms: 1.2458
+  duration_ms: 0.3713
   ...
 # Subtest: double shot, fake shot, repeated cross and cancel are distinct input sequences
 ok 159 - double shot, fake shot, repeated cross and cancel are distinct input sequences
   ---
-  duration_ms: 11.9771
+  duration_ms: 0.2322
   ...
 # Subtest: paused input and blur cannot fire a stored shot after returning
 ok 160 - paused input and blur cannot fire a stored shot after returning
   ---
-  duration_ms: 1.1119
+  duration_ms: 0.1057
   ...
 # Subtest: legacy controls remain available without conflicting online actions
 ok 161 - legacy controls remain available without conflicting online actions
   ---
-  duration_ms: 0.5895
+  duration_ms: 0.1622
   ...
 # Subtest: penalty area includes its boundary and follows the half direction
 ok 162 - penalty area includes its boundary and follows the half direction
   ---
-  duration_ms: 3.3576
+  duration_ms: 0.743
   ...
 # Subtest: reckless fouls produce bookings, second yellow dismisses and kickoff cannot restore player
 ok 163 - reckless fouls produce bookings, second yellow dismisses and kickoff cannot restore player
   ---
-  duration_ms: 2.4825
+  duration_ms: 5.0811
   ...
 # Subtest: late foul in penalty area is called after an attacker has kicked
 ok 164 - late foul in penalty area is called after an attacker has kicked
   ---
-  duration_ms: 6.3577
+  duration_ms: 2.5672
   ...
 # Subtest: advantage preserves an attacking shot and recalls a free kick when possession is lost
 ok 165 - advantage preserves an attacking shot and recalls a free kick when possession is lost
   ---
-  duration_ms: 0.7941
+  duration_ms: 3.673
   ...
 # Subtest: a goal during advantage is counted and deferred booking is applied
 ok 166 - a goal during advantage is counted and deferred booking is applied
   ---
-  duration_ms: 2.2004
+  duration_ms: 4.7142
   ...
 # Subtest: opponent deflection preserves offside while controlled possession clears it
 ok 167 - opponent deflection preserves offside while controlled possession clears it
   ---
-  duration_ms: 0.9085
+  duration_ms: 1.4266
   ...
 # Subtest: corner and goal-kick first passes bypass offside then return to normal play
 ok 168 - corner and goal-kick first passes bypass offside then return to normal play
   ---
-  duration_ms: 17.7622
+  duration_ms: 7.1112
   ...
 # Subtest: throw-ins cannot directly score and restart for the defending team
 ok 169 - throw-ins cannot directly score and restart for the defending team
   ---
-  duration_ms: 6.4101
+  duration_ms: 1.2755
   ...
 # Subtest: goalkeeper cannot catch a deliberate teammate backpass
 ok 170 - goalkeeper cannot catch a deliberate teammate backpass
   ---
-  duration_ms: 1.1667
+  duration_ms: 0.4434
   ...
 # Subtest: manual throw-in waits for input and sends the ball back onto the pitch
 ok 171 - manual throw-in waits for input and sends the ball back onto the pitch
   ---
-  duration_ms: 1.1191
+  duration_ms: 0.6496
   ...
 # Subtest: extra time is followed by halftime and resets for the second half
 ok 172 - extra time is followed by halftime and resets for the second half
   ---
-  duration_ms: 19.31
+  duration_ms: 13.0374
   ...
 # Subtest: ball rests above the turf without gaining energy
 ok 173 - ball rests above the turf without gaining energy
   ---
-  duration_ms: 10.0919
+  duration_ms: 15.2123
   ...
 # Subtest: ground passes slow down and strong kicks travel farther
 ok 174 - ground passes slow down and strong kicks travel farther
   ---
-  duration_ms: 7.5327
+  duration_ms: 4.9864
   ...
 # Subtest: fast shot hits the thin post without tunnelling
 ok 175 - fast shot hits the thin post without tunnelling
   ---
-  duration_ms: 4.61
+  duration_ms: 1.4006
   ...
 # Subtest: ball must cross completely; wide and high shots are not goals
 ok 176 - ball must cross completely; wide and high shots are not goals
   ---
-  duration_ms: 0.8291
+  duration_ms: 0.3855
   ...
 # Subtest: opposite sidespin produces opposite lateral movement
 ok 177 - opposite sidespin produces opposite lateral movement
   ---
-  duration_ms: 2.4507
+  duration_ms: 4.8128
   ...
 # Subtest: a fast descending ball never penetrates the pitch or gains impact energy
 ok 178 - a fast descending ball never penetrates the pitch or gains impact energy
   ---
-  duration_ms: 4.9941
+  duration_ms: 2.38
   ...
 # Subtest: simulated ground roll follows the shared prediction and slow balls stop
 ok 179 - simulated ground roll follows the shared prediction and slow balls stop
   ---
-  duration_ms: 10.9054
+  duration_ms: 8.4034
   ...
 # Subtest: drop rebound stays in the natural-turf range and a spinless lofted ball checks up on landing
 ok 180 - drop rebound stays in the natural-turf range and a spinless lofted ball checks up on landing
   ---
-  duration_ms: 5.0906
+  duration_ms: 2.9458
   ...
 # Subtest: side spin bends a lofted kick symmetrically and the aim correction returns it to the target
 ok 181 - side spin bends a lofted kick symmetrically and the aim correction returns it to the target
   ---
-  duration_ms: 12.5814
+  duration_ms: 6.5225
   ...
 # Subtest: player edits, additions and lineups survive a JSON storage round trip
 ok 182 - player edits, additions and lineups survive a JSON storage round trip
   ---
-  duration_ms: 21.1875
+  duration_ms: 9.1445
   ...
 # Subtest: malformed libraries and duplicate lineup slots are rejected without overwriting storage
 ok 183 - malformed libraries and duplicate lineup slots are rejected without overwriting storage
   ---
-  duration_ms: 6.8892
+  duration_ms: 6.6318
   ...
 # Subtest: custom profiles clamp numeric exploits and remove unapproved world fields
 ok 184 - custom profiles clamp numeric exploits and remove unapproved world fields
   ---
-  duration_ms: 1.0467
+  duration_ms: 2.6059
   ...
 # Subtest: server lineups keep seat IDs, exactly 11 players, and one goalkeeper
 ok 185 - server lineups keep seat IDs, exactly 11 players, and one goalkeeper
   ---
-  duration_ms: 6.808
+  duration_ms: 5.1982
   ...
 # Subtest: online welcome and start share custom profiles with both clients and the simulation
 ok 186 - online welcome and start share custom profiles with both clients and the simulation
   ---
-  duration_ms: 9.4953
+  duration_ms: 11.9597
   ...
 # Subtest: all submitted video and source records are preserved, unique and explicitly unmeasured
 ok 187 - all submitted video and source records are preserved, unique and explicitly unmeasured
   ---
-  duration_ms: 37.2629
+  duration_ms: 4.8288
   ...
 # Subtest: capture schema preserves root, rotations, original twist data and valid events
 ok 188 - capture schema preserves root, rotations, original twist data and valid events
   ---
-  duration_ms: 1.5644
+  duration_ms: 0.4598
   ...
 # Subtest: loop boundaries agree in pose and angular velocity for every joint including arms
 ok 189 - loop boundaries agree in pose and angular velocity for every joint including arms
   ---
-  duration_ms: 2.975
+  duration_ms: 3.3612
   ...
 # Subtest: capture sampling produces normalized quaternion interpolation at fractional frames
 ok 190 - capture sampling produces normalized quaternion interpolation at fractional frames
   ---
-  duration_ms: 0.9082
+  duration_ms: 1.6639
   ...
 # Subtest: locomotion cadence is bounded instead of doubling the arms at sprint speed
 ok 191 - locomotion cadence is bounded instead of doubling the arms at sprint speed
   ---
-  duration_ms: 0.2136
+  duration_ms: 0.5291
   ...
 # Subtest: inertial transitions start at the previous pose and converge without quaternion flips
 ok 192 - inertial transitions start at the previous pose and converge without quaternion flips
   ---
-  duration_ms: 1.8539
+  duration_ms: 2.0503
   ...
 # Subtest: candidate selection rejects impossible height and reach, and separates passes from shots
 ok 193 - candidate selection rejects impossible height and reach, and separates passes from shots
   ---
-  duration_ms: 0.2593
+  duration_ms: 0.9311
   ...
 # Subtest: first touch chooses separate foot, thigh and chest poses
 ok 194 - first touch chooses separate foot, thigh and chest poses
   ---
-  duration_ms: 0.4052
+  duration_ms: 2.4092
   ...
 # Subtest: contact plan records commit and single release with actionable diagnostic fields
 ok 195 - contact plan records commit and single release with actionable diagnostic fields
   ---
-  duration_ms: 7.8606
+  duration_ms: 18.6111
   ...
 # Subtest: skill contact events execute exactly once each even after their boundary is crossed
 ok 196 - skill contact events execute exactly once each even after their boundary is crossed
   ---
-  duration_ms: 3.031
+  duration_ms: 1.1587
   ...
 # Subtest: air receiving cushions downward without teleporting or instant ownership
 ok 197 - air receiving cushions downward without teleporting or instant ownership
   ---
-  duration_ms: 3.8436
+  duration_ms: 0.5824
   ...
 # Subtest: replay samples the same intermediate timestamp for player, ball and action
 ok 198 - replay samples the same intermediate timestamp for player, ball and action
   ---
-  duration_ms: 3.946
+  duration_ms: 1.1812
   ...
 # Subtest: endline restart changes between corner and goal kick by last touch
 ok 199 - endline restart changes between corner and goal kick by last touch
   ---
-  duration_ms: 1.5191
+  duration_ms: 0.513
   ...
 # Subtest: offside is captured at the pass, not recomputed at reception
 ok 200 - offside is captured at the pass, not recomputed at reception
   ---
-  duration_ms: 0.4662
+  duration_ms: 0.76
   ...
 # Subtest: airborne ball deflects off a swept player body
 ok 201 - airborne ball deflects off a swept player body
   ---
-  duration_ms: 1.3944
+  duration_ms: 4.968
   ...
 # Subtest: replay stores independent snapshots and never changes live score
 ok 202 - replay stores independent snapshots and never changes live score
   ---
-  duration_ms: 2.1445
+  duration_ms: 2.6848
   ...
 # Subtest: unreachable ball cannot be kicked
 ok 203 - unreachable ball cannot be kicked
   ---
-  duration_ms: 2.3545
+  duration_ms: 1.1061
   ...
 1..203
 # tests 203
@@ -1022,4 +1022,4 @@ ok 203 - unreachable ball cannot be kicked
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 6307.9655
+# duration_ms 6284.3202
