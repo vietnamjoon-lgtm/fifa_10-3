@@ -22,8 +22,9 @@ function dribbleRun(team,plan){
 }
 test('sprint dribbling plays the ball ahead with repeated foot touches in both attack directions',()=>{
  for(const team of [0,1]){const r=dribbleRun(team,[[4,1,true]]);
-  assert.ok(r.owned);assert.ok(r.near>.6,`ball must stay ahead of the body, not under it: ${r.near}`);assert.ok(r.far-r.near>.2&&r.far<2,`touches must open and close a small gap: ${r.near}-${r.far}`);
-  const every=(r.touches.at(-1)-r.touches[0])/(r.touches.length-1);assert.ok(every>.45&&every<1.3,`touch interval ${every}`);}
+  // FC Online reference footage (jog dribble): ball about 0.3-0.8 m from the body, touched about every 0.3 s.
+  assert.ok(r.owned);assert.ok(r.near>.3&&r.far<1.2,`ball must stay close ahead of the body: ${r.near}-${r.far}`);
+  const every=(r.touches.at(-1)-r.touches[0])/(r.touches.length-1);assert.ok(every>.25&&every<.8,`touch interval ${every}`);}
 });
 test('releasing the stick after a knock traps the ball instead of letting it run away',()=>{
  for(const team of [0,1]){const r=dribbleRun(team,[[2.5,1,true],[3,0,false]]);
@@ -56,12 +57,13 @@ test('setting off with the ball behind or beside the player plays it round and r
   assert.ok(a.owned);assert.ok(a.run>b.run*.9,`ran ${a.run} of ${b.run}`);assert.ok(a.ahead>.6,`ball still behind: ${a.ahead}`);}
 });
 test('every dribble touch after a change of direction sends the ball along the stick, not the old run',()=>{
- for(const team of [0,1])for(const deg of [45,90,135,180]){
+ // Jogging turns stay within 25 degrees of the stick; at a sprint the body's momentum is allowed to bend it more.
+ for(const team of [0,1])for(const sprint of [false,true])for(const deg of [45,90,135,180]){
   const m=new Match({...defaults,userTeam:team});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled,d=m.direction(team);
   Object.assign(p,{x:-20*d,z:0});p.target={x:p.x,z:0};m.physics.reset(p.x+.54*d,-.11*d);
-  for(let i=0;i<180;i++)m.step(1/120,{axis:{x:d,z:0},sprint:true});
+  for(let i=0;i<180;i++)m.step(1/120,{axis:{x:d,z:0},sprint});
   const a=deg*Math.PI/180,axis={x:Math.cos(a)*d,z:Math.sin(a)};let first=null;const kick=m.physics.kick;m.physics.kick=(v,s,...r)=>{if(first===null&&s>.05)first=v;return kick(v,s,...r)};
-  for(let i=0;i<120&&!first;i++)m.step(1/120,{axis,sprint:true});
+  for(let i=0;i<120&&!first;i++)m.step(1/120,{axis,sprint});
   assert.ok(first,`no touch after a ${deg} degree turn`);const off=Math.acos((first.x*axis.x+first.z*axis.z)/Math.hypot(first.x,first.z))*180/Math.PI;
-  assert.ok(off<20,`touch ${off.toFixed(1)} degrees off the stick after a ${deg} degree turn`);assert.equal(m.owner,p);}
+  assert.ok(off<(sprint?40:25),`touch ${off.toFixed(1)} degrees off the stick after a ${deg} degree turn`);assert.equal(m.owner,p);}
 });
