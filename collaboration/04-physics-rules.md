@@ -8,6 +8,10 @@
 
 ## 담당 파일
 
+- `src/air-flight.js`
+- `src/setpieces.js`
+
+
 - `src/ball-contact.js`
 - `src/collision-math.js`
 - `src/config.js`
@@ -23,6 +27,9 @@
 - `tools/soak.mjs`
 
 ## 담당 검사 파일
+
+- `tests/crosses-setpieces.test.mjs`
+
 
 - `tests/engine-improvements.test.mjs`
 - `tests/gameplay-overhaul.test.mjs`
