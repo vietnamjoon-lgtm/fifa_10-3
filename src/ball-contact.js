@@ -1,3 +1,4 @@
+import {secondTouch} from './setpieces.js';
 import {activePass} from './ball-assistance.js';
 import {sweepCircle} from './collision-math.js';
 import {FIELD} from './config.js';
@@ -15,6 +16,7 @@ export function resolveBodyContacts(match,previous){
  }
  hits.sort((a,b)=>a.t-b.t||a.p.id-b.p.id);const hit=hits[0];if(!hit)return;
  const {p,radius,nx,nz,incoming,y}=hit;
+ if(secondTouch(match,p))return;
  if(match.offside.has(p.id)){match.beginRestart({kind:'indirect',team:1-p.team,x:p.x,z:p.z,label:'오프사이드 · 간접 프리킥'});return;}
  v.x-=incoming*1.35*nx;v.z-=incoming*1.35*nz;b.x=p.x+nx*(radius+.002);b.z=p.z+nz*(radius+.002);b.y=y;
  p.touchCooldown=.15;match.lastTouch=p;match.lastTouchTeam=p.team;match.lastTouchKind='deflection';match.restartOrigin=null;match.owner=null;match.emit('bodyContact',{player:p,speed:Math.abs(incoming)});

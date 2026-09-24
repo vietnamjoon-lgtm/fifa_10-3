@@ -25,6 +25,7 @@ export class PlayerEditor{
  status(text){$('player-status').textContent=text;}
  snapshot(){this.undo.push(structuredClone(this.data));if(this.undo.length>20)this.undo.shift();}
  persist(){try{this.data=saveSquads(this.data);this.onChange();return true;}catch(e){this.status(e.message);return false;}}
+ applyLibrary(data){const previous=this.data;this.snapshot();this.data=data;if(!this.persist()){this.data=previous;this.undo.pop();throw Error('선수 라이브러리를 저장하지 못했습니다.');}if(!$('players-panel').classList.contains('hidden'))this.render();return this.data;}
  draft(){const raw={...this.data.players.find(p=>p.uid===this.selected),face:structuredClone(this.faceDraft),body:structuredClone(this.bodyDraft)};for(const [key,input]of Object.entries(this.fields))raw[key]=this.readField(key,input);return cleanProfile(raw);}
  faceStatus(){$('player-face-enabled').checked=this.faceDraft.enabled;$('player-face-state').textContent=this.faceDraft.assetId?(this.assets.has(this.faceDraft.assetId)?(this.faceDraft.mode==='sculpt'?'입체 3D 얼굴 준비됨':'사진 표면 준비됨'):'사진을 이 브라우저에서 찾을 수 없습니다. 사진을 다시 넣어 주세요.'):'기본 얼굴 · 윤곽과 사진을 편집할 수 있습니다.';}
  previewDraft(){this.renderRatings();const body=this.draft();$('player-body-state').textContent=displayValue('height',body.height)+' cm · '+body.weight+' kg · 부위별 16가지 조절';if(!this.portrait)return;const profile=this.draft();profile.faceTexture=profile.face.enabled?this.assets.get(profile.face.assetId)?.atlas:null;this.portrait.update(profile,this.team);}

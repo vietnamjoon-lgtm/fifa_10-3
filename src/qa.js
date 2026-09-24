@@ -26,6 +26,7 @@ export function installQA(match,ui){
  add('로빙 패스',()=>{const p=position(27,0);match.queueKick(p,'lob',.7,{x:22,z:8});});
  add('골키퍼 선방',()=>{const p=position(40,0,false);match.players[11].x=50;match.players[11].z=0;match.queueKick(p,'shoot',.3,{x:1,z:.08});});
  add('골대 충돌',()=>{position(45,3.72);match.owner=null;match.physics.reset(48,3.72,.7);match.physics.kick({x:1,z:0},33,0);});
+ for(const [name,kind,x,z] of [['프리킥 · 수비벽','free',27,4],['페널티킥 · 조준','penalty',41.5,0],['코너킥 · 크로스','corner',52,33.5]])add(name,()=>{position(x,z,false);match.beginRestart({kind,team:match.settings.userTeam,x:x*match.direction(match.settings.userTeam),z,label:name});match.finishRestart();});
  add('AI 자동 경기',()=>{match.start(false);match.autoplay=true;});
  add('경기 종료 흐름',()=>{match.start(false);match.state='playing';match.half=2;match.elapsed=match.settings.halfSeconds-2;});
  add('진단 수치',()=>{ui.debug=!ui.debug});
