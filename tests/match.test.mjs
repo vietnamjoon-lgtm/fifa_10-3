@@ -26,6 +26,14 @@ test('sprint dribbling plays the ball ahead with repeated foot touches in both a
   assert.ok(r.owned);assert.ok(r.near>.3&&r.far<1.2,`ball must stay close ahead of the body: ${r.near}-${r.far}`);
   const every=(r.touches.at(-1)-r.touches[0])/(r.touches.length-1);assert.ok(every>.25&&every<.8,`touch interval ${every}`);}
 });
+test('a sprint dribble keeps the ball further ahead than a jog, as in FC reference footage',()=>{
+ // FC Online reference footage: sprinting with the ball keeps it about 1.2-1.35 times as far ahead as jogging, rarely beyond 1 m.
+ for(const team of [0,1]){const gaps={};for(const sprint of [false,true]){const m=new Match({...defaults,userTeam:team});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled,d=m.direction(team);
+   p.x=d*-20;p.z=0;p.target={x:p.x,z:0};m.physics.reset(p.x+d*.54,0);const g=[];
+   for(let i=0;i<5*120;i++){m.step(1/120,{axis:{x:d,z:0},sprint});if(m.time>1.5)g.push(Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z));}
+   assert.equal(m.owner,p);g.sort((a,b)=>a-b);gaps[sprint]=g[g.length>>1];assert.ok(g.at(-1)<1.2,`ball ran ${g.at(-1)} m ahead`);}
+  assert.ok(gaps.true>gaps.false*1.08,`sprint ${gaps.true} vs jog ${gaps.false}`);}
+});
 test('releasing the stick after a knock traps the ball instead of letting it run away',()=>{
  for(const team of [0,1]){const r=dribbleRun(team,[[2.5,1,true],[3,0,false]]);
   assert.ok(r.owned);assert.ok(r.m.physics.ball.velocity.length()<.2);assert.ok(Math.hypot(r.m.physics.ball.position.x-r.p.x,r.m.physics.ball.position.z-r.p.z)<1.1);}
