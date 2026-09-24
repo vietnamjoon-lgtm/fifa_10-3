@@ -41,6 +41,36 @@
 .lobby-stat b{font-size:13px;color:var(--lime);font-variant-numeric:tabular-nums}
 @media(max-width:900px){.lobby-bar{gap:12px;margin-right:12px;padding:6px 10px}.lobby-stat b{font-size:11px}}
 @media(max-width:650px){.lobby-bar{display:none}}
+.club-dialog{width:min(1080px,96vw);max-height:94dvh;overflow:auto;padding:28px;text-align:left}
+.club-totals{display:flex;gap:26px;margin-left:auto}
+.club-totals small{display:block;font-size:8px;letter-spacing:2px;color:#8fa699}
+.club-totals b{font-size:20px;color:var(--lime);font-variant-numeric:tabular-nums}
+.club-toolbar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;margin:6px 0 16px}
+.club-toolbar input{flex:1;min-width:180px;background:#10241d;border:1px solid #47604d;color:#edf1e8;border-radius:4px;padding:9px;min-height:38px}
+.club-toolbar label{display:flex;flex-direction:column;gap:5px;font-size:11px;color:#b5c3b7}
+.club-toolbar select{background:#10241d;border:1px solid #47604d;color:#edf1e8;border-radius:4px;padding:9px;min-height:38px}
+.club-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:10px;max-height:52dvh;overflow:auto;padding:2px}
+.club-empty{grid-column:1/-1;font-size:12px;color:#9db3a5}
+.club-card{display:flex;flex-direction:column;align-items:stretch;gap:5px;text-align:left;padding:11px 12px;border:1px solid #ffffff22;border-left:3px solid var(--tier,#e8c15a);background:#0f1d17}
+.club-card:hover{background:#16281f;transform:none}
+.club-card.picked{background:#23331a;border-color:var(--lime)}
+.club-card.playing{opacity:.62}
+.club-card-head{display:flex;align-items:baseline;gap:8px}
+.club-ovr{font-family:'Barlow Condensed',Impact,sans-serif;font-size:26px;line-height:1;color:var(--tier)}
+.club-role{font-size:10px;font-weight:800;letter-spacing:1px;color:#cfe0d2}
+.club-playing{margin-left:auto;font-size:8px;letter-spacing:1px;color:#c6ff5d}
+.club-name{font-size:13px;letter-spacing:-.2px}
+.club-meta{display:flex;align-items:center;gap:5px;font-size:9px;color:#8ba095;min-height:12px}
+.club-flag{width:13px;height:auto;border:.5px solid #ffffff33}
+.club-price{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid #ffffff18;padding-top:6px;margin-top:2px}
+.club-price span{font-size:8px;letter-spacing:1px;color:#8ba095}
+.club-price b{font-size:13px;color:#e8c15a;font-variant-numeric:tabular-nums}
+.club-actions{display:flex;align-items:center;gap:12px;margin-top:16px}
+.club-actions>span{font-size:12px;color:#c7d2c7}
+.club-actions .primary{margin-left:auto;justify-content:center;gap:0;padding:13px 24px}
+.club-actions button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+#club-status{font-size:12px;color:#c7ff59;min-height:22px;margin:12px 0 4px}
+@media(max-width:700px){.club-totals{gap:14px}.club-list{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));max-height:44dvh}.club-actions{flex-wrap:wrap}.club-actions .primary{width:100%;margin-left:0}}
 .cards-dialog{width:min(980px,96vw);max-height:94dvh;overflow:auto;padding:28px;text-align:left}
 .cards-wallet{margin-left:auto;text-align:right}.cards-wallet small{display:block;font-size:9px;letter-spacing:2px;color:#8fa699}.cards-wallet strong{font-family:'Barlow Condensed',Impact,sans-serif;font-size:32px;color:var(--lime);font-variant-numeric:tabular-nums}
 .cards-shop{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:8px 0 18px}
