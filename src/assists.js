@@ -5,7 +5,7 @@ import {rollLaunchSpeed} from './physics.js';
 
 // Foot touches and initial targeting. Target-following pass velocity is handled
 // separately by guided-pass.js; shots retain their unassisted physical flight.
-export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:3,pendingKick:1.5,kickStart:1.35,footReach:.22,footLane:.12,underfootReach:.45,stretchReach:.6,turnReach:.9,turnCarry:.2,laneLead:.1,dribbleGap:.7,turnKnock:.6,closeGap:.45,touchLead:.3,touchGap:.3,sprintTouchGap:.22,knockGap:1.58,knockStart:.3,knockPace:2,freshKnock:3.15,sprintKnockSpeed:2.5,sprintKickStart:.2,kickBurst:1.15,kickLook:.25,trapPace:2.5,lunge:.2,footForward:.35,dribbleStride:.35,startTouch:2.5,receiveRadius:1.04,contactRadius:.49};
+export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:3,pendingKick:1.5,kickStart:1.35,footReach:.22,footLane:.12,underfootReach:.45,stretchReach:.6,turnReach:.9,turnCarry:.2,laneLead:.1,dribbleGap:.7,turnKnock:.6,closeGap:.45,touchLead:.3,touchGap:.3,sprintTouchGap:.22,knockGap:1.45,knockStart:.2,knockPace:2,freshKnock:2.7,sprintKnockSpeed:2.5,sprintKickStart:.2,kickBurst:1.15,kickLook:.25,trapPace:2.5,lunge:.2,footForward:.35,dribbleStride:.35,startTouch:2.5,receiveRadius:1.04,contactRadius:.49};
 
 export const footPosition=logicalFoot;
 
@@ -48,7 +48,7 @@ export function footCanPlay(p,b,turning=false){
  return foot<=(turning?ASSIST.stretchReach:ASSIST.footReach)||distance(p,b)<=(turning?ASSIST.turnReach:ASSIST.underfootReach);
 }
 
-/** How far a sprint knock plays the ball ahead: about 1.7 m, at most 2 m, for the reference player (pace 8.3, control 0.8); a faster
+/** How far a sprint knock plays the ball ahead: about 1.45 m, at most 1.7 m, for the reference player (pace 8.3, control 0.8); a faster
  * player knocks it further, a better ball controller a little shorter. */
 export function knockDistance(p){const pace=clamp(Number.isFinite(p.pace)?p.pace:8.3,5,10),control=clamp(Number.isFinite(p.control)?p.control:.8,.2,1);
  return ASSIST.knockGap*(.3+.7*pace/8.3)*(1.2-.25*control);}
@@ -75,9 +75,9 @@ export function dribbleTouch(match,p,preparing=false){
  // A faster run in open space puts it further ahead; a nearby opponent or close control keeps it tight. A ball
  // behind or under the player is therefore played firmly out in front instead of being carried along.
  const space=clamp((Math.min(...match.players.filter(q=>q.active&&q.team!==p.team).map(q=>distance(p,q)),99)-2.5)/5,0,1);
- // Knock and run: every sprint touch in open space knocks the ball knockDistance ahead (about 2 m; 0.66 m at a jog) and
+ // Knock and run: every sprint touch in open space knocks the ball knockDistance ahead (at most about 1.7 m; 0.66 m at a jog) and
  // the player runs onto it for the next knock; the first knock after pressing sprint (or from a standstill) also goes
- // about 2 m. A nearby opponent
+ // about 1.7 m. A nearby opponent
  // shortens an AI dribbler's knock back to a close touch; a human's sprint knocks past defenders too. A kick waits
  // until the ball is in reach (see kickInReach).
  const human=match.isHumanControlled(p),knockOn=p.sprinting&&!p.closeControl&&!preparing?(human?1:space):0;
@@ -91,7 +91,7 @@ export function dribbleTouch(match,p,preparing=false){
  // straight run, is played firmly out in front.
  const fresh=human&&p.knockFresh&&knockOn>0&&!turning&&!p.pendingKick&&!preparing&&!p.shield;
  // The first knock after pressing sprint runs a fixed amount faster than the player's own top sprint, so it lands about
- // 2 m ahead whether the player was standing, walking or jogging.
+ // 1.7 m ahead whether the player was standing, walking or jogging.
  const forward=fresh?sprintSpeed(p)*.96+ASSIST.freshKnock*(knockDistance(p)/ASSIST.knockGap)**1.5*knockOn:preparing||p.shield?speed*.9:p.pendingKick?run+.35:run+(turning&&speed>ASSIST.startTouch&&along<speed*.8?Math.min(knock,ASSIST.turnKnock):knock);
  // Sideways part: a quarter of the player's own sideways momentum (the body carries on through a cut) plus a small
  // correction toward the touching foot's side of the stick's line, so the ball goes where the stick points.
