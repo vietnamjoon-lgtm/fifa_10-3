@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 $gameRoot = $PSScriptRoot
 $outputZip = Join-Path (Split-Path -Parent $gameRoot) 'PROJECT-TOUCHLINE-Windows.zip'
 $temporaryZip = Join-Path (Split-Path -Parent $gameRoot) 'PROJECT-TOUCHLINE-Windows.building.zip'
-$names = @('index.html','style.css','package.json','server.mjs','PLAY.cmd','README.md','COLLABORATION.md','CLAUDE.md','collaboration','.gitignore','.github','BUILD.ps1','vercel.json','.vercelignore','src','assets-source','vendor','tools','licenses','tests','reports','screenshots','server/worker.js','server/room.js','server/wrangler.jsonc')
+$names = @('index.html','style.css','package.json','server.mjs','PLAY.cmd','README.md','COLLABORATION.md','CLAUDE.md','collaboration','.gitignore','.nojekyll','.github','BUILD.ps1','vercel.json','.vercelignore','src','assets-source','vendor','tools','licenses','tests','reports','screenshots','server/worker.js','server/room.js','server/wrangler.jsonc')
 $files = foreach ($name in $names) { $item = Get-Item -LiteralPath (Join-Path $gameRoot $name); if ($item.PSIsContainer) { Get-ChildItem -LiteralPath $item.FullName -Recurse -File | Where-Object { $_.Extension -ne '.log' } } else { $item } }
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $stream = [System.IO.File]::Open($temporaryZip,[System.IO.FileMode]::Create)

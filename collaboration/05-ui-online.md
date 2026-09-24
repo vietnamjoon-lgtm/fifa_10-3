@@ -34,6 +34,7 @@
 - `tools/check-online.mjs`
 - `package.json`
 - `vercel.json`
+- `.nojekyll`
 - `.vercelignore`
 - `BUILD.ps1`
 - `PLAY.cmd`

@@ -62,6 +62,8 @@ git push
 
 GitHub 업로드와 현재 Vercel 게임의 자동 배포는 연결하지 않았습니다. main에 합친 변경을 확인한 뒤 별도로 배포합니다.
 
+GitHub Pages 게임은 https://vietnamjoon-lgtm.github.io/fifa_10-3/ 에서 열립니다. 이 주소는 main에 합친 변경을 자동 배포합니다. 따라서 main에 합치기 전에 검사와 검토를 완료하세요. 담당별 work/ 브랜치는 Pages 배포를 실행하지 않습니다.
+
 ## 검사
 
 ```text

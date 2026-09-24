@@ -3,12 +3,13 @@
 2026-09-24: 신체 상세 편집, 수신자 추적 패스와 중간 골키퍼 조정, 이동·물리·파울·오프사이드 개선 및 공통 경기 설정.
 
 - 게임: https://project-touchline-three.vercel.app/
+- GitHub Pages: https://vietnamjoon-lgtm.github.io/fifa_10-3/ (main 루트 정적 배포, 상세는 GITHUB-PAGES.md)
 - Vercel 프로젝트: jwkc/project-touchline
 - 배포 ID: dpl_26zJ3UnadgEN4NNSK5YFcN1uE247
 - 배포 확인: https://vercel.com/jwkc/project-touchline/26zJ3UnadgEN4NNSK5YFcN1uE247
 - 정적 파일 103개, 22,716,823 bytes. 개발 장면 도구·인증 정보·사용자 저장 사진 제외.
 - 서버: https://project-touchline-arena.project-touchline.workers.dev
-- Cloudflare 버전: ecf795e2-86a6-42da-b165-9b828d9eb950
+- Cloudflare 버전: 1afa5adc-c9f9-4a23-8fdb-95f9afdc95ca
 
 자동 검사 183개 통과. 전체 결과: latest-tests.txt. 이번 변경과 한계: GAMEPLAY-OVERHAUL.md. 체형 편집: BODY-CUSTOMIZATION.md. 패스 및 252회 골키퍼 비교: GUIDED-PASS-AND-KEEPER.md.
 

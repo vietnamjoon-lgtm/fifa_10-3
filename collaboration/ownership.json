@@ -156,7 +156,8 @@
         "COLLABORATION.md",
         "CLAUDE.md",
         ".github/**",
-        "collaboration/**"
+        "collaboration/**",
+        ".nojekyll"
       ],
       "tests": [
         "tests/online-room.test.mjs",
