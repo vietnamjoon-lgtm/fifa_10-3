@@ -1,0 +1,168 @@
+{
+  "version": 1,
+  "repository": "vietnamjoon-lgtm/fifa_10-3",
+  "note": "담당 경계 문서입니다. GitHub 쓰기 권한을 파일별로 제한하는 보안 규칙은 아닙니다. 새 파일의 소유자는 추가 전에 담당자와 정합니다.",
+  "roles": [
+    {
+      "id": "01",
+      "title": "선수·얼굴·체형",
+      "branch": "work/01-players",
+      "paths": [
+        "src/anatomical-player.js",
+        "src/anatomy-data.js",
+        "src/body-rig.js",
+        "src/body-shape.js",
+        "src/body-studio.js",
+        "src/default-face.js",
+        "src/face-assets.js",
+        "src/face-fit-worker.js",
+        "src/face-fit.js",
+        "src/face-identity.js",
+        "src/face-settings.js",
+        "src/face-studio.js",
+        "src/human-head.js",
+        "src/player-editor.js",
+        "src/player-portrait.js",
+        "src/player-ratings.js",
+        "src/player.js",
+        "src/sculpted-head.js",
+        "src/skinned-player.js",
+        "src/squads.js",
+        "src/assets/**"
+      ],
+      "tests": [
+        "tests/body-customization.test.mjs",
+        "tests/faces.test.mjs",
+        "tests/identity-and-keeper-v2.test.mjs"
+      ]
+    },
+    {
+      "id": "02",
+      "title": "애니메이션·발 디딤",
+      "branch": "work/02-animation",
+      "paths": [
+        "src/celebrations.js",
+        "src/contact-model.js",
+        "src/foot-plant.js",
+        "src/gait.js",
+        "src/hand-contact.js",
+        "src/inertial-motion.js",
+        "src/mocap-data.js",
+        "src/motion-planner.js",
+        "src/motion-preview.js",
+        "src/motion.js",
+        "src/receive-control.js",
+        "tools/convert-mocap.mjs",
+        "assets-source/09.asf",
+        "assets-source/09_01.amc",
+        "assets-source/10.asf",
+        "assets-source/10_01.amc"
+      ],
+      "tests": [
+        "tests/human-motion-and-defence.test.mjs"
+      ]
+    },
+    {
+      "id": "03",
+      "title": "패스·슛·AI·골키퍼",
+      "branch": "work/03-gameplay",
+      "paths": [
+        "src/ai.js",
+        "src/assists.js",
+        "src/attributes.js",
+        "src/auto-defence.js",
+        "src/ball-assistance.js",
+        "src/commands.js",
+        "src/control-assist.js",
+        "src/guided-pass.js",
+        "src/input.js",
+        "src/keeper-balance.js",
+        "src/keeper-tuning.js",
+        "src/setpiece-styles.js",
+        "src/skills.js",
+        "tools/assist-check.mjs",
+        "tools/check-balance.mjs",
+        "tools/check-keeper-v2.mjs"
+      ],
+      "tests": [
+        "tests/assists.test.mjs",
+        "tests/balance-and-ratings.test.mjs",
+        "tests/control-assist.test.mjs",
+        "tests/guided-pass.test.mjs"
+      ]
+    },
+    {
+      "id": "04",
+      "title": "물리·판정·경기 엔진",
+      "branch": "work/04-physics-rules",
+      "paths": [
+        "src/ball-contact.js",
+        "src/collision-math.js",
+        "src/config.js",
+        "src/contacts.js",
+        "src/duel.js",
+        "src/gameplay-settings.js",
+        "src/match.js",
+        "src/physics.js",
+        "src/player-contact.js",
+        "src/post-contact.js",
+        "src/referee.js",
+        "src/rules.js",
+        "tools/soak.mjs"
+      ],
+      "tests": [
+        "tests/engine-improvements.test.mjs",
+        "tests/gameplay-overhaul.test.mjs",
+        "tests/match.test.mjs",
+        "tests/physics.test.mjs",
+        "tests/rules.test.mjs"
+      ]
+    },
+    {
+      "id": "05",
+      "title": "화면·온라인·통합",
+      "branch": "work/05-ui-online",
+      "paths": [
+        "src/audio.js",
+        "src/camera.js",
+        "src/control-help.js",
+        "src/gameplay-panel.js",
+        "src/geometry-lod.js",
+        "src/geometry.js",
+        "src/goal-net.js",
+        "src/main.js",
+        "src/net-state.js",
+        "src/online-config.js",
+        "src/online.js",
+        "src/qa.js",
+        "src/render-state.js",
+        "src/replay.js",
+        "src/research-library.js",
+        "src/settings.js",
+        "src/stadium.js",
+        "src/ui.js",
+        "index.html",
+        "style.css",
+        "server/**",
+        "server.mjs",
+        "tools/build-web.mjs",
+        "tools/check-online.mjs",
+        "package.json",
+        "vercel.json",
+        ".vercelignore",
+        "BUILD.ps1",
+        "PLAY.cmd",
+        "README.md",
+        "COLLABORATION.md",
+        "CLAUDE.md",
+        ".github/**",
+        "collaboration/**"
+      ],
+      "tests": [
+        "tests/online-room.test.mjs",
+        "tests/online.test.mjs",
+        "tests/research-and-squads.test.mjs"
+      ]
+    }
+  ]
+}

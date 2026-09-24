@@ -1,10 +1,10 @@
-﻿# PROJECT TOUCHLINE
+# fifa_10-3 · PROJECT TOUCHLINE
 
 브라우저에서 실행하는 싱글 플레이와 온라인 친구 대전을 지원하는 11대11 3D 축구 게임 프로토타입입니다. 독자적인 팀·선수·경기장과 물리 시뮬레이션을 사용합니다. FC Online의 공개 조작 가이드를 참고했으며, 비공개 판정 수치나 상용 선수 모델을 복제한 제품은 아닙니다.
 
 ## 실행
 
-Windows에서는 PLAY.cmd를 더블클릭한 뒤 http://localhost:4173/을 엽니다. Node 실행 파일과 Three.js/Cannon-es가 포함되어 별도 설치 없이 실행됩니다. Chrome/Edge의 WebGL2가 필요합니다. 메인 메뉴에서 킥오프, 친구와 1대1, 자유 훈련을 선택하세요. 온라인 접속과 추천 조작 설정은 [친구 대전 안내](reports/ONLINE-PLAY.md)를 참고하세요.
+Windows 배포 ZIP에서는 PLAY.cmd를 더블클릭해 실행합니다. GitHub에서 받은 소스는 Node.js 22 이상 설치 후 `node server.mjs`를 실행하고 http://localhost:4173/을 엽니다. Three.js/Cannon-es는 저장소에 포함돼 있습니다. Chrome/Edge의 WebGL2가 필요합니다. 메인 메뉴에서 킥오프, 친구와 1대1, 자유 훈련을 선택하세요. 온라인 접속과 추천 조작 설정은 [친구 대전 안내](reports/ONLINE-PLAY.md)를 참고하세요.
 
 ## 조작
 
@@ -98,4 +98,4 @@ src/match.js는 경기 상태, input.js·commands.js는 조작, referee.js·rule
 
 ## 친구들과 공동 개발
 
-[공동작업 안내](COLLABORATION.md)에 네 분야 담당 파일, 역할별 첫 작업, Claude에 전달할 작업문과 PR 절차를 정리했습니다. GitHub 소스에서는 Node.js 22 이상을 설치한 뒤 `node server.mjs`로 실행하세요. Windows 배포 ZIP에만 실행 파일을 포함합니다.
+[공동작업 안내](COLLABORATION.md)에 다섯 분야 담당 파일, 역할별 첫 작업, Claude에 전달할 작업문과 PR 절차를 정리했습니다. GitHub 소스에서는 Node.js 22 이상을 설치한 뒤 `node server.mjs`로 실행하세요. Windows 배포 ZIP에만 실행 파일을 포함합니다.
