@@ -82,7 +82,8 @@
         "src/skills.js",
         "tools/assist-check.mjs",
         "tools/check-balance.mjs",
-        "tools/check-keeper-v2.mjs"
+        "tools/check-keeper-v2.mjs",
+        "src/crossing.js"
       ],
       "tests": [
         "tests/assists.test.mjs",
@@ -108,14 +109,17 @@
         "src/post-contact.js",
         "src/referee.js",
         "src/rules.js",
-        "tools/soak.mjs"
+        "tools/soak.mjs",
+        "src/air-flight.js",
+        "src/setpieces.js"
       ],
       "tests": [
         "tests/engine-improvements.test.mjs",
         "tests/gameplay-overhaul.test.mjs",
         "tests/match.test.mjs",
         "tests/physics.test.mjs",
-        "tests/rules.test.mjs"
+        "tests/rules.test.mjs",
+        "tests/crosses-setpieces.test.mjs"
       ]
     },
     {

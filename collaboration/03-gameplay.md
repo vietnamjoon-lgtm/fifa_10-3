@@ -8,6 +8,9 @@
 
 ## 담당 파일
 
+- `src/crossing.js`
+
+
 - `src/ai.js`
 - `src/assists.js`
 - `src/attributes.js`
