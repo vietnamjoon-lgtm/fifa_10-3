@@ -1,6 +1,7 @@
 import {SETPIECE_STYLES} from './setpiece-styles.js';
 import {SKILLS} from './skills.js';
 import {clamp} from './config.js';
+import {HOLD} from './skill-moves.js';
 
 // Contextual keyboard commands; the same reducer is exercised by input tests.
 export class Input{
@@ -26,6 +27,8 @@ export class Input{
   const k=this.keys,has=(...codes)=>codes.some(c=>k.has(c)),attack=this.getContext().attack;
   this.axis={x:Number(has('ArrowRight',...(this.legacy?['KeyD']:[])))-Number(has('ArrowLeft',...(this.legacy?['KeyA']:[]))),z:Number(has('ArrowDown',...(this.legacy?['KeyS']:[])))-Number(has('ArrowUp',...(this.legacy?['KeyW']:[])))};
   const n=Math.hypot(this.axis.x,this.axis.z);if(n>1){this.axis.x/=n;this.axis.z/=n;}
+  // While SHIFT is held for a skill move the arrows are the move (the right stick); the run keeps the direction it had.
+  if(this.gesture&&this.shiftAxis)this.axis={...this.shiftAxis};
   this.sprint=this.legacy?has('ShiftLeft','ShiftRight'):has('KeyE');
   this.sprintAmount=this.sprint?1:0;
   this.defend=this.legacy?has('ControlLeft','ControlRight'):has('KeyC');this.shield=attack&&this.defend;
@@ -38,7 +41,7 @@ export class Input{
  modifiers(){return {curve:this.curve,chip:this.chip,low:this.low,flair:!this.legacy&&this.keys.has('KeyC')};}
  startShot(){if(this.now()-this.lastShot<310){this.emit('lowShot');this.lastShot=-1e6;return;}this.charging=true;this.shotOptions=this.modifiers();this.emit('charge',this.shotOptions);}
  passCommand(){
-  if(this.charging||this.now()-this.lastShot<310||this.now()-this.lastLob<310){this.charging=false;this.lastShot=this.lastLob=-1e6;this.emit('fake');return;}
+  if(this.charging||this.now()-this.lastShot<310||this.now()-this.lastLob<310){this.charging=false;this.lastShot=this.lastLob=-1e6;this.emit('fake',{mods:{c:this.keys.has('KeyC')}});return;}
   this.emit('pass',{driven:this.keys.has('KeyZ'),oneTwo:this.keys.has('KeyQ'),flair:this.keys.has('KeyC')});
  }
  lobCommand(){this.lobCount=this.now()-this.lastLob<310?this.lobCount+1:1;this.lastLob=this.now();if(this.lobCount>1){this.emit('crossType',{ground:this.lobCount===2,low:this.lobCount>=3});return;}this.emit('lob',{early:this.keys.has('KeyQ'),bounce:this.keys.has('KeyZ')});}
@@ -56,18 +59,53 @@ export class Input{
    if(/^Digit[1-7]$/.test(code)&&(this.keys.has('ShiftLeft')||this.keys.has('ShiftRight'))){this.emit('skill',{skill:Object.keys(SKILLS)[Number(code.slice(5))-1]});return;}
    if(code==='KeyD')this.startShot();if(code==='KeyS')this.passCommand();if(code==='KeyA')this.lobCommand();
    if(code==='KeyW')this.emit('through',{lob:this.keys.has('KeyQ'),driven:this.keys.has('KeyZ')});
-   if(code==='KeyQ')this.emit('run');if(code==='KeyZ')this.emit('support');
+   this.skillKeyDown(code);
    if(code.startsWith('Arrow')&&this.knock)this.emit('knock');
-   else if(code.startsWith('Arrow')&&(this.keys.has('ShiftLeft')||this.keys.has('ShiftRight')))this.emit('skill');
   }else{
    if(code===(this.tactical?'KeyQ':'KeyS'))this.emit('switch');if(code==='KeyD')this.emit('tackle',{automatic:true});if(code==='KeyA')this.emit('slide');
    if(code===(this.tactical?'KeyZ':'KeyQ')){this.pressDouble=this.now()-this.lastPress<300;this.lastPress=this.now();this.refresh();}
    if(code.startsWith('Arrow')&&(this.keys.has('ShiftLeft')||this.keys.has('ShiftRight')))this.emit('switch');
   }
  }
- keyUp(code){this.keys.delete(code);this.refresh();if(code===(this.legacy?'KeyK':'KeyD')&&this.charging){this.charging=false;this.lastShot=this.now();if(this.enabled)this.emit('shoot',this.shotOptions);}}
+ // FC Online skill-move keys (docs/research/fco-skill-moves.md). SHIFT + arrows record a gesture of arrow directions
+ // on screen (x right, z down) with times; Match turns them into directions relative to the attack and picks the move.
+ shiftHeld(){return this.keys.has('ShiftLeft')||this.keys.has('ShiftRight');}
+ // Only arrows pressed after SHIFT belong to the move; an arrow already held for running is not part of it.
+ // When opposite arrows are both down (holding ↓ and tapping ↑), the one pressed last counts, as a stick would point.
+ arrows(){const k=[...(this.gestureKeys||[])],last=(a,b)=>k.lastIndexOf(a)>k.lastIndexOf(b)?1:k.includes(a)||k.includes(b)?-1:0;
+  return {x:k.includes('ArrowRight')&&k.includes('ArrowLeft')?last('ArrowRight','ArrowLeft'):Number(k.includes('ArrowRight'))-Number(k.includes('ArrowLeft')),
+   z:k.includes('ArrowDown')&&k.includes('ArrowUp')?last('ArrowDown','ArrowUp'):Number(k.includes('ArrowDown'))-Number(k.includes('ArrowUp'))};}
+ skillKeyDown(code){
+  const t=this.now()/1000,k=this.keys;
+  if(this.qTap&&code!=='KeyQ')this.qTap.clean=false;
+  if((code==='ShiftLeft'||code==='ShiftRight')&&!this.gesture){this.shiftAxis={...this.axis};this.gestureKeys=new Set();this.gesture={start:t,events:[],mods:{q:k.has('KeyQ'),c:k.has('KeyC'),z:k.has('KeyZ'),e:k.has('KeyE')}};return;}
+  if(this.gesture){if(code.startsWith('Arrow')){this.gestureKeys.delete(code);this.gestureKeys.add(code);const a=this.arrows();this.gesture.events.push({x:a.x,z:a.z,t:t-this.gesture.start});}
+   if(['KeyQ','KeyC','KeyZ','KeyE'].includes(code))this.gesture.mods[code.slice(3).toLowerCase()]=true;return;}
+  if(code==='KeyQ'){this.qTap={t,clean:true};return;}
+  if(code==='Backquote'){this.emit('skill',{special:'backquote'});return;}
+  if(code==='KeyZ'){if(k.has('KeyC')){this.zHold={t};return;}if(k.has('KeyQ')){this.emit('skill',{special:'z-tap',mods:{q:true}});return;}this.emit('support');return;}
+  if(code.startsWith('Arrow')&&k.has('KeyZ')&&!k.has('KeyC')){const x=code==='ArrowRight'?1:code==='ArrowLeft'?-1:0,z=code==='ArrowDown'?1:code==='ArrowUp'?-1:0;this.emit('skill',{plain:{x,z},mods:{z:true}});}
+ }
+ skillKeyUp(code){
+  const t=this.now()/1000;
+  if(this.gesture){if(code.startsWith('Arrow')&&this.gestureKeys?.delete(code)){const a=this.arrows();this.gesture.events.push({x:a.x,z:a.z,t:t-this.gesture.start});}if(code==='ShiftLeft'||code==='ShiftRight')this.finishGesture(t);}
+  if(code==='KeyQ'&&this.qTap){if(this.qTap.clean&&t-this.qTap.t<.3&&this.enabled&&this.getContext().attack)this.emit('skill',{special:'q-tap',mods:{e:this.keys.has('KeyE')}});this.qTap=null;}
+  if(code==='KeyZ'&&this.zHold){if(t-this.zHold.t<HOLD&&this.enabled)this.emit('skill',{special:'z-tap',mods:{c:true}});this.zHold=null;}
+ }
+ skillPoll(){
+  const t=this.now()/1000,g=this.gesture;
+  // A gesture ends once every arrow has been released for a moment, so moves can be chained while SHIFT stays down.
+  if(g){const last=g.events[g.events.length-1];if(last&&!last.x&&!last.z&&t-g.start-last.t>.18)this.finishGesture(t,this.shiftHeld());}
+  if(this.zHold&&t-this.zHold.t>=HOLD&&this.keys.has('KeyZ')&&this.keys.has('KeyC')){if(this.enabled)this.emit('skill',{special:'z-hold',mods:{c:true}});this.zHold=null;}
+ }
+ finishGesture(t,again=false){
+  const g=this.gesture;this.gesture=null;
+  if(g&&g.events.length&&this.enabled&&this.getContext().attack)this.emit('skill',{gesture:{events:g.events,end:t-g.start},mods:g.mods});
+  if(again){this.gestureKeys=new Set();this.gesture={start:t,events:[],mods:{q:this.keys.has('KeyQ'),c:this.keys.has('KeyC'),z:this.keys.has('KeyZ'),e:this.keys.has('KeyE')}};}else {this.shiftAxis=null;this.gestureKeys=null;}
+ }
+ keyUp(code){this.keys.delete(code);this.skillKeyUp(code);this.refresh();if(code===(this.legacy?'KeyK':'KeyD')&&this.charging){this.charging=false;this.lastShot=this.now();if(this.enabled)this.emit('shoot',this.shotOptions);}}
  poll(){
-  this.refresh();const pad=this.getPads()[0];
+  this.skillPoll();this.refresh();const pad=this.getPads()[0];
   if(pad){
    const button=i=>!!pad.buttons[i]?.pressed,context=this.getContext(),attack=context.attack;
    const x=pad.axes[0]||0,z=pad.axes[1]||0,mag=Math.hypot(x,z),dead=this.settings.deadzone;
