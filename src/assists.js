@@ -148,10 +148,11 @@ export function dribbleSteer(match,p,axis){
  // chased toward the spot just behind it on the stick's line, at the stick's pace, so the next touch sends it on.
  if(footCanPlay(p,b,true)||t<.06)return p.dribbleChase?{x:dir.x,z:dir.z}:axis;
  const magnitude=p.dribbleChase?1:n;
- // A ball well off the stick's line (more than 45 degrees, e.g. on the right while the stick says left) is met by
- // the shortest route and played across by the first touch; the player never runs around it the wrong way.
- if(dir.x*bx+dir.z*bz<reach*Math.cos(Math.PI/4))return {x:bx/reach*magnitude,z:bz/reach*magnitude};
- return {x:tx/t*magnitude,z:tz/t*magnitude};
+ // Blend the direct route with the approach behind the ball, avoiding a steering
+ // snap when the ball crosses the edge of the requested running direction.
+ const alignment=(dir.x*bx+dir.z*bz)/reach,blend=clamp((alignment-.4)/.45,0,1),w=blend*blend*(3-2*blend);
+ const steerX=bx/reach*(1-w)+tx/t*w,steerZ=bz/reach*(1-w)+tz/t*w,steerLength=Math.hypot(steerX,steerZ)||1;
+ return {x:steerX/steerLength*magnitude,z:steerZ/steerLength*magnitude};
 }
 
 /** Extra reach of a lengthened last stride when the ball runs ahead of a moving kicker. */

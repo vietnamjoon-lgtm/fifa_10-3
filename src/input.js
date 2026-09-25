@@ -26,7 +26,7 @@ export class Input{
   const k=this.keys,has=(...codes)=>codes.some(c=>k.has(c)),attack=this.getContext().attack;
   this.axis={x:Number(has('ArrowRight',...(this.legacy?['KeyD']:[])))-Number(has('ArrowLeft',...(this.legacy?['KeyA']:[]))),z:Number(has('ArrowDown',...(this.legacy?['KeyS']:[])))-Number(has('ArrowUp',...(this.legacy?['KeyW']:[])))};
   const n=Math.hypot(this.axis.x,this.axis.z);if(n>1){this.axis.x/=n;this.axis.z/=n;}
-  this.sprint=this.legacy?has('ShiftLeft','ShiftRight'):has('KeyE');
+  this.sprint=this.legacy?has('ShiftLeft','ShiftRight'):has('KeyE','ShiftLeft','ShiftRight');
   this.sprintAmount=this.sprint?1:0;
   this.defend=this.legacy?has('ControlLeft','ControlRight'):has('KeyC');this.shield=attack&&this.defend;
   this.curve=this.legacy?has('KeyE'):has('KeyZ');this.chip=this.legacy?has('KeyX'):has('KeyQ');this.low=this.legacy&&has('KeyZ');
@@ -58,11 +58,11 @@ export class Input{
    if(code==='KeyW')this.emit('through',{lob:this.keys.has('KeyQ'),driven:this.keys.has('KeyZ')});
    if(code==='KeyQ')this.emit('run');if(code==='KeyZ')this.emit('support');
    if(code.startsWith('Arrow')&&this.knock)this.emit('knock');
-   else if(code.startsWith('Arrow')&&(this.keys.has('ShiftLeft')||this.keys.has('ShiftRight')))this.emit('skill');
+   // Shift + movement is knock-and-run via sprint dribbling; skills use Shift + 1~7.
   }else{
    if(code===(this.tactical?'KeyQ':'KeyS'))this.emit('switch');if(code==='KeyD')this.emit('tackle',{automatic:true});if(code==='KeyA')this.emit('slide');
    if(code===(this.tactical?'KeyZ':'KeyQ')){this.pressDouble=this.now()-this.lastPress<300;this.lastPress=this.now();this.refresh();}
-   if(code.startsWith('Arrow')&&(this.keys.has('ShiftLeft')||this.keys.has('ShiftRight')))this.emit('switch');
+   // Shift also sprints in defence, without unexpectedly switching players.
   }
  }
  keyUp(code){this.keys.delete(code);this.refresh();if(code===(this.legacy?'KeyK':'KeyD')&&this.charging){this.charging=false;this.lastShot=this.now();if(this.enabled)this.emit('shoot',this.shotOptions);}}

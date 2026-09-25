@@ -9,12 +9,48 @@ import {bodyContactMass} from '../src/body-shape.js';
 import {resolveBodyContacts} from '../src/contacts.js';
 import {resolveTackle,foul} from '../src/referee.js';
 import {boundaryRestart} from '../src/rules.js';
-import {cushionFirstTouch} from '../src/assists.js';
+import {cushionFirstTouch,dribbleSteer} from '../src/assists.js';
+import {updateTeamAI} from '../src/ai.js';
 import {gaitTargets} from '../src/gait.js';
 import {locomotionCadence,stanceFraction} from '../src/motion-planner.js';
 import {Room} from '../server/room.js';
 
 const idle={axis:{x:0,z:0}},dt=1/120;
+
+test('walking-speed glancing tackles continue without a foul or fall in either direction',()=>{
+ for(const dir of [-1,1])for(const type of ['tackle','slide']){
+  const {m,a,b}=setup();a.yaw=dir*Math.PI/2;b.x=dir*.65;b.z=type==='slide'?.30:.25;a.vx=dir;
+  m.physics.reset(dir*2,0);resolveTackle(m,a,{type});
+  assert.equal(m.stats.fouls[0],0);assert.equal(m.state,'playing');assert.equal(b.down,0);
+ }
+});
+test('a clean sliding challenge can knock down a moving opponent without being a foul',()=>{
+ for(const dir of [-1,1]){
+  const {m,a,b}=setup();a.yaw=dir*Math.PI/2;a.vx=dir*4;b.x=dir*1.05;m.owner=b;b.action={type:'shoot',elapsed:0};
+  m.physics.reset(dir*.4,0);resolveTackle(m,a,{type:'slide'});
+  assert.equal(m.lastTouch,a);assert.equal(m.stats.fouls[0],0);assert.ok(b.down>.5);assert.equal(b.action,null);assert.equal(m.owner,null);
+ }
+});
+test('light ball-first tackles and minor standing fouls do not automatically knock players down',()=>{
+ const clean=setup();clean.b.x=1.05;clean.m.physics.reset(.4,0);resolveTackle(clean.m,clean.a,{type:'tackle'});
+ assert.equal(clean.m.lastTouch,clean.a);assert.equal(clean.b.down,0);
+ const foulCase=setup();foulCase.b.x=.55;foulCase.m.physics.reset(1.05,0);resolveTackle(foulCase.m,foulCase.a,{type:'tackle'});
+ assert.equal(foulCase.m.stats.fouls[0],1);assert.equal(foulCase.b.down,0);
+});
+test('a late central slide trips the opponent and still awards the foul',()=>{
+ const {m,a,b}=setup();b.x=.55;m.owner=b;m.physics.reset(1.05,0);resolveTackle(m,a,{type:'slide'});
+ assert.equal(m.stats.fouls[0],1);assert.ok(b.down>.5);assert.equal(m.state,'restart');
+});
+test('defensive AI closes medium gaps and takes safe tackles without charging through the owner',()=>{
+ const far=setup();far.m.autoplay=true;far.m.owner=far.b;far.b.x=6;far.m.physics.reset(5.7,0);updateTeamAI(far.m);assert.equal(far.a.aiState,'PRESS');assert.ok(far.a.sprinting);
+ const safe=setup();safe.m.autoplay=true;safe.m.owner=safe.b;safe.b.x=1.3;safe.m.physics.reset(.75,0);updateTeamAI(safe.m);assert.equal(safe.a.action?.type,'tackle');
+ const blocked=setup();blocked.m.autoplay=true;blocked.m.owner=blocked.b;blocked.b.x=.4;blocked.m.physics.reset(.85,0);updateTeamAI(blocked.m);assert.equal(blocked.a.action,null);
+});
+test('dribble steering blends continuously across the former 45 degree switch',()=>{
+ const steer=angle=>{const {m,a}=setup();a.vx=4;m.owner=a;m.physics.reset(1.8,0);m.physics.ball.velocity.set(4,0,0);return dribbleSteer(m,a,{x:Math.cos(angle),z:Math.sin(angle)});};
+ const before=steer(Math.PI/4-.001),after=steer(Math.PI/4+.001);
+ assert.ok(Math.hypot(before.x-after.x,before.z-after.z)<.005);
+});
 function setup(gameplay={}){const m=new Match({...defaults,gameplay,seed:78});m.start(false);m.state='playing';m.lock=0;m.aiClock=1e6;for(const p of m.players)Object.assign(p,{active:false,x:20,z:20,vx:0,vz:0,down:0,cooldown:0,touchCooldown:0,action:null,target:{x:20,z:20}});const a=m.players[9],b=m.players[20];Object.assign(a,{active:true,x:0,z:0,yaw:Math.PI/2,target:{x:0,z:0}});Object.assign(b,{active:true,x:2,z:0,yaw:-Math.PI/2,target:{x:2,z:0}});m.controlled=a;m.owner=null;m.physics.reset(10,10);m.lastKickTime=-10;return {m,a,b};}
 test('gameplay settings migrate safely and reject invalid or unbounded values',()=>{assert.deepEqual(cleanGameplay(null),gameplayDefaults);const c=cleanGameplay({acceleration:NaN,braking:999,ballRoll:-5,firstTouch:'120',referee:'none',admin:true});assert.equal(c.acceleration,100);assert.equal(c.braking,120);assert.equal(c.ballRoll,80);assert.equal(c.firstTouch,100);assert.equal(c.referee,'standard');assert.equal(c.admin,undefined);});
 test('movement settings change acceleration, stopping distance and turn response independently',()=>{const run=(key,value)=>{const {m,a}=setup({[key]:value});a.vx=key==='acceleration'?0:6;for(let i=0;i<24;i++)m.move(a,key==='braking'?idle.axis:key==='turnResponse'?{x:-1,z:0}:{x:1,z:0},false,false,dt);return {x:a.x,yaw:a.yaw,speed:Math.hypot(a.vx,a.vz)};};assert.ok(run('acceleration',120).speed>run('acceleration',80).speed);assert.ok(run('braking',120).x<run('braking',80).x);assert.ok(Math.abs(run('turnResponse',120).yaw-Math.PI/2)>Math.abs(run('turnResponse',80).yaw-Math.PI/2));});
