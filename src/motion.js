@@ -64,6 +64,71 @@ function receiveReach(reach,p,m,ball,time,pose){
  }
  target.x=clamp(target.x,s>0?-.1:-.4,s>0?.4:.1);target.z=clamp(target.z,-.2,.62);reach[i]={...target,weight:Math.max(weight,reach[i]?.weight||0)};
 }
+const armSide=i=>i===0?1:-1;
+// Standing tackle: lunge onto the support leg and block the ball with the inside of the
+// foot nearer to it (the rules resolve the tackle at 0.13 s), then recover.
+function tacklePose(pose,p,action,ball){
+ const t=action.elapsed||0,m=bodyMetrics(p),local=ball?toLocal(p,m,ball):{x:.05,y:.11,z:.6},i=local.x>=0?1:0,s=reachSide(i);
+ const lunge=smooth(t/.13)*(1-smooth((t-.24)/.3));
+ // Only the support leg may be pinned to the grass; the tackling leg must be free to reach.
+ pose.state='tackle';pose.rootRoll=0;pose.rootY=0;pose.feetSolved=true;pose.feet=[[0,0,0],[0,0,0]];pose.contacts=i?[1,0]:[0,1];pose.planted=i?[true,false]:[false,true];
+ pose.hipY=.86-.13*lunge;pose.hips=[.12*lunge,-s*.22*lunge,s*.05*lunge];pose.torso=[.1+.25*lunge,s*.12*lunge,-s*.06*lunge];pose.head=[.22*lunge,-s*.1*lunge,0];
+ legIK(pose,m,1-i,{x:-s*.16,y:.075,z:-.12*lunge},0,-s*.15);
+ legIK(pose,m,i,{x:lerp(s*.12,clamp(local.x+s*.05,s>0?-.05:-.3,s>0?.3:.05),lunge),y:.09+.03*lunge,z:lerp(-.02,clamp(local.z-.1,.3,.72),lunge)},0,s*.9*lunge);
+ pose.arms[1-i].upper=[-.5*lunge,0,armSide(1-i)*(.35+.45*lunge)];pose.arms[1-i].lower=[-.6,0,0];
+ pose.arms[i].upper=[.35*lunge,0,armSide(i)*(.3+.3*lunge)];pose.arms[i].lower=[-.4,0,0];
+}
+// Sliding tackle: drop onto the hip and hand of the tucked side, send the tackling leg
+// along the grass at the ball, slide, then climb back up over the tucked leg.
+function slidePose(pose,p,action,ball){
+ const t=action.elapsed||0,m=bodyMetrics(p),local=ball?toLocal(p,m,ball):{x:.05,y:.11,z:.8},i=local.x>=0?1:0,s=reachSide(i),k=1-i;
+ const down=smooth(t/.2)*(1-smooth((t-.55)/.3)),up=smooth((t-.55)/.3);
+ pose.state='slide';pose.feetSolved=true;pose.feet=[[0,0,0],[0,0,0]];pose.contacts=[0,0];pose.rootY=0;pose.rootRoll=s*.45*down;
+ pose.hipY=lerp(.86,.22,down);pose.hips=[-.5*down,s*.15*down,0];pose.torso=[-.15*down,-s*.12*down,-s*.12*down];pose.head=[.5*down,0,0];
+ // The tackling leg goes out almost straight along the grass, sole toward the ball.
+ legIK(pose,m,i,{x:lerp(s*.12,clamp(local.x,-.15,.15),down),y:lerp(.075,.12,down),z:lerp(-.02,clamp(local.z+.25,.68,.8),down)},.5*down,s*.25*down);
+ // The tucked leg folds under the body, then becomes the leg the player stands up on.
+ const stand={hips:pose.hips,hipY:pose.hipY,legs:[{upper:[0,0,0],lower:[0,0,0]},{upper:[0,0,0],lower:[0,0,0]}],feet:[[0,0,0],[0,0,0]]};legIK(stand,m,k,{x:-s*.14,y:.075,z:-.05},0,-s*.1);
+ const w=down;pose.legs[k].upper=stand.legs[k].upper.map((v,j)=>lerp(v,[-.3,0,-s*.35][j],w));pose.legs[k].lower=[lerp(stand.legs[k].lower[0],2.2,w),0,0];pose.feet[k]=[lerp(stand.feet[k][0],.9,w),0,0];
+ pose.arms[k].upper=[.55*down,0,armSide(k)*(.25+.35*down)];pose.arms[k].lower=[-.15,0,0];
+ pose.arms[i].upper=[-.8*down,0,armSide(i)*(.4+.5*down)];pose.arms[i].lower=[-.7*down,0,0];
+}
+// Fouled or bundled over: on the side while down, then roll onto hands and a knee and push up.
+function fallPose(pose,p){
+ const side=p.interaction?.side||1,getUp=1-clamp(p.down/.5,0,1),roll=1-smooth(getUp/.4),rise=smooth((getUp-.35)/.65);
+ pose.state=p.down<.3?'recover':'fall';pose.rootY=0;pose.rootRoll=side*1.15*roll;
+ pose.hipY=lerp(lerp(.24,.45,smooth(getUp/.4)),.87,rise);pose.hips=[lerp(.2,.9,1-roll)*(1-rise),0,0];pose.torso=[lerp(.25,.45,1-roll)*(1-rise)+.05*rise,0,0];pose.head=[-.3*(1-roll)*(1-rise),0,0];
+ const knee=lerp(lerp(1.4,1.9,1-roll),.1,rise);pose.legs[0].upper=[lerp(-.6,-1.1,1-roll)*(1-rise),0,0];pose.legs[0].lower=[knee,0,0];pose.legs[1].upper=[lerp(-.2,-.5,1-roll)*(1-rise),0,0];pose.legs[1].lower=[lerp(.8,1.6,1-roll)*(1-rise)+.1*rise,0,0];
+ pose.arms[0].upper=[lerp(-.5,-1.2,1-roll)*(1-rise),0,lerp(1.1,.25,1-roll)];pose.arms[1].upper=[lerp(-.5,-1.2,1-roll)*(1-rise),0,lerp(-.5,-.25,1-roll)];pose.arms[0].lower=pose.arms[1].lower=[-.2,0,0];
+}
+// Header or volley is decided by the planned clip or the frozen contact point, never by where
+// the struck ball has flown since. Header: dip, jump with the arms swinging up, arch back and snap the head through the
+// ball at the top of the jump (contact), land on bent knees. Volleys swing the kicking leg.
+function aerialPose(pose,p,action,ball){
+ const t=action.elapsed||0,contact=Math.max(.12,action.contactAt||.19),i=action.foot==='left'?0:1,strike=action.contactTarget||ball,volley=action.clipId?action.clipId!=='header':(strike?.y??1.6)<=1.2;
+ const dip=smooth(t/.05)*(1-smooth((t-.04)/.06)),air=t<contact?Math.sin(Math.PI/2*clamp((t-.03)/(contact-.03),0,1)):Math.cos(Math.PI/2*clamp((t-contact)/.3,0,1));
+ const whip=smooth((t-contact+.08)/.1)*(1-smooth((t-contact-.1)/.25)),arch=smooth(t/Math.max(.05,contact-.04))*(1-smooth((t-contact+.08)/.1)),land=smooth((t-contact-.22)/.1)*(1-smooth((t-contact-.4)/.2));
+ // The jump raises the pelvis (the whole body hangs from it) so the shadow stays on the grass;
+ // the rendered root height is reset every frame by the match renderer.
+ pose.state=volley?'volley':'header';pose.rootRoll=0;pose.rootY=0;pose.hipY=.86-.1*dip-.1*land+(volley?.08:.34)*air;
+ pose.hips=[-.12*arch+.12*whip,0,0];pose.torso=[-.32*arch+.5*whip,0,0];pose.head=[-.2*arch+.4*whip,0,0];
+ for(let j=0;j<2;j++){pose.legs[j].upper=[-.25*air-.35*land-.2*dip,0,0];pose.legs[j].lower=[.55*air+.7*land+.45*dip,0,0];pose.arms[j].upper=[-(1.1*arch+.3)*(1-whip)+.35*whip,0,armSide(j)*(.55+.45*air)];pose.arms[j].lower=[-.5,0,0];}
+ if(volley)volleyPose(pose,p,action,ball,t,contact,i);
+}
+// Volley: support foot planted, body leaning away from the kicking leg, the kicking foot
+// cocked behind and swung through the ball's height, then followed through upward.
+function volleyPose(pose,p,action,ball,t,contact,i){
+ const m=bodyMetrics(p),s=reachSide(i),strike=action.contactTarget||ball,local=strike?toLocal(p,m,strike):{x:.1,y:.9,z:.5},pre=clamp(t/contact,0,1),after=t>contact?clamp((t-contact)/.3,0,1):0;
+ const high=clamp((local.y-.6)/.5,0,1),back=Math.sin(Math.PI/2*clamp(pre/.55,0,1))*(1-smooth((pre-.55)/.45)),settle=smooth((after-.4)/.6);
+ pose.rootY=0;pose.hipY=.85-.03*back+.01*settle;pose.contacts=i?[1,0]:[0,1];pose.planted=i?[true,false]:[false,true];pose.feetSolved=true;pose.feet=[[0,0,0],[0,0,0]];
+ pose.hips=[.05,s*(.2*back-.25*(1-settle)*smooth(pre)),s*.1*high*(1-settle)];pose.torso=[-.1-.18*high*(1-settle),-pose.hips[1]*.6,s*.28*high*(1-settle)];pose.head=[.25,-(pose.hips[1]+pose.torso[1])*.8,-(pose.hips[2]+pose.torso[2])*.7];
+ legIK(pose,m,1-i,{x:-s*.15,y:.075,z:-.05},0,-s*.2);
+ const hit={x:clamp(local.x-s*.02,s>0?-.05:-.35,s>0?.35:.05),y:clamp(local.y-.06,.25,1),z:clamp(local.z-.12,.2,.6)},wind={x:s*.14,y:.3+.25*high,z:-.35},up={x:hit.x-s*.05,y:hit.y+.15,z:hit.z+.15},down={x:s*.12,y:.075,z:.05};
+ const seg=(a,b,u)=>{const w=smooth(u);return {x:lerp(a.x,b.x,w),y:lerp(a.y,b.y,w),z:lerp(a.z,b.z,w)};};
+ const foot=t<contact?(pre<.55?seg({x:s*.12,y:.075,z:0},wind,pre/.55):seg(wind,hit,(pre-.55)/.45)):after<.4?seg(hit,up,after/.4):seg(up,down,(after-.4)/.6);
+ legIK(pose,m,i,foot,.6*smooth(pre)*(1-settle),s*.1);
+ pose.arms[1-i].upper=[-.4,0,armSide(1-i)*(.9+.4*high)];pose.arms[i].upper=[.3*back,0,armSide(i)*(.5+.3*high)];pose.arms[0].lower=pose.arms[1].lower=[-.4,0,0];
+}
 // Kick authored for the right foot (the left foot mirrors later): plant beside the
 // ball, wind up with the hip, swing through the ball and follow the target line.
 function kickPose(pose,p,action,ball,yaw){
@@ -117,13 +182,13 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  if(!p.action&&p.receiveUntil>time){pose.state='receive';pose.hipY-=.035;if(tweak)pose.legs[p.foot==='left'?0:1].lower[0]+=.2;}
  if(action){const t=action.elapsed||0;
   if(action.type==='feint'){pose.state='feint';const wave=Math.sin(clamp(t/.28,0,1)*Math.PI*2);pose.hips[2]=wave*.16;pose.torso[2]=-wave*.28;pose.legs[1].upper[2]=wave*.35;if(action.skill==='drag-back'){pose.legs[1].upper[0]=-.4+wave*.35;pose.legs[1].lower[0]=.7;pose.torso[0]=-.12;}pose.arms[0].upper[2]=.55;}
-  else if(action.type==='slide'){pose.state='slide';const enter=smooth(t/.17),recover=smooth((t-.53)/.32),weight=enter*(1-recover);pose.hipY=lerp(pose.hipY,.29,weight);pose.rootRoll=-.36*weight;pose.torso[0]=-.35*weight;pose.legs[1].upper[0]=lerp(pose.legs[1].upper[0],-1.25,weight);pose.legs[1].lower[0]=.12;pose.legs[0].upper[0]=-.6;pose.legs[0].lower[0]=1.5;pose.arms[0].upper=[.4,0,.7];pose.arms[1].upper=[-.25,0,-.6];}
-  else if(action.type==='tackle'){pose.state='tackle';const weight=Math.sin(clamp(t/.55,0,1)*Math.PI);pose.hipY-=weight*.12;pose.torso[0]=weight*.26;pose.legs[1].upper[0]=-weight*.95;pose.legs[1].lower[0]=.16;pose.arms[0].upper[2]=.55;}
-  else if(action.aerial){pose.state=(ball?.y||1.5)>1.2?'header':'volley';const u=clamp(t/.7,0,1),jump=Math.sin(u*Math.PI);pose.rootY=jump*.27;pose.torso[0]=-.22+smooth((u-.2)/.4)*.65;pose.head[0]=smooth((u-.25)/.35)*.22;pose.legs[0].lower[0]=.6*jump;pose.legs[1].lower[0]=.9*jump;pose.arms[0].upper=[-.3,0,.8];pose.arms[1].upper=[-.3,0,-.8];if(pose.state==='volley')pose.legs[1].upper[0]=-1.2*jump;}
+  else if(action.type==='slide')slidePose(pose,p,action,ball);
+  else if(action.type==='tackle')tacklePose(pose,p,action,ball);
+  else if(action.aerial)aerialPose(pose,p,action,ball);
   else if(['shoot','pass','through','lob'].includes(action.type))kickPose(pose,p,action,ball,yaw);
  }
  if(p.dive>0){pose.state='dive';const u=clamp(1-p.dive/(p.diveDuration||KEEPER.diveDuration),0,1),weight=Math.sin(u*Math.PI),sign=p.diveDirection||1;pose.rootRoll=sign*weight*1.15;pose.hipY=.85-weight*.33;pose.rootY=weight*.15;pose.arms[0].upper=[-.6,0,2.25];pose.arms[1].upper=[-.6,0,-2.25];pose.legs[0].lower[0]=weight*.9;pose.legs[1].lower[0]=weight*.6;}
- if(p.down>0){pose.state=p.down<.3?'recover':'fall';const weight=smooth(p.down/.3);pose.rootRoll=weight*1.15*(p.interaction?.side||1);pose.hipY=lerp(.87,.28,weight);pose.torso[0]=weight*.25;pose.legs[0].lower[0]=weight*1.4;pose.legs[1].lower[0]=weight*.8;pose.arms[0].upper=[-.5,0,1.1];pose.arms[1].upper=[-.5,0,-.5];}
+ if(p.down>0)fallPose(pose,p);
  if(celebrate&&!p.down&&!action){pose.state='celebrate';pose.arms[0].upper=[-.2,0,2.5];pose.arms[1].upper=[-.2,0,-2.5];pose.rootY=Math.max(0,Math.sin(time*5+p.id))*.12;}
  for(const arm of pose.arms)arm.upper[2]*=-1;
  if(!p.down&&!p.dive&&!celebrate){
