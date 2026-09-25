@@ -63,7 +63,7 @@ export const CARD_POOL=[
  GK('얀 오블라크','아틀레티코 마드리드','슬로베니아',13,'right',1.88,87,80,74,50),
  GK('알리송 베커','리버풀','브라질',1,'right',1.93,91,80,76,52)
 ];
-const statDisplay=card=>({pace:card.pac,acceleration:card.pac,shooting:card.sho,power:card.sho,passing:card.pas,longPass:card.pas,control:card.dri,agility:card.dri,balance:card.dri,tackling:card.def,strength:card.phy,reflexes:card.ref??38,reach:card.reach??60,weakFoot:card.weak??62,skillMoves:card.skill??(card.dri>=90?5:card.dri>=84?4:card.dri>=76?3:card.dri>=66?2:1)});
+const statDisplay=card=>({pace:card.pac,acceleration:card.pac,shooting:card.sho,power:card.sho,passing:card.pas,longPass:card.pas,control:card.dri,agility:card.dri,balance:card.dri,tackling:card.def,strength:card.phy,reflexes:card.ref??38,reach:card.reach??60,weakFoot:card.weak??62});
 // 공개된 신체 정보(키·몸무게·체형 인상)를 바탕으로 한 부위 비율입니다. 상용 게임의 스캔 데이터가 아닙니다.
 export const BODY_TYPES={
  slim:{muscle:34,softness:18,shoulders:95,chest:93,waist:88,upperArm:90,thigh:92,calf:93},
