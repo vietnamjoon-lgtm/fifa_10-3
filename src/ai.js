@@ -4,6 +4,7 @@ import {keeperProfile} from './attributes.js';
 import {clamp,distance,TUNING} from './config.js';
 import {passTarget} from './assists.js';
 import {offsideSnapshot} from './rules.js';
+import {safeAutoTackle} from './auto-defence.js';
 export function laneClear(a,b,opponents){const dx=b.x-a.x,dz=b.z-a.z,l=dx*dx+dz*dz;let danger=0;for(const p of opponents){const t=clamp(((p.x-a.x)*dx+(p.z-a.z)*dz)/l,0,1);if(t>.05&&t<.95){const d=Math.hypot(p.x-a.x-t*dx,p.z-a.z-t*dz);danger+=Math.max(0,3.3-d);}}return danger;}
 export function choosePass(match,p,aim,type='pass'){
  const opponents=match.players.filter(q=>q.active&&q.team!==p.team),dir=match.direction(p.team),offside=offsideSnapshot(match,p);let best=null,score=-Infinity;
@@ -34,8 +35,8 @@ export function updateTeamAI(match){
  if(goalDistance<24&&Math.abs(p.z)<16){const targetZ=clamp(-Math.sign(match.players.find(q=>q.team!==team&&q.role==='GK')?.z||1)*2.1+p.z*.04,-2.7,2.7);match.queueKick(p,'shoot',.56+match.random()*.25,{x:dir*52.5-p.x,z:targetZ-p.z});}
  else if(pressure<2.8||match.random()<.13){const type=match.random()>.6?'through':'pass',pass=choosePass(match,p,null,type);if(pass)match.queueKick(p,Math.abs(p.z)>24&&goalDistance<28?'lob':type,.5,{x:pass.x-p.x,z:pass.z-p.z},pass.player);}
  }
- }else if(p===cover){p.aiState='CLOSE DOWN';const gx=-dir*52.5,dx=gx-owner.x,dz=-owner.z,n=Math.hypot(dx,dz)||1,gap=clamp(distance(p,owner)*.35,1.6,3);p.target={x:owner.x+dx/n*gap,z:owner.z+dz/n*gap};p.sprinting=distance(p,p.target)>2;if(distance(p,b)<.95&&p.cooldown<=0&&match.random()<.2)match.tackle(p);}
- else if(p===chaser&&(!hasBall||!owner)){p.aiState='PRESS';const target=interceptPoint(match,p);p.target=target||{x:b.x,z:b.z};p.sprinting=distance(p,b)>7;if(owner&&owner.team!==team&&distance(p,b)<.95&&p.cooldown<=0&&match.random()<.28)match.tackle(p);}
+ }else if(p===cover){p.aiState='CLOSE DOWN';const gx=-dir*52.5,dx=gx-owner.x,dz=-owner.z,n=Math.hypot(dx,dz)||1,gap=clamp(distance(p,owner)*.35,1.4,2.7);p.target={x:clamp(owner.x+owner.vx*.15+dx/n*gap,-49,49),z:clamp(owner.z+owner.vz*.15+dz/n*gap,-30,30)};p.sprinting=distance(p,p.target)>1.8;if(safeAutoTackle(match,p))match.tackle(p);}
+ else if(p===chaser&&(!hasBall||!owner)){p.aiState='PRESS';const target=interceptPoint(match,p);p.target=target||{x:b.x,z:b.z};p.sprinting=distance(p,b)>4.5;if(owner&&owner.team!==team&&safeAutoTackle(match,p))match.tackle(p);}
  else {p.aiState=hasBall?'SUPPORT':'COVER';const progress=b.x*dir,shift=clamp(progress*.5+(hasBall?20:7),-10,36);let x=(p.homeX+shift)*dir,z=p.homeZ+b.z*.19;
  if(hasBall&&p.role==='FWD'){x=clamp((progress+12)*dir,-46,46);z=p.homeZ*.88+b.z*.12;}
  if(hasBall&&p.role==='MID'&&owner){x=owner.x-dir*(p.index%2?7:12);z=owner.z+(p.homeZ<0?-11:11);}

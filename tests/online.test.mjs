@@ -12,6 +12,20 @@ function inputRig(settings={},context={attack:true}){const events=[];let time=10
 function matchRig(){const events=[];const m=new Match({...defaults},(type,data)=>events.push({type,data}));m.start(false);m.state='playing';m.aiClock=1e6;m.lock=0;for(const p of m.players){p.active=false;p.touchCooldown=0;p.cooldown=0;p.action=null;}const p=m.players[9],q=m.players[17];p.active=q.active=true;p.x=q.x=0;p.z=0;q.z=8;p.yaw=Math.PI/2;q.yaw=-Math.PI/2;p.target={x:p.x,z:p.z};q.target={x:q.x,z:q.z};m.controlled=p;m.owner=p;m.physics.reset(.54,-.11);return {m,p,q,events};}
 
 test('online arrows move, E sprints, and WASD are actions rather than movement',()=>{const {input,events}=inputRig();input.keyDown('ArrowRight');input.keyDown('KeyE');assert.equal(input.axis.x,1);assert.ok(input.sprint);input.keyDown('KeyD');assert.equal(events.at(-1).action,'charge');input.keyUp('KeyD');assert.equal(events.at(-1).action,'shoot');input.keyUp('ArrowRight');assert.equal(input.axis.x,0);});
+test('either Shift key sprints in both key orders without a skill or defensive switch',()=>{
+ for(const attack of [true,false])for(const key of ['ShiftLeft','ShiftRight'])for(const first of [true,false]){
+  const {input,events}=inputRig({}, {attack});for(const code of first?[key,'ArrowRight']:['ArrowRight',key])input.keyDown(code);
+  assert.equal(input.sprint,true);assert.equal(input.axis.x,1);assert.equal(events.length,0);
+  input.keyUp(key);assert.equal(input.sprint,false);
+ }
+ const {input,events}=inputRig();input.keyDown('ShiftLeft');input.keyDown('Digit1');assert.equal(events.at(-1).action,'skill');
+});
+test('holding Shift drives the existing knock-and-run dribble and releasing it stops sprinting',()=>{
+ const {m,p}=matchRig();m.players[17].active=false;const {input}=inputRig();input.keyDown('ArrowRight');input.keyDown('ShiftLeft');let gap=0;
+ for(let i=0;i<120;i++){m.step(1/120,input.poll());gap=Math.max(gap,Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z));}
+ assert.ok(p.sprinting);assert.ok(p.vx>5);assert.ok(gap>1&&gap<2);assert.equal(m.owner,p);
+ input.keyUp('ShiftLeft');assert.equal(input.poll().sprint,false);
+});
 test('attack modifier chords preserve their options through release',()=>{for(const [modifier,button,command,option] of [['KeyZ','KeyD','shoot','curve'],['KeyQ','KeyD','shoot','chip'],['KeyQ','KeyW','through','lob'],['KeyZ','KeyS','pass','driven'],['KeyQ','KeyS','pass','oneTwo'],['KeyQ','KeyA','lob','early']]){const {input,events}=inputRig();input.keyDown(modifier);input.keyDown(button);input.keyUp(modifier);input.keyUp(button);const event=events.findLast(e=>e.action===command);assert.ok(event?.options[option],`${modifier} ${button}`);}});
 test('basic and tactical defence map switch, pressing and slide by context',()=>{for(const defence of ['basic','tactical']){const {input,events}=inputRig({defence},{attack:false});input.keyDown(defence==='basic'?'KeyS':'KeyQ');assert.equal(events.at(-1).action,'switch');input.keyDown('KeyD');assert.equal(events.at(-1).action,'tackle');assert.equal(input.charging,false);input.keyDown('KeyA');assert.equal(events.at(-1).action,'slide');input.keyDown(defence==='basic'?'KeyQ':'KeyZ');assert.ok(input.teamPress);input.keyDown('KeyW');assert.ok(input.keeperRush);}});
 test('double shot, fake shot, repeated cross and cancel are distinct input sequences',()=>{const a=inputRig();a.input.keyDown('KeyD');a.input.keyUp('KeyD');a.tick(80);a.input.keyDown('KeyD');assert.equal(a.events.at(-1).action,'lowShot');const b=inputRig();b.input.keyDown('KeyD');b.input.keyDown('KeyS');b.input.keyUp('KeyD');assert.equal(b.events.at(-1).action,'fake');assert.ok(!b.events.some(e=>e.action==='shoot'));const c=inputRig();c.input.keyDown('KeyA');c.input.keyUp('KeyA');c.tick(60);c.input.keyDown('KeyA');assert.equal(c.events.at(-1).options.ground,true);c.input.keyDown('KeyC');c.input.keyDown('KeyE');assert.equal(c.events.at(-1).action,'cancel');});

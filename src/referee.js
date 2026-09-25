@@ -25,6 +25,16 @@ export function applyCard(match,p,card){
 }
 export function flushCards(match){for(const pending of match.pendingCards||[])applyCard(match,pending.player,pending.card);match.pendingCards=[];}
 
+// Losing balance is separate from the referee's decision: a clean tackle can trip
+// a runner, while a light foul need not knock a standing player over.
+function tackleFall(match,victim,{slide=false,relativeSpeed=0,trip=false}={}){
+ const balance=clamp(victim.balance??.8,0,1),threshold=slide?2+balance:3.4+balance*2;
+ if(!trip&&relativeSpeed<threshold)return;
+ victim.down=Math.max(victim.down||0,(slide?.9:.55)+clamp(relativeSpeed/12,0,.5)-balance*.15);
+ victim.action=null;victim.intent=null;victim.pendingKick=null;victim.vx*=.25;victim.vz*=.25;
+ if(match.owner===victim)match.owner=null;
+}
+
 export function foul(match,offender,victim,{slide=false,relativeSpeed=0,ballAttempt=true,reason='무리한 태클'}={}){
  if(match.state!=='playing'||!victim.active||!offender.active)return;
  const penalty=inPenaltyArea(match,victim,offender.team),dir=match.direction(victim.team);
@@ -38,7 +48,7 @@ export function foul(match,offender,victim,{slide=false,relativeSpeed=0,ballAtte
  let card=serious?'red':relativeSpeed>(slide?4.2:5.8)*threshold?'yellow':null;
  if(dogso)card=penalty&&ballAttempt&&!serious?'yellow':'red';
  const restart={kind:penalty?'penalty':'free',team:victim.team,x:clamp(victim.x,-52,52),z:clamp(victim.z,-33.5,33.5),label:(penalty?'페널티킥':'프리킥')+' · '+reason};
- match.stats.fouls[offender.team]++;victim.down=(slide?1.1:.55)*(1.3-.35*(victim.balance??.8));
+ match.stats.fouls[offender.team]++;tackleFall(match,victim,{slide,relativeSpeed,trip:slide});
  match.lastDecision={kind:'foul',offender:offender.id,victim:victim.id,card,penalty,dogso,reason,time:match.time};
  const b=match.physics.ball,shotContinues=match.lastTouch?.team===victim.team&&match.time-match.lastKickTime<1&&b.velocity.x*dir>8&&Math.abs(b.position.z)<14;
  const teammateContinues=match.owner?.team===victim.team&&match.owner!==victim;
@@ -63,13 +73,17 @@ export function resolveTackle(match,p,action){
  const end={x:p.x+f.x*range,z:p.z+f.z*range},ballHit=b.y<.7?sweepCircle(p,end,b,slide?.25:.23):null;
  const contacts=match.players.filter(q=>q.active&&q.team!==p.team&&q.down<=0).map(q=>({q,t:sweepCircle(p,end,q,slide?.34:.29)})).filter(c=>c.t!==null).sort((a,b)=>a.t-b.t||a.q.id-b.q.id),contact=contacts[0],victim=contact?.q;
  const relativeSpeed=victim?Math.hypot(p.vx-victim.vx,p.vz-victim.vz):0;
+ const side=victim?Math.abs((victim.x-p.x)*f.z-(victim.z-p.z)*f.x):Infinity;
+ // Grazing the edge of the tackle capsule at walking speed is incidental contact.
+ const meaningful=!!victim&&(side<(slide?.25:.18)||relativeSpeed>(slide?2:3)*foulThreshold(match));
  const dangerous=victim&&slide&&relativeSpeed>9;
- const bodyFirst=contact&&contact.t<(ballHit??Infinity)-.025;
+ const bodyFirst=meaningful&&contact.t<(ballHit??Infinity)-.06;
  const ballFirst=ballHit!==null&&d<range+.11&&alignment>.15&&!bodyFirst&&!match.heldBy;
  if(dangerous){foul(match,p,victim,{slide,relativeSpeed,ballAttempt:ballHit!==null,reason:'과도한 힘의 슬라이딩'});return;}
  if(ballFirst){
   match.physics.kick(f,slide?5.2:3.8,.15);match.owner=null;match.lastTouch=p;match.lastTouchTeam=p.team;match.lastTouchKind='tackle';match.offside.clear();match.restartOrigin=null;match.lock=.10;p.touchCooldown=.12;match.emit('tackle');
- }else if(victim){
+  if(meaningful)tackleFall(match,victim,{slide,relativeSpeed});
+ }else if(meaningful){
   foul(match,p,victim,{slide,relativeSpeed,ballAttempt:ballHit!==null,reason:bodyFirst?'공보다 몸에 먼저 접촉':'늦은 태클'});
  }
 }

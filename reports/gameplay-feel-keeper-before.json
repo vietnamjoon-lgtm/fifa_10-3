@@ -1,0 +1,2553 @@
+{
+  "checkedAt": "2026-09-25T18:41:14.117Z",
+  "kind": "deterministic isolated keeper shooting drill; not a competitive match win rate",
+  "groups": {
+    "all": {
+      "shots": 252,
+      "goals": 156,
+      "saved": 84
+    },
+    "corners": {
+      "shots": 216,
+      "goals": 156,
+      "saved": 60
+    },
+    "central": {
+      "shots": 36,
+      "goals": 0,
+      "saved": 24
+    },
+    "closeCorners": {
+      "shots": 72,
+      "goals": 72,
+      "saved": 0
+    },
+    "distantCorners": {
+      "shots": 72,
+      "goals": 36,
+      "saved": 36
+    }
+  },
+  "shots": [
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 0,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 0,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 0,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 0,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 10,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 0,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 0,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 0,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 0,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 16,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 0,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 0,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 0,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 0,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 739,
+      "span": 22,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 0,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 0,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 0,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 0,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 10,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 0,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 0,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 0,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 0,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 16,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 0,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 0,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 0,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 0,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 177,
+      "span": 22,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 0,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 0,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 0,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 0,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": false,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 10,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 0,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 0,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 0,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 0,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 16,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": -2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": -2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": -2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": -2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": -1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": -1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 0,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 0,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 0,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 0,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 1.4,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 1.4,
+      "power": 0.8,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 0,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 2.2,
+      "power": 0.45,
+      "team": 1,
+      "goal": false,
+      "saved": true,
+      "state": "playing"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 2.2,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 2.8,
+      "power": 0.45,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 0,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    },
+    {
+      "seed": 928,
+      "span": 22,
+      "corner": 2.8,
+      "power": 0.8,
+      "team": 1,
+      "goal": true,
+      "saved": false,
+      "state": "goal"
+    }
+  ]
+}
