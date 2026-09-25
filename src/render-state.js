@@ -3,7 +3,7 @@ const angle=(a,b,t)=>a+Math.atan2(Math.sin(b-a),Math.cos(b-a))*t;
 export function interpolatePlayer(a,b,t){
  if(!a||a.active!==b.active||Math.hypot(a.x-b.x,a.z-b.z)>5)return {...b};
  const out={...a,x:mix(a.x,b.x,t),z:mix(a.z,b.z,t),yaw:angle(a.yaw,b.yaw,t)};
- for(const key of ['vx','vz','dive','down','motionPhase','motionAcceleration','motionTurn','stamina'])if(Number.isFinite(a[key])&&Number.isFinite(b[key]))out[key]=mix(a[key],b[key],t);
+ for(const key of ['vx','vz','dive','down','motionPhase','motionAcceleration','motionTurn','turnDrive','stamina'])if(Number.isFinite(a[key])&&Number.isFinite(b[key]))out[key]=mix(a[key],b[key],t);
  if(a.action&&b.action&&(a.action.id===b.action.id||a.action.id===undefined&&a.action.type===b.action.type)){
   const elapsed=mix(a.action.elapsed,b.action.elapsed,t),contactAt=b.action.contactAt;
   out.action={...b.action,elapsed,hit:b.action.hit&&elapsed>=contactAt};

@@ -23,7 +23,7 @@ export function solveLeg(forward,height,hipY,a=.35,b=.4){
  return [-Math.atan2(forward,down)-Math.acos(clamp((a*a+r*r-b*b)/(2*a*r),-1,1)),Math.PI-Math.acos(clamp((a*a+b*b-r*r)/(2*a*b),-1,1))];
 }
 export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinematics={}){
- const speed=Math.hypot(p.vx||0,p.vz||0),amount=clamp(speed/7.5,0,1),sprint=smooth((speed-5)/3),tight=p.closeControl||p.shield;
+ const speed=Math.hypot(p.vx||0,p.vz||0),amount=clamp(speed/7.5,0,1),sprint=smooth((speed-5)/3),tight=p.closeControl||p.shield||p.agile;
  const yaw=p.yaw||0,forward=(p.vx||0)*Math.sin(yaw)+(p.vz||0)*Math.cos(yaw),side=(p.vx||0)*Math.cos(yaw)-(p.vz||0)*Math.sin(yaw);
  const pose={contacts:[1,0],state:speed<.2?'idle':tight?'close-control':Math.abs(side)>speed*.65?'jockey':speed>6?'sprint':'run',hipY:.897+Math.sin(time*2.2)*.002,rootRoll:0,rootY:0,hips:[0,0,0],torso:[.02,0,0],head:[0,0,0],legs:[{upper:[0,0,0],lower:[.08,0,0]},{upper:[0,0,0],lower:[.08,0,0]}],arms:[{upper:[0,0,.12],lower:[-.28,0,0]},{upper:[0,0,-.12],lower:[-.28,0,0]}]};
  const stride=amount*(tight?.25:.39+sprint*.1),direction=forward<-.3?-1:1;
@@ -109,13 +109,101 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  if(action?.type==='shoot'&&(action.flair||String(action.flightStyle).toLowerCase().includes('outside'))){const i=action.foot==='left'?0:1,w=Math.sin(clamp(action.elapsed/((action.contactAt||.24)+.25),0,1)*Math.PI);pose.feet[i][1]+=(i===0?.45:-.45)*w;pose.legs[i].upper[1]+=(i===0?.3:-.3)*w;}
  if(action?.type==='feint')applySkillPose(pose,action);
  if(celebrate&&!p.down&&!action)applyCelebration(pose,p,time);
- if(!action&&!p.down&&!p.dive&&!celebrate&&!pose.state.startsWith('receive')&&!(p.interaction&&time<p.interaction.until)){
+ // The stride's foot targets are used at every speed (the stride shrinks to nothing when standing) and through turn
+ // plans, so the foot-plant IK is never switched on or off mid-motion, which made the feet jump when a player set off,
+ // stopped or turned. A standing keeper or shielding player keeps his set pose.
+ // A keeper standing ready is on both feet too: left out, the crouched keeper's feet were drawn 6 cm into the turf and
+ // dropped there whenever a foot's pin let go.
+ if((speed>.08||pose.state!=='shield')&&(!action||action.move)&&!p.down&&!p.dive&&!celebrate&&!pose.state.startsWith('receive')&&!(p.interaction&&time<p.interaction.until)){
   const gait=gaitTargets(p,phase),m=gait.metrics;pose.hipY=Math.min(pose.hipY,gait.hipY);pose.contacts=gait.contacts;pose.gaitTargets=gait.feet;
   for(let i=0;i<2;i++){const target=gait.feet[i],leg=solveLeg(target.z,target.y,pose.hipY+m.hipOffset,m.upperLeg,m.lowerLeg);pose.legs[i].upper[0]=leg[0];pose.legs[i].lower[0]=leg[1];pose.legs[i].upper[2]=-Math.atan2(target.x-(i===0?-1:1)*m.hipX,Math.max(.3,pose.hipY+m.hipOffset-.075-target.y));pose.feet[i]=[-pose.hips[0]-leg[0]-leg[1],0,-pose.legs[i].upper[2]];}
  }
+ // Dribble touches are played by a foot that is on the ball. Each pull in dribblePose.pulls eases one foot onto the ball
+ // from `from` to `at` (following the ball until its contact point is fixed) and back into the stride over 0.12 s. Every
+ // weight is a smooth function of time, so the drawn foot never jumps.
+ // A skill move on the run first shapes the stride (moveTargets); then each of its touches is played by the foot on the
+ // move's side, which eases onto the ball over the 0.1 s before the touch and off the contact point after it.
+ if(action?.move&&pose.gaitTargets)moveTargets(pose,p,action,phase,yaw);
+ if(action?.move&&action.events){const start=time-action.elapsed,foot=action.side>0?0:1;
+  for(const e of action.events){const spec=e.spec;if(!spec||!(spec[3]>0))continue;const at=start+e.at;if(time<at-.1||time>=at+.12)continue;
+   const w=time<at?smooth((time-at+.1)/.1):1-smooth((time-at)/.12);reachFoot(pose,p,foot,time<at?ball:e.spot||ball,w,phase,yaw);}}
+ const pulls=!action&&p.dribblePose?.pulls;
+ if(pulls)for(const q of pulls){
+  // A drag (assists.js startDrag) holds the foot on the ball for `hold` seconds after `at` before it eases off.
+  const end=q.at+(q.hold||0);if(time<q.from||time>=end+.12)continue;
+  const w=time<q.at?smooth((time-q.from)/Math.max(.001,q.at-q.from)):time<end?1:1-smooth((time-end)/.12);
+  reachFoot(pose,p,q.foot==='left'?0:1,q.target||ball,w,phase,yaw,q.stride);
+ }
+ // No boot passes through the ball: a foot whose toe would be inside it is held at its surface.
+ if(!action&&ball&&pose.gaitTargets)keepFeetOutOfBall(pose,p,ball,phase,yaw);
  if(!action&&!p.down&&!p.dive&&!celebrate){
   if(p.turnPlan&&time<p.turnPlan.start+p.turnPlan.duration){const u=clamp((time-p.turnPlan.start)/p.turnPlan.duration,0,1);blendUpperCapture(pose,'turn',u*mocap.turn.duration,.22*Math.sin(u*Math.PI)**2,p.turnPlan.angle<0);}
   else if((kinematics.acceleration||0)<-2)blendUpperCapture(pose,'stop',mocap.stop.duration-clamp(speed/8,0,1)*.7,.20*smooth((-(kinematics.acceleration||0)-2)/6));
  }
  return pose;
+}
+
+// The boot's toe is about 0.15 m ahead of the ankle, so an ankle this far behind the ball's centre has the boot on the
+// ball's surface rather than inside it (assists.js uses the same distance for leg reach).
+const ANKLE_BEHIND=.26;
+/** Moves foot `i` toward just behind the ball with weight `w`, on top of the stride. */
+function reachFoot(pose,p,i,target,w,phase,yaw,stride=false){
+ if(!target||!(w>0))return;
+ const m=gaitTargets(p,phase).metrics,s=Math.sin(yaw),c=Math.cos(yaw),dx=target.x-(p.x||0),dz=target.z-(p.z||0);
+ const base=pose.gaitTargets?.[i]||{x:(i===0?-1:1)*m.hipX,y:.075,z:0},lz=dx*s+dz*c-ANKLE_BEHIND,lx=dx*c-dz*s;
+ // A stride only settles onto a ball its foot is already close to (full within 0.15 m, none beyond 0.4 m); it never
+ // drags the foot across to a ball the run has left behind or beside.
+ if(stride)w*=1-smooth((Math.hypot(lz-base.z,lx-base.x)-.15)/.25);
+ if(!(w>0))return;
+ // A ball in the air (juggling, a lifted ball) is met at its height.
+ const tz=base.z+(lz-base.z)*w,tx=base.x+(lx-base.x)*w,ty=base.y+(Math.max(.09,(target.y??.11)-.12)-base.y)*w;
+ // The leg swings out sideways to a ball beside the body, so it is solved along that tilted line, not straight down.
+ const down=Math.max(.3,pose.hipY+m.hipOffset-.075-ty),lateral=tx-(i===0?-1:1)*m.hipX,tilted=Math.hypot(down,lateral);
+ const leg=solveLeg(tz,ty-(tilted-down),pose.hipY+m.hipOffset,m.upperLeg,m.lowerLeg);pose.legs[i].upper[0]=leg[0];pose.legs[i].lower[0]=leg[1];pose.legs[i].upper[2]=-Math.atan2(lateral,down);pose.feet[i]=[-pose.hips[0]-leg[0]-leg[1],0,-pose.legs[i].upper[2]];pose.contacts[i]=0;
+ // The foot-plant pass re-solves the legs toward the gait targets in world space, so the reach goes there too.
+ if(pose.gaitTargets){pose.gaitTargets=pose.gaitTargets.slice();pose.gaitTargets[i]={x:tx,y:ty,z:tz};}
+}
+
+/** Pushes each drawn foot out of the ball (toe 0.15 m ahead of the ankle, 0.03 m above it), along the line from the
+ * ball's centre, so a stride that does not play the ball steps against it instead of through it. */
+function keepFeetOutOfBall(pose,p,ball,phase,yaw){
+ const m=gaitTargets(p,phase).metrics,s=Math.sin(yaw),c=Math.cos(yaw),dx=ball.x-(p.x||0),dz=ball.z-(p.z||0),bz=dx*s+dz*c,bx=dx*c-dz*s,by=ball.y??.11,clear=.11+.01;
+ for(let i=0;i<2;i++){const t=pose.gaitTargets[i],ox=t.x-bx,oy=t.y+.03-by,oz=t.z+.15-bz,d=Math.hypot(ox,oy,oz);if(d>=clear)continue;
+  // Pushed out to the ball's surface along a direction that turns smoothly upward as the toe gets deeper, so a ball
+  // rolling through the foot lifts it over the top instead of flipping it from one side to the other near the centre
+  // (a radial push reverses there, and the foot jumped 7 cm in 1 ms).
+  const vy=oy+2*(clear-d),n=Math.hypot(ox,vy,oz),tx=t.x+ox*clear/n-ox,ty=Math.max(.075,t.y+vy*clear/n-oy),tz=t.z+oz*clear/n-oz;
+  const down=Math.max(.3,pose.hipY+m.hipOffset-.075-ty),lateral=tx-(i===0?-1:1)*m.hipX,tilted=Math.hypot(down,lateral);
+  const leg=solveLeg(tz,ty-(tilted-down),pose.hipY+m.hipOffset,m.upperLeg,m.lowerLeg);pose.legs[i].upper[0]=leg[0];pose.legs[i].lower[0]=leg[1];pose.legs[i].upper[2]=-Math.atan2(lateral,down);pose.feet[i]=[-pose.hips[0]-leg[0]-leg[1],0,-pose.legs[i].upper[2]];
+  pose.gaitTargets=pose.gaitTargets.slice();pose.gaitTargets[i]={x:tx,y:ty,z:tz};}
+}
+
+/** Foot-target offsets (local x toward the player's left, y up, z forward) for a skill move on the run, by pose kind;
+ * `side` points toward the move's side. */
+function moveTargets(pose,p,a,phase,yaw){
+ // feet[0] sits on the body's +z side when facing +x, the player's right (↓ in the guide); local -x points right.
+ const u=Math.min(1,a.elapsed/a.duration),w=Math.sin(u*Math.PI),arc=Math.sin(u*Math.PI*2),i=a.side>0?0:1,side=a.side>0?-1:1,m=gaitTargets(p,phase).metrics;
+ const offsets=[[0,0,0],[0,0,0]],o=offsets[i];
+ switch(a.pose){
+  case 'step-over':case 'step-over-reverse':{const r=a.pose==='step-over'?1:-1;o[0]=side*r*arc*.24;o[1]=.12*w;o[2]=.16*w;break;}
+  case 'feint':o[0]=side*.1*w;break;
+  case 'drag':o[1]=.06*w;o[2]=.22*w*(1-1.6*smooth(u));break;
+  case 'roll':o[0]=side*(.2-.4*u)*w;o[1]=.05*w;o[2]=.22*w;break;
+  case 'heel':o[1]=.3*w;o[2]=-.25*w;break;
+  case 'lift':o[1]=.18*w;o[2]=.2*w;break;
+  case 'rainbow':o[1]=.42*w;o[2]=-.2*w;break;
+  case 'elastico':o[0]=side*arc*.22;o[1]=.04*w;o[2]=.2*w;break;
+  case 'roulette':o[0]=side*arc*.1;o[1]=.05*w;o[2]=.15*w;break;
+  case 'scoop':o[0]=side*.15*w;o[1]=.15*w;o[2]=.15*w;break;
+  case 'rabona':o[0]=-side*.3*w;o[1]=.12*w;o[2]=.05*w;break;
+  case 'juggle':{const k=Math.max(0,Math.sin(u*Math.PI*5))*w;o[1]=.25*k;o[2]=.15*k;break;}
+  case 'fake-step':o[1]=.1*w;o[2]=.15*w;break;
+  case 'side-step':offsets[0][0]=offsets[1][0]=side*.2*w;break;
+  case 'jump':offsets[0][1]=offsets[1][1]=.25*w;break;
+ }
+ pose.gaitTargets=pose.gaitTargets.slice();
+ for(let k=0;k<2;k++){const [dx,dy,dz]=offsets[k];if(!dx&&!dy&&!dz)continue;const t=pose.gaitTargets[k],tx=t.x+dx,ty=Math.max(.075,t.y+dy),tz=t.z+dz;
+  const down=Math.max(.3,pose.hipY+m.hipOffset-.075-ty),lateral=tx-(k===0?-1:1)*m.hipX,tilted=Math.hypot(down,lateral);
+  const leg=solveLeg(tz,ty-(tilted-down),pose.hipY+m.hipOffset,m.upperLeg,m.lowerLeg);pose.legs[k].upper[0]=leg[0];pose.legs[k].lower[0]=leg[1];pose.legs[k].upper[2]=-Math.atan2(lateral,down);pose.feet[k]=[-pose.hips[0]-leg[0]-leg[1],0,-pose.legs[k].upper[2]];
+  pose.gaitTargets[k]={x:tx,y:ty,z:tz};if(dy>.02)pose.contacts[k]=0;}
 }

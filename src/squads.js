@@ -3,13 +3,17 @@ import {cleanBody,cleanWeight,cleanBodyType} from './body-shape.js';
 import {cleanFace,validFaceTexture} from './face-settings.js';
 import {variedFace} from './face-variation.js';
 import {roster,clamp} from './config.js';
-export const STAT_FIELDS={pace:['최고 속도 · m/s',5,10,.01],acceleration:['가속',8,20,.1],agility:['민첩성',.2,1,.01],balance:['균형',.2,1,.01],control:['볼 컨트롤',.2,1,.01],passing:['짧은 패스',.2,1,.01],longPass:['긴 패스',.2,1,.01],shooting:['슛 정확도',.2,1,.01],power:['슛 파워',.2,1,.01],tackling:['태클',.2,1,.01],strength:['몸싸움',.2,1,.01],reflexes:['골키퍼 반응',.2,1,.01],reach:['골키퍼 도달 거리 · m',1.2,2.1,.01],weakFoot:['약한 발',.2,1,.01]};
+export const STAT_FIELDS={pace:['최고 속도 · m/s',5,10,.01],acceleration:['가속',8,20,.1],agility:['민첩성',.2,1,.01],balance:['균형',.2,1,.01],control:['볼 컨트롤',.2,1,.01],passing:['짧은 패스',.2,1,.01],longPass:['긴 패스',.2,1,.01],shooting:['슛 정확도',.2,1,.01],power:['슛 파워',.2,1,.01],tackling:['태클',.2,1,.01],strength:['몸싸움',.2,1,.01],reflexes:['골키퍼 반응',.2,1,.01],reach:['골키퍼 도달 거리 · m',1.2,2.1,.01],weakFoot:['약한 발',.2,1,.01],skillMoves:['개인기 · 별',1,5,1]};
 const text=(v,f,n)=>typeof v==='string'?v.replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,n)||f:f;
 const numeric=(v,f,a,b)=>typeof v==='number'&&Number.isFinite(v)?clamp(v,a,b):f;
 const color=(v,f)=>/^#[\da-f]{6}$/i.test(v)?v:f;
+/** Skill-move stars from ball control and agility: an 85-rated dribbler gets 4 stars, a 60-rated one 2. */
+export function defaultSkillMoves(p){const dribble=((p.control??.7)+(p.agility??.7))/2;return dribble>=.9?5:dribble>=.82?4:dribble>=.72?3:dribble>=.6?2:1;}
 export function cleanProfile(raw={},fallback=roster(0)[9]){raw=raw&&typeof raw==='object'?raw:{};
  const p={uid:text(raw.uid,fallback.uid||`default-${fallback.id}`,64),name:text(raw.name,fallback.name,24),number:Math.round(numeric(raw.number,fallback.number,1,99)),role:['GK','DEF','MID','FWD'].includes(raw.role)?raw.role:fallback.role,height:numeric(raw.height,fallback.height,1.55,2.1),build:numeric(raw.build,fallback.build,.8,1.25),foot:raw.foot==='left'?'left':'right',skin:color(raw.skin,'#c89572'),hair:color(raw.hair,'#211a15'),boots:color(raw.boots,'#d3ff47'),hairStyle:['short','crop','crest','bald'].includes(raw.hairStyle)?raw.hairStyle:'short',motionStyle:['balanced','compact','power'].includes(raw.motionStyle)?raw.motionStyle:'balanced'};
  for(const [key,[,min,max]]of Object.entries(STAT_FIELDS))p[key]=numeric(raw[key],fallback[key],min,max);
+ // Skill-move stars (FC Online's 개인기 1~5성) for players saved before the stat existed come from ball control and agility.
+ p.skillMoves=Math.round(numeric(raw.skillMoves,fallback.skillMoves??defaultSkillMoves(p),1,5));
  p.weight=cleanWeight(raw.weight,p);p.body=cleanBody(raw.body);p.bodyType=cleanBodyType(raw.bodyType,raw.body);
  p.celebration=Object.hasOwn(celebrationOptions,raw.celebration)?raw.celebration:'auto';
  p.face=cleanFace(variedFace(raw.face,p.uid||p.name));p.faceTexture=p.face.enabled?validFaceTexture(raw.faceTexture):null;
