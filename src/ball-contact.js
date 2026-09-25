@@ -14,9 +14,6 @@ export function resolveBodyContacts(match,previous){
  const flight=activePass(match),hits=[];
  for(const p of match.players){
   const own=p===match.owner;
-  // A ball the dribbler has just played with a dribble touch or is dragging round, or that rolls off past the body after a
-  // drag (assists.js startDrag), is meant to pass beside the legs: blocking it bounced it straight back off the shins.
-  if(own&&(match.time-(p.dribblePose?.start??-Infinity)<.16||p.ballDrag||match.time<(p.dragRestUntil??-Infinity)))continue;
   if(!p.active||p.down>0||(!own&&p.touchCooldown>0)||flight?.follow&&p.team===flight.team)continue;
   const low=b.y<=CONTACT.legHeight,radius=(b.y>.65?.26:low?CONTACT.legRadius:.21)*(p.build||1)+FIELD.ballRadius,t=sweepCircle(previous,b,p,radius);if(t===null)continue;
   const y=previous.y+(b.y-previous.y)*t;if(y>(p.height||1.81)-.04)continue;

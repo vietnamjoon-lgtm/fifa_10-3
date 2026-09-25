@@ -2,7 +2,6 @@ import {safeAutoTackle} from './auto-defence.js';
 import {createPassFlight} from './guided-pass.js';
 import {SETPIECE_STYLES} from './setpiece-styles.js';
 import {skillAction} from './skills.js';
-import {resolveGesture,relativeDir} from './skill-moves.js';
 import {runTarget} from './control-assist.js';
 import {clamp,distance} from './config.js';
 import {choosePass} from './ai.js';
@@ -36,8 +35,6 @@ export function executeCommand(m,action,options={}){
  if(action==='cancel'||action==='fake'){
   m.charging=false;m.charge=0;p.intent=null;
   if(p.action?.hit||p.action?.commitTime)return;
-  // A shot or pass fake with a direction is a scoop turn, heel chop or rabona fake when the player has the stars for it.
-  if(action==='fake'&&m.owner===p&&!p.action){const move=gestureMove(m,p,{special:'fake',mods:options.mods});if(move){startMove(m,p,move);return;}}
   p.action=action==='fake'&&m.owner===p?{type:'feint',elapsed:0,hit:false}:null;
   return;
  }
@@ -64,13 +61,6 @@ export function executeCommand(m,action,options={}){
   if(action==='run'&&Math.hypot(m.input.axis?.x||0,m.input.axis?.z||0)<.1)p.yaw=Math.atan2(m.direction(p.team)*52.5-p.x,-p.z);
   return;
  }
- // FC Online skill-move inputs (skill-input gestures, Z + direction, C + Z, Q taps, the ` key) resolved for this player.
- if(action==='skill'&&(options.gesture||options.special||options.plain)){
-  const move=m.owner===p&&!p.action&&p.cooldown<=0&&distance(p,m.physics.ball.position)<(options.special==='q-tap'?9:1.12)?gestureMove(m,p,options):null;
-  if(move){startMove(m,p,move);return;}
-  if(options.special==='q-tap'&&m.owner!==p)executeCommand(m,'run');
-  return;
- }
  if((action==='knock'||action==='skill')&&m.owner===p&&!p.action&&p.cooldown<=0&&distance(p,m.physics.ball.position)<1.12){
   const axis=m.input.axis||{x:Math.sin(p.yaw),z:Math.cos(p.yaw)},n=Math.hypot(axis.x,axis.z);if(n<.1)return;
   if(action==='skill'){p.action=skillAction(p,axis,++m.actionId,options.skill);p.cooldown=p.action.duration+.12;return;}m.physics.kick(axis,Math.max(5,Math.hypot(p.vx,p.vz)+3),.03);
@@ -90,18 +80,4 @@ export function throwIn(m,type,options={}){
  m.passFlight=pass?createPassFlight(m,p,{receiver:pass.player,type:type==='lob'?'lob':'pass',distance:distance(p,pass.player)}):null;
  if(pass&&p.team===m.settings.userTeam){m.selectControlled(pass.player,'pass');m.receiving={player:pass.player,expires:m.time+4};}
  m.emit('kick',{player:p,type:'lob',power:.5});
-}
-
-/** The table move for an input: screen arrow directions are turned into directions relative to the player's attack. */
-function gestureMove(m,p,options){
- const d=m.direction(p.team),axis=m.input.axis||{x:0,z:0},g={mods:options.mods||{},special:options.special||null,end:options.gesture?.end||0};
- if(options.gesture)g.events=options.gesture.events.map(e=>({t:e.t,dir:relativeDir(e.x,e.z,d)}));
- if(options.plain)g.plain=relativeDir(options.plain.x,options.plain.z,d);
- // A fake takes its side from the stick: to the left or right of the attack, or back.
- if(g.special==='fake'){const r=relativeDir(Math.abs(axis.x)>.35?Math.sign(axis.x):0,Math.abs(axis.z)>.35?Math.sign(axis.z):0,d);g.side=r&&r.includes('R')?'R':r&&r.includes('L')?'L':r==='B'?'B':null;}
- return resolveGesture(g,p);
-}
-function startMove(m,p,move){
- const axis=m.input.axis&&Math.hypot(m.input.axis.x,m.input.axis.z)>.1?m.input.axis:{x:Math.sin(p.yaw),z:Math.cos(p.yaw)};
- p.action=skillAction(p,axis,++m.actionId,move.key);p.cooldown=p.action.duration+.12;m.emit('command',{text:move.label});
 }
