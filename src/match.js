@@ -43,7 +43,7 @@ export class Match{
  const p=this.players.find(p=>p.id===team*11+9&&p.active)||this.players.find(p=>p.team===team&&p.active&&p.role==='FWD')||this.players.find(p=>p.team===team&&p.active);if(!p){this.state='fulltime';this.emit('fulltime');return;}p.x=-this.direction(team)*.5;p.z=-.11;p.yaw=this.direction(team)*Math.PI/2;this.owner=p;this.controlled=this.players.find(p=>p.id===this.settings.userTeam*11+9&&p.active)||this.players.find(p=>p.team===this.settings.userTeam&&p.active);if(this.practice){const d=this.direction(this.settings.userTeam);this.controlled.x=d*23;this.controlled.z=0;this.physics.reset(d*23.5,-d*.11);this.owner=this.controlled;}
  if(!this.practice)kickoffShape(this,team);this.kickoffTeam=team;this.state='kickoff';this.timer=1.35;this.emit('kickoff',{team});}
  // Play starts as a kick-off restart: the taker must kick the ball (a dribble is not a kick-off) and may not touch it again first.
- startKickoff(){if(this.practice||!this.owner||this.owner.team!==this.kickoffTeam)return;const p=this.owner;this.setPiece={kind:'kickoff',team:p.team,x:0,z:0,label:'킥오프',taker:p};arrangeSetPiece(this,this.setPiece);this.owner=p;this.lastTouch=p;this.lastTouchTeam=p.team;if(this.isHumanTeam(p.team))this.controlled=p;}
+ startKickoff(){if(this.practice||!this.owner||this.owner.team!==this.kickoffTeam)return;const p=this.owner;this.setPiece={kind:'kickoff',team:p.team,x:0,z:0,label:'킥오프',taker:p};arrangeSetPiece(this,this.setPiece);this.owner=p;this.lastTouch=p;this.lastTouchTeam=p.team;if(this.isHumanTeam(p.team)&&p.team===this.settings.userTeam)this.controlled=p;}
  queueKick(p,type,power=.4,aim=null,receiver=null,options={}){
  const ball=this.physics.ball.position;
  if(this.setPiece&&this.setPiece.taker!==p)return false;
