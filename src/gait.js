@@ -25,7 +25,7 @@ function plan(p,phase,time,kin){
  const speed=Math.hypot(p.vx||0,p.vz||0),m=bodyMetrics(p),v=motionVariation(p),cycles=locomotionCadence(speed,p.motionStyle,p)/TAU,beta=stanceFraction(speed);
  const yaw=p.yaw||0,fw=speed>1e-4?((p.vx||0)*Math.sin(yaw)+(p.vz||0)*Math.cos(yaw))/speed:1,sd=speed>1e-4?((p.vx||0)*Math.cos(yaw)-(p.vz||0)*Math.sin(yaw))/speed:0;
  const run=smooth((speed-1.9)/1.3),sprint=smooth((speed-6.3)/2.1),forwardness=smooth((fw-.25)/.6),shape=run*forwardness,move=smooth((speed-.04)/.45);
- const defend=p.defending?1:0,keeper=p.role==='GK'?1:0,tight=p.closeControl||p.shield?1:0,style=p.motionStyle||'balanced';
+ const defend=p.defending?1:0,keeper=p.role==='GK'?1:0,tight=p.closeControl||p.shield?1:0,carry=p.dribbleAim||p.dribbleStop?1:0,style=p.motionStyle||'balanced';
  const acc=clamp((kin.acceleration||0)/9,-1,1),omega=clamp(kin.turn||0,-9,9),bank=clamp(Math.atan(speed*omega/9.81)*.75,-.32,.32)*move;
  const u=speed/m.scale,accel=clamp(kin.acceleration||0,-20,20)/m.scale*move,period=cycles>1e-6?Math.min(2,1/cycles):0,Lg=m.leg,kTD=lerp(.52,.4,shape)-acc*.12;
  // Contact point relative to the hip, from the speed at touchdown and the travel since:
@@ -59,14 +59,14 @@ function plan(p,phase,time,kin){
  // Vertical motion: vaulting over the stance leg when walking, compress-and-fly when running.
  const h=c0%.5,flight=.5-beta,fly=flight>.01?Math.min(.045,9.81*(flight/Math.max(cycles,.1))**2/8/m.scale):0;
  const runBob=h<beta?-.032*Math.sin(Math.PI*h/beta):fly*Math.sin(Math.PI*(h-beta)/Math.max(flight,.01)),walkBob=.012*Math.cos(2*TAU*(c0-beta/2));
- let hipY=.885-(run*.015+sprint*.012)*move-defend*.085-keeper*.07-tight*.03-(1-move)*.008-Math.abs(acc)*.025+lerp(walkBob,runBob,run)*v.bounce*move;
+ let hipY=.885-(run*.015+sprint*.012)*move-defend*.085-keeper*.07-tight*.03-carry*.018*move-(1-move)*.008-Math.abs(acc)*.025+lerp(walkBob,runBob,run)*v.bounce*move;
  // Never ask a planted leg for more length than it has.
  const q=new Quaternion().setFromEuler(new Euler(hips[0],hips[1],hips[2],'XYZ')),L=(m.upperLeg+m.lowerLeg)*.995,floor=hipY-.15;
  // The limit fades in before touchdown and out after toe-off, so the pelvis never jumps.
  for(let i=0;i<2;i++){const t=feet[i],w=t.contact?1:t.swing<.25?1-smooth(t.swing/.25):smooth((t.swing-.7)/.3);if(w<=0)continue;const o=new Vector3((i===0?-1:1)*m.hipX,-.075,0).applyQuaternion(q),dx=o.x-t.x,dz=o.z-t.z,limit=t.y-o.y+Math.sqrt(Math.max(0,L*L-dx*dx-dz*dz))-m.hipOffset;hipY=Math.min(hipY,lerp(hipY,limit,w));}
  // A target out of reach lets that foot hang short; the body never folds to fetch it.
  hipY=Math.max(hipY,floor);
- return {feet,contacts,hipY,hips,metrics:m,variation:v,run,sprint,shape,move,defend,keeper,acc,bank,beta,c0,sway,forwardness,style};
+ return {feet,contacts,hipY,hips,metrics:m,variation:v,run,sprint,shape,move,defend,keeper,carry,acc,bank,beta,c0,sway,forwardness,style};
 }
 export function gaitTargets(p,phase,kin={},time=0){const g=plan(p,phase,time,kin);return {feet:g.feet,contacts:g.contacts,hipY:g.hipY,metrics:g.metrics};}
 const e=new Euler(),hq=new Quaternion(),uq=new Quaternion(),lq=new Quaternion(),fq=new Quaternion(),mat=new Matrix4(),hip=new Vector3(),dv=new Vector3(),kv=new Vector3(),tv=new Vector3(),xv=new Vector3(),yv=new Vector3(),zv=new Vector3(),shank=new Vector3();
@@ -89,10 +89,11 @@ export function legIK(pose,m,i,target,pitch=0,yaw=0,relax=0,flex=0){
 // Full-body locomotion: legs from the foot plan, a counter-rotating trunk, a
 // level head and arms swinging against the legs.
 export function locomotionPose(pose,p,phase,time,kin={}){
- const g=plan(p,phase,time,kin),{metrics:m,variation:v,run,sprint,move,defend,keeper,acc,bank,c0,sway,style}=g;
+ const g=plan(p,phase,time,kin),{metrics:m,variation:v,run,sprint,move,defend,keeper,carry,acc,bank,c0,sway,style}=g;
  pose.hipY=g.hipY;pose.hips=g.hips;pose.contacts=g.contacts;pose.gaitTargets=g.feet;pose.rootRoll=0;pose.rootY=0;pose.feet=[[0,0,0],[0,0,0]];
  const power=style==='power'?1.12:style==='compact'?.85:1,breathe=.012*Math.sin(time*1.7+v.idle);
- const lean=move*(lerp(.035,.1,run)+sprint*.08)+defend*.2+keeper*.12+acc*(acc>0?.24:.16)+v.lean+(1-move)*.02+breathe+(style==='power'?.03:style==='compact'?-.015:0)-.05*move*clamp(-g.forwardness,0,1);
+ // Ball carriers lean a little over the ball.
+ const lean=move*(lerp(.035,.1,run)+sprint*.08+carry*.04)+defend*.2+keeper*.12+acc*(acc>0?.24:.16)+v.lean+(1-move)*.02+breathe+(style==='power'?.03:style==='compact'?-.015:0)-.05*move*clamp(-g.forwardness,0,1);
  const turn=clamp((kin.turn||0)*.035,-.25,.25)*move,gaitRoll=g.hips[2]+bank-(1-move)*sway*.03;
  pose.torso=[lean-g.hips[0],-g.hips[1]*lerp(1.5,2,run)+turn,-gaitRoll*.8-bank*.25];
  // Standing players breathe, bob slightly on the knees and scan the pitch.
@@ -101,7 +102,7 @@ export function locomotionPose(pose,p,phase,time,kin={}){
  const aFwd=move*(lerp(.3,.6,run)+sprint*.35)*v.arm*power*(1+Math.max(0,acc)*.35),aBack=move*(lerp(.24,.42,run)+sprint*.22)*v.arm*power;
  for(let i=0;i<2;i++){const wave=Math.cos(TAU*(c0+i*.5+.04)),forward=Math.max(0,-wave),swing=wave>0?wave*aBack:wave*aFwd;
   const elbow=move*(lerp(.35,1.3,run)+sprint*.22+v.elbow)+(1-move)*.28+forward*.2*run-Math.max(0,wave)*.12*run;
-  const abduction=move*(lerp(.1,.14,run)+sprint*.06-forward*.04)+(1-move)*(.1+(i===0?1:-1)*sway*.015)+defend*.5+keeper*.2;
+  const abduction=move*(lerp(.1,.14,run)+sprint*.06-forward*.04)+(1-move)*(.1+(i===0?1:-1)*sway*.015)+defend*.5+keeper*.2+carry*.06;
   const arm=pose.arms[i];arm.upper=[lerp(swing+(1-move)*.04,-.25+swing*.3,defend),0,(i===0?1:-1)*abduction];arm.lower=[-lerp(elbow,.95,defend),0,0];}
  for(let i=0;i<2;i++){const f=g.feet[i],solved=legIK(pose,m,i,f,f.pitch,f.yaw,f.relax,f.flex);f.pitch=solved.pitch;}
  return g;

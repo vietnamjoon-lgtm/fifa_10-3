@@ -39,8 +39,9 @@ export function stabilizeFeet(rig,p,pose,dt){
  let error=0,locks=0;
  for(let i=0;i<2;i++){
   const leg=rig.legs[i],cycle=((rig.phase/(Math.PI*2)+i*.5)%1+1)%1;
-  const g=pose.gaitTargets?.[i],rotation=footRotation(g);
-  if(ground&&g){const target=rig.root.localToWorld(new THREE.Vector3(g.x,g.y,g.z));solveFoot(rig,i,target,rotation);}
+  // A foot the pose sends to the ball (dribble touch, first touch) keeps that pose: no stride IK, no lock.
+  const g=pose.gaitTargets?.[i],rotation=footRotation(g),free=pose.planted?.[i]!==false;
+  if(ground&&g&&free){const target=rig.root.localToWorld(new THREE.Vector3(g.x,g.y,g.z));solveFoot(rig,i,target,rotation);}
   const current=leg.foot.getWorldPosition(new THREE.Vector3());
   const kickIndex=action?.foot==='left'?0:1,kicking=action&&['shoot','pass','through','lob'].includes(action.type),impact=kicking&&i===kickIndex&&Math.abs(action.elapsed-action.contactAt)<.055;
   if(impact&&action.contactTarget){
@@ -49,11 +50,11 @@ export function stabilizeFeet(rig,p,pose,dt){
    const solved=solveFoot(rig,i,target);rig.impactError=solved.error;rig.impactClamped=solved.clamped;continue;
   }
   const receiving=pose.state.startsWith('receive'),receive=p.receivePrep||p.receive,receiveIndex=receive?.foot==='left'?0:1;
-  if(receiving&&p.receive?.target&&i===(p.receive.foot==='left'?0:1)){
+  if(receiving&&!pose.reach?.[i]&&p.receive?.target&&i===(p.receive.foot==='left'?0:1)){
    const r=p.receive,age=(p.sampleTime??r.contactTime??0)-(r.contactTime??0),b=r.target;
    if(b.y<=.65&&age>=0&&age<.16){const target=new THREE.Vector3(b.x,b.y-.025,b.z),f=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(q));target.addScaledVector(f,-.06*size);target.y=Math.max(sole,target.y);const hip=leg.upper.getWorldPosition(new THREE.Vector3());if(hip.distanceTo(target)<.74*size){const upper=leg.upper.quaternion.clone(),lower=leg.lower.quaternion.clone(),foot=leg.foot.quaternion.clone(),weight=.72*(1-age/.16);solveFoot(rig,i,target);leg.upper.quaternion.slerp(upper,1-weight);leg.lower.quaternion.slerp(lower,1-weight);leg.foot.quaternion.slerp(foot,1-weight);state.feet[i]=null;continue;}}
   }
-  const plant=ground&&(!receiving||i!==receiveIndex)&&(!kicking||i!==kickIndex)&&(speed<.2||kicking||(pose.contacts?pose.contacts[i]>.5:cycle<.5));
+  const plant=ground&&free&&(!receiving||i!==receiveIndex)&&(!kicking||i!==kickIndex)&&(speed<.2||kicking||(pose.contacts?pose.contacts[i]>.5:cycle<.5));
   if(!plant||teleport||current.y>sole+.20){state.release||=[null,null];if(state.feet[i]&&ground&&!teleport)state.release[i]={offset:state.feet[i].target.clone().sub(current),age:0};state.feet[i]=null;const release=state.release[i];if(release&&ground&&!teleport&&release.age<.16){const t=release.age;solveFoot(rig,i,current.clone().addScaledVector(release.offset,(1+32*t)*Math.exp(-32*t)),rotation);release.age+=dt;}else state.release[i]=null;continue;}if(state.release)state.release[i]=null;
   // Lock the flat-foot contact point; the ankle then rolls over the heel or ball.
   const heading=rig.root.getWorldQuaternion(new THREE.Quaternion()).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),g?.yaw||0)),pivot=pivotOffset(g?.pitch||0,rig.bodyMetrics?.foot||1).multiplyScalar(size).applyQuaternion(heading);

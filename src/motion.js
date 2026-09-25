@@ -1,6 +1,7 @@
 import {KEEPER} from './keeper-tuning.js';
 import {locomotionPose,legIK} from './gait.js';
 import {bodyMetrics} from './body-shape.js';
+import {ASSIST,dribbleFoot} from './assists.js';
 import {applySkillPose} from './skills.js';
 import {applyCelebration} from './celebrations.js';
 import {Quaternion,Euler} from '../vendor/three.module.js';
@@ -20,6 +21,47 @@ export function captureContacts(name,cycle){const clip=mocap[name],i=Math.min(cl
 export function solveLeg(forward,height,hipY,a=.35,b=.4){
  const down=Math.max(.1,hipY-.075-height),r=clamp(Math.hypot(down,forward),.15,a+b-.002);
  return [-Math.atan2(forward,down)-Math.acos(clamp((a*a+r*r-b*b)/(2*a*r),-1,1)),Math.PI-Math.acos(clamp((a*a+b*b-r*r)/(2*a*b),-1,1))];
+}
+// World point to unscaled root-space coordinates of the player's rig.
+function toLocal(p,m,point){const dx=point.x-(p.x||0),dz=point.z-(p.z||0),yaw=p.yaw||0;return {x:(dx*Math.cos(yaw)-dz*Math.sin(yaw))/m.scale,y:(point.y??.11)/m.scale,z:(dx*Math.sin(yaw)+dz*Math.cos(yaw))/m.scale};}
+const reachSide=i=>i===0?-1:1;
+// Foot meeting a rolling ball: laces behind it on a run, the inside of the foot beside it when slow or turning.
+function touchTarget(ball,i,inside){const s=reachSide(i);return {x:clamp(ball.x+s*lerp(.015,.075,inside),s>0?-.08:-.34,s>0?.34:.08),y:.1,z:clamp(ball.z-lerp(.15,.08,inside),.02,.62),pitch:.35*(1-inside),yaw:s*lerp(.1,1,inside)};}
+// Dribbling: the foot the rules will touch with reaches onto the ball as that touch falls
+// due, then pushes through along the run and hands back to the stride.
+function dribbleReach(reach,p,m,ball,time,kin){
+ if(!(p.dribbleAim||p.dribbleStop)||!ball||ball.y>.38)return 0;
+ const speed=Math.hypot(p.vx||0,p.vz||0),local=toLocal(p,m,ball);if(Math.hypot(local.x,local.z)*m.scale>1.8)return 0;
+ const inside=Math.max(1-smooth((speed-2)/1.6),smooth((Math.abs(kin.turn||0)-1.2)/1.5));
+ const gaps=['left','right'].map(f=>{const at=dribbleFoot(p,f);return Math.hypot(at.x-ball.x,at.z-ball.z);}),next=gaps[0]<gaps[1]?0:1;
+ const due=smooth((.2-((p.nextDribbleTouch||0)-time))/.2),close=smooth((.42-Math.max(0,gaps[next]-ASSIST.footReach))/.36);
+ if(due*close>0)reach[next]={...touchTarget(local,next,inside),weight:due*close};
+ const touch=p.dribblePose,since=touch?time-touch.start:9;
+ if(since>=0&&since<.22){const i=touch.foot==='left'?0:1,anchor=toLocal(p,m,dribbleFoot(p,touch.foot)),push=Math.sin(Math.PI*Math.min(1,since/.22)),t=touchTarget({x:anchor.x,z:anchor.z+.12*push},i,inside),weight=1-smooth(since/.22);
+  if(weight>(reach[i]?.weight||0))reach[i]={...t,y:.1+.05*push,weight};}
+ return 1;
+}
+// First touch: before contact the chosen foot, instep or thigh goes to where the ball will
+// arrive; after contact the leg gives with the ball (cushion) and returns to the stride.
+function receiveReach(reach,p,m,ball,time,pose){
+ const prep=p.receivePrep&&time<p.receivePrep.until?p.receivePrep:null,done=p.receive&&time<p.receive.start+p.receive.duration?p.receive:null,r=done||prep;
+ if(!r?.target||r.kind==='chest')return;
+ const i=r.foot==='left'?0:1,s=reachSide(i),at=toLocal(p,m,r.target),kind=r.kind==='intercept'||r.kind==='redirect'?'inside':r.kind;
+ const since=done?time-(done.contactTime??done.start):0,weight=done?1-smooth(since/(kind==='thigh'?.3:.22)):(r.weight??1)*smooth((.42-(r.eta??0))/.32);if(weight<=0)return;
+ let target;
+ if(kind==='inside'){
+  // The inside of the foot faces the incoming ball; after contact it gives back with it.
+  const yawNow=p.yaw||0,travel=r.incoming?{x:r.incoming.x*Math.cos(yawNow)-r.incoming.z*Math.sin(yawNow),z:r.incoming.x*Math.sin(yawNow)+r.incoming.z*Math.cos(yawNow)}:ball&&!done?{x:at.x-toLocal(p,m,ball).x,z:at.z-toLocal(p,m,ball).z}:{x:0,z:-1};
+  const n=Math.hypot(travel.x,travel.z)||1,ix=travel.x/n,iz=travel.z/n;
+  const yaw=clamp(s>0?Math.atan2(-iz,ix):Math.atan2(iz,-ix),s>0?-.3:-1.25,s>0?1.25:.3),give=done?.14*smooth(since/.16):0;
+  target={x:at.x+ix*.15-Math.sin(yaw)*.03,y:.1,z:at.z+iz*.15-Math.cos(yaw)*.03-give,pitch:0,yaw};
+ }else if(kind==='instep')target={x:at.x+s*.02,y:clamp(at.y-.07,.12,.5),z:at.z-.09-(done?.1*smooth(since/.2):0),pitch:.9,yaw:s*.15};
+ else{
+  // Thigh: raise the knee to the ball's height; the shank hangs below it.
+  const hip=pose.hipY+m.hipOffset-.075,knee=clamp(at.y-.06-(done?.12*smooth(since/.25):0),hip-.33,hip-.02),angle=Math.acos(clamp((hip-knee)/m.upperLeg,-1,1));
+  target={x:s*m.hipX,y:Math.max(.16,knee-m.lowerLeg*.92),z:m.upperLeg*Math.sin(angle)-.12,pitch:.5,yaw:s*.1};
+ }
+ target.x=clamp(target.x,s>0?-.1:-.4,s>0?.4:.1);target.z=clamp(target.z,-.2,.62);reach[i]={...target,weight:Math.max(weight,reach[i]?.weight||0)};
 }
 // Kick authored for the right foot (the left foot mirrors later): plant beside the
 // ball, wind up with the hip, swing through the ball and follow the target line.
@@ -66,12 +108,12 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  }
  // Free movement uses the full-body gait; actions keep their authored poses.
  const action=p.action,locomotion=!action&&!(p.down>0)&&!(p.dive>0)&&!celebrate,tweak=!locomotion;
- if(locomotion)locomotionPose(pose,p,phase,time,kinematics);
+ const gait=locomotion?locomotionPose(pose,p,phase,time,kinematics):null;
  const base=locomotion&&{hipY:pose.hipY,hips:[...pose.hips],legs:pose.legs.map(l=>({upper:[...l.upper],lower:[...l.lower]}))};
- if(ball){const look=clamp(Math.atan2(Math.sin(Math.atan2(ball.x-p.x,ball.z-p.z)-yaw),Math.cos(Math.atan2(ball.x-p.x,ball.z-p.z)-yaw)),-.5,.5)*.65,tilt=clamp((1.5-ball.y)*.05,-.1,.1);if(locomotion){pose.head[1]+=look;pose.head[0]+=tilt;}else{pose.head[1]=look;pose.head[0]=tilt;}}
+ if(ball){const look=clamp(Math.atan2(Math.sin(Math.atan2(ball.x-p.x,ball.z-p.z)-yaw),Math.cos(Math.atan2(ball.x-p.x,ball.z-p.z)-yaw)),-.5,.5)*.65,tilt=clamp((1.5-ball.y)*.05,-.1,.1),carrying=(p.dribbleAim||p.dribbleStop)&&Math.hypot(ball.x-p.x,ball.z-p.z)<2.5;if(locomotion){pose.head[1]+=look;pose.head[0]+=tilt+(carrying?.14:0);}else{pose.head[1]=look;pose.head[0]=tilt;}}
  if(p.shield){pose.state='shield';pose.torso[0]=.18;pose.torso[1]=.15;pose.arms[0].upper=[-.2,0,.9];pose.arms[1].upper=[.15,0,-.7];}
  if(!p.action&&speed>.2){if((kinematics.acceleration||0)>3){pose.state='start';if(tweak)pose.torso[0]+=.10;}else if((kinematics.acceleration||0)<-3){pose.state='stop';if(tweak){pose.torso[0]-=.14;pose.hipY-=.035;}}else if(Math.abs(kinematics.turn||0)>2){pose.state='turn';if(tweak)pose.hipY-=.025;}else if(forward<-.3)pose.state='backpedal';if(p.defending){pose.state='jockey';if(tweak){pose.hipY-=.035;pose.arms[0].upper[2]=.32;pose.arms[1].upper[2]=-.32;}}}
- if(!p.action&&p.receiveUntil>time){pose.state='receive';pose.hipY-=.035;pose.legs[p.foot==='left'?0:1].lower[0]+=.2;}
+ if(!p.action&&p.receiveUntil>time){pose.state='receive';pose.hipY-=.035;if(tweak)pose.legs[p.foot==='left'?0:1].lower[0]+=.2;}
  if(action){const t=action.elapsed||0;
   if(action.type==='feint'){pose.state='feint';const wave=Math.sin(clamp(t/.28,0,1)*Math.PI*2);pose.hips[2]=wave*.16;pose.torso[2]=-wave*.28;pose.legs[1].upper[2]=wave*.35;if(action.skill==='drag-back'){pose.legs[1].upper[0]=-.4+wave*.35;pose.legs[1].lower[0]=.7;pose.torso[0]=-.12;}pose.arms[0].upper[2]=.55;}
   else if(action.type==='slide'){pose.state='slide';const enter=smooth(t/.17),recover=smooth((t-.53)/.32),weight=enter*(1-recover);pose.hipY=lerp(pose.hipY,.29,weight);pose.rootRoll=-.36*weight;pose.torso[0]=-.35*weight;pose.legs[1].upper[0]=lerp(pose.legs[1].upper[0],-1.25,weight);pose.legs[1].lower[0]=.12;pose.legs[0].upper[0]=-.6;pose.legs[0].lower[0]=1.5;pose.arms[0].upper=[.4,0,.7];pose.arms[1].upper=[-.25,0,-.6];}
@@ -93,7 +135,7 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
   }
  }
  if(!action&&!p.down&&!p.dive&&p.defending){pose.state='jockey';if(tweak){pose.hipY-=.04;pose.torso[0]=.16;for(let i=0;i<2;i++){pose.legs[i].lower[0]+=.12;pose.arms[i].upper[2]=i===0?-.4:.4;pose.arms[i].lower[0]=-.7;}}}
- if(!action&&!p.down&&!p.dive){if(tweak)pose.torso[0]+=clamp((kinematics.acceleration||0)*.012,-.15,.12);if(pose.state==='receive')pose.legs[p.foot==='left'?0:1].lower[0]+=.15;}
+ if(tweak&&!action&&!p.down&&!p.dive){pose.torso[0]+=clamp((kinematics.acceleration||0)*.012,-.15,.12);if(pose.state==='receive')pose.legs[p.foot==='left'?0:1].lower[0]+=.15;}
  if(!locomotion&&!pose.feetSolved)pose.feet=pose.legs.map((leg,i)=>{const cycle=((phase/(Math.PI*2)+i*.5)%1+1)%1,push=cycle>.32&&cycle<.56?Math.sin((cycle-.32)/.24*Math.PI)*amount*.22:0;return [clamp(-pose.hips[0]-leg.upper[0]-leg.lower[0]+push,-1.1,.8),0,clamp(-leg.upper[2]-leg.lower[2],-.3,.3)];});
  if(pose.captureFeet?.quaternions)for(let i=0;i<2;i++){const e=new Euler().setFromQuaternion(new Quaternion().setFromEuler(new Euler(...pose.feet[i])).slerp(pose.captureFeet.quaternions[i],pose.captureFeet.weight*.55),'XYZ');pose.feet[i]=[e.x,e.y,e.z];}
  if(action?.foot==='left'&&!action.aerial&&['shoot','pass','through','lob'].includes(action.type)){
@@ -102,19 +144,27 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
   pose.contacts.reverse();pose.feet.reverse();for(const foot of pose.feet){foot[1]*=-1;foot[2]*=-1;}
  }
  // Separate receiving, turning and goalkeeper poses are authored independently of the kick capture.
- if(!action&&p.receivePrep&&time<p.receivePrep.until){const r=p.receivePrep,w=r.weight,i=r.foot==='left'?0:1;pose.state='receive-prepare';pose.hipY-=w*.026;pose.torso[0]+=.07*w;pose.torso[1]+=(i===0?-1:1)*.16*w;pose.arms[0].upper[2]-=.25*w;pose.arms[1].upper[2]+=.25*w;if(r.eta<.32){pose.legs[i].upper[0]-=.22*w;pose.legs[i].lower[0]+=.23*w;pose.legs[i].upper[1]=(i===0?-.38:.38)*w;pose.feet[i][1]=(i===0?-.38:.38)*w;pose.contacts[i]=0;}}
- if(!action&&p.receive&&time<p.receive.start+p.receive.duration){const r=p.receive,t=clamp((time-r.start)/r.duration,0,1),w=Math.sin(t*Math.PI),i=r.foot==='left'?0:1;pose.state='receive-'+r.kind;pose.hipY-=w*.03;if(r.kind==='chest'){pose.torso[0]=-.17*w;pose.arms[0].upper[2]=-.6*w;pose.arms[1].upper[2]=.6*w;pose.head[0]=.08*w;}else{pose.legs[i].upper[0]-=w*(r.kind==='thigh'?.9:r.kind==='instep'?.48:.18);pose.legs[i].upper[1]=r.kind==='inside'?(i===0?-.38:.38)*w:0;pose.legs[i].lower[0]+=.26*w;pose.feet[i][1]=(i===0?-.38:.38)*w;pose.contacts[i]=0;}}
+ if(!action&&p.receivePrep&&time<p.receivePrep.until){const r=p.receivePrep,w=r.weight,i=r.foot==='left'?0:1,high=r.kind==='chest'||r.kind==='thigh';pose.state='receive-prepare';pose.hipY-=w*.026;pose.torso[0]+=(high?0:.07)*w;pose.torso[1]+=(i===0?-1:1)*.16*w;pose.arms[0].upper[2]-=.25*w;pose.arms[1].upper[2]+=.25*w;
+  // Chest control: lean back, bend the knees and open the arms as the ball drops in.
+  if(r.kind==='chest'){const c=w*smooth((.38-(r.eta??0))/.3);pose.torso[0]-=.26*c;pose.head[0]+=.15*c;pose.hipY-=.03*c;pose.arms[0].upper[2]-=.45*c;pose.arms[1].upper[2]+=.45*c;pose.arms[0].upper[0]-=.25*c;pose.arms[1].upper[0]-=.25*c;}if(tweak&&r.eta<.32){pose.legs[i].upper[0]-=.22*w;pose.legs[i].lower[0]+=.23*w;pose.legs[i].upper[1]=(i===0?-.38:.38)*w;pose.feet[i][1]=(i===0?-.38:.38)*w;pose.contacts[i]=0;}}
+ if(!action&&p.receive&&time<p.receive.start+p.receive.duration){const r=p.receive,t=clamp((time-r.start)/r.duration,0,1),w=Math.sin(t*Math.PI),i=r.foot==='left'?0:1;pose.state='receive-'+r.kind;pose.hipY-=w*.03;if(r.kind==='chest'){pose.torso[0]=lerp(pose.torso[0],-.24,w);pose.arms[0].upper[2]=lerp(pose.arms[0].upper[2],-.75,w);pose.arms[1].upper[2]=lerp(pose.arms[1].upper[2],.75,w);pose.arms[0].upper[0]-=.25*w;pose.arms[1].upper[0]-=.25*w;pose.head[0]+=.16*w;pose.hipY-=w*.03;}else if(tweak){pose.legs[i].upper[0]-=w*(r.kind==='thigh'?.9:r.kind==='instep'?.48:.18);pose.legs[i].upper[1]=r.kind==='inside'?(i===0?-.38:.38)*w:0;pose.legs[i].lower[0]+=.26*w;pose.feet[i][1]=(i===0?-.38:.38)*w;pose.contacts[i]=0;}}
  if(!action&&p.turnPlan&&time<p.turnPlan.start+p.turnPlan.duration){const t=clamp((time-p.turnPlan.start)/p.turnPlan.duration,0,1),w=Math.sin(t*Math.PI),sign=Math.sign(p.turnPlan.angle);pose.state=t<.25?'turn-brake':t<.5?'turn-plant':t<.65?'turn-touch':'turn-exit';pose.hipY-=w*.065;pose.torso[1]-=sign*w*.22;pose.hips[1]+=sign*w*.12;pose.torso[2]-=sign*w*.14;pose.contacts[p.turnPlan.foot==='left'?1:0]=1;}
  if(p.role==='GK'&&!p.down&&!p.dive&&!action){pose.state=speed>.5?'keeper-step':'keeper-ready';if(tweak){pose.hipY-=.065;pose.torso[0]=.17;}for(let i=0;i<2;i++){if(tweak)pose.legs[i].lower[0]+=.15;pose.arms[i].upper[0]=-.45;pose.arms[i].lower[0]=-.75;}if(p.keeperMotion&&time<p.keeperMotion.until){pose.state='keeper-'+p.keeperMotion.kind;for(let i=0;i<2;i++){pose.arms[i].upper[0]=-1.1;pose.arms[i].lower[0]=-.7;}}}
  if(!action&&p.interaction&&time<p.interaction.until){pose.state='shoulder-duel';pose.torso[2]=p.interaction.side*.15;pose.arms[p.interaction.side>0?0:1].upper[2]=p.interaction.side*-.8;}
  for(const arm of pose.arms){arm.lower[1]*=.18;arm.lower[2]*=.16;}
  const style=p.motionStyle||'balanced';if(tweak&&style!=='balanced'){for(const arm of pose.arms)arm.upper[0]*=style==='compact'?.8:1.15;pose.torso[0]+=style==='power'?.035:-.018;}
- if(!action&&p.dribblePose&&time<p.dribblePose.start+p.dribblePose.duration){const r=p.dribblePose,w=Math.sin(clamp((time-r.start)/r.duration,0,1)*Math.PI),i=r.foot==='left'?0:1;pose.legs[i].upper[0]-=.10*w;pose.feet[i][1]+=(i===0?-.12:.12)*w;}
+ if(tweak&&!action&&p.dribblePose&&time<p.dribblePose.start+p.dribblePose.duration){const r=p.dribblePose,w=Math.sin(clamp((time-r.start)/r.duration,0,1)*Math.PI),i=r.foot==='left'?0:1;pose.legs[i].upper[0]-=.10*w;pose.feet[i][1]+=(i===0?-.12:.12)*w;}
  if(action?.type==='shoot'&&(action.flair||String(action.flightStyle).toLowerCase().includes('outside'))){const i=action.foot==='left'?0:1,w=Math.sin(clamp(action.elapsed/((action.contactAt||.24)+.25),0,1)*Math.PI);pose.feet[i][1]+=(i===0?.45:-.45)*w;pose.legs[i].upper[1]+=(i===0?.3:-.3)*w;}
  if(action?.type==='feint')applySkillPose(pose,action);
  if(celebrate&&!p.down&&!action)applyCelebration(pose,p,time);
- // Overlays may lower or turn the pelvis; keep every untouched foot on its target.
- if(base){pose.planted=pose.legs.map((leg,i)=>leg.upper.every((v,k)=>v===base.legs[i].upper[k])&&leg.lower.every((v,k)=>v===base.legs[i].lower[k]));
-  if(pose.hipY!==base.hipY||pose.hips.some((v,k)=>v!==base.hips[k])){const m=bodyMetrics(p);for(let i=0;i<2;i++)if(pose.planted[i]){const f=pose.gaitTargets[i];legIK(pose,m,i,f,f.pitch,f.yaw);}}}
+ // Final leg solve: a foot reaching for the ball blends from its stride target to the ball;
+ // every other untouched foot stays on its stride target under the final pelvis.
+ if(base){const m=gait.metrics,reach=[null,null];if(p.dribbleAim||p.dribbleStop)dribbleReach(reach,p,m,ball,time,kinematics);if(p.receivePrep||p.receive)receiveReach(reach,p,m,ball,time,pose);
+  pose.planted=pose.legs.map((leg,i)=>!reach[i]&&leg.upper.every((v,k)=>v===base.legs[i].upper[k])&&leg.lower.every((v,k)=>v===base.legs[i].lower[k]));
+  const moved=pose.hipY!==base.hipY||pose.hips.some((v,k)=>v!==base.hips[k]);
+  for(let i=0;i<2;i++){const f=pose.gaitTargets[i],r=reach[i];
+   if(r){const w=clamp(r.weight,0,1);legIK(pose,m,i,{x:lerp(f.x,r.x,w),y:lerp(f.y,r.y,w),z:lerp(f.z,r.z,w)},lerp(f.pitch,r.pitch,w),lerp(f.yaw,r.yaw,w));if(w>.3)pose.contacts[i]=0;}
+   else if(pose.planted[i]&&moved)legIK(pose,m,i,f,f.pitch,f.yaw);}
+  pose.reach=reach.map(r=>r||false);}
  return pose;
 }

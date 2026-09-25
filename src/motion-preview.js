@@ -3,7 +3,7 @@ import {SKILLS} from './skills.js';
 import {CELEBRATIONS} from './celebrations.js';
 import {locomotionCadence} from './motion-planner.js';
 import {animatePlayer} from './player.js';
-const KICKS=['shoot','pass','lob','chip','finesse','low','setpiece'];
+const KICKS=['shoot','pass','lob','chip','finesse','low','setpiece'],lerp=(a,b,t)=>a+(b-a)*t;
 // One preview sample. Shared by the in-menu viewer and offline pose checks.
 export function previewSample(kind,t,foot='right'){
  const p={id:9,foot,x:0,z:24.6,yaw:0,vx:0,vz:kind==='run'?5.8:kind==='sprint'?8.3:kind==='dribble'?3:kind==='jog'?3.2:kind==='walk'?1.5:0,closeControl:kind==='dribble',shield:kind==='shield',down:0};
@@ -14,14 +14,19 @@ export function previewSample(kind,t,foot='right'){
  if(kind==='header'&&actionTime>=0&&actionTime<.7)p.action={type:'shoot',aerial:true,elapsed:actionTime};
  if(kind==='dive'&&actionTime>=0&&actionTime<KEEPER.diveDuration){p.dive=KEEPER.diveDuration-actionTime;p.diveDuration=KEEPER.diveDuration;p.diveDirection=1;}
  if(['start','stop','turn','backpedal','receive','jockey'].includes(kind)){p.vz=kind==='backpedal'?-3:kind==='receive'?0:kind==='jockey'?0:4;p.vx=kind==='jockey'?3:0;p.motionAcceleration=kind==='start'?7:kind==='stop'?-7:0;p.motionTurn=kind==='turn'?4:0;p.defending=kind==='jockey';p.receiveUntil=kind==='receive'?t+.1:0;}
- if(['receive-inside','receive-instep','receive-thigh','receive-chest','intercept'].includes(kind)){if(t<.65)p.receivePrep={kind:kind.replace('receive-',''),foot,start:0,until:.65,eta:.65-t,weight:Math.min(1,t/.4)};else p.receive={kind:kind.replace('receive-',''),foot,start:.52,duration:.46};}
+ // A ball arrives from straight ahead at 0.65 s; the receiving foot, instep, thigh or chest meets it.
+ const receiving=['receive-inside','receive-instep','receive-thigh','receive-chest','intercept'].includes(kind),receiveKind=kind.replace('receive-',''),arrival={x:(foot==='left'?-1:1)*.14,y:{instep:.5,thigh:1,chest:1.45}[receiveKind]||.11,z:24.6+({thigh:.35,chest:.3}[receiveKind]||.5)};
+ if(receiving){const incoming={x:0,z:-1};if(t<.65)p.receivePrep={kind:receiveKind,foot,start:0,until:.65,eta:.65-t,weight:Math.min(1,t/.4),target:arrival,incoming};else p.receive={kind:receiveKind,foot,start:.52,duration:.46,target:arrival,contactTime:.65,incoming};}
  if(['turn90','turn135','turn180'].includes(kind)){p.turnPlan={start:.55,duration:.6,angle:Number(kind.slice(4))*Math.PI/180,foot};p.vz=2;}
  if(['keeper-ready','keeper-step','keeper-catch','keeper-punch'].includes(kind)){p.role='GK';p.vx=kind==='keeper-step'?2:0;if(['keeper-catch','keeper-punch'].includes(kind))p.keeperMotion={kind:kind.slice(7),until:t+.1,target:{x:0,y:1.2,z:25.05}};}
  if(kind==='knock-on'){p.vz=6;p.closeControl=false;}
+ // Dribble: a touch every 0.45 s with alternating feet; the ball runs ahead and the player catches it again.
+ const touchAt=Math.floor(t/.45)*.45,since=t-touchAt,toucher=Math.round(touchAt/.45)%2?'left':'right';
+ if(kind==='dribble'){p.dribbleAim={x:0,z:1};p.dribblePose={start:touchAt,foot:toucher,duration:.2};p.nextDribbleTouch=touchAt+.45;}
  if(SKILLS[kind]&&actionTime>=0&&actionTime<SKILLS[kind].duration)p.action={type:'feint',skill:kind,elapsed:actionTime,foot};
  if(kind==='duel')p.interaction={start:0,until:3,side:1};
  if(kind==='fall'||kind==='recover')p.down=kind==='fall'?.7:.2;
- const after=kick?Math.max(0,actionTime-contact):0,ball={x:foot==='left'?-.11:.11,y:kind==='header'?1.65:.11+Math.max(0,Math.sin(after*3))*.55,z:25.14+after*10};
+ const after=kick?Math.max(0,actionTime-contact):0,ball=kind==='dribble'?{x:lerp(toucher==='left'?-.06:.06,toucher==='left'?.06:-.06,since/.45),y:.11,z:24.6+.33+.6*Math.sin(Math.PI*since/.45)}:receiving?{x:arrival.x,y:t<.65?arrival.y+(.65-t)*(arrival.y>.2?1.4:0):Math.max(.11,arrival.y-(t-.65)*3),z:arrival.z+Math.max(0,.65-t)*9}:{x:foot==='left'?-.11:.11,y:kind==='header'?1.65:.11+Math.max(0,Math.sin(after*3))*.55,z:25.14+after*10};
  return {p,ball,celebrate:kind==='celebrate'||kind.startsWith('celebration:'),phase:t*locomotionCadence(Math.hypot(p.vx,p.vz),p.motionStyle,p)};
 }
 export class MotionPreview{
