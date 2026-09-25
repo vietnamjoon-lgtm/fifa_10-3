@@ -15,6 +15,11 @@ export function updateAutoControl(m){
  if(m.autoplay||m.practice||m.setPiece||!m.controlled)return;
  const team=m.settings.userTeam,b=m.physics.ball.position;
  if(m.heldBy?.team===team){selectControlled(m,m.heldBy,'keeper');return;}
+ // The human controls the keeper only while he holds or carries the ball. Once he releases it control returns to an
+ // outfield player, so the keeper's own positioning and diving take over again; left on the keeper, a human who was
+ // not steering him kept him frozen off his line.
+ const dropped=distance(m.controlled,b)<2.5&&m.physics.ball.velocity.length()<4&&m.lastTouch===m.controlled;
+ if(m.controlled.role==='GK'&&m.owner!==m.controlled&&!dropped){const next=m.players.filter(p=>p.active&&p.team===team&&p.role!=='GK'&&p.down<=0).sort((a,c)=>distance(a,b)-distance(c,b))[0];if(next){selectControlled(m,next,'release');return;}}
  if(m.owner?.team===team){if(m.time-(m.owner.possessedAt??m.time)>.14)selectControlled(m,m.owner);return;}
  if(m.time<(m.manualSwitchUntil||0)||m.time<(m.controlLockUntil||0))return;
  const mode=m.settings.autoSwitch||'aerial',air=b.y>1.1&&m.physics.ball.velocity.y<5;

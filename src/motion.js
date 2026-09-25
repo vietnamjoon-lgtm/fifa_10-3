@@ -44,7 +44,12 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  }
  if(ball){pose.head[1]=clamp(Math.atan2(Math.sin(Math.atan2(ball.x-p.x,ball.z-p.z)-yaw),Math.cos(Math.atan2(ball.x-p.x,ball.z-p.z)-yaw)),-.5,.5)*.65;pose.head[0]=clamp((1.5-ball.y)*.05,-.1,.1);}
  if(p.shield){pose.state='shield';pose.torso[0]=.18;pose.torso[1]=.15;pose.arms[0].upper=[-.2,0,.9];pose.arms[1].upper=[.15,0,-.7];}
- if(!p.action&&speed>.2){if((kinematics.acceleration||0)>3){pose.state='start';pose.torso[0]+=.10;}else if((kinematics.acceleration||0)<-3){pose.state='stop';pose.torso[0]-=.14;pose.hipY-=.035;}else if(Math.abs(kinematics.turn||0)>2){pose.state='turn';pose.hipY-=.025;}else if(forward<-.3)pose.state='backpedal';if(p.defending){pose.state='jockey';pose.hipY-=.035;pose.arms[0].upper[2]=.32;pose.arms[1].upper[2]=-.32;}}
+ // Start, stop and turn leans grow continuously with the smoothed acceleration and turn rate. Switching them on at a
+ // threshold popped the torso several times a second on a curving dribble, and each label change restarted the
+ // renderer's inertial transition; the label now changes only for a clear start, stop or turn.
+ if(!p.action&&speed>.2){const acceleration=kinematics.acceleration||0,turning=Math.abs(kinematics.turn||0),start=smooth((acceleration-2)/4),stop=smooth((-acceleration-2)/4),turn=smooth((turning-1.2)/2.5);
+  pose.torso[0]+=.10*start-.14*stop;pose.hipY-=.035*stop+.025*turn*(1-stop);
+  if(acceleration>4.5)pose.state='start';else if(acceleration<-4.5)pose.state='stop';else if(turning>3)pose.state='turn';else if(forward<-.3)pose.state='backpedal';if(p.defending){pose.state='jockey';pose.hipY-=.035;pose.arms[0].upper[2]=.32;pose.arms[1].upper[2]=-.32;}}
  if(!p.action&&p.receiveUntil>time){pose.state='receive';pose.hipY-=.035;pose.legs[p.foot==='left'?0:1].lower[0]+=.2;}
  const action=p.action;
  if(action){const t=action.elapsed||0;
@@ -76,10 +81,11 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
    if(run>0)blendCapture(pose,sampleMocap('run',cycle*mocap.run.duration),weight*run);
    pose.clipId=speed<2?'walk':speed<4?'jog':'run';pose.torso[2]+=clamp(-(kinematics.turn||0)*.018,-.18,.18);
   }
-  else if(action&&!action.aerial&&action.type==='shoot'){
+  else if(action&&!action.aerial&&(action.type==='shoot'||action.type==='lob')){
+   // Crosses and lofted passes use the captured instep kick too; the procedural swing alone barely lifted the leg.
    const at=Math.max(.12,action.contactAt||.24),elapsed=action.elapsed||0,after=Math.max(0,elapsed-at),recovery=action.type==='shoot'?.36:.28,clip=mocap.kick;
    const clipTime=action.hit?clip.contact+Math.min(1,after/recovery)*(clip.duration-clip.contact):Math.min(1,elapsed/at)*clip.contact;
-   const weight=smooth(elapsed/.065)*(1-smooth((after/recovery-.72)/.28))*(action.type==='shoot'?.96:.65);
+   const weight=smooth(elapsed/.065)*(1-smooth((after/recovery-.72)/.28))*(action.type==='shoot'?.96:.82);
    blendCapture(pose,sampleMocap('kick',clipTime),weight);
    const contactWeight=Math.max(0,1-Math.abs(elapsed-at)/.075)*.8;if(ball&&contactWeight>0){pose.hipY=lerp(pose.hipY,.815,contactWeight);const z=(ball.x-p.x)*Math.sin(yaw)+(ball.z-p.z)*Math.cos(yaw),leg=solveLeg(clamp(z-.055,.15,.56),.08,pose.hipY);pose.legs[1].upper[0]=lerp(pose.legs[1].upper[0],leg[0],contactWeight);pose.legs[1].lower[0]=lerp(pose.legs[1].lower[0],leg[1],contactWeight);}
   }
