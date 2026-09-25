@@ -1,5 +1,5 @@
 import {chooseCross,crossFlight} from './crossing.js';
-import {arrangeSetPiece,updateSetPiece,restartShotTarget,penaltyFlight,secondTouch} from './setpieces.js';
+import {arrangeSetPiece,updateSetPiece,restartShotTarget,penaltyFlight,secondTouch,RESTART_DISTANCE} from './setpieces.js';
 import {followPassEnabled,createPassFlight,guidePass} from './guided-pass.js';
 import {KEEPER} from './keeper-tuning.js';
 import {resolvePlayerContacts} from './player-contact.js';
@@ -26,6 +26,8 @@ import {selectControlled,updateAutoControl,runTarget} from './control-assist.js'
 // Planted kick: a kick turned wider than `turn` (rad) from a run faster than `minSpeed` (m/s) brakes by up to `brake` of the run speed before contact.
 export const KICK_PLANT={turn:.5,minSpeed:2.5,brake:.62,deceleration:16};
 // The speed a planted kicker is allowed at `time` into the windup.
+// Kick-off positions: everyone in their own half, and the defending team outside the centre circle.
+export function kickoffShape(m,team){for(const q of m.players){if(!q.active||q===m.owner)continue;const own=-m.direction(q.team);if(q.x*own<.6)q.x=own*.6;const r=Math.hypot(q.x,q.z);if(q.team!==team&&r<RESTART_DISTANCE+.45){const k=(RESTART_DISTANCE+.45)/(r||1);q.x=r>.01?q.x*k:own*(RESTART_DISTANCE+.45);q.z*=r>.01?k:0;}q.target={x:q.x,z:q.z};}}
 export function plantSpeedAt(a,time){return a.entrySpeed+(a.plantSpeed-a.entrySpeed)*clamp(time/Math.max(.12,a.contactAt),0,1);}
 // Body facing during a kick. Before contact the hips open toward the aim but stay up to 30 degrees short on a kick across
 // the run, as a planted crosser's do; after contact the body swings back toward where it is still travelling.
@@ -39,7 +41,9 @@ export class Match{
  kickoff(team){this.passFlight=null;if(this.practice)team=this.settings.userTeam;this.owner=null;this.heldBy=null;this.receiving=null;this.setPiece=null;this.restartOrigin=null;this.advantage=null;this.aiClock=0;this.offside.clear();this.physics.reset();this.lastTouchTeam=team;this.lock=.2;this.charging=false;this.charge=0;this.manualSwitchUntil=0;this.controlLockUntil=0;this.carryInput=null;
  for(const p of this.players){const d=this.direction(p.team);p.x=p.homeX*d;p.z=p.homeZ;p.vx=0;p.vz=0;p.yaw=d*Math.PI/2;p.action=null;p.intent=null;p.motionPhase=0;p.motionAcceleration=0;p.motionTurn=0;p.receiveUntil=0;p.receive=null;p.receivePrep=null;p.autoDefending=false;p.autoDefendSince=null;p.dribblePose=null;p.turnPlan=null;p.keeperMotion=null;p.keeperRead=null;p.chargeContactUntil=0;p.diveDuration=0;p.diveHeight=0;p.interaction=null;p.wallHoldUntil=0;p.cooldown=.5;p.touchCooldown=0;p.possessedAt=-1;p.dive=0;p.down=0;p.active=!p.sentOff&&(!this.practice||p.id===this.settings.userTeam*11+9);p.target={x:p.x,z:p.z};}
  const p=this.players.find(p=>p.id===team*11+9&&p.active)||this.players.find(p=>p.team===team&&p.active&&p.role==='FWD')||this.players.find(p=>p.team===team&&p.active);if(!p){this.state='fulltime';this.emit('fulltime');return;}p.x=-this.direction(team)*.5;p.z=-.11;p.yaw=this.direction(team)*Math.PI/2;this.owner=p;this.controlled=this.players.find(p=>p.id===this.settings.userTeam*11+9&&p.active)||this.players.find(p=>p.team===this.settings.userTeam&&p.active);if(this.practice){const d=this.direction(this.settings.userTeam);this.controlled.x=d*23;this.controlled.z=0;this.physics.reset(d*23.5,-d*.11);this.owner=this.controlled;}
- this.state='kickoff';this.timer=1.35;this.emit('kickoff',{team});}
+ if(!this.practice)kickoffShape(this,team);this.kickoffTeam=team;this.state='kickoff';this.timer=1.35;this.emit('kickoff',{team});}
+ // Play starts as a kick-off restart: the taker must kick the ball (a dribble is not a kick-off) and may not touch it again first.
+ startKickoff(){if(this.practice||!this.owner||this.owner.team!==this.kickoffTeam)return;const p=this.owner;this.setPiece={kind:'kickoff',team:p.team,x:0,z:0,label:'킥오프',taker:p};arrangeSetPiece(this,this.setPiece);this.owner=p;this.lastTouch=p;this.lastTouchTeam=p.team;if(this.isHumanTeam(p.team))this.controlled=p;}
  queueKick(p,type,power=.4,aim=null,receiver=null,options={}){
  const ball=this.physics.ball.position;
  if(this.setPiece&&this.setPiece.taker!==p)return false;
@@ -199,7 +203,7 @@ export class Match{
  p.sprinting=sprint;this.move(p,axis,sprint,defend,dt);prepareReception(this,p,dt,input);if(p.dive>0){/* The dive carries the keeper to the read point, not past it. */const goal=p.keeperRead?clamp(p.keeperRead.z,-3.45,3.45):null,left=goal===null?Infinity:(goal-p.z)*p.diveDirection;if(left>0)p.z+=p.diveDirection*Math.min(dt*KEEPER.diveSpeed,left);}this.updateAction(p,dt);
  }
  step(dt,input=this.input){if(['menu','paused','fulltime'].includes(this.state))return;this.input=input;this.time+=dt;
- if(this.state==='kickoff'||this.state==='halftime'){this.timer-=dt;if(this.timer<=0){if(this.state==='halftime'){this.half=2;this.elapsed=0;this.stoppageSeconds=0;this.addedTime=null;this.kickoff(1-this.settings.userTeam);}else{this.state='playing';this.emit('resumePlay');}}return;}
+ if(this.state==='kickoff'||this.state==='halftime'){this.timer-=dt;if(this.timer<=0){if(this.state==='halftime'){this.half=2;this.elapsed=0;this.stoppageSeconds=0;this.addedTime=null;this.kickoff(1-this.settings.userTeam);}else{this.state='playing';this.startKickoff();this.emit('resumePlay');}}return;}
  if(this.state==='restart'){this.stoppageSeconds+=dt;this.timer-=dt;if(this.timer<=0)this.finishRestart();return;}
  if(this.state==='goal'){this.physics.step(dt);this.timer-=dt;if(this.timer<=0)this.kickoff(1-this.goalTeam);return;}
  this.elapsed+=dt;
