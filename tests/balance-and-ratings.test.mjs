@@ -29,3 +29,18 @@ test('keepers cannot save behind themselves or on the opposite side of a dive',(
 test('powerful reachable shots are parried and high reflexes still reduce reaction delay',()=>{const {m,g}=keeperSetup();m.time+=1;m.physics.ball.velocity.set(28,0,0);assert.equal(keeperContact(m,g).catchable,false);assert.ok(keeperProfile({...g,reflexes:.95}).reaction<keeperProfile({...g,reflexes:.3}).reaction);});
 test('neutral assisted finishing aims at an open side instead of the central keeper',()=>{const {m,p}=setup();p.x=38;m.physics.reset(38.54,-.11);m.players[11].active=true;m.players[11].x=50;m.players[11].z=0;m.input=idle;assert.ok(m.queueKick(p,'shoot',.6));assert.ok(Math.abs(p.action.target.z)>2);});
 test('online teams use their own loose-ball preference when assigning AI collectors',()=>{const m=new DuelMatch();m.start();m.state='playing';m.owner=null;m.physics.reset(0,0);for(const p of m.players){p.x=30;p.z=25;p.action=null;p.down=0;}const human=m.selected(1),helper=m.players[17];human.x=1;human.z=0;helper.x=5;helper.z=0;m.setInput(0,idle,'basic',{looseBallAssist:true});m.setInput(1,idle,'basic',{looseBallAssist:false});updateTeamAI(m);assert.equal(helper.aiState,'PRESS');m.setInput(1,idle,'basic',{looseBallAssist:true});updateTeamAI(m);assert.equal(helper.aiState,'COVER');});
+
+test('keepers stop reachable close side shots in both directions while hard corners remain scoreable',()=>{
+ for(const team of [0,1])for(const corner of [-1.4,1.4,-2.8,2.8]){
+  const m=new Match({...defaults,userTeam:team,seed:739});m.start(true);m.state='playing';m.lock=0;
+  const p=m.controlled,dir=m.direction(team),g=m.players[(1-team)*11];
+  Object.assign(p,{x:dir*42.5,z:0,yaw:dir*Math.PI/2,cooldown:0,touchCooldown:0,target:{x:dir*42.5,z:0}});
+  Object.assign(g,{active:true,x:dir*49.8,z:0,cooldown:0,touchCooldown:0,yaw:-dir*Math.PI/2});
+  m.physics.reset(p.x+dir*.54,-dir*.11);m.owner=p;m.input={axis:{x:dir,z:0}};
+  const reachable=Math.abs(corner)<2;
+  assert.ok(m.queueKick(p,'shoot',reachable?.45:.8));p.action.target={x:dir*52.75,z:corner};
+  for(let i=0;i<360&&m.state==='playing'&&!m.heldBy;i++)m.step(1/120,idle);
+  if(reachable){assert.ok(m.stats.saves[1-team]>0,`team ${team}, side ${corner}`);assert.equal(m.score[team],0);}
+  else assert.equal(m.score[team],1,`hard corner ${corner} should remain scoreable for team ${team}`);
+ }
+});
