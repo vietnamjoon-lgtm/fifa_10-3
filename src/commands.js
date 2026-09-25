@@ -69,12 +69,20 @@ export function executeCommand(m,action,options={}){
  }
 }
 
+// A throw-in is an action: the taker brings the ball over the head and releases it at
+// THROW.release (see throw-in.js); releaseThrowIn then plays the ball as before.
 export function throwIn(m,type,options={}){
- const p=m.setPiece?.taker;if(!p)return;
+ const p=m.setPiece?.taker;if(!p||p.action)return;
+ // The target is chosen when the throw starts, so the thrower faces where the ball goes.
  const pass=choosePass(m,p,m.input.axis,type==='lob'?'lob':'pass'),dir=m.direction(p.team);
  const aim=pass?{x:pass.x-p.x,z:pass.z-p.z}:{x:dir*.5,z:-Math.sign(p.z||1)};
  // A throw must travel into the field; keep its vertical component physical.
  if(aim.z*Math.sign(p.z)>0)aim.z=-aim.z;
+ p.yaw=Math.atan2(aim.x,aim.z);
+ p.action={id:++m.actionId,type:'throw',throwType:type,elapsed:0,hit:false,receiver:pass?pass.player.id:null,aim};p.throwHold=false;
+}
+export function releaseThrowIn(m,p,a){
+ const type=a.throwType||'pass',receiver=a.receiver===null?null:m.players[a.receiver],pass=receiver?{player:receiver}:null,aim=a.aim;
  m.physics.kick(aim,type==='lob'?16:9,type==='lob'?5:2.6);m.owner=null;m.setPiece=null;m.offside.clear();
  m.lastTouch=p;m.lastTouchTeam=p.team;m.lastTouchKind='throw';m.restartOrigin={kind:'throw',player:p.id,team:p.team};m.lock=.2;p.touchCooldown=.5;
  m.passFlight=pass?createPassFlight(m,p,{receiver:pass.player,type:type==='lob'?'lob':'pass',distance:distance(p,pass.player)}):null;

@@ -24,7 +24,7 @@ export function arrangeSetPiece(m,s){
  }
  // The taker waits beside a stationary ball; the existing kick approach provides the final step.
  place(p,b.x-d*.54,b.z+.11*d,d*Math.PI/2);
- for(const q of m.players)if(q.active){q.vx=q.vz=0;q.action=null;q.intent=null;q.target={x:q.x,z:q.z};}
+ for(const q of m.players)if(q.active){q.vx=q.vz=0;q.action=null;q.throwHold=false;q.intent=null;q.target={x:q.x,z:q.z};}
  s.positions=m.players.filter(q=>q.active).map(q=>({id:q.id,x:q.x,z:q.z,yaw:q.yaw}));
 }
 export function updateSetPiece(m,dt){const s=m.setPiece;if(!s)return;

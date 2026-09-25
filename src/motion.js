@@ -2,6 +2,7 @@ import {KEEPER} from './keeper-tuning.js';
 import {locomotionPose,legIK} from './gait.js';
 import {bodyMetrics} from './body-shape.js';
 import {ASSIST,dribbleFoot} from './assists.js';
+import {THROW} from './throw-in.js';
 import {applySkillPose} from './skills.js';
 import {applyCelebration} from './celebrations.js';
 import {Quaternion,Euler} from '../vendor/three.module.js';
@@ -131,6 +132,18 @@ function volleyPose(pose,p,action,ball,t,contact,i){
  legIK(pose,m,i,foot,.6*smooth(pre)*(1-settle),s*.1);
  pose.arms[1-i].upper=[-.4,0,armSide(1-i)*(.9+.4*high)];pose.arms[i].upper=[.3*back,0,armSide(i)*(.5+.3*high)];pose.arms[0].lower=pose.arms[1].lower=[-.4,0,0];
 }
+// Throw-in: ball held behind the head, arched back in the wind-up, whipped over the head
+// with both arms (release at THROW.release) and followed through. Hands are placed on the
+// ball by hand IK (hand-contact.js); feet stay planted as the laws require.
+function throwPose(pose,p,action){
+ const m=bodyMetrics(p),t=action?action.elapsed||0:-1,back=t<0?0:smooth(t/THROW.windup),over=t<0?0:smooth((t-THROW.windup)/(THROW.release-THROW.windup)),follow=t<0?0:smooth((t-THROW.release)/(THROW.end-THROW.release));
+ pose.state=action?(action.hit?'throw-follow':'throw'):'throw-hold';
+ const arch=-.1-.22*back*(1-over)+.35*over+.1*follow;pose.torso=[arch,0,0];pose.head=[-arch*.6+.05,0,0];
+ const upper=lerp(lerp(lerp(-2.7,-2.95,back),-2.35,over),-1.35,follow),elbow=lerp(lerp(lerp(-1.5,-1.85,back),-.35,over),-.25,follow);
+ for(let i=0;i<2;i++){pose.arms[i].upper=[upper,0,(i===0?-1:1)*lerp(.35,.1,follow)];pose.arms[i].lower=[elbow,0,0];}
+ if(action){pose.rootRoll=0;pose.rootY=0;pose.feetSolved=true;pose.hips=[-.05*back+.12*over*(1-.5*follow),0,0];pose.hipY=.86-.02*back-.02*over;
+  legIK(pose,m,0,{x:-m.hipX-.01,y:.075,z:.16},0,-.08);legIK(pose,m,1,{x:m.hipX+.01,y:.075,z:-.14},0,.1);pose.contacts=[1,1];pose.planted=[true,true];}
+}
 // Kick authored for the right foot (the left foot mirrors later): plant beside the
 // ball, wind up with the hip, swing through the ball and follow the target line.
 function kickPose(pose,p,action,ball,yaw){
@@ -224,6 +237,7 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  if(tweak&&!action&&p.dribblePose&&time<p.dribblePose.start+p.dribblePose.duration){const r=p.dribblePose,w=Math.sin(clamp((time-r.start)/r.duration,0,1)*Math.PI),i=r.foot==='left'?0:1;pose.legs[i].upper[0]-=.10*w;pose.feet[i][1]+=(i===0?-.12:.12)*w;}
  if(action?.type==='shoot'&&(action.flair||String(action.flightStyle).toLowerCase().includes('outside'))){const i=action.foot==='left'?0:1,w=Math.sin(clamp(action.elapsed/((action.contactAt||.24)+.25),0,1)*Math.PI);pose.feet[i][1]+=(i===0?.45:-.45)*w;pose.legs[i].upper[1]+=(i===0?.3:-.3)*w;}
  if(action?.type==='feint')applySkillPose(pose,action);
+ if(action?.type==='throw'||p.throwHold&&!action&&!p.down)throwPose(pose,p,action?.type==='throw'?action:null);
  if(celebrate&&!p.down&&!action)applyCelebration(pose,p,time);
  // Captured turn and braking upper body layered lightly over the procedural gait.
  if(locomotion&&!p.shield&&!p.defending){if(p.turnPlan&&time<p.turnPlan.start+p.turnPlan.duration){const u=clamp((time-p.turnPlan.start)/p.turnPlan.duration,0,1);blendUpperCapture(pose,'turn',u*mocap.turn.duration,.22*Math.sin(u*Math.PI)**2,p.turnPlan.angle<0);}

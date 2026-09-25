@@ -3,6 +3,7 @@ import {SKILLS} from './skills.js';
 import {CELEBRATIONS} from './celebrations.js';
 import {locomotionCadence} from './motion-planner.js';
 import {animatePlayer} from './player.js';
+import {THROW,heldBallPosition} from './throw-in.js';
 const KICKS=['shoot','pass','lob','chip','finesse','low','setpiece'],lerp=(a,b,t)=>a+(b-a)*t;
 // One preview sample. Shared by the in-menu viewer and offline pose checks.
 export function previewSample(kind,t,foot='right'){
@@ -28,6 +29,8 @@ export function previewSample(kind,t,foot='right'){
  if(kind==='duel')p.interaction={start:0,until:3,side:1};
  // Knocked down at 0.3 s: on the ground, then up on hands and a knee and back to standing.
  if(kind==='fall'||kind==='recover')p.down=t<.3?0:Math.max(0,(kind==='fall'?1.4:.8)-t);
+ // Throw-in: hold overhead, throw at 0.55 s, ball released at THROW.release.
+ if(kind==='throw-in'){if(actionTime<0)p.throwHold=true;else if(actionTime<THROW.end)p.action={id:1,type:'throw',elapsed:actionTime,hit:actionTime>=THROW.release};const after=actionTime-THROW.release,held=heldBallPosition(p,Math.min(Math.max(actionTime,-1),THROW.release));return {p,ball:after>0?{x:held.x,y:held.y+after*3-4.9*after*after,z:held.z+after*9}:held,celebrate:false,phase:0};}
  const volleyAfter=Math.max(0,actionTime-.21);
  if(kind==='volley'){const x=foot==='left'?-.12:.12;return {p,ball:volleyAfter>0?{x,y:.9+volleyAfter*2,z:24.6+.5+volleyAfter*18}:{x,y:.9+Math.max(0,-actionTime)*.4,z:24.6+.5+Math.max(0,.21-actionTime)*3},celebrate:false,phase:0};}
  const after=kick?Math.max(0,actionTime-contact):0,ball=kind==='dribble'?{x:lerp(toucher==='left'?-.06:.06,toucher==='left'?.06:-.06,since/.45),y:.11,z:24.6+.33+.6*Math.sin(Math.PI*since/.45)}:receiving?{x:arrival.x,y:t<.65?arrival.y+(.65-t)*(arrival.y>.2?1.4:0):Math.max(.11,arrival.y-(t-.65)*3),z:arrival.z+Math.max(0,.65-t)*9}:{x:foot==='left'?-.11:.11,y:kind==='header'?1.65:.11+Math.max(0,Math.sin(after*3))*.55,z:25.14+after*10};
@@ -37,6 +40,7 @@ export class MotionPreview{
  constructor(hero){this.hero=hero;this.active=false;this.time=0;this.playing=true;this.kind='run';this.foot='right';this.speed=1;this.angle=.65;const $=id=>document.getElementById(id);
   for(const [id,config]of Object.entries(SKILLS)){if(['elastico','drag-back'].includes(id))continue;const option=document.createElement('option');option.value=id;option.textContent=config.name;$('motion-kind').append(option);}
   const header=Array.from($('motion-kind').options).find(o=>o.value==='header');if(header&&!Array.from($('motion-kind').options).some(o=>o.value==='volley')){const option=document.createElement('option');option.value='volley';option.textContent='발리';header.after(option);}
+  if(!Array.from($('motion-kind').options).some(o=>o.value==='throw-in')){const option=document.createElement('option');option.value='throw-in';option.textContent='스로인';$('motion-kind').append(option);}
   for(const clip of CELEBRATIONS){const option=document.createElement('option');option.value='celebration:'+clip.id;option.textContent='세리머니 · '+clip.name;$('motion-kind').append(option);}
   $('motion-open').onclick=()=>{this.active=true;this.time=0;$('menu').classList.add('hidden');$('motion-preview').classList.remove('hidden');};
   this.close=()=>{this.active=false;delete hero.motionPhaseOverride;hero.root.position.set(0,0,24.6);$('motion-preview').classList.add('hidden');$('menu').classList.remove('hidden');};

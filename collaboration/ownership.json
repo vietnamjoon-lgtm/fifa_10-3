@@ -60,6 +60,7 @@
         "src/motion-preview.js",
         "src/motion.js",
         "src/receive-control.js",
+        "src/throw-in.js",
         "tools/convert-mocap.mjs",
         "assets-source/09.asf",
         "assets-source/09_01.amc",
