@@ -21,18 +21,18 @@ function dribbleRun(team,plan){
  return {m,p,touches:touches.filter(t=>t>1),near,far,owned};
 }
 test('sprint dribbling plays the ball ahead with repeated foot touches in both attack directions',()=>{
- for(const team of [0,1]){const r=dribbleRun(team,[[4,1,true]]);
-  // FC Online reference footage (jog dribble): ball about 0.3-0.8 m from the body, touched about every 0.3 s.
-  assert.ok(r.owned);assert.ok(r.near>.3&&r.far<1.2,`ball must stay close ahead of the body: ${r.near}-${r.far}`);
-  const every=(r.touches.at(-1)-r.touches[0])/(r.touches.length-1);assert.ok(every>.25&&every<.8,`touch interval ${every}`);}
+ for(const team of [0,1]){const r=dribbleRun(team,[[7,1,true]]);
+  // A straight sprint is a knock and run (about 2 m ahead; a jog matches FC reference footage, 0.3-0.8 m), never losing the ball.
+  assert.ok(r.owned);assert.ok(r.near>.3&&r.far<2.8,`ball must stay close ahead of the body: ${r.near}-${r.far}`);
+  const every=(r.touches.at(-1)-r.touches[0])/(r.touches.length-1);assert.ok(every>.25&&every<2.8,`touch interval ${every}`);}
 });
-test('a sprint dribble keeps the ball further ahead than a jog, as in FC reference footage',()=>{
- // FC Online reference footage: sprinting with the ball keeps it about 1.2-1.35 times as far ahead as jogging, rarely beyond 1 m.
+test('a straight sprint dribble knocks the ball well ahead and runs onto it',()=>{
+ // Play asked for a knock and run at a sprint: the ball well ahead of a jog's touch, the player running onto it.
  for(const team of [0,1]){const gaps={};for(const sprint of [false,true]){const m=new Match({...defaults,userTeam:team});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled,d=m.direction(team);
    p.x=d*-20;p.z=0;p.target={x:p.x,z:0};m.physics.reset(p.x+d*.54,0);const g=[];
    for(let i=0;i<5*120;i++){m.step(1/120,{axis:{x:d,z:0},sprint});if(m.time>1.5)g.push(Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z));}
-   assert.equal(m.owner,p);g.sort((a,b)=>a-b);gaps[sprint]=g[g.length>>1];assert.ok(g.at(-1)<1.2,`ball ran ${g.at(-1)} m ahead`);}
-  assert.ok(gaps.true>gaps.false*1.08,`sprint ${gaps.true} vs jog ${gaps.false}`);}
+   assert.equal(m.owner,p);g.sort((a,b)=>a-b);gaps[sprint]=g[g.length>>1];assert.ok(g.at(-1)<2.8,`ball ran ${g.at(-1)} m ahead`);}
+  assert.ok(gaps.true>gaps.false*1.4,`sprint ${gaps.true} vs jog ${gaps.false}`);}
 });
 test('releasing the stick after a knock traps the ball instead of letting it run away',()=>{
  for(const team of [0,1]){const r=dribbleRun(team,[[2.5,1,true],[3,0,false]]);
@@ -44,7 +44,7 @@ test('dribbling follows a changing stick without holding the player back or losi
   for(let t=0;t<8*120;t++){if(t%72===0)angle+=[.9,-1.1,.6,-.8,1][(t/72)%5];if(Math.abs(p.x)>40||Math.abs(p.z)>25)angle=Math.atan2(-p.z,-p.x);const axis={x:Math.cos(angle),z:Math.sin(angle)};m.step(1/120,{axis,sprint:true});
    if(t>120){speed+=Math.hypot(p.vx,p.vz);n++;if(withBall){const b=m.physics.ball.position;lat.push(Math.abs((b.x-p.x)*axis.z-(b.z-p.z)*axis.x));owned&&=m.owner===p;}}}
   lat.sort((a,b)=>a-b);return {speed:speed/n,lat90:lat[Math.floor(lat.length*.9)],owned};};
- for(const team of [0,1]){const a=run(team,true),b=run(team,false);assert.ok(a.owned);assert.ok(a.speed>b.speed*.85,`${a.speed} vs ${b.speed}`);assert.ok(a.lat90<1,`sideways ${a.lat90}`);}
+ for(const team of [0,1]){const a=run(team,true),b=run(team,false);assert.ok(a.owned);assert.ok(a.speed>b.speed*.85,`${a.speed} vs ${b.speed}`);assert.ok(a.lat90<1.25,`sideways ${a.lat90}`);}
 });
 test('the keeper reads an angled shot where it crosses the keeper line and dives no further than that point',async()=>{
  const {keeperTarget}=await import('../src/ai.js');
@@ -71,7 +71,47 @@ test('every dribble touch after a change of direction sends the ball along the s
   Object.assign(p,{x:-20*d,z:0});p.target={x:p.x,z:0};m.physics.reset(p.x+.54*d,-.11*d);
   for(let i=0;i<180;i++)m.step(1/120,{axis:{x:d,z:0},sprint});
   const a=deg*Math.PI/180,axis={x:Math.cos(a)*d,z:Math.sin(a)};let first=null;const kick=m.physics.kick;m.physics.kick=(v,s,...r)=>{if(first===null&&s>.05)first=v;return kick(v,s,...r)};
-  for(let i=0;i<120&&!first;i++)m.step(1/120,{axis,sprint});
+  // A sprint knocks the ball about 2 m ahead, so the player may first have to run onto it.
+  for(let i=0;i<(sprint?360:120)&&!first;i++)m.step(1/120,{axis,sprint});
   assert.ok(first,`no touch after a ${deg} degree turn`);const off=Math.acos((first.x*axis.x+first.z*axis.z)/Math.hypot(first.x,first.z))*180/Math.PI;
   assert.ok(off<(sprint?40:25),`touch ${off.toFixed(1)} degrees off the stick after a ${deg} degree turn`);assert.equal(m.owner,p);}
+});
+test('jog speed follows the pace stat a little and a sprint is never slower than a jog',()=>{
+ const run=(pace,sprint)=>{const m=new Match({...defaults,userTeam:0});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled;p.pace=pace;p.x=-30;p.z=0;p.target={x:p.x,z:0};m.owner=null;m.physics.reset(0,30,.11);advance(m,3,{axis:{x:1,z:0},sprint});return Math.hypot(p.vx,p.vz);};
+ const slow=run(6,false),mid=run(8.3,false),fast=run(10,false);
+ assert.ok(Math.abs(mid-5.8)<.05,`reference pace keeps the 5.8 m/s jog: ${mid}`);assert.ok(slow<mid-.2&&fast>mid+.2,`${slow} ${mid} ${fast}`);assert.ok(fast<6.3);
+ assert.ok(run(5,true)>=run(5,false)-.01);
+});
+test('a shot pressed while a knocked ball runs ahead waits for the player to reach it and never misses',()=>{
+ for(const team of [0,1])for(const kind of ['shoot','pass']){const ev={};const m=new Match({...defaults,userTeam:team},t=>{ev[t]=(ev[t]||0)+1});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled,d=m.direction(team);
+  p.x=-30*d;p.z=0;p.target={x:p.x,z:0};m.physics.reset(p.x+.54*d,0);advance(m,1.5,{axis:{x:d,z:0},sprint:true});
+  for(let i=0;i<360&&Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z)<=.95;i++)m.step(1/120,{axis:{x:d,z:0},sprint:true});
+  assert.ok(Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z)>.95,'the ball is knocked ahead');
+  m.input={axis:{x:d,z:0}};assert.equal(m.queueKick(p,kind,.6),true);advance(m,1.5,{axis:{x:d,z:0},sprint:true});
+  assert.equal(ev.kick,1);assert.equal(ev.miss||0,0);}
+});
+test('from a standstill a sprint knocks the ball about 1.2 m ahead first, and a faster player knocks it further',()=>{
+ const run=(team,pace)=>{const m=new Match({...defaults,userTeam:team});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled,d=m.direction(team);p.pace=pace;p.control=.8;
+  p.x=-30*d;p.z=0;p.target={x:p.x,z:0};m.physics.reset(p.x+.54*d,0);advance(m,1,{axis:{x:0,z:0}});
+  let first=0;const g=[];for(let i=0;i<5*120;i++){m.step(1/120,{axis:{x:d,z:0},sprint:true});const gap=Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z);if(i<90)first=Math.max(first,gap);else g.push(gap);}
+  assert.equal(m.owner,p);g.sort((a,b)=>a-b);return {first,median:g[g.length>>1]};};
+ for(const team of [0,1]){const slow=run(team,6.5),mid=run(team,8.3),fast=run(team,10);
+  assert.ok(mid.first>1&&mid.first<1.45,`first knock ${mid.first}`);assert.ok(mid.median>.85&&mid.median<1.2,`median ${mid.median}`);
+  assert.ok(slow.median<mid.median-.1&&fast.median>mid.median+.03,`${slow.median} ${mid.median} ${fast.median}`);}
+});
+test('pressing sprint while walking or jogging knocks the very next touch about 1.2 m ahead',()=>{
+ for(const team of [0,1])for(const mag of [.35,1]){const m=new Match({...defaults,userTeam:team});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled,d=m.direction(team);p.pace=8.3;p.control=.8;
+  p.x=-35*d;p.z=0;p.target={x:p.x,z:0};p.yaw=d>0?Math.PI/2:-Math.PI/2;m.physics.reset(p.x+.54*d,0);advance(m,2,{axis:{x:d*mag,z:0}});
+  let touched=null;const kick=m.physics.kick;m.physics.kick=(...a)=>{if(touched===null)touched=m.time;return kick(...a)};const t0=m.time;let peak=0;
+  for(let i=0;i<1.5*120;i++){m.step(1/120,{axis:{x:d,z:0},sprint:true});peak=Math.max(peak,Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z));}
+  assert.ok(touched!==null&&touched-t0<.4,`first touch ${touched-t0}s after pressing sprint`);assert.ok(peak>1&&peak<1.5,`knock ${peak} m`);assert.equal(m.owner,p);}
+});
+test('a human sprint knocks the ball past a nearby defender and winning the ball with sprint held knocks at once',()=>{
+ for(const team of [0,1]){const m=new Match({...defaults,userTeam:team});m.start(false);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled,d=m.direction(team);
+  const opp=m.players.find(q=>q.team!==p.team&&q.role!=='GK'&&q.active);Object.assign(opp,{x:-7.5*d,z:1.8,vx:0,vz:0});
+  Object.assign(p,{x:-10*d,z:0,vx:0,vz:0,yaw:d>0?Math.PI/2:-Math.PI/2});p.target={x:p.x,z:0};m.owner=null;m.physics.reset(p.x+.54*d,0);
+  // The player holds sprint before the ball becomes theirs, as when winning it in a duel.
+  advance(m,.05,{axis:{x:d,z:0},sprint:true});m.owner=p;m.lastTouch=p;let peak=0;
+  for(let i=0;i<120;i++){opp.target={x:opp.x,z:opp.z};m.step(1/120,{axis:{x:d,z:0},sprint:true});peak=Math.max(peak,Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z));}
+  assert.ok(peak>1,`knock beside a defender ${peak} m`);}
 });
