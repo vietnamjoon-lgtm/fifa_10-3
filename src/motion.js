@@ -34,7 +34,8 @@ function dribbleReach(reach,p,m,ball,time,kin){
  const speed=Math.hypot(p.vx||0,p.vz||0),local=toLocal(p,m,ball);if(Math.hypot(local.x,local.z)*m.scale>1.8)return 0;
  const inside=Math.max(1-smooth((speed-2)/1.6),smooth((Math.abs(kin.turn||0)-1.2)/1.5));
  const gaps=['left','right'].map(f=>{const at=dribbleFoot(p,f);return Math.hypot(at.x-ball.x,at.z-ball.z);}),next=gaps[0]<gaps[1]?0:1;
- const due=smooth((.2-((p.nextDribbleTouch||0)-time))/.2),close=smooth((.42-Math.max(0,gaps[next]-ASSIST.footReach))/.36);
+ // A fresh sprint knock is played as soon as the ball is in reach, whatever the stride rhythm says.
+ const due=p.knockFresh?1:smooth((.2-((p.nextDribbleTouch||0)-time))/.2),close=smooth((.42-Math.max(0,gaps[next]-ASSIST.footReach))/.36);
  if(due*close>0)reach[next]={...touchTarget(local,next,inside),weight:due*close};
  const touch=p.dribblePose,since=touch?time-touch.start:9;
  if(since>=0&&since<.22){const i=touch.foot==='left'?0:1,anchor=toLocal(p,m,dribbleFoot(p,touch.foot)),push=Math.sin(Math.PI*Math.min(1,since/.22)),t=touchTarget({x:anchor.x,z:anchor.z+.12*push},i,inside),weight=1-smooth(since/.22);
