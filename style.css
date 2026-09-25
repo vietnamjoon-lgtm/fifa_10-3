@@ -172,3 +172,13 @@
 .setup-dialog{height:min(620px,90vh)}
 .setup-panel,.setup-dialog{scrollbar-width:thin;scrollbar-color:#c6ff5d55 transparent}
 .setup-panel::-webkit-scrollbar{width:6px}.setup-panel::-webkit-scrollbar-thumb{background:#c6ff5d55;border-radius:3px}.setup-panel::-webkit-scrollbar-track{background:transparent}
+/* Dialogs share the match centre's look: rounded panels and buttons, calmer backdrop. */
+.overlay{background:#030d0acc}
+.dialog{border-radius:16px;box-shadow:0 30px 90px #000a}
+.dialog>button,.dialog .primary,.dialog .secondary{border-radius:12px}
+.dialog .text-button{border-radius:10px}
+.dialog .text-button:hover{background:#ffffff0d}
+.help-grid kbd{border-radius:5px;padding:5px 8px;background:#ffffff0f}
+#statistics>div{border-top-color:#ffffff14}
+.dialog,.dialog *{scrollbar-width:thin;scrollbar-color:#c6ff5d55 transparent}
+.dialog::-webkit-scrollbar,.dialog *::-webkit-scrollbar{width:6px;height:6px}.dialog::-webkit-scrollbar-thumb,.dialog *::-webkit-scrollbar-thumb{background:#c6ff5d55;border-radius:3px}.dialog::-webkit-scrollbar-track,.dialog *::-webkit-scrollbar-track{background:transparent}
