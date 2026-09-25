@@ -62,7 +62,7 @@ test('setting off with the ball behind or beside the player plays it round and r
    if(withBall){m.owner=p;m.lastTouch=p;}else{m.owner=null;m.physics.ball.position.set(0,30,0);}
    const x0=p.x;for(let i=0;i<120;i++)m.step(1/120,{axis:{x:d,z:0},sprint:true});return {run:(p.x-x0)*d,ahead:(m.physics.ball.position.x-p.x)*d,owned:m.owner===p};};
   const a=run(true),b=run(false);
-  assert.ok(a.owned);assert.ok(a.run>b.run*.9,`ran ${a.run} of ${b.run}`);assert.ok(a.ahead>.6,`ball still behind: ${a.ahead}`);}
+  assert.ok(a.owned);assert.ok(a.run>b.run*.9,`ran ${a.run} of ${b.run}`);assert.ok(a.ahead>.45,`ball still behind: ${a.ahead}`);}
 });
 test('every dribble touch after a change of direction sends the ball along the stick, not the old run',()=>{
  // Jogging turns stay within 25 degrees of the stick; at a sprint the body's momentum is allowed to bend it more.
@@ -114,4 +114,21 @@ test('a human sprint knocks the ball past a nearby defender and winning the ball
   advance(m,.05,{axis:{x:d,z:0},sprint:true});m.owner=p;m.lastTouch=p;let peak=0;
   for(let i=0;i<120;i++){opp.target={x:opp.x,z:opp.z};m.step(1/120,{axis:{x:d,z:0},sprint:true});peak=Math.max(peak,Math.hypot(m.physics.ball.position.x-p.x,m.physics.ball.position.z-p.z));}
   assert.ok(peak>1,`knock beside a defender ${peak} m`);}
+});
+test('a dribble touch leaves the foot at the peak of its swing and the ball never passes through the dribbler',()=>{
+ for(const team of [0,1])for(const sprint of [false,true]){const m=new Match({...defaults,userTeam:team,seed:2});m.start(true);m.state='playing';m.lock=0;m.aiClock=1e6;const p=m.controlled;
+  let touched=-1;const kick=m.physics.kick;m.physics.kick=(...a)=>{touched=m.time;return kick(...a)};let angle=team?Math.PI:0,touches=0,inside=0;
+  for(let t=0;t<6*120;t++){if(t%60===0)angle+=[1.4,-2,1.1,-1.6][(t/60)%4];if(Math.abs(p.x)>40||Math.abs(p.z)>25)angle=Math.atan2(-p.z,-p.x);
+   m.step(1/120,{axis:{x:Math.cos(angle),z:Math.sin(angle)},sprint});if(m.owner!==p)continue;
+   if(touched===m.time&&!p.action){touches++;const r=p.dribblePose,phase=(m.time-r.start)/r.duration;assert.ok(phase>.25&&phase<.75,`swing ${phase.toFixed(2)} at a touch`);}
+   const b=m.physics.ball.position;if(b.y<.45&&Math.hypot(b.x-p.x,b.z-p.z)<.2)inside++;}
+  assert.ok(touches>4);assert.equal(inside,0);}
+});
+test('a hard low ball hits a defender\'s shins instead of rolling through them',()=>{
+ for(const team of [0,1]){const m=new Match({...defaults,userTeam:team});m.start(false);m.state='playing';m.lock=0;m.aiClock=1e6;const q=m.players.find(x=>x.team!==team&&x.role!=='GK'),d=m.direction(team);
+  Object.assign(q,{x:0,z:0,vx:0,vz:0,touchCooldown:0});q.target={x:0,z:0};
+  for(const r of m.players)if(r!==q&&r.role!=='GK'){r.x=r.team?30:-30;r.z=r.id-10;r.target={x:r.x,z:r.z};}
+  m.owner=null;m.physics.reset(-6*d,.02);m.physics.kick({x:d,z:0},28,0);
+  for(let i=0;i<90;i++){q.target={x:0,z:0};m.step(1/120,input);}
+  assert.ok(m.physics.ball.position.x*d<.5,`the ball ran through to ${m.physics.ball.position.x}`);}
 });

@@ -10,7 +10,7 @@ export function footRotation(g){return new THREE.Quaternion().setFromEuler(new T
 function pivotOffset(pitch,foot){const b=BALL*foot,h=HEEL*foot;return pitch>=0?new THREE.Vector3(0,b*Math.sin(pitch)+SOLE*Math.cos(pitch)-SOLE,b*(1-Math.cos(pitch))+SOLE*Math.sin(pitch)):new THREE.Vector3(0,-h*Math.sin(pitch)+SOLE*Math.cos(pitch)-SOLE,-h*(1-Math.cos(pitch))+SOLE*Math.sin(pitch));}
 // Analytic two-bone IK in world space. Clamp unreachable targets; never stretch limbs.
 export function solveFoot(rig,index,target,rotation=null){
- const leg=rig.legs[index];rig.root.updateMatrixWorld(true);
+ const leg=rig.legs[index];rig.root.updateWorldMatrix(true,false);
  const hip=leg.upper.getWorldPosition(new THREE.Vector3()),knee=leg.lower.getWorldPosition(new THREE.Vector3()),ankle=leg.foot.getWorldPosition(new THREE.Vector3());
  const a=hip.distanceTo(knee),b=knee.distanceTo(ankle),direction=target.clone().sub(hip),requested=direction.length(),r=clamp(requested,Math.abs(a-b)+.001,a+b-.001);direction.normalize();
  const forward=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(new THREE.Quaternion()));
@@ -18,10 +18,10 @@ export function solveFoot(rig,index,target,rotation=null){
  const projection=(a*a+r*r-b*b)/(2*r),height=Math.sqrt(Math.max(0,a*a-projection*projection));
  const kneeTarget=hip.clone().addScaledVector(direction,projection).addScaledVector(bend,height),end=hip.clone().addScaledVector(direction,r);
  const parentQ=leg.upper.parent.getWorldQuaternion(new THREE.Quaternion()).invert();
- leg.upper.quaternion.setFromUnitVectors(down,kneeTarget.clone().sub(hip).normalize().applyQuaternion(parentQ));rig.root.updateMatrixWorld(true);
+ leg.upper.quaternion.setFromUnitVectors(down,kneeTarget.clone().sub(hip).normalize().applyQuaternion(parentQ));rig.root.updateWorldMatrix(true,false);
  const kneeQ=leg.lower.parent.getWorldQuaternion(new THREE.Quaternion()).invert();
- leg.lower.quaternion.setFromUnitVectors(down,end.clone().sub(kneeTarget).normalize().applyQuaternion(kneeQ));rig.root.updateMatrixWorld(true);
- const footQ=leg.foot.parent.getWorldQuaternion(new THREE.Quaternion()).invert(),rootQ=rig.root.getWorldQuaternion(new THREE.Quaternion());if(rotation)rootQ.multiply(rotation);leg.foot.quaternion.copy(footQ.multiply(rootQ));rig.root.updateMatrixWorld(true);
+ leg.lower.quaternion.setFromUnitVectors(down,end.clone().sub(kneeTarget).normalize().applyQuaternion(kneeQ));rig.root.updateWorldMatrix(true,false);
+ const footQ=leg.foot.parent.getWorldQuaternion(new THREE.Quaternion()).invert(),rootQ=rig.root.getWorldQuaternion(new THREE.Quaternion());if(rotation)rootQ.multiply(rotation);leg.foot.quaternion.copy(footQ.multiply(rootQ));rig.root.updateWorldMatrix(true,false);
  return {error:leg.foot.getWorldPosition(v).distanceTo(target),clamped:requested>r+.005};
 }
 const refitEuler=new THREE.Euler(),refit={hips:[0,0,0],hipY:0,legs:[{upper:[0,0,0],lower:[0,0,0]},{upper:[0,0,0],lower:[0,0,0]}],feet:[[0,0,0],[0,0,0]]};
@@ -32,7 +32,7 @@ function refitLegs(rig,pose){const m=rig.bodyMetrics;if(!m||!pose.gaitTargets)re
 export function stabilizeFeet(rig,p,pose,dt){
  // Distant non-contact limbs skip world-space locks. Keep exact IK for every kick.
  if(rig.distant&&!rig.contactDetail&&!p.action){rig.plantState=null;rig.plantLocks=0;rig.plantError=0;refitLegs(rig,pose);return;}
- rig.root.updateMatrixWorld(true);const speed=Math.hypot(p.vx||0,p.vz||0),state=rig.plantState||(rig.plantState={feet:[null,null],root:null,time:0});
+ rig.root.updateWorldMatrix(true,false);const speed=Math.hypot(p.vx||0,p.vz||0),state=rig.plantState||(rig.plantState={feet:[null,null],root:null,time:0});
  const root=rig.root.getWorldPosition(new THREE.Vector3()),teleport=state.root&&state.root.distanceTo(root)>1.2;state.root=root;state.time+=dt;
  const action=p.action,ground=!p.down&&!p.dive&&!action?.aerial&&!['slide','fall','recover','celebrate','feint'].includes(pose.state);
  const size=rig.root.scale.y,sole=.075*size;
@@ -55,12 +55,12 @@ export function stabilizeFeet(rig,p,pose,dt){
    if(b.y<=.65&&age>=0&&age<.16){const target=new THREE.Vector3(b.x,b.y-.025,b.z),f=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(q));target.addScaledVector(f,-.06*size);target.y=Math.max(sole,target.y);const hip=leg.upper.getWorldPosition(new THREE.Vector3());if(hip.distanceTo(target)<.74*size){const upper=leg.upper.quaternion.clone(),lower=leg.lower.quaternion.clone(),foot=leg.foot.quaternion.clone(),weight=.72*(1-age/.16);solveFoot(rig,i,target);leg.upper.quaternion.slerp(upper,1-weight);leg.lower.quaternion.slerp(lower,1-weight);leg.foot.quaternion.slerp(foot,1-weight);state.feet[i]=null;continue;}}
   }
   const plant=ground&&free&&(!receiving||i!==receiveIndex)&&(!kicking||i!==kickIndex)&&(speed<.2||kicking||(pose.contacts?pose.contacts[i]>.5:cycle<.5));
-  if(!plant||teleport||current.y>sole+.20){state.release||=[null,null];if(state.feet[i]&&ground&&!teleport)state.release[i]={offset:state.feet[i].target.clone().sub(current),age:0};state.feet[i]=null;const release=state.release[i];if(release&&ground&&!teleport&&release.age<.16){const t=release.age;solveFoot(rig,i,current.clone().addScaledVector(release.offset,(1+32*t)*Math.exp(-32*t)),rotation);release.age+=dt;}else state.release[i]=null;continue;}if(state.release)state.release[i]=null;
+  if(!plant||teleport||current.y>sole+.20){state.release||=[null,null];if(state.feet[i]&&ground&&!teleport)state.release[i]={offset:state.feet[i].target.clone().sub(current),age:0};state.feet[i]=null;const release=state.release[i];if(release&&ground&&!teleport&&release.age<.16){const t=release.age;solveFoot(rig,i,current.clone().addScaledVector(release.offset,(1-Math.min(1,t/.16))**3*(1+3*Math.min(1,t/.16))),rotation);release.age+=dt;}else state.release[i]=null;continue;}if(state.release)state.release[i]=null;
   // Lock the flat-foot contact point; the ankle then rolls over the heel or ball.
   const heading=rig.root.getWorldQuaternion(new THREE.Quaternion()).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),g?.yaw||0)),pivot=pivotOffset(g?.pitch||0,rig.bodyMetrics?.foot||1).multiplyScalar(size).applyQuaternion(heading);
   if(!state.feet[i]){const flat=current.clone().sub(pivot);flat.y=sole;state.feet[i]={position:flat,target:current.clone(),since:state.time};}
-  const goal=state.feet[i].position.clone().add(pivot),hip=leg.upper.getWorldPosition(new THREE.Vector3());
-  if(hip.distanceTo(goal)>((rig.bodyMetrics?.upperLeg||.35)+(rig.bodyMetrics?.lowerLeg||.4)-.002)*size||state.time-state.feet[i].since>.65&&speed>.2){state.feet[i]=null;continue;}
+  const goal=state.feet[i].position.clone().add(pivot);
+  // Keep the anchor until lift-off; dropping it at the reach boundary snapped the ankle to the swing pose in one frame.
   state.feet[i].target.copy(goal);const result=solveFoot(rig,i,goal,rotation);error=Math.max(error,result.error);locks++;
  }
  rig.plantError=error;rig.plantLocks=locks;

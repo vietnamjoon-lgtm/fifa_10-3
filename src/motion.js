@@ -17,6 +17,8 @@ function blendCapture(pose,data,weight){
  pose.hipY=lerp(pose.hipY,.875+(data[0]-.85)*.55,weight);pose.captureFeet={quaternions:data.ankles,weight};const targets=[pose.hips,pose.torso,pose.head,...pose.legs.flatMap(l=>[l.upper,l.lower]),...pose.arms.flatMap(a=>[a.upper,a.lower])];
  for(let i=0;i<targets.length;i++){const target=targets[i],from=new Quaternion().setFromEuler(new Euler(...target)),to=data.rotations?.[i]||new Quaternion().setFromEuler(new Euler(...data.slice(1+i*3,4+i*3))),e=new Euler().setFromQuaternion(from.slerp(to,weight),'XYZ');target[0]=e.x;target[1]=e.y;target[2]=e.z;}
 }
+// Upper-body (trunk, head, arms) capture over the procedural legs: CMU turn and stop clips.
+function blendUpperCapture(pose,name,t,weight,mirror=false){if(weight<.0001)return;const data=sampleMocap(name,t),targets=[[pose.torso,1],[pose.head,2],[pose.arms[0].upper,7],[pose.arms[0].lower,8],[pose.arms[1].upper,9],[pose.arms[1].lower,10]];for(const [target,index]of targets){const mapped=mirror&&index>=7?(index<9?index+2:index-2):index,e=new Euler().setFromQuaternion(data.rotations[mapped],'XYZ'),goal=new Quaternion().setFromEuler(new Euler(e.x,e.y*(mirror?-1:1),e.z*(mirror?-1:1))),out=new Euler().setFromQuaternion(new Quaternion().setFromEuler(new Euler(...target)).slerp(goal,weight),'XYZ');target[0]=out.x;target[1]=out.y;target[2]=out.z;}}
 export function captureContacts(name,cycle){const clip=mocap[name],i=Math.min(clip.frames.length-1,Math.floor(clamp(cycle,0,1)*(clip.frames.length-1)));return clip.contacts?.[i]||[1,0];}
 export function solveLeg(forward,height,hipY,a=.35,b=.4){
  const down=Math.max(.1,hipY-.075-height),r=clamp(Math.hypot(down,forward),.15,a+b-.002);
@@ -223,6 +225,9 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  if(action?.type==='shoot'&&(action.flair||String(action.flightStyle).toLowerCase().includes('outside'))){const i=action.foot==='left'?0:1,w=Math.sin(clamp(action.elapsed/((action.contactAt||.24)+.25),0,1)*Math.PI);pose.feet[i][1]+=(i===0?.45:-.45)*w;pose.legs[i].upper[1]+=(i===0?.3:-.3)*w;}
  if(action?.type==='feint')applySkillPose(pose,action);
  if(celebrate&&!p.down&&!action)applyCelebration(pose,p,time);
+ // Captured turn and braking upper body layered lightly over the procedural gait.
+ if(locomotion&&!p.shield&&!p.defending){if(p.turnPlan&&time<p.turnPlan.start+p.turnPlan.duration){const u=clamp((time-p.turnPlan.start)/p.turnPlan.duration,0,1);blendUpperCapture(pose,'turn',u*mocap.turn.duration,.22*Math.sin(u*Math.PI)**2,p.turnPlan.angle<0);}
+  else if((kinematics.acceleration||0)<-2)blendUpperCapture(pose,'stop',mocap.stop.duration-clamp(speed/8,0,1)*.7,.2*smooth((-(kinematics.acceleration||0)-2)/6));}
  // Final leg solve: a foot reaching for the ball blends from its stride target to the ball;
  // every other untouched foot stays on its stride target under the final pelvis.
  if(base){const m=gait.metrics,reach=[null,null];if(p.dribbleAim||p.dribbleStop)dribbleReach(reach,p,m,ball,time,kinematics);if(p.receivePrep||p.receive)receiveReach(reach,p,m,ball,time,pose);

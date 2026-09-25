@@ -39,14 +39,14 @@ function plan(p,phase,time,kin){
  const sway=Math.sin(time*TAU/3.6+v.idle),c0=((phase/TAU)%1+1)%1,feet=[],contacts=[];
  for(let i=0;i<2;i++){const c=(c0+i*.5)%1,s=i===0?-1:1,since=Math.min(.8,c*period);let a,y,pitch,relax=0,flex=0,contact=1,angle=0,drift=0,sg=0;
   if(c<beta){({a,y,pitch}=stanceFoot(flatAt(since,since),c/beta,g));angle=turnSpin(since);drift=.5*u*omega*since*since;}
-  else{sg=(c-beta)/(1-beta);const stance=beta*period,next=Math.max(0,u+accel*(1-c)*period),td=stanceFoot(kTD*next*beta*period,0,g),to=stanceFoot(flatAt(since,stance),1,g),eps=.02,pre=stanceFoot(flatAt(since,stance*(1-eps)),1-eps,g),ratio=(1-beta)/Math.max(beta,.05);contact=0;angle=turnSpin(stance)*(1-smooth(sg));drift=.5*u*omega*stance*stance*(1-smooth(sg));
+  else{sg=(c-beta)/(1-beta);const stance=beta*period,next=Math.max(0,u+accel*(1-c)*period),nextStride=next*beta*period,td=stanceFoot(kTD*nextStride,0,g),land=stanceFoot(kTD*nextStride-nextStride*1e-5,1e-5,g),to=stanceFoot(flatAt(since,stance),1,g),eps=1e-5,pre=stanceFoot(flatAt(since,stance*(1-eps)),1-eps,g),ratio=(1-beta)/Math.max(beta,.05);contact=0;angle=turnSpin(stance)*(1-smooth(sg));drift=.5*u*omega*stance*stance*(1-smooth(sg));
    const walk=[[0,to.a,to.y],[.3,lerp(to.a,td.a,.25),SOLE+.09],[.6,lerp(to.a,td.a,.62),SOLE+.065],[.86,td.a+.012,td.y+.045],[1,td.a,td.y]];
    const runKeys=[[0,to.a,to.y],[.3,lerp(to.a,0,.25),rec],[.58,lerp(-.08,.02,sprint)*Lg,rec*lerp(.62,.7,sprint)],[.83,td.a+reach,SOLE+lerp(.08,.13,sprint)],[1,td.a,td.y]];
    const lift=(1-shape)*clamp((speed-2)*.03,0,.09)*(1-defend*.6);
    const keys=walk.map((k,j)=>[k[0],lerp(k[1],runKeys[j][1],shape),lerp(k[2],runKeys[j][2],shape)+(j>0&&j<4?lift:0)]);
    const slopeA=(to.a-pre.a)/eps*ratio,slopeY=(to.y-pre.y)/eps*ratio;
-   // Touch down with the foot already moving back at ground speed (no skid on landing).
-   a=spline(keys.map(k=>[k[0],k[1]]),sg,slopeA,-lerp(.85,1,shape)*Ls*ratio);y=Math.max(SOLE*.9,spline(keys.map(k=>[k[0],k[2]]),sg,slopeY,-lerp(.45,.6,shape)));
+   // Touch down moving exactly like the planted foot will: back at ground speed, no downward stamp.
+   a=spline(keys.map(k=>[k[0],k[1]]),sg,slopeA,(land.a-td.a)/1e-5*ratio);y=Math.max(SOLE*.9,spline(keys.map(k=>[k[0],k[2]]),sg,slopeY,(land.y-td.y)/1e-5*ratio));
    relax=smooth(sg/.18)*(1-smooth((sg-.7)/.3))*footRoll;flex=lerp(-.55,-.08,shape);pitch=lerp(to.pitch,td.pitch,smooth((sg-.55)/.45));}
   // Standing: feet a little apart, one slightly ahead. Weight shifts move the pelvis, never the feet.
   const idleX=s*(m.hipX+.03)*(defend||keeper?1.55:1),idleZ=s*v.stagger*.045;

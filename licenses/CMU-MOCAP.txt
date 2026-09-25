@@ -6,3 +6,5 @@ The collection was supported by NSF Grant #0196217.
 Downloaded from http://mocap.cs.cmu.edu/subjects/09/ and /subjects/10/ on 2026-09-22.
 The game includes retargeted, trimmed and resampled joint angles; raw capture files remain development inputs.
 These are CMU captures, not EA/FC Online assets.
+
+Additional source trials (2026-09-25): subject 16, 16_15 (walk), 16_35 (run/jog), 16_17 (90-degree left turn), 16_08 (run/jog, sudden stop). Source: https://mocap.cs.cmu.edu/search.php?subjectnumber=16 and https://mocap.cs.cmu.edu/subjects/16/ . ASF/AMC at 120 Hz, distributed under the same CMU free-for-all-uses terms above.
