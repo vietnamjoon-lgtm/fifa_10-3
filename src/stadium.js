@@ -71,3 +71,20 @@ export function createBall(){
  const tex=canvasTexture(1024,512,(c,w,h)=>{c.fillStyle='#f5f4df';c.fillRect(0,0,w,h);c.lineWidth=2;c.strokeStyle='#8a9990';for(let y=0;y<7;y++)for(let x=0;x<13;x++){const cx=x*85+(y%2?42:0),cy=y*85;c.beginPath();for(let a=0;a<6;a++){const t=a*Math.PI/3;c.lineTo(cx+47*Math.cos(t),cy+47*Math.sin(t))}c.closePath();c.stroke();if((x+y*2)%4===0){c.fillStyle='#152e23';c.fill();}else if((x+y)%5===0){c.fillStyle='#a4cf48';c.fill();}}});
  const ball=new THREE.Mesh(new THREE.SphereGeometry(FIELD.ballRadius,32,24),new THREE.MeshStandardMaterial({map:tex,roughness:.55}));ball.castShadow=true;return ball;
 }
+// Image-based lighting for the night stadium: a procedural sky, the pitch below and four warm floodlight banks, baked
+// once into a PMREM so skin, kit, ball and posts get soft reflections instead of flat ambient-only shading.
+let environmentTexture=null;
+export function stadiumEnvironment(renderer){
+ if(environmentTexture)return environmentTexture;
+ const env=new THREE.Scene();
+ const sky=new THREE.Mesh(new THREE.SphereGeometry(60,32,16),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,
+  vertexShader:'varying vec3 vDir;void main(){vDir=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+  fragmentShader:'varying vec3 vDir;void main(){float h=vDir.y;vec3 top=vec3(.03,.05,.09),horizon=vec3(.2,.24,.26),ground=vec3(.04,.12,.05);vec3 c=h>0.0?mix(horizon,top,pow(h,.55)):mix(horizon,ground,pow(-h,.35));gl_FragColor=vec4(c,1.0);}'}));
+ env.add(sky);
+ const lamp=new THREE.MeshBasicMaterial({color:new THREE.Color(1,.94,.84).multiplyScalar(16)});
+ for(const [x,z] of [[-34,-26],[34,-26],[-34,26],[34,26]]){const panel=new THREE.Mesh(new THREE.PlaneGeometry(12,4.5),lamp);panel.position.set(x,24,z);panel.lookAt(0,0,0);env.add(panel);}
+ const stand=new THREE.MeshBasicMaterial({color:new THREE.Color(.05,.07,.08),side:THREE.BackSide});const ring=new THREE.Mesh(new THREE.CylinderGeometry(52,46,16,32,1,true),stand);ring.position.y=4;env.add(ring);
+ const pitch=new THREE.Mesh(new THREE.CircleGeometry(46,32),new THREE.MeshBasicMaterial({color:new THREE.Color(.05,.18,.06)}));pitch.rotation.x=-Math.PI/2;pitch.position.y=-2;env.add(pitch);
+ const pmrem=new THREE.PMREMGenerator(renderer);environmentTexture=pmrem.fromScene(env,.03).texture;pmrem.dispose();
+ env.traverse(o=>{o.geometry?.dispose();o.material?.dispose?.();});return environmentTexture;
+}
