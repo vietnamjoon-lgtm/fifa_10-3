@@ -1,0 +1,291 @@
+{
+  "revision": "4a8f142",
+  "scope": "Actual animatePlayer on the original 13-bone bind skeleton; Match 120 Hz, bones 960 Hz, fresh rig per scenario. Excludes mesh collision, GPU and subframe target scan.",
+  "repeatIdentical": true,
+  "results": [
+    {
+      "team": 0,
+      "sprint": false,
+      "seed": 17,
+      "kind": "turns",
+      "maxFootSpeed": 397.17421481667924,
+      "maxFootAcceleration": 403141.97234225884,
+      "maxPlantTravel": 3.972054645195637e-15,
+      "violations": 57,
+      "frames": 11520,
+      "crabFraction": 0.014322916666666666
+    },
+    {
+      "team": 0,
+      "sprint": false,
+      "seed": 17,
+      "kind": "random",
+      "maxFootSpeed": 593.9969850117135,
+      "maxFootAcceleration": 570237.1056112449,
+      "maxPlantTravel": 1.9860273225978185e-15,
+      "violations": 634,
+      "frames": 11520,
+      "crabFraction": 0.07222222222222222
+    },
+    {
+      "team": 0,
+      "sprint": false,
+      "seed": 43,
+      "kind": "random",
+      "maxFootSpeed": 565.5755715503511,
+      "maxFootAcceleration": 542952.5486883371,
+      "maxPlantTravel": 3.5596458096434965e-15,
+      "violations": 462,
+      "frames": 11520,
+      "crabFraction": 0.11979166666666667
+    },
+    {
+      "team": 0,
+      "sprint": false,
+      "seed": 97,
+      "kind": "random",
+      "maxFootSpeed": 550.7121971977424,
+      "maxFootAcceleration": 528683.7093098327,
+      "maxPlantTravel": 3.972054645195637e-15,
+      "violations": 437,
+      "frames": 11520,
+      "crabFraction": 0.08706597222222222
+    },
+    {
+      "team": 0,
+      "sprint": false,
+      "seed": 113,
+      "kind": "random",
+      "maxFootSpeed": 538.422481650159,
+      "maxFootAcceleration": 516885.5823841527,
+      "maxPlantTravel": 3.552713678800501e-15,
+      "violations": 646,
+      "frames": 11520,
+      "crabFraction": 0.11944444444444445
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "seed": 17,
+      "kind": "turns",
+      "maxFootSpeed": 403.7215184991409,
+      "maxFootAcceleration": 388949.00753172487,
+      "maxPlantTravel": 5.0242958677880805e-15,
+      "violations": 54,
+      "frames": 11520,
+      "crabFraction": 0.030989583333333334
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "seed": 17,
+      "kind": "random",
+      "maxFootSpeed": 591.8434099013441,
+      "maxFootAcceleration": 568169.6735052903,
+      "maxPlantTravel": 3.580361673049448e-15,
+      "violations": 515,
+      "frames": 11520,
+      "crabFraction": 0.07838541666666667
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "seed": 43,
+      "kind": "random",
+      "maxFootSpeed": 561.2788698357839,
+      "maxFootAcceleration": 538827.7150423533,
+      "maxPlantTravel": 3.972054645195637e-15,
+      "violations": 575,
+      "frames": 11520,
+      "crabFraction": 0.09227430555555556
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "seed": 97,
+      "kind": "random",
+      "maxFootSpeed": 544.7376486334165,
+      "maxFootAcceleration": 522948.14268807985,
+      "maxPlantTravel": 3.580361673049448e-15,
+      "violations": 861,
+      "frames": 11520,
+      "crabFraction": 0.10069444444444445
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "seed": 113,
+      "kind": "random",
+      "maxFootSpeed": 507.2968243587576,
+      "maxFootAcceleration": 487004.95138440724,
+      "maxPlantTravel": 3.794299872214038e-15,
+      "violations": 839,
+      "frames": 11520,
+      "crabFraction": 0.10260416666666666
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "seed": 17,
+      "kind": "turns",
+      "maxFootSpeed": 427.9995513437024,
+      "maxFootAcceleration": 413379.6971499495,
+      "maxPlantTravel": 3.5580223032530555e-15,
+      "violations": 17,
+      "frames": 11520,
+      "crabFraction": 0.014322916666666666
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "seed": 17,
+      "kind": "random",
+      "maxFootSpeed": 503.80198500329874,
+      "maxFootAcceleration": 483649.9056031668,
+      "maxPlantTravel": 3.66205343881779e-15,
+      "violations": 729,
+      "frames": 11520,
+      "crabFraction": 0.08741319444444444
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "seed": 43,
+      "kind": "random",
+      "maxFootSpeed": 604.1495933255324,
+      "maxFootAcceleration": 584196.3171442958,
+      "maxPlantTravel": 3.66205343881779e-15,
+      "violations": 757,
+      "frames": 11520,
+      "crabFraction": 0.1329861111111111
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "seed": 97,
+      "kind": "random",
+      "maxFootSpeed": 565.1718835272375,
+      "maxFootAcceleration": 542565.008186148,
+      "maxPlantTravel": 3.66205343881779e-15,
+      "violations": 709,
+      "frames": 11520,
+      "crabFraction": 0.10442708333333334
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "seed": 113,
+      "kind": "random",
+      "maxFootSpeed": 542.9947749953727,
+      "maxFootAcceleration": 524724.2259430024,
+      "maxPlantTravel": 9.441466109136565e-15,
+      "violations": 530,
+      "frames": 11520,
+      "crabFraction": 0.1015625
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "seed": 17,
+      "kind": "turns",
+      "maxFootSpeed": 345.8289322086606,
+      "maxFootAcceleration": 364015.62038026046,
+      "maxPlantTravel": 5.0242958677880805e-15,
+      "violations": 87,
+      "frames": 11520,
+      "crabFraction": 0.023524305555555555
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "seed": 17,
+      "kind": "random",
+      "maxFootSpeed": 471.04847208634027,
+      "maxFootAcceleration": 452206.5332028867,
+      "maxPlantTravel": 7.105427357601002e-15,
+      "violations": 425,
+      "frames": 11520,
+      "crabFraction": 0.11736111111111111
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "seed": 43,
+      "kind": "random",
+      "maxFootSpeed": 556.392915407771,
+      "maxFootAcceleration": 534137.1987914604,
+      "maxPlantTravel": 3.972054645195637e-15,
+      "violations": 688,
+      "frames": 11520,
+      "crabFraction": 0.09175347222222222
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "seed": 97,
+      "kind": "random",
+      "maxFootSpeed": 542.6035393494793,
+      "maxFootAcceleration": 520899.39777550014,
+      "maxPlantTravel": 3.972054645195637e-15,
+      "violations": 643,
+      "frames": 11520,
+      "crabFraction": 0.11536458333333334
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "seed": 113,
+      "kind": "random",
+      "maxFootSpeed": 568.813137387252,
+      "maxFootAcceleration": 546060.611891762,
+      "maxPlantTravel": 7.32410687763558e-15,
+      "violations": 587,
+      "frames": 11520,
+      "crabFraction": 0.08263888888888889
+    }
+  ],
+  "gait": [
+    {
+      "speed": 1.3,
+      "stepsPerMinute": 99.45356731384041,
+      "stance": 0.5791362662437042,
+      "contactSeconds": 0.6987818921561506
+    },
+    {
+      "speed": 3.5,
+      "stepsPerMinute": 158.16559826384565,
+      "stance": 0.33034532654367366,
+      "contactSeconds": 0.2506324992310436
+    },
+    {
+      "speed": 5.5,
+      "stepsPerMinute": 189.97543925545705,
+      "stance": 0.25999999999999995,
+      "contactSeconds": 0.16423175607477256
+    },
+    {
+      "speed": 8.5,
+      "stepsPerMinute": 277.85528921450873,
+      "stance": 0.25999999999999995,
+      "contactSeconds": 0.11228866683877699
+    }
+  ],
+  "capture": {
+    "run": {
+      "duration": 0.7333333333333333,
+      "frames": 45,
+      "contactFraction": [
+        1,
+        0.9777777777777777
+      ]
+    },
+    "kick": {
+      "duration": 0.75,
+      "frames": 46,
+      "contactFraction": [
+        0.8478260869565217,
+        0.021739130434782608
+      ]
+    }
+  }
+}

@@ -1,0 +1,1928 @@
+{
+  "subdivisions": 5000,
+  "secondsPerSample": 0.0000016666666666666667,
+  "scope": "Gait targets from real Match movement steps across 8 direction inputs, thresholds and wraps, both teams; no ball contact or full-match coverage",
+  "pass": true,
+  "results": [
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.000010066200331886044,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000010066200331886044,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000010087870190952919,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.000005455677050070218,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005455677050070218,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005467942950371349,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.000005837807809772055,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005837807810049611,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005881740437778206,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.000014830485263421856,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000014830485263550007,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000014800062888937255,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.000026063546962098373,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000026063546962098373,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000026036567073146916,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.000009580223197816303,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000009580223197824541,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000009600844144141582,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.000006243419420635095,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000004500503962881673,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000006255002090695508,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.0000063610551180637985,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000004840364032056335,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000006395468412788584,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.00001093842365405019,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000012017050563976837,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000010917142271068836,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.000026062887497279994,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000026479633908790963,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 0.7853981633974483,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.00002603594090145022,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.000007429071495269696,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000007429071495269696,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.00000744501832258844,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.000005128685590957069,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005041000291370999,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005138639281807886,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.00000486843369118089,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005035760941187844,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000004883306931009254,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.000007464862037641013,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000009583463167013545,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000007451510899935635,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.000025232389292683777,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.00002710186739991084,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 1.5707963267948966,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000025205522616231903,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.0000041011925427952,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000004101192542795859,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.00000410990852001182,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.000005938820175527764,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005938820175533958,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005951929474349854,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.000005916389637050686,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000007703103742518891,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005913200027942172,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.000004375391512287364,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.0000064687162885196905,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000004373476566163741,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.00002501159335919659,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000026881435671654405,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 2.356194490192345,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000024984869876947648,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.00000242826959641557,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.0000024282695964144858,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000002433357443835117,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.00000872971762749114,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.00000872971762749114,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000008749057907161702,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.00000774142636500818,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005349899095069458,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000007729714398909872,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.000005680215971418747,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.00000382943532446511,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005678524688465935,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.00002685008857570894,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000024978889624637853,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.141592653589793,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000026823139065190475,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.0000041011925428073885,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000004101192542808267,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.00000410990852001182,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.00000593882017552151,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005938820175527705,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005951929474368494,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.00000770310374256417,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005916389637050686,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000007695802657157785,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.000006468716288572798,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000004375391512287364,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.0000064659120193988025,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.000026881435671654405,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.00002501159335914169,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 3.9269908169872414,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000026854507289038346,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.000007429071495270108,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000007429071495269903,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000007445018322588852,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.0000050410002913482356,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005128685590991148,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.00000505089808807996,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.000005035760941187844,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.00000486843369118089,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005036871460817155,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.000009583463167013545,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000007464862037641013,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000009569194272964724,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.00002710186739991122,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.00002523238929268403,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 4.71238898038469,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000027074791303877196,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.000009580223197802329,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000009580223197813311,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000009600844144124863,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.000004500503962881673,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000006243419420629507,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.0000045118177164034215,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.000004840364032164849,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000006361055117897745,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000004866817249269442,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.00001201705056408131,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000010938423654206569,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000011995348852990543,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.000026479633908845597,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.00002606288749722474,
+      "pass": true
+    },
+    {
+      "direction": -1,
+      "turn": 5.497787143782138,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000026452641885117494,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.000010066200331886044,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000010066200331886044,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.00001008787019094945,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.000005455677050070218,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005455677050070218,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005467942950371349,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.000005837807809772055,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005837807810049611,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005881740437778206,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.000014830485263421856,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000014830485263550007,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000014800062888937255,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.000026063546962098373,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000026063546962098373,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000026036567073146916,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.000009580223197816303,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000009580223197827287,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000009600844144144328,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.000006218460919633824,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000004518226014909284,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.00000623004680345471,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.000006338600762587999,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000004855129236100243,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000006372955579331205,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.00001095192035950339,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000012003430761426776,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000010930633051766544,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.00002606812615932096,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000026474393467864323,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 0.7853981633974483,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000026041178982341464,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.000007429071495269696,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000007429071495269696,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.00000744501832258844,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.000005118654025127522,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005034213111822654,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.0000051286252050142185,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.000004863278627262012,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005026633983529424,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000004877995089982544,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.000007491062982929197,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.0000095564858069808,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000007477696301507091,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.000025255871801577904,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.00002707834320684269,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 1.5707963267948966,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000025229002276583654,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.000004101192542807168,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000004101192542819797,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000004109908520011601,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.00000593882017552151,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.00000593882017552151,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005951929474356106,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.000005936211318867788,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000007678597666999177,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.0000059329532212119075,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.000004400818952750771,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000006441789187066388,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000004398887182687651,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.000025035080594579984,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000026857907049193788,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 2.356194490192345,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000025008354323032647,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.000002428269596415787,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.0000024282695964149194,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000002433357443835117,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.00000872971762749114,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.00000872971762749114,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000008749057907161702,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.000007711358807397639,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005379966652624017,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000007699646873556077,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.000005652494278969639,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000003801309082285003,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005650803987912225,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.000026826544048067136,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000025002395148357336,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.141592653589793,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000026799596759130462,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.000004101192542819356,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000004101192542808047,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.00000410990852001182,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.00000593882017552151,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.00000593882017552151,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005951929474356106,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.000007678597666999177,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005936211318867788,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000007671334468764196,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.000006441789187066388,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000004400818952750771,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000006438992246382901,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.000026857907049193788,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000025035080594579984,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 3.9269908169872414,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.00002683098104550492,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.000007429071495269903,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000007429071495269903,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000007445018322588647,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.000005034213111815166,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000005118654025165063,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005044128341249066,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.000005026633983529424,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000004863278627262012,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000005027913876122963,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.0000095564858069808,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000007491062982929197,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000009542225412670325,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.00002707834320684269,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000025255871801577904,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 4.71238898038469,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.00002705126954405904,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 0.04,
+      "phase": 0,
+      "maxTargetStep": 0.000009580223197805075,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 0.04,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000009580223197824541,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 0.04,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000009600844144141582,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 0.2,
+      "phase": 0,
+      "maxTargetStep": 0.000004518226014909284,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 0.2,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000006218460919633824,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 0.2,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000004529554904888135,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 1.3,
+      "phase": 0,
+      "maxTargetStep": 0.000004855129236237192,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 1.3,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.000006338600762381014,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 1.3,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000004881737076910632,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 3.5,
+      "phase": 0,
+      "maxTargetStep": 0.000012003430761426776,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 3.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.00001095192035950339,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 3.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000011981733758967751,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 8.5,
+      "phase": 0,
+      "maxTargetStep": 0.000026474393467864323,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 8.5,
+      "phase": 3.141592653589793,
+      "maxTargetStep": 0.00002606812615932096,
+      "pass": true
+    },
+    {
+      "direction": 1,
+      "turn": 5.497787143782138,
+      "speed": 8.5,
+      "phase": 6.279185307179587,
+      "maxTargetStep": 0.000026447402005602587,
+      "pass": true
+    }
+  ]
+}

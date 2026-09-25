@@ -1,0 +1,149 @@
+{
+  "scope": "Material vertex ring perimeter, not anatomical volume or mesh/cloth intersection certification",
+  "results": [
+    {
+      "type": "slim",
+      "joint": "knee",
+      "degrees": 90,
+      "vertices": 28,
+      "dqsPerimeterRatio": 0.9037034433302551,
+      "lbsPerimeterRatio": 0.6852401471365049,
+      "pass": true
+    },
+    {
+      "type": "slim",
+      "joint": "knee",
+      "degrees": 140,
+      "vertices": 28,
+      "dqsPerimeterRatio": 0.9785961596092766,
+      "lbsPerimeterRatio": 0.6164538862352096,
+      "pass": true
+    },
+    {
+      "type": "slim",
+      "joint": "elbow",
+      "degrees": 90,
+      "vertices": 58,
+      "dqsPerimeterRatio": 0.9866831125993483,
+      "lbsPerimeterRatio": 0.9303419004173801,
+      "pass": true
+    },
+    {
+      "type": "slim",
+      "joint": "elbow",
+      "degrees": 140,
+      "vertices": 58,
+      "dqsPerimeterRatio": 1.0906342898255366,
+      "lbsPerimeterRatio": 0.9713830868120871,
+      "pass": true
+    },
+    {
+      "type": "normal",
+      "joint": "knee",
+      "degrees": 90,
+      "vertices": 28,
+      "dqsPerimeterRatio": 0.9113352731186274,
+      "lbsPerimeterRatio": 0.6901124416397545,
+      "pass": true
+    },
+    {
+      "type": "normal",
+      "joint": "knee",
+      "degrees": 140,
+      "vertices": 28,
+      "dqsPerimeterRatio": 1.0123649406436253,
+      "lbsPerimeterRatio": 0.6359391881710243,
+      "pass": true
+    },
+    {
+      "type": "normal",
+      "joint": "elbow",
+      "degrees": 90,
+      "vertices": 59,
+      "dqsPerimeterRatio": 1.0100411671317924,
+      "lbsPerimeterRatio": 0.9639615253854825,
+      "pass": true
+    },
+    {
+      "type": "normal",
+      "joint": "elbow",
+      "degrees": 140,
+      "vertices": 59,
+      "dqsPerimeterRatio": 1.1479696099249133,
+      "lbsPerimeterRatio": 1.0252577275421457,
+      "pass": true
+    },
+    {
+      "type": "sturdy",
+      "joint": "knee",
+      "degrees": 90,
+      "vertices": 28,
+      "dqsPerimeterRatio": 0.9338888796132153,
+      "lbsPerimeterRatio": 0.7066103361689177,
+      "pass": true
+    },
+    {
+      "type": "sturdy",
+      "joint": "knee",
+      "degrees": 140,
+      "vertices": 28,
+      "dqsPerimeterRatio": 1.074701393817862,
+      "lbsPerimeterRatio": 0.6733083166225612,
+      "pass": true
+    },
+    {
+      "type": "sturdy",
+      "joint": "elbow",
+      "degrees": 90,
+      "vertices": 54,
+      "dqsPerimeterRatio": 1.0093011519237023,
+      "lbsPerimeterRatio": 0.9309071770506164,
+      "pass": true
+    },
+    {
+      "type": "sturdy",
+      "joint": "elbow",
+      "degrees": 140,
+      "vertices": 54,
+      "dqsPerimeterRatio": 1.1813591426656345,
+      "lbsPerimeterRatio": 0.9997551353933255,
+      "pass": true
+    },
+    {
+      "type": "unique",
+      "joint": "knee",
+      "degrees": 90,
+      "vertices": 28,
+      "dqsPerimeterRatio": 0.9113352731186274,
+      "lbsPerimeterRatio": 0.6901124416397545,
+      "pass": true
+    },
+    {
+      "type": "unique",
+      "joint": "knee",
+      "degrees": 140,
+      "vertices": 28,
+      "dqsPerimeterRatio": 1.0123649406436253,
+      "lbsPerimeterRatio": 0.6359391881710243,
+      "pass": true
+    },
+    {
+      "type": "unique",
+      "joint": "elbow",
+      "degrees": 90,
+      "vertices": 59,
+      "dqsPerimeterRatio": 1.0100411671317924,
+      "lbsPerimeterRatio": 0.9639615253854825,
+      "pass": true
+    },
+    {
+      "type": "unique",
+      "joint": "elbow",
+      "degrees": 140,
+      "vertices": 59,
+      "dqsPerimeterRatio": 1.1479696099249133,
+      "lbsPerimeterRatio": 1.0252577275421457,
+      "pass": true
+    }
+  ]
+}

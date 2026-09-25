@@ -1,5 +1,5 @@
 import {celebrationOptions} from './celebrations.js';
-import {cleanBody,cleanWeight} from './body-shape.js';
+import {cleanBody,cleanWeight,cleanBodyType} from './body-shape.js';
 import {cleanFace,validFaceTexture} from './face-settings.js';
 import {variedFace} from './face-variation.js';
 import {roster,clamp} from './config.js';
@@ -10,7 +10,7 @@ const color=(v,f)=>/^#[\da-f]{6}$/i.test(v)?v:f;
 export function cleanProfile(raw={},fallback=roster(0)[9]){raw=raw&&typeof raw==='object'?raw:{};
  const p={uid:text(raw.uid,fallback.uid||`default-${fallback.id}`,64),name:text(raw.name,fallback.name,24),number:Math.round(numeric(raw.number,fallback.number,1,99)),role:['GK','DEF','MID','FWD'].includes(raw.role)?raw.role:fallback.role,height:numeric(raw.height,fallback.height,1.55,2.1),build:numeric(raw.build,fallback.build,.8,1.25),foot:raw.foot==='left'?'left':'right',skin:color(raw.skin,'#c89572'),hair:color(raw.hair,'#211a15'),boots:color(raw.boots,'#d3ff47'),hairStyle:['short','crop','crest','bald'].includes(raw.hairStyle)?raw.hairStyle:'short',motionStyle:['balanced','compact','power'].includes(raw.motionStyle)?raw.motionStyle:'balanced'};
  for(const [key,[,min,max]]of Object.entries(STAT_FIELDS))p[key]=numeric(raw[key],fallback[key],min,max);
- p.weight=cleanWeight(raw.weight,p);p.body=cleanBody(raw.body);
+ p.weight=cleanWeight(raw.weight,p);p.body=cleanBody(raw.body);p.bodyType=cleanBodyType(raw.bodyType,raw.body);
  p.celebration=Object.hasOwn(celebrationOptions,raw.celebration)?raw.celebration:'auto';
  p.face=cleanFace(variedFace(raw.face,p.uid||p.name));p.faceTexture=p.face.enabled?validFaceTexture(raw.faceTexture):null;
  return p;

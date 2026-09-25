@@ -40,17 +40,17 @@ function retarget(pos,floor){
 }
 const output={source:'Carnegie Mellon University Graphics Lab Motion Capture Database',url:'https://mocap.cs.cmu.edu/',fps:60,schemaVersion:2,rigVersion:'touchline-2',contactConfidence:'estimated_from_foot_height_and_velocity'};
 const report={};
-for(const [name,subject,trial]of [['run','09','01'],['kick','10','01']]){
+for(const [name,subject,trial]of [['run','09','01'],['kick','10','01'],['walk','16','15'],['jog','16','35'],['turn','16','17'],['stop','16','08']]){
  const raw=load(subject,trial),floor=raw.map(p=>Math.min(p.ltoes.y,p.rtoes.y)).sort((a,b)=>a-b)[Math.floor(raw.length*.05)],poses=raw.map(p=>retarget(p,floor));
  const peaks=[];for(let i=4;i<poses.length-4;i++){const value=poses[i].leftZ-poses[i].rightZ;if(value>0&&value>poses[i-4].leftZ-poses[i-4].rightZ&&value>=poses[i+4].leftZ-poses[i+4].rightZ&&(!peaks.length||i-peaks.at(-1)>20))peaks.push(i);}
  let contact=0,velocity=0,foot='right';for(let i=2;i<poses.length-2;i++)for(const side of ['left','right']){const v=(poses[i+2][side+'Z']-poses[i-2][side+'Z'])*30;if(v>velocity&&poses[i][side+'Y']<.5){contact=i;velocity=v;foot=side;}}
- let cycle=[0,poses.length-1],bestError=Infinity;if(name==='run'){for(let a=0;a<poses.length-65;a++)for(let b=a+65;b<Math.min(poses.length,a+125);b++){let error=0;for(let k=1;k<34;k++){const d=Math.atan2(Math.sin(poses[a].data[k]-poses[b].data[k]),Math.cos(poses[a].data[k]-poses[b].data[k]));error+=d*d*(k>=10?2:1);}if(error<bestError){bestError=error;cycle=[a,b];}}}
+ let cycle=[0,poses.length-1],bestError=Infinity;if(['run','walk','jog'].includes(name)){for(let a=0;a<poses.length-65;a++)for(let b=a+65;b<Math.min(poses.length,a+125);b++){const travel=raw[b].root.distanceTo(raw[a].root)/((b-a)/120);if(travel<(name==='walk'?.6:1.8))continue;const span=raw.slice(a,b+1);if(['ltoes','rtoes'].some(key=>Math.max(...span.map(p=>p[key].y))-Math.min(...span.map(p=>p[key].y))<.045))continue;let error=0;for(let k=1;k<34;k++){const d=Math.atan2(Math.sin(poses[a].data[k]-poses[b].data[k]),Math.cos(poses[a].data[k]-poses[b].data[k]));error+=d*d*(k>=10?2:1);}if(error<bestError){bestError=error;cycle=[a,b];}}}
  const start=name==='kick'?Math.max(0,contact-38):cycle[0],end=name==='kick'?Math.min(poses.length-1,contact+52):cycle[1];
  const frames=[],contacts=[],localRotations=[],ankleRotations=[],rootTrajectory=[],sourceJointRotations=[];
- for(let i=start;i<=end;i+=2){frames.push([...poses[i].data]);localRotations.push(poses[i].rotations);ankleRotations.push(poses[i].ankles);sourceJointRotations.push(poses[i].sourceRotations);const root=poses[i].root,previous=poses[Math.max(0,i-1)].root;rootTrajectory.push({time:(i-start)/120,position:root.slice(0,3),heading:root[3],velocity:root.slice(0,3).map((n,j)=>(n-previous[j])*120)});contacts.push(poses[i].contacts.map((on,side)=>{const key=side?'rtoes':'ltoes',a=raw[Math.max(0,i-1)][key],b=raw[Math.min(raw.length-1,i+1)][key];return on&&Math.abs(b.y-a.y)*60<.9?1:0;}));}
+ for(let i=start;i<=end;i+=2){frames.push([...poses[i].data]);localRotations.push(poses[i].rotations);ankleRotations.push(poses[i].ankles);sourceJointRotations.push(poses[i].sourceRotations);const root=poses[i].root,previous=poses[Math.max(0,i-1)].root;rootTrajectory.push({time:(i-start)/120,position:root.slice(0,3),heading:root[3],velocity:root.slice(0,3).map((n,j)=>(n-previous[j])*120)});contacts.push(poses[i].contacts.map((on,side)=>{const key=side?'rtoes':'ltoes',a=raw[Math.max(0,i-1)][key],b=raw[Math.min(raw.length-1,i+1)][key];return on&&Math.abs(b.y-a.y)*60<.9&&Math.hypot(b.x-a.x,b.z-a.z)*60<1.2?1:0;}));}
  const duration=(frames.length-1)/60;
  // Correct every tracked joint, including arms; enforce equal boundary pose and angular velocity.
- if(name==='run'){
+ if(['run','walk','jog'].includes(name)){
   for(const tracks of [localRotations,ankleRotations])for(let j=0;j<tracks[0].length;j++){
    const first=new Quaternion().fromArray(tracks[0][j]),last=new Quaternion().fromArray(tracks.at(-1)[j]),correction=last.clone().invert().multiply(first);
    for(let i=1;i<tracks.length;i++){const t=i/(tracks.length-1),blend=t*t*(3-2*t);tracks[i][j]=new Quaternion().fromArray(tracks[i][j]).multiply(new Quaternion().slerp(correction,blend)).normalize().toArray();}
@@ -62,7 +62,7 @@ for(const [name,subject,trial]of [['run','09','01'],['kick','10','01']]){
  for(let i=0;i<frames.length;i++)frames[i]=[frames[i][0],...localRotations[i].flatMap(a=>{const e=new Euler().setFromQuaternion(new Quaternion().fromArray(a),'XYZ');return [e.x,e.y,e.z];})];
  const eventTime=name==='kick'?Math.max(0,Math.min(duration,(contact-start)/120)):null;
  output[name]={id:'cmu-'+subject+'_'+trial,source:subject+'_'+trial,sourceRate:120,frames,localRotations,ankleRotations,sourceJointRotations,rootTrajectory,localTranslations:frames.map(f=>[0,f[0],0]),contacts,duration,contact:eventTime,foot,events:eventTime===null?[]:[{id:'ball-contact-estimate',time:eventTime,confidence:'kinematic_estimate'}],tags:{action:name,foot:name==='kick'?foot:'both'},warpLimits:{time:[.75,1.4],translation:.22,rotation:.5},partnerAnchors:[],reference:{type:'CMU motion capture',ballTracked:false}};
- report[name]={rawFrames:raw.length,start,end,contact,foot,velocity,peaks,first:frames[0],last:frames.at(-1)};
+ report[name]={meanSpeed:rootTrajectory.reduce((n,r)=>n+Math.hypot(r.velocity[0],r.velocity[2]),0)/rootTrajectory.length,contactFraction:[0,1].map(i=>contacts.reduce((n,c)=>n+c[i],0)/contacts.length),rawFrames:raw.length,start,end,contact,foot,velocity,peaks,first:frames[0],last:frames.at(-1)};
 }
-fs.writeFileSync('src/mocap-data.js','// Retargeted CMU 09_01 running and 10_01 soccer kick. See licenses/CMU-MOCAP.txt.\nexport const mocap='+JSON.stringify(output)+';\n');
+fs.writeFileSync('src/mocap-data.js','// Retargeted CMU 09_01, 10_01 and 16_15/35/17/08. See licenses/CMU-MOCAP.txt.\nexport const mocap='+JSON.stringify(output)+';\n');
 fs.writeFileSync('reports/mocap-conversion.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));
