@@ -53,7 +53,7 @@ export class Input{
   if(context.keeperHolding){if(code==='KeyS')this.emit('keeperPass',{driven:this.keys.has('KeyZ')});if(code==='KeyA'||code==='KeyD')this.emit('keeperKick');if(code==='KeyW')this.emit('keeperDrop');return;}
   if(attack){
    if(context.setPiece==='free'&&/^Digit[1-7]$/.test(code)&&!this.keys.has('ShiftLeft')&&!this.keys.has('ShiftRight')){this.emit('setpieceStyle',{style:Object.keys(SETPIECE_STYLES)[Number(code.slice(5))-1]});return;}
-   if(/^Digit[1-7]$/.test(code)&&(this.keys.has('ShiftLeft')||this.keys.has('ShiftRight'))){this.emit('skill',{skill:Object.keys(SKILLS)[Number(code.slice(5))-1]});return;}
+   if(/^Digit[0-9]$/.test(code)&&(this.keys.has('ShiftLeft')||this.keys.has('ShiftRight'))){const index=(Number(code.slice(5))+9)%10,skill=Object.keys(SKILLS)[index];if(skill)this.emit('skill',{skill});return;}
    if(code==='KeyD')this.startShot();if(code==='KeyS')this.passCommand();if(code==='KeyA')this.lobCommand();
    if(code==='KeyW')this.emit('through',{lob:this.keys.has('KeyQ'),driven:this.keys.has('KeyZ')});
    if(code==='KeyQ')this.emit('run');if(code==='KeyZ')this.emit('support');
