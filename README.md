@@ -1,7 +1,7 @@
 # fifa_10-3 · PROJECT TOUCHLINE
 
 [GitHub Pages에서 게임 시작](https://vietnamjoon-lgtm.github.io/fifa_10-3/) · [기존 Vercel 주소](https://project-touchline-three.vercel.app/). main에 합친 변경은 Pages에 자동 배포됩니다. [Pages 운영 안내](reports/GITHUB-PAGES.md).
-
+박준기개병신
 브라우저에서 실행하는 싱글 플레이와 온라인 친구 대전을 지원하는 11대11 3D 축구 게임 프로토타입입니다. 독자적인 팀·선수·경기장과 물리 시뮬레이션을 사용합니다. FC Online의 공개 조작 가이드를 참고했으며, 비공개 판정 수치나 상용 선수 모델을 복제한 제품은 아닙니다.
 
 ## 실행
