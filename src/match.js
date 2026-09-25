@@ -23,6 +23,7 @@ import {ASSIST,footPosition,shotTarget,groundPassSpeed,passTarget,setKickTarget,
 import {resetReferee,resolveTackle,flushCards,updateAdvantage,inPenaltyArea} from './referee.js';
 import {executeCommand,controlContext,throwIn,releaseThrowIn} from './commands.js';
 import {holdThrower,updateThrow} from './throw-in.js';
+import {planHeaders,headReach} from './headers.js';
 import {selectControlled,updateAutoControl,runTarget} from './control-assist.js';
 export class Match{
  constructor(settings,onEvent=()=>{}){this.settings=settings;this.emit=onEvent;this.random=seededRandom(settings.seed);this.actionId=0;this.contacts=[];this.gameplay=cleanGameplay(settings.gameplay);this.physics=createPhysics(this.gameplay);this.players=[...roster(0),...roster(1)].map(p=>({...p,x:0,z:0,vx:0,vz:0,yaw:0,stamina:1,target:{x:0,z:0},cooldown:0,action:null,touchCooldown:0,dive:0,down:0,aiState:'READY',nextDecision:0}));this.state='menu';this.time=0;this.half=1;this.score=[0,0];this.controlled=this.players[9];this.owner=null;this.lastTouchTeam=0;this.lastTouch=null;this.lastKickTime=-10;this.lock=0;this.charge=0;this.charging=false;this.aiClock=0;this.timer=0;this.history=[];this.offside=new Set();this.stats={shots:[0,0],passes:[0,0],saves:[0,0],possession:[0,0],fouls:[0,0]};this.input={axis:{x:0,z:0}};this.autoplay=false;}
@@ -35,7 +36,8 @@ export class Match{
  queueKick(p,type,power=.4,aim=null,receiver=null,options={}){
  const ball=this.physics.ball.position;
  if(this.setPiece&&this.setPiece.taker!==p)return false;if(this.setPiece?.kind==='throw')return false;
- if(!p||!p.active||p.action||p.down>0||distance(p,ball)>(this.owner===p&&ball.y<.5?ASSIST.kickReach:ASSIST.touchRadius)||ball.y>2.2)return false;
+ // A header is started while the ball is still in flight (headers.js), so it is planned from afar.
+ if(!p||!p.active||p.action||p.down>0||distance(p,ball)>(options.header?4.5:this.owner===p&&ball.y<.5?ASSIST.kickReach:ASSIST.touchRadius)||ball.y>(options.header?3.4:2.2))return false;
  // A ball knocked ahead of its owner is not struck from afar: the kick waits until the player has run onto it.
  if(this.owner===p&&!options.deferred&&!kickInReach(p,ball,this.physics.ball.velocity)){p.pendingKick={args:[type,power,aim,receiver,{...options,deferred:true}],axis:{...(this.input.axis||{x:0,z:0})},expires:this.time+ASSIST.pendingKick};return true;}
  let target=null,assistOffset=null;
@@ -55,8 +57,9 @@ export class Match{
  const source=p===this.controlled?this.input:{};
  p.action={id:++this.actionId,foot:chooseKickFoot(p,ball,aim),inputTime:this.time,acceptedTime:this.time,animationStart:this.time,type,elapsed:0,contactAt:type==='shoot'?.24:.18,hit:false,power:clamp(power,0,1),aim:{x:aim.x/length,z:aim.z/length},distance:length,target,receiver,assistOffset,...options,curve:(options.curve??source.curve)?18:0,low:options.low??source.low,chip:options.chip??source.chip,aerial:ball.y>.65};
  // A knocked-on ball is planned at touching range: the windup closes the gap before contact.
- const gap=distance(p,ball),near=ASSIST.touchRadius*.98,planBall=gap>near?{x:p.x+(ball.x-p.x)*near/gap,y:ball.y,z:p.z+(ball.z-p.z)*near/gap}:ball;
+ const gap=distance(p,ball),near=ASSIST.touchRadius*.98,planBall=options.planBall||(gap>near?{x:p.x+(ball.x-p.x)*near/gap,y:ball.y,z:p.z+(ball.z-p.z)*near/gap}:ball);
  const plan=planKick(p,p.action,planBall,this.time);if(!plan){p.action=null;return false;}Object.assign(p.action,plan);p.action.contactTarget={x:ball.x,y:ball.y,z:ball.z};
+ if(options.header){p.action.clipId='header';p.action.contactAt=options.contactAt;p.action.commitAt=Math.max(.04,options.contactAt-.055);p.action.contactTarget={...options.contactPoint};}
  p.action.restartKind=this.setPiece?.taker===p?this.setPiece.kind:null;
  if(this.setPiece?.kind==='free'&&type==='shoot')p.action.flightStyle=this.setPiece.style||'inside';
  if(this.setPiece?.kind==='free'&&p.action.chip){p.action.chip=false;p.action.flightStyle='chip';}
@@ -73,7 +76,7 @@ export class Match{
  action(action,options={}){executeCommand(this,action,options);}
  switchPlayer(){if(this.practice)return;this.receiving=null;const b=this.physics.ball.position,v=this.physics.ball.velocity,a=this.input.axis||{x:0,z:0};const aim={x:b.x+v.x*.35,z:b.z+v.z*.35};let best=null,score=Infinity;for(const p of this.players){if(!p.active||p.team!==this.settings.userTeam||p.role==='GK'||p===this.controlled)continue;const d=distance(p,aim),alignment=((p.x-this.controlled.x)*a.x+(p.z-this.controlled.z)*a.z)*.15;const val=d-alignment+(p.down>0?20:0);if(val<score){best=p;score=val;}}if(best)this.selectControlled(best,'manual');this.charging=false;this.charge=0;}
  tackle(p,slide=false){if(!p.active||p.cooldown>0||p.action||this.heldBy===p)return;p.cooldown=slide?1.65:TUNING.tackleCooldown;const b=this.physics.ball.position;p.yaw=turnToward(p.yaw,Math.atan2(b.x-p.x,b.z-p.z),.45);p.action={type:slide?'slide':'tackle',elapsed:0,hit:false};}
- contactKick(p,a){if(secondTouch(this,p))return;const b=this.physics.ball.position,foot=footPosition(p);const reachable=a.aerial?distance(p,b)<.95&&b.y>.4&&b.y<2.25:distance(foot,b)<=ASSIST.contactRadius+kickLunge(p,a,b)&&b.y<=.65;if(!reachable){a.missed=true;this.emit('miss',{player:p});return;}
+ contactKick(p,a){if(secondTouch(this,p))return;const b=this.physics.ball.position,foot=footPosition(p);const reachable=a.aerial?distance(p,b)<(a.header?1.05:.95)&&b.y>.4&&b.y<(a.header?headReach(p)+.15:2.25):distance(foot,b)<=ASSIST.contactRadius+kickLunge(p,a,b)&&b.y<=.65;if(!reachable){a.missed=true;this.emit('miss',{player:p});return;}
  a.contactTime=this.time;a.ballReleaseTime=this.time;a.actualTarget={x:b.x,y:b.y,z:b.z};a.nextActionAllowed=this.time+(a.recovery||.28);
  if(a.receiver?.active){a.target=passTarget(this,p,a.receiver,a.type);if(a.type==='lob'){const t=clamp(distance(b,a.receiver)/20,.65,2.5);a.target.x=clamp(a.receiver.x+a.receiver.vx*t*.7,-50,50);a.target.z=clamp(a.receiver.z+a.receiver.vz*t*.7,-32,32);}if(a.assistOffset){a.target.x+=a.assistOffset.x;a.target.z+=a.assistOffset.z;}}
  if(a.target)setKickTarget(a,b,a.target);
@@ -191,6 +194,7 @@ export class Match{
  if(this.charging)this.charge=clamp(this.charge+dt/.9,0,1);
  this.aiClock-=dt;if(this.aiClock<=0){const t=performance.now();const ctrl=this.controlled;if(this.autoplay)this.controlled=null;updateTeamAI(this);if(this.autoplay)this.controlled=ctrl;this.aiMs=performance.now()-t;this.aiClock=TUNING.aiInterval;}
  this.updatePress(dt,input);
+ planHeaders(this,dt);
  for(const p of this.players){this.updatePlayer(p,dt,input);if(this.state!=='playing')return;}
  resolvePlayerContacts(this,dt);if(this.state!=='playing')return;
  this.updatePossession(dt);this.updateAutoControl();updateAdvantage(this);if(this.state!=='playing')return;
