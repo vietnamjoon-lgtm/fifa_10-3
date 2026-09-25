@@ -110,9 +110,8 @@ test('assistance does not collect distant or high balls, or instantly control po
  assert.equal(m.owner,null);assert.ok(m.physics.ball.velocity.length()>10);
 });
 
-test('receiver assistance takes the receiver to the ball whatever the stick and resets on kickoff',()=>{
- // The ball is never steered toward a receiver, so reception assistance moves the player instead.
+test('receiver assistance respects manual movement and resets on kickoff',()=>{
  const {m,p}=setup();m.owner=null;m.physics.reset(p.x+4,0);m.receiving={player:p,expires:5};
- m.step(1/120,{axis:{x:-1,z:0}});assert.equal(m.receiving?.player,p);assert.ok(p.vx>0);
+ m.step(1/120,{axis:{x:-1,z:0}});assert.equal(m.receiving?.player,p);assert.ok(p.vx<0);
  m.receiving={player:p,expires:5};m.kickoff(0);assert.equal(m.receiving,null);
 });

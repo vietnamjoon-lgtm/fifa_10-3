@@ -19,10 +19,10 @@ export function collectionMovement(match,p,axis,input={}){
  if(receiving?match.settings.receiveAssist===false:match.settings.looseBallAssist===false)return null;
  if(!receiving){if(distance(p,match.physics.ball.position)>22||p.touchCooldown>0)return null;const candidate=match.players.filter(q=>q.active&&q.team===p.team&&q.role!=='GK'&&!q.action&&q.down<=0&&!match.offside.has(q.id)).sort((a,b)=>distance(a,match.physics.ball.position)/a.pace-distance(b,match.physics.ball.position)/b.pace||a.id-b.id)[0];if(candidate!==p)return null;}
  const target=interceptPoint(match,p);if(!target)return null;const dx=target.x-p.x,dz=target.z-p.z,n=Math.hypot(dx,dz);
- // The ball is never steered, so the player is. An incoming pass always takes the receiver to the
- // meeting point. For a loose ball a stick pointing roughly toward it (within 75 degrees) is
+ // Optional physical-pass reception assists neutral input only. For a loose ball a stick pointing
+ // roughly toward it (within 75 degrees) is
  // corrected onto the meeting point; a stick pointing away, or any stick once at the ball, is obeyed.
  const stick=Math.hypot(axis.x,axis.z);
- if(stick>.12&&(n<=.38||!receiving&&(axis.x*dx+axis.z*dz)/(stick*n)<Math.cos(75*Math.PI/180)))return null;
+ if(stick>.12&&(receiving||n<=.38||(axis.x*dx+axis.z*dz)/(stick*n)<Math.cos(75*Math.PI/180)))return null;
  const brakeSpeed=Math.sqrt(2*(12+6*p.balance)*Math.max(0,n-.45)),sprint=n>3.5||!!input.sprint,top=sprint?p.pace:5.2,amount=clamp(Math.min((n-.38)/1.25,brakeSpeed/top),0,1);p.aiState=receiving?'MEET PASS':'COLLECT BALL';return {axis:n>.38?{x:dx/n*amount,z:dz/n*amount}:{x:0,z:0},sprint,target};
 }

@@ -74,7 +74,7 @@ export class Match{
  tackle(p,slide=false){if(!p.active||p.cooldown>0||p.action||this.heldBy===p)return;p.cooldown=slide?1.65:TUNING.tackleCooldown;const b=this.physics.ball.position;p.yaw=turnToward(p.yaw,Math.atan2(b.x-p.x,b.z-p.z),.45);p.action={type:slide?'slide':'tackle',elapsed:0,hit:false};}
  contactKick(p,a){if(secondTouch(this,p))return;const b=this.physics.ball.position,foot=footPosition(p);const reachable=a.aerial?distance(p,b)<.95&&b.y>.4&&b.y<2.25:distance(foot,b)<=ASSIST.contactRadius+kickLunge(p,a,b)&&b.y<=.65;if(!reachable){a.missed=true;this.emit('miss',{player:p});return;}
  a.contactTime=this.time;a.ballReleaseTime=this.time;a.actualTarget={x:b.x,y:b.y,z:b.z};a.nextActionAllowed=this.time+(a.recovery||.28);
- if(a.receiver?.active){a.target=passTarget(this,p,a.receiver,a.type);if(a.type==='lob'){const t=clamp(distance(b,a.receiver)/20,.65,2.5);a.target.x=clamp(a.receiver.x+a.receiver.vx*t*.7,-50,50);a.target.z=clamp(a.receiver.z+a.receiver.vz*t*.7,-32,32);}if(a.assistOffset){a.target.x+=a.assistOffset.x;a.target.z+=a.assistOffset.z;}}
+ if(a.receiver?.active){a.target=passTarget(this,p,a.receiver,a.type);if(a.type==='lob'&&!followPassEnabled(this,p.team,a.type)){const t=clamp(distance(b,a.receiver)/20,.65,2.5);a.target.x=clamp(a.receiver.x+a.receiver.vx*t*.7,-50,50);a.target.z=clamp(a.receiver.z+a.receiver.vz*t*.7,-32,32);}if(a.assistOffset){a.target.x+=a.assistOffset.x;a.target.z+=a.assistOffset.z;}}
  if(a.target)setKickTarget(a,b,a.target);
  const pressure=Math.min(...this.players.filter(q=>q.team!==p.team&&q.active).map(q=>distance(p,q)),20);let speed,lift,curve=a.curve||0,solved=null;
  if(a.type==='shoot'){speed=(TUNING.shotMin+(TUNING.shotMax-TUNING.shotMin)*a.power)*p.power;const flight=clamp(a.distance/(speed*.88),.15,1.3);lift=a.low?.45:a.chip?9:a.target?clamp((.85-b.y+4.905*flight*flight)/flight,1.2,6.8):1.1+a.power*3.7;this.stats.shots[p.team]++;}
@@ -82,7 +82,7 @@ export class Match{
  if(a.type==='lob'&&!a.groundCross){solved=crossFlight(a,b);speed=solved.speed;lift=solved.lift;curve=solved.curve;}if(a.groundCross){speed=groundPassSpeed(a.distance,'pass',this.gameplay.ballRoll);lift=.08;}
  const setFlight=a.type!=='shoot'?null:a.restartKind==='penalty'?penaltyFlight(a,p,b):setpieceFlight(a.flightStyle,p,a,b);if(setFlight){solved=setFlight;speed=setFlight.speed;lift=setFlight.lift;curve=setFlight.curve;}else if(a.type==='shoot'&&a.flair&&a.power>=.4&&!a.aerial){curve=-14*(a.foot==='left'?-1:1);}
  if(a.aerial){speed*=b.y>1.2?.72:.92;lift=a.low?-1:Math.min(lift,2);}
- const assistKey=a.type==='lob'?'crossAssist':a.type==='through'?'throughAssist':'passAssist',assisted=a.type!=='shoot'&&a.receiver&&(this.settings[assistKey]||'auto')!=='manual';const error=a.type!=='shoot'&&a.receiver&&followPassEnabled(this,p.team)?0:kickError(p,a,pressure)*(assisted?((this.settings[assistKey]||'auto')==='auto'?.48:.75):1);// Start curled kicks outside the target so the Magnus bend brings them back.
+ const assistKey=a.type==='lob'?'crossAssist':a.type==='through'?'throughAssist':'passAssist',assisted=a.type!=='shoot'&&a.receiver&&(this.settings[assistKey]||'auto')!=='manual';const error=a.type!=='shoot'&&a.receiver&&followPassEnabled(this,p.team,a.type)?0:kickError(p,a,pressure)*(assisted?((this.settings[assistKey]||'auto')==='auto'?.48:.75):1);// Start curled kicks outside the target so the Magnus bend brings them back.
  let aim=a.aim;if(solved){const c=Math.cos(solved.aimOffset),s=Math.sin(solved.aimOffset);aim={x:aim.x*c-aim.z*s,z:aim.x*s+aim.z*c};}if(!solved&&curve&&a.flightStyle!=='knuckle'&&lift>1&&a.distance>1){const n=Math.hypot(aim.x,aim.z)||1,x=aim.x/n,z=aim.z/n,k=Math.sign(curve)*curveDrift(speed,curve,a.distance)/a.distance;aim={x:x-k*z,z:z+k*x};}
  const angle=(this.random()-.5)*error;const dx=aim.x*Math.cos(angle)-aim.z*Math.sin(angle),dz=aim.x*Math.sin(angle)+aim.z*Math.cos(angle);
  const restart=this.setPiece?.taker===p?this.setPiece.kind:null;
@@ -130,7 +130,7 @@ export class Match{
  }
  if(this.lock<=0&&!this.owner){
   for(const p of nearby){
-   const flight=activePass(this);if(flight?.follow&&p.team===flight.team&&p.id!==flight.receiver)continue;
+
    const d=distance(p,b);
    const backpass=this.lastTouch?.team===p.team&&this.lastTouch!==p&&['kick','throw'].includes(this.lastTouchKind);
    if(p.role==='GK'&&inPenaltyArea(this,p,p.team)&&!backpass){

@@ -24,7 +24,7 @@ export function updateTeamAI(match){
  const cover=owner&&owner.team!==team&&owner.x*dir<12?candidates.filter(p=>p!==chaser&&!match.isHumanControlled(p)&&(owner.x-p.x)*dir>-1).sort((a,c)=>distance(a,owner)-distance(c,owner))[0]:null;
  for(const p of match.players){if(!p.active||p.team!==team||match.isHumanControlled(p))continue;
  if(p.role==='GK'){keeperTarget(match,p);continue;}
- if(!owner&&flight?.receiver===p.id){if(flight.follow){p.aiState=flight.type==='through'?'THROUGH RUN':'HOLD PASS LANE';p.target={...flight.runTarget};p.sprinting=flight.type==='through';continue;}const target=interceptPoint(match,p);if(target){p.aiState='MEET PASS';p.target=target;p.sprinting=distance(p,target)>2.2;continue;}}
+ if(!owner&&flight?.receiver===p.id){if(flight.follow){p.aiState='HOLD PASS LANE';p.target={...flight.runTarget};p.sprinting=p.runUntil>match.time;continue;}const target=interceptPoint(match,p);if(target){p.aiState='MEET PASS';p.target=target;p.sprinting=distance(p,target)>2.2;continue;}}
  if(owner!==p&&p.runUntil>match.time){p.aiState='RUN';p.target=p.runTarget||{x:clamp(p.x+dir*10,-49,49),z:p.z};p.sprinting=true;continue;}
  if(owner!==p&&p.supportUntil>match.time&&owner?.team===team){p.aiState='SUPPORT CALL';p.target={x:owner.x-dir*5,z:owner.z+Math.sign(p.z-owner.z||1)*5};p.sprinting=false;continue;}
  if(owner===p){p.aiState='CARRY';p.target={x:dir*51,z:p.z*.83};p.sprinting=true;

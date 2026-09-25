@@ -2,6 +2,7 @@ import {logicalFoot} from './contact-model.js';
 import {FIELD,clamp,distance,jogSpeed,sprintSpeed} from './config.js';
 import {gameplayValue} from './gameplay-settings.js';
 import {rollLaunchSpeed} from './physics.js';
+import {followPassEnabled} from './guided-pass.js';
 
 // Foot touches and initial targeting. Target-following pass velocity is handled
 // separately by guided-pass.js; shots retain their unassisted physical flight.
@@ -25,6 +26,7 @@ export function groundPassSpeed(length,type='pass',ballRoll=100){
 }
 
 export function passTarget(match,p,receiver,type='pass'){
+ if(followPassEnabled(match,p.team,type))return {player:receiver,x:receiver.x,z:receiver.z};
  const d=distance(p,receiver),speed=groundPassSpeed(d,type);
  const flight=clamp(d/(speed*.77),.15,1.65);
  const lead=type==='through'?1:type==='lob'?.8:.72;
