@@ -28,12 +28,20 @@
         "src/sculpted-head.js",
         "src/skinned-player.js",
         "src/squads.js",
-        "src/assets/**"
+        "src/assets/**",
+        "src/human-deformation.js",
+        "src/human-correctives.js",
+        "src/dual-quaternion.js",
+        "src/football-boots.js",
+        "tools/build-human.mjs",
+        "tools/human-skin-check.mjs",
+        "tools/human-fixture.mjs"
       ],
       "tests": [
         "tests/body-customization.test.mjs",
         "tests/faces.test.mjs",
-        "tests/identity-and-keeper-v2.test.mjs"
+        "tests/identity-and-keeper-v2.test.mjs",
+        "tests/human-rebuild.test.mjs"
       ]
     },
     {
@@ -56,7 +64,16 @@
         "assets-source/09.asf",
         "assets-source/09_01.amc",
         "assets-source/10.asf",
-        "assets-source/10_01.amc"
+        "assets-source/10_01.amc",
+        "src/human-kinematics.js",
+        "tools/human-baseline.mjs",
+        "tools/human-subframe.mjs",
+        "tools/three-loader.mjs",
+        "assets-source/16.asf",
+        "assets-source/16_08.amc",
+        "assets-source/16_15.amc",
+        "assets-source/16_17.amc",
+        "assets-source/16_35.amc"
       ],
       "tests": [
         "tests/human-motion-and-defence.test.mjs"
@@ -161,7 +178,9 @@
         "CLAUDE.md",
         ".github/**",
         "collaboration/**",
-        ".nojekyll"
+        ".nojekyll",
+        "src/human-review.html",
+        "src/human-review.js"
       ],
       "tests": [
         "tests/online-room.test.mjs",
