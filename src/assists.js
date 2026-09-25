@@ -1,5 +1,5 @@
 import {logicalFoot} from './contact-model.js';
-import {FIELD,TUNING,clamp,distance} from './config.js';
+import {FIELD,TUNING,clamp,distance,jogSpeed,sprintSpeed} from './config.js';
 import {gameplayValue} from './gameplay-settings.js';
 import {rollLaunchSpeed,rollAfter} from './physics.js';
 import {gaitTargets,stepDrive} from './gait.js';
@@ -8,7 +8,7 @@ import {locomotionCadence,stanceFraction} from './motion-planner.js';
 // Foot touches and initial targeting. Target-following pass velocity is handled
 // separately by guided-pass.js; shots retain their unassisted physical flight.
 export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:3,pendingKick:1.5,kickStart:1.35,footReach:.28,footLane:.12,underfootReach:.45,stretchReach:.6,turnReach:.9,turnCarry:.3,dribbleGap:1.1,turnKnock:.6,closeGap:.8,touchLead:.45,trapPace:2.5,lunge:.2,footForward:.5,startTouch:2.5,receiveRadius:1.04,contactRadius:.49,
- instep:.1,contactReach:.21,contactSwing:.9,syncSpeed:1.6,touchEvery:.7,spaceEvery:.25,closeEvery:.35,footSpeed:4,reachMin:.04,reachMax:.2,trapReach:.12,strideRamp:.1,pullDecay:.12,ankleBehind:.26,reachWait:1,legSlack:.05,reachFront:.3,reachLead:.2,recoverAhead:.6,recoverLead:.3,recoverKnock:2.2,recoverWindow:1,agileWindow:.6,agilePace:.93,strideWarp:.2,underBody:.2,cutMin:.6,cutMax:1.9,cutRate:12,cutPace:.8,cutAlign:.1,cutWait:.5,cutKnock:1.6,cutLead:.9,cutLane:.12,dragTime:.06,dragMin:1,dragWait:.25,dragEase:.04,dragRest:.25,meetBall:.14,meetStride:.14};
+ instep:.1,contactReach:.21,contactSwing:.9,syncSpeed:1.6,touchEvery:.65,spaceEvery:.1,closeEvery:.35,footSpeed:4,reachMin:.04,reachMax:.2,trapReach:.12,strideRamp:.1,pullDecay:.12,ankleBehind:.26,reachWait:1,legSlack:.05,reachFront:.3,reachLead:.2,recoverAhead:.6,recoverLead:.3,recoverKnock:2.2,recoverWindow:1,agileWindow:.6,agilePace:.93,strideWarp:.2,underBody:.2,cutMin:.6,cutMax:1.9,cutRate:12,cutPace:.8,cutAlign:.1,cutWait:.5,cutKnock:1.6,cutLead:.9,cutLane:.12,dragTime:.06,dragMin:1,dragWait:.25,dragEase:.04,dragRest:.25,meetBall:.14,meetStride:.14,laneLead:.1,touchGap:.3,sprintTouchGap:.22,knockGap:1,knockStart:.25,knockPace:2,freshKnock:2.7,freshCatch:.55,sprintKnockSpeed:2.5,sprintKickStart:.2,kickBurst:1.15,kickLook:.25,poseLead:.05,dribbleStride:.35,knockLead:.3};
 const TAU=Math.PI*2,wrap1=x=>(x%1+1)%1;
 
 export const footPosition=logicalFoot;
@@ -41,6 +41,9 @@ export function setKickTarget(action,ball,target){
  const dx=target.x-ball.x,dz=target.z-ball.z,n=Math.hypot(dx,dz)||1;
  action.aim={x:dx/n,z:dz/n};action.distance=n;
 }
+
+/** Where a running foot meets the ball while dribbling: closer to the body than the kicking contact point. */
+export function dribbleFoot(p,foot){const f=logicalFoot(p,foot),k=ASSIST.dribbleStride/.54;return {x:p.x+(f.x-p.x)*k,y:f.y,z:p.z+(f.z-p.z)*k};}
 
 /** Whether a foot can play the ball now: within foot reach, under the body, or, while turning, anywhere
  * around the body that a swivel and the inside or sole of the foot can reach. */
@@ -125,11 +128,12 @@ function rollSpeedFor(distance,T,ballRoll){let lo=0,hi=30;for(let i=0;i<32;i++){
 
 /** A touch timed to the stride: the ball is sent to where a later swing of one of the feet will meet it. The swing
  * nearest the wanted touch interval is chosen, as long as the roll does not open more than the wanted gap. */
-function stridePlannedKick(match,p,f,gap,every,pace=Math.hypot(p.vx,p.vz)){
+function stridePlannedKick(match,p,f,gap,every,pace=Math.hypot(p.vx,p.vz),reachGap=0){
  const b=match.physics.ball.position,speed=pace,ballRoll=match.gameplay?.ballRoll;let best=null;
  for(const e of strideEvents(p,f,2.2,pace)){const dx=e.x-b.x,dz=e.z-b.z,d=Math.hypot(dx,dz);if(d<.05)continue;
   const v=rollSpeedFor(d,e.T,ballRoll);let lead=0;for(let t=.05;t<e.T;t+=.05)lead=Math.max(lead,rollAfter(v,t,ballRoll).travel-speed*t);
-  const score=Math.abs(e.T-every)+Math.max(0,lead+ASSIST.footForward-gap)*2;if(!best||score<best.score)best={score,v,x:dx/d,z:dz/d,event:e};}
+  // A sprint knock (reachGap > 0) also wants the roll to open the whole gap, not merely stay within it.
+  const score=Math.abs(e.T-every)+Math.max(0,lead+ASSIST.footForward-gap)*2+reachGap*Math.max(0,gap-lead-ASSIST.footForward)*4;if(!best||score<best.score)best={score,v,x:dx/d,z:dz/d,event:e};}
  return best;
 }
 
@@ -159,7 +163,8 @@ export function applyBallDrag(match){
    if(d.pending){p.ballDrag=null;endDragPull(match,p,d.foot);continue;}
    const run=Math.max(Math.hypot(p.vx,p.vz),n1*.5);d.v1={x:aim.x*run,z:aim.z*run};}
   if(match.time<d.start)continue;
-  if(d.pending){if(legShortfall(p,b,d.foot)>0&&match.time<d.start+ASSIST.dragWait)continue;const v=match.physics.ball.velocity;d.pending=false;d.start=match.time;d.v0={x:v.x,z:v.z};}
+  if(d.pending){if(legShortfall(p,b,d.foot)>0&&match.time<d.start+ASSIST.dragWait)continue;const v=match.physics.ball.velocity;d.pending=false;d.start=match.time;d.v0={x:v.x,z:v.z};
+}
   const u=clamp((match.time-d.start)/ASSIST.dragTime,0,1),e=u*u*(3-2*u),vx=d.v0.x+(d.v1.x-d.v0.x)*e,vz=d.v0.z+(d.v1.z-d.v0.z)*e;
   // The foot carries the ball: its ground velocity (and roll) are set, it is not struck (so it is no kick).
   const ball=match.physics.ball;ball.velocity.x=vx;ball.velocity.z=vz;ball.angularVelocity.set(vz/FIELD.ballRadius,0,-vx/FIELD.ballRadius);ball.wakeUp();
@@ -186,6 +191,10 @@ function startCut(match,p,vx,vz){
  const angle=Math.acos(clamp((p.vx*vx+p.vz*vz)/(speed*n),-1,1));
  p.cutTo=angle>ASSIST.cutMin&&angle<ASSIST.cutMax?{x:vx/n,z:vz/n,at:match.time}:null;
 }
+/** How far a sprint knock plays the ball ahead: about 1 m, at most 1.2 m, for the reference player (pace 8.3, control 0.8); a faster
+ * player knocks it further, a better ball controller a little shorter. */
+export function knockDistance(p){const pace=clamp(Number.isFinite(p.pace)?p.pace:8.3,5,10),control=clamp(Number.isFinite(p.control)?p.control:.8,.2,1);
+ return ASSIST.knockGap*(.3+.7*pace/8.3)*(1.2-.25*control);}
 // Foot dribbling: a touch happens only when one of the player's feet reaches the ball. Each touch plays
 // the ball back onto the player's running line, a little ahead of the stride; between touches it rolls
 // freely. The touch is never slower than the run, so the ball does not hold the player back.
@@ -215,12 +224,17 @@ export function dribbleTouch(match,p,preparing=false){
  // A faster run in open space puts it further ahead; a nearby opponent or close control keeps it tight. A ball
  // behind or under the player is therefore played firmly out in front instead of being carried along.
  const space=clamp((Math.min(...match.players.filter(q=>q.active&&q.team!==p.team).map(q=>distance(p,q)),99)-2.5)/5,0,1);
- const ahead=(b.x-p.x)*f.x+(b.z-p.z)*f.z,gap=p.closeControl||p.agile?ASSIST.closeGap:(ASSIST.dribbleGap+space*.08*speed)*(1.3-.5*(p.control||.8));
+  // Knock and run (sprinting): every sprint touch in open space knocks the ball knockDistance ahead (about 1.2 m, FC Online
+ // footage 0.8-1.6 m) and the player runs onto it; the first knock after pressing sprint goes about 1.2 m too. A nearby
+ // opponent shortens an AI dribbler's knock back to a close touch; a human's sprint knocks past defenders.
+ const human=match.isHumanControlled(p),knockOn=p.sprinting&&!p.closeControl&&!p.agile&&!preparing?(human?1:space):0;
+ const carry=(ASSIST.dribbleGap+space*.08*speed)*(1.3-.5*(p.control||.8)),start=knockOn*Math.max(clamp(1-speed/jogSpeed(p),0,1),p.knockFresh?1:0);
+ const ahead=(b.x-p.x)*f.x+(b.z-p.z)*f.z,gap=p.closeControl||p.agile?ASSIST.closeGap:carry+(knockDistance(p)*(1+ASSIST.knockStart*start)-carry)*knockOn;
  // A ball that a running player has caught up with just after changing direction (beside, under or behind the body) is
  // tapped back out to recoverAhead in front within recoverLead seconds, never more than recoverKnock faster than the run:
  // a softer tap left it carried under the body, and knocking it to the full dribble gap made it shoot away. Setting off
  // with the ball behind still plays it firmly out in front.
- const recovering=turning&&speed>=ASSIST.syncSpeed&&ahead<ASSIST.footForward&&match.time-(p.aimTurnAt??-9)<ASSIST.recoverWindow,knock=recovering?clamp((ASSIST.recoverAhead-ahead)/ASSIST.recoverLead,.3,ASSIST.recoverKnock):clamp((gap-ahead)/ASSIST.touchLead,.3,4);
+ const recovering=turning&&speed>=ASSIST.syncSpeed&&ahead<ASSIST.footForward&&match.time-(p.aimTurnAt??-9)<ASSIST.recoverWindow,knock=recovering?clamp((ASSIST.recoverAhead-ahead)/ASSIST.recoverLead,.3,ASSIST.recoverKnock):clamp((gap-ahead)/(knockOn>0?ASSIST.knockLead:ASSIST.touchLead),.3,4+ASSIST.knockPace*knockOn);
  // Every touch plays the ball in the stick's direction, however sharp the turn; only releasing the stick traps it.
  // A sharp turn plays it softly (about 3 m/s) so the turning player can follow; a gentle one keeps more of the pace.
  const along=p.vx*f.x+p.vz*f.z,trap=p.dribbleStop&&!preparing;
@@ -240,11 +254,12 @@ export function dribbleTouch(match,p,preparing=false){
   // so the foot arrives on the ball rather than being pulled onto it.
   const planned=p.strideNext&&match.time<p.strideNext.at+ASSIST.pullDecay&&p.strideNext.at<match.time+3?p.strideNext:null;
   if(swing&&planned&&swing.foot===planned.foot&&match.time<planned.at-.004&&planned.at-match.time<ASSIST.strideRamp&&run0>ASSIST.underBody)return false;
-  if(swing){const plan=stridePlannedKick(match,p,f,gap,p.closeControl||p.agile?ASSIST.closeEvery:ASSIST.touchEvery+ASSIST.spaceEvery*space);
+  if(swing){const plan=stridePlannedKick(match,p,f,gap,p.closeControl||p.agile?ASSIST.closeEvery:ASSIST.touchEvery+ASSIST.spaceEvery*space,speed,knockOn);
    if(plan){
     // A stride touch that cuts the ball onto a new line is played firmly enough to lead the body out of the cut.
     const cut=Math.acos(clamp((p.vx*plan.x+p.vz*plan.z)/(speed*(Math.hypot(plan.x,plan.z)||1)),-1,1))>ASSIST.cutMin;if(cut)plan.v=Math.max(plan.v,speed*ASSIST.cutPace+ASSIST.cutKnock);
     const dragged=playTouch(match,p,plan.x*plan.v,plan.z*plan.v,swing.foot);match.lastTouch=p;match.lastTouchTeam=p.team;if(!dragged)startCut(match,p,plan.x,plan.z);
+    if(knockOn>0)p.knockFresh=false;
     if(dragged){p.touchWindup=null;p.dribbleTouch=.16;p.touchCooldown=.16;return true;}
     // The foot on the ball keeps to the contact point as it eases off; the stride planned to meet the ball next eases on.
     const at=match.time+plan.event.T;p.strideNext={at,foot:plan.event.foot};
@@ -279,7 +294,10 @@ export function dribbleTouch(match,p,preparing=false){
  const run=Math.max(turning?Math.max(along,speed*.7*Math.max(0,along/(speed||1))):speed,aim?ASSIST.startTouch:0);
  // A turn taken at pace is a short touch round the body; a standing start, or a ball that dropped behind on a
  // straight run, is played firmly out in front.
- const forward=preparing||p.shield?speed*.9:p.pendingKick?run+.35:run+(turning&&!recovering&&speed>ASSIST.startTouch&&along<speed*.8?Math.min(knock,ASSIST.turnKnock):knock);
+  // The first knock after pressing sprint runs a fixed amount faster than the player's own top sprint, so it lands about
+ // 1.2 m ahead whether the player was standing, walking or jogging.
+ const fresh=human&&p.knockFresh&&knockOn>0&&!turning&&!p.pendingKick&&!preparing&&!p.shield;
+ const forward=fresh?sprintSpeed(p)*.96+ASSIST.freshKnock*(knockDistance(p)/ASSIST.knockGap)**2.5*knockOn-ASSIST.freshCatch*Math.max(0,sprintSpeed(p)*.96-speed):preparing||p.shield?speed*.9:p.pendingKick?run+.35:run+(turning&&!recovering&&speed>ASSIST.startTouch&&along<speed*.8?Math.min(knock,ASSIST.turnKnock):knock);
  // Sideways part: a quarter of the player's own sideways momentum (the body carries on through a cut) plus a small
  // correction toward the touching foot's side of the stick's line, so the ball goes where the stick points.
  // A cut (the stick's line off the run's by more than cutMin) is played firmly enough to lead the body out of it.
@@ -288,6 +306,7 @@ export function dribbleTouch(match,p,preparing=false){
  const vx=trap?0:f.x*lead+f.z*side,vz=trap?0:f.z*lead-f.x*side;
  const dragged=!preparing&&!trap&&playTouch(match,p,vx,vz,touchFoot);if(preparing||trap)match.physics.kick({x:vx,z:vz},Math.hypot(vx,vz),.015);match.lastTouch=p;match.lastTouchTeam=p.team;if(!preparing&&!trap&&!dragged)startCut(match,p,vx,vz);
  if(!preparing&&!dragged){p.dribblePose={start:match.time,foot:touchFoot,duration:.20,pulls:posePulls(p,match,null,touchFoot)};p.strideNext=null;}
+ if(!preparing&&knockOn>0)p.knockFresh=false;
  p.dribbleTouch=.16;p.touchCooldown=preparing?.07:.16;
  return true;
 }
@@ -303,6 +322,8 @@ export function dribbleSteer(match,p,axis){
  // Steering quickly (the stick swung within agileWindow) the player shortens the run and keeps the ball close, as with
  // close control.
  p.agile=!!p.dribbleAim&&match.time-(p.aimTurnAt??-9)<ASSIST.agileWindow;
+ // Pressing sprint, or winning the ball with sprint held, arms a long first knock for the next touch (see dribbleTouch).
+ if(p.sprinting&&!p.sprintHeld)p.knockFresh=true;if(!p.sprinting)p.knockFresh=false;p.sprintHeld=!!p.sprinting;
  if(b.y>.5)return axis;
  const speed=Math.hypot(p.vx,p.vz),ballSpeed=Math.hypot(v.x,v.z),d=distance(p,b);
  if(p.dribbleAim&&speed>=ASSIST.syncSpeed)p.strideWarp=strideWarp(match,p,p.dribbleAim);
@@ -362,6 +383,12 @@ export function kickLunge(p,a,b){
 export function possessionRadius(match,p){return match.lastTouch===p?ASSIST.knockReleaseRadius:ASSIST.releaseRadius;}
 
 /** A ball is controlled only when it reaches the feet or body: a stretched leg reaches about 0.75 m for a slow ball, less for a fast one. */
+/** Distance at which a kick's windup may start. A sprinting dribbler's ball runs ahead at about the player's pace, so
+ * the windup starts from further back and the last strides close the gap (see the approach burst in match.move). */
+export function kickStartDistance(p){return ASSIST.kickStart+ASSIST.sprintKickStart*(p.sprinting?clamp((Math.hypot(p.vx,p.vz)-jogSpeed(p))/ASSIST.sprintKnockSpeed,0,1):0);}
+/** Whether a kick's windup can start now: the ball, where it and the player will be a moment later, is within reach.
+ * A knocked ball that runs away as fast as the player waits until the player has closed on it. */
+export function kickInReach(p,ball,v){const t=ASSIST.kickLook,x=ball.x+v.x*t-p.x-p.vx*t,z=ball.z+v.z*t-p.z-p.vz*t;return Math.max(distance(p,ball),Math.hypot(x,z))<=kickStartDistance(p);}
 export function controlReach(p,relative){return (.5+.3*(p.control||.8))*clamp(1.25-relative/24,.45,1);}
 
 export function cushionFirstTouch(match,p){

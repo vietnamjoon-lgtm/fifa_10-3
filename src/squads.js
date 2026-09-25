@@ -1,5 +1,5 @@
 import {celebrationOptions} from './celebrations.js';
-import {cleanBody,cleanWeight} from './body-shape.js';
+import {cleanBody,cleanWeight,cleanBodyType} from './body-shape.js';
 import {cleanFace,validFaceTexture} from './face-settings.js';
 import {variedFace} from './face-variation.js';
 import {roster,clamp} from './config.js';
@@ -14,7 +14,7 @@ export function cleanProfile(raw={},fallback=roster(0)[9]){raw=raw&&typeof raw==
  for(const [key,[,min,max]]of Object.entries(STAT_FIELDS))p[key]=numeric(raw[key],fallback[key],min,max);
  // Skill-move stars (FC Online's 개인기 1~5성) for players saved before the stat existed come from ball control and agility.
  p.skillMoves=Math.round(numeric(raw.skillMoves,fallback.skillMoves??defaultSkillMoves(p),1,5));
- p.weight=cleanWeight(raw.weight,p);p.body=cleanBody(raw.body);
+ p.weight=cleanWeight(raw.weight,p);p.body=cleanBody(raw.body);p.bodyType=cleanBodyType(raw.bodyType,raw.body);
  p.celebration=Object.hasOwn(celebrationOptions,raw.celebration)?raw.celebration:'auto';
  p.face=cleanFace(variedFace(raw.face,p.uid||p.name));p.faceTexture=p.face.enabled?validFaceTexture(raw.faceTexture):null;
  return p;

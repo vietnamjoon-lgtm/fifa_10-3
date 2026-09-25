@@ -25,8 +25,8 @@ test('sprint turns and braking keep a reachable ball without teleporting it',()=
   }
   // Foot dribbling plays the ball ahead and the player runs onto it; it must stay within possession reach.
   assert.ok(worst<3,`ball separation ${worst}`);
-  // A ball knocked ahead at a sprint is chased and trapped, which can take up to one more second.
-  for(let i=0;i<120&&m.physics.ball.velocity.length()>=.15;i++){m.step(1/120,idle);assert.equal(m.owner,p);}
+  // A ball knocked about 2 m ahead at a sprint is chased and trapped, which can take up to two more seconds.
+  for(let i=0;i<240&&m.physics.ball.velocity.length()>=.15;i++){m.step(1/120,idle);assert.equal(m.owner,p);}
   assert.ok(m.physics.ball.velocity.length()<.15);
   const before=m.physics.ball.position.clone();p.touchCooldown=0;dribbleTouch(m,p);
   assert.deepEqual(m.physics.ball.position,before,'a touch changes velocity, never position');

@@ -1,0 +1,1 @@
+export async function resolve(specifier,context,nextResolve){return specifier==='three'?{url:new URL('../vendor/three.module.js',import.meta.url).href,shortCircuit:true}:nextResolve(specifier,context);}

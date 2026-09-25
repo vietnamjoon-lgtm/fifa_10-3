@@ -1,0 +1,12 @@
+{
+  "scope": "Browser CPU, 22 rigs: 6 near and 16 far, 20 warmup and 80 measured frames; no GPU or full match FPS certification",
+  "medianMs": 22,
+  "p95Ms": 34.6,
+  "budgetMs": 4,
+  "pass": false,
+  "earlierMeasurement": {
+    "medianMs": 8.3,
+    "p95Ms": 18.8,
+    "note": "Overlapped the beginning of separate verification work; not used as final result"
+  }
+}
