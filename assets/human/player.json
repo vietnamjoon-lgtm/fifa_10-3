@@ -1,0 +1,63 @@
+{
+ "model": "player.glb",
+ "bones": 22,
+ "triangles": {
+  "Body": 3000,
+  "Eyes": 172,
+  "Eyebrows": 192,
+  "Hair_short01": 900,
+  "Hair_afro01": 900,
+  "Kit_shirt": 1097,
+  "Kit_shorts": 498,
+  "Kit_socks": 350,
+  "Kit_boots": 448
+ },
+ "budget": {
+  "maxTriangles": 8000,
+  "bones": 22
+ },
+ "faces": [
+  "f1",
+  "f2",
+  "f3"
+ ],
+ "morphs": [
+  "face_f1",
+  "face_f2",
+  "face_f3"
+ ],
+ "skinTones": [
+  "light",
+  "brown",
+  "dark"
+ ],
+ "hair": [
+  "short01",
+  "afro01"
+ ],
+ "textures": {
+  "Eyes": "eyes.png",
+  "Eyebrows": "eyebrows.png",
+  "Hair_short01": "hair_short01.png",
+  "Hair_afro01": "hair_afro01.png",
+  "Skin": {
+   "light": "skin_light.png",
+   "brown": "skin_brown.png",
+   "dark": "skin_dark.png"
+  }
+ },
+ "kit": {
+  "parts": [
+   "Kit_shirt",
+   "Kit_shorts",
+   "Kit_socks",
+   "Kit_boots"
+  ],
+  "decalUV": "TEXCOORD_1 on Kit_shirt: back in u 0-0.5, front in u 0.5-1, -1 outside"
+ },
+ "referenceHeight": 1.83,
+ "heightScale": [
+  0.93,
+  1.07
+ ]
+}

@@ -43,3 +43,12 @@ test('rest skeleton: 22 body bones, 1.83 m, left leg on +x in glTF axes',()=>{
  assert.ok(r.bones.LeftUpLeg.head[0]>0&&r.bones.RightUpLeg.head[0]<0);
  assert.ok(r.bones.Head.head[1]>1.5&&r.bones.Head.head[1]<1.75);
 });
+test('player.glb: 22 bones, under 8,000 triangles with either hair, compressed assets under 1.5 MB',()=>{
+ const m=read('assets/human/player.json'),s=read('assets/human/sizes.json');
+ assert.equal(m.bones,22);
+ const base=['Body','Eyes','Eyebrows','Kit_shirt','Kit_shorts','Kit_socks','Kit_boots'].reduce((a,n)=>a+m.triangles[n],0);
+ for(const h of ['Hair_short01','Hair_afro01'])assert.ok(base+m.triangles[h]<=m.budget.maxTriangles,h);
+ assert.deepEqual(m.morphs,['face_f1','face_f2','face_f3']);
+ assert.ok(fs.existsSync('assets/human/player.glb'));for(const f of Object.keys(s.textures))assert.ok(fs.existsSync('assets/human/'+f),f);
+ assert.ok(s.total<1.5e6,'total '+s.total);
+});
