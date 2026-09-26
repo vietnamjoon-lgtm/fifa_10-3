@@ -77,12 +77,14 @@
         "assets-source/16_08.amc",
         "assets-source/16_15.amc",
         "assets-source/16_17.amc",
-        "assets-source/16_35.amc"
+        "assets-source/16_35.amc",
+        "src/sides.js"
       ],
       "tests": [
         "tests/human-motion-and-defence.test.mjs",
         "tests/contact-blending.test.mjs",
-        "tests/foot-solver-performance.test.mjs"
+        "tests/foot-solver-performance.test.mjs",
+        "tests/left-right.test.mjs"
       ]
     },
     {

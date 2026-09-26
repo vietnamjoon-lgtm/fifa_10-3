@@ -3,9 +3,10 @@ import assert from 'node:assert/strict';
 import * as THREE from '../vendor/three.module.js';
 import {fixture} from '../tools/human-fixture.mjs';
 import {stabilizeFeet} from '../src/foot-plant.js';
+import {sideIndex} from '../src/sides.js';
 
 function contact(age,{height=1.81,foot='right',yaw=0,legLength=100}={}){
- const rig=fixture({height,body:{legLength}}),m=rig.bodyMetrics,index=foot==='left'?0:1,size=m.scale;
+ const rig=fixture({height,body:{legLength}}),m=rig.bodyMetrics,index=sideIndex(foot),size=m.scale;
  rig.root.position.set(5,0,-3);rig.root.rotation.y=yaw;rig.hips.position.y=.80+m.hipOffset;
  for(const leg of rig.legs){leg.upper.rotation.x=-.25;leg.lower.rotation.x=.65;}
  rig.root.updateMatrixWorld(true);

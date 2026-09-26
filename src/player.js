@@ -6,8 +6,9 @@ import {createAnatomicalBody} from './anatomical-player.js';
 import {stabilizeHands} from './hand-contact.js';
 import {InertialJoint} from './inertial-motion.js';
 import {locomotionCadence} from './motion-planner.js';
-import {stabilizeFeet} from './foot-plant.js';
+import {stabilizeFeet,inertializeFeet} from './foot-plant.js';
 import {sampleMotion} from './motion.js';
+import {clamp} from './config.js';
 import * as THREE from 'three';
 import {mergeMeshes,addDistantGeometry} from './geometry.js';
 import {TEAMS} from './config.js';
@@ -74,16 +75,18 @@ const poseEuler=new THREE.Euler(),poseQuaternion=new THREE.Quaternion();
 export function animatePlayer(rig,speed,dt,time,celebrate=false,player=null,ball=null){
  const p=player||{x:rig.root.position.x,z:rig.root.position.z,vx:0,vz:speed,yaw:0},history=rig.motionHistory||{yaw:p.yaw||0,speed};
  const rawTurn=p.motionTurn??Math.atan2(Math.sin((p.yaw||0)-history.yaw),Math.cos((p.yaw||0)-history.yaw))/Math.max(dt,.001);
- const rawAcceleration=p.motionAcceleration??(speed-history.speed)/Math.max(dt,.001);const smoothing=1-Math.exp(-Math.min(dt,.05)*14),turn=(history.turn||0)+(rawTurn-(history.turn||0))*smoothing,acceleration=(history.acceleration||0)+(rawAcceleration-(history.acceleration||0))*smoothing;rig.motionHistory={yaw:p.yaw||0,speed,turn,acceleration};
+ const rawAcceleration=p.motionAcceleration??(speed-history.speed)/Math.max(dt,.001);const smoothing=1-Math.exp(-Math.min(dt,.05)*14),turn=(history.turn||0)+(rawTurn-(history.turn||0))*smoothing,acceleration=(history.acceleration||0)+(rawAcceleration-(history.acceleration||0))*smoothing;const capture=history.capture;rig.motionHistory={yaw:p.yaw||0,speed,turn,acceleration,capture};
  if(rig.motionPhaseOverride!==undefined)rig.phase=rig.motionPhaseOverride;else if(p.motionPhase!==undefined)rig.phase=p.motionPhase;else rig.phase+=dt*locomotionCadence(speed,p.motionStyle,p);
- const pose=sampleMotion(p,rig.phase,time,ball,celebrate,{turn,acceleration});rig.motionState=pose.state;
+ const pose=sampleMotion(p,rig.phase,time,ball,celebrate,{turn,acceleration,capture,state:rig.motionState,stateAge:rig.motionStateAge});rig.motionStateAge=pose.state===rig.motionState?(rig.motionStateAge??0)+Math.max(0,dt):0;rig.motionState=pose.state;
+ // Follow the captured-gait weight over 0.2 s instead of switching it in one frame.
+ const captureStep=Math.min(dt,.1)/.2;rig.motionHistory.capture=capture===undefined?pose.captureTarget??0:capture+clamp((pose.captureTarget??0)-capture,-captureStep,captureStep);
  const impact=p.action&&!p.action.aerial&&Math.abs(p.action.elapsed-p.action.contactAt)<.055;
  const weight=1-Math.exp(-dt*(p.action?28:18)),blend=(a,b)=>a+(b-a)*weight;
  const rotation=(joint,angles)=>{poseEuler.set(...angles);poseQuaternion.setFromEuler(poseEuler);const state=joint.userData.inertial||(joint.userData.inertial=new InertialJoint());joint.quaternion.copy(state.sample(poseQuaternion,p.action?.id!==undefined?'action-'+p.action.id:pose.state,dt));};
  rig.poseHipHeight=blend(rig.poseHipHeight??rig.hips.position.y,pose.hipY+(rig.bodyMetrics?.hipOffset||0));rig.hips.position.y=rig.poseHipHeight;rig.root.position.y=blend(rig.root.position.y,pose.rootY);rig.root.rotation.z=blend(rig.root.rotation.z,pose.rootRoll);
  rotation(rig.hips,pose.hips);rotation(rig.torso,pose.torso);rotation(rig.head,pose.head);
  for(let i=0;i<2;i++){rotation(rig.legs[i].upper,pose.legs[i].upper);rotation(rig.legs[i].lower,pose.legs[i].lower);rotation(rig.legs[i].foot,pose.feet[i]);rotation(rig.arms[i].upper,pose.arms[i].upper);rotation(rig.arms[i].lower,pose.arms[i].lower);}
- stabilizeFeet(rig,{...p,sampleTime:time},pose,dt);stabilizeHands(rig,p,time);
+ stabilizeFeet(rig,{...p,sampleTime:time},pose,dt);inertializeFeet(rig,p,pose,dt);stabilizeHands(rig,p,time);
  rig.animationPlayer=p;rig.animationTime=time;updateBoots(rig,pose,speed);
  rig.centerOfMass=bodyCenterOfMass(rig);rig.jointWarnings=jointViolations(rig);rig.jointViolationCount=(rig.jointViolationCount||0)+rig.jointWarnings.length;
  // The distant head has no eye/mouth morphs. Resume at the current time as soon
