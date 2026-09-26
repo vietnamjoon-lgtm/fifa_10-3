@@ -75,7 +75,7 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
    else{pose.arms[0].upper=[-.45*strength,0,.55*(1-follow)];pose.arms[1].upper=[.5*strength,0,-.4*(1-follow)];}
   }
  }
- if(p.dive>0){pose.state='dive';const u=clamp(1-p.dive/(p.diveDuration||KEEPER.diveDuration),0,1),weight=Math.sin(u*Math.PI),sign=p.diveDirection||1;pose.rootRoll=sign*weight*1.15;pose.hipY=.85-weight*.33;pose.rootY=weight*.15;pose.arms[0].upper=[-.6,0,2.25];pose.arms[1].upper=[-.6,0,-2.25];pose.legs[0].lower[0]=weight*.9;pose.legs[1].lower[0]=weight*.6;}
+ if(p.dive>0){pose.state='dive';const u=clamp(1-p.dive/(p.diveDuration||KEEPER.diveDuration),0,1),weight=Math.sin(u*Math.PI),sign=p.diveDirection||1;pose.rootRoll=sign*weight*1.15;pose.hipY=.85-weight*.33;pose.rootY=weight*.15;pose.arms[0].upper=[-.35,0,2.8];pose.arms[1].upper=[-.35,0,-2.8];pose.arms[0].lower[0]=pose.arms[1].lower[0]=-.18;pose.legs[0].lower[0]=weight*.9;pose.legs[1].lower[0]=weight*.6;}
  if(p.down>0){pose.state=p.down<.3?'recover':'fall';const weight=smooth(p.down/.3);pose.rootRoll=weight*1.15*(p.interaction?.side||1);pose.hipY=lerp(.87,.28,weight);pose.torso[0]=weight*.25;pose.legs[0].lower[0]=weight*1.4;pose.legs[1].lower[0]=weight*.8;pose.arms[0].upper=[-.5,0,1.1];pose.arms[1].upper=[-.5,0,-.5];}
  if(celebrate&&!p.down&&!action){pose.state='celebrate';pose.arms[0].upper=[-.2,0,2.5];pose.arms[1].upper=[-.2,0,-2.5];pose.rootY=Math.max(0,Math.sin(time*5+p.id))*.12;}
  for(const arm of pose.arms)arm.upper[2]*=-1;
