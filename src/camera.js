@@ -13,13 +13,18 @@ export function smoothDamp(state,key,target,smoothTime,dt,maxSpeed=Infinity){
 const smoothstep=(a,b,v)=>{const t=clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
 // Tuning for the broadcast (mode 0) view. Measured with tools/camera-metrics.mjs.
 export const BROADCAST={
- focusTime:.42,focusMaxSpeed:34,depthTime:1,playerWeight:.2,switchTime:.8,switchScale:.5,     // follow the ball slightly late, like a human operator
- velocityTime:.3,lead:.5,leadMaxX:9,leadMaxZ:3.5, // look ahead ~0.5 s along the ball's travel
- height:19.5,back:31,dolly:.86,pullFrom:12,pullRate:.16,pullMax:6,       // gantry height/offset; x dolly <1 pans towards each goal
+ // Follow the ball slightly late, like a human operator; control switches re-frame twice as fast.
+ focusTime:.42,focusMaxSpeed:34,depthTime:1,playerWeight:.2,switchTime:.8,switchScale:.5,
+ // Look ahead ~0.5 s along the (smoothed) ball velocity.
+ velocityTime:.3,lead:.5,leadMaxX:9,leadMaxZ:3.5,
+ // Gantry height and set-back; x dolly < 1 pans slightly towards each goal. Wide spreads crane up/back.
+ height:19.5,back:31,dolly:.86,pullFrom:12,pullRate:.16,pullMax:6,
+ // Zoom: out for fast balls (counters, long passes), in near either penalty area. Degrees.
  fov:43,fovFast:5.5,fovBox:-4.5,fovMin:36,fovMax:54,fovTime:.9,fovMaxRate:7,
- maxTurn:32,maxTurnAccel:110,         // deg/s and deg/s^2: no sudden whip pans
- safeX:.7,                           // keep ball/controlled player inside 70% of the frame width
- ballNear:9,ballFar:14,playerNear:11.5,playerFar:17,depthSpread:20,depthZoom:.45 // metres from focus
+ // Pan limits in deg/s and deg/s^2: no sudden whip pans.
+ maxTurn:32,maxTurnAccel:110,
+ // Framing windows: ball/controlled player stay inside 70% of the width; depth limits in metres.
+ safeX:.7,ballNear:9,ballFar:14,playerNear:11.5,playerFar:17,depthSpread:20,depthZoom:.45
 };
 const forward=new THREE.Vector3(),wanted=new THREE.Vector3(),axis=new THREE.Vector3(),rotation=new THREE.Quaternion();
 export class MatchCamera{

@@ -42,4 +42,4 @@ png('grass-normal.png',S,S,3,(x,y)=>{const dx=(H(x+1,y)-H(x-1,y))*1.6,dy=(H(x,y+
 const macroA=fbm(256,4,4),macroB=fbm(256,3,3),macroC=fbm(256,6,4);
 png('pitch-macro.png',256,256,3,(x,y)=>[macroA(x,y),macroB(x,y),macroC(x,y)]);
 // Goal net: one knotted square mesh cell with soft edges (alpha), tiles per cell.
-const N=64;png('goal-net.png',N,N,2,(x,y)=>{const d=Math.min(Math.abs(x-N/2+.5),Math.abs(y-N/2+.5)),knot=Math.hypot(x-N/2+.5,y-N/2+.5)<4?1:0;const a=Math.max(knot,Math.max(0,Math.min(1,(3.2-d)/1.4)));return [.95,a];});
+const N=64;png('goal-net.png',N,N,2,(x,y)=>{const d=Math.min(Math.abs(x-N/2+.5),Math.abs(y-N/2+.5)),knot=Math.hypot(x-N/2+.5,y-N/2+.5)<4?1:0;const a=Math.max(knot,Math.max(0,Math.min(1,(5-d)/1.5)));return [.95,a];});

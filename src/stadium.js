@@ -72,7 +72,7 @@ export function pitchMaterial(anisotropy=8){
  return material;
 }
 function adTexture(){return canvasTexture(2048,128,(c,w,h)=>{c.fillStyle='#c6ff5d';c.fillRect(0,0,w,h);c.fillStyle='#0c261c';c.font='900 italic 58px Arial';c.textBaseline='middle';for(let x=25;x<w;x+=500)c.fillText(x%1000<500?'TOUCHLINE /':'OWN THE MOMENT',x,67);});}
-// Goal net as a textured grid (back, roof, two sides) with slight sag: mipmapped alpha-to-coverage
+// Goal net as a textured grid (back, roof, two sides) with slight sag: mipmapped alpha-blended
 // meshes stay soft at distance where 1-px line segments shimmered. Vertex spacing (~.19 m) matches the
 // old line net, so animateNets' ripple keeps the same resolution.
 function goalNetGeometry(s){const positions=[],uvs=[],index=[],cell=.12;
@@ -98,7 +98,8 @@ export function buildStadium(scene,{anisotropy=8}={}){
  // normal without paying for the player/kit PMREM reflection lookup across the entire pitch.
  const grass=pitchMaterial(anisotropy);
  const field=new THREE.Mesh(new THREE.PlaneGeometry(116,78),grass);field.rotation.x=-Math.PI/2;field.position.y=.004;field.receiveShadow=true;stadium.add(field);
- const netMaterial=new THREE.MeshLambertMaterial({color:0xf2f6f8,map:loadTexture('goal-net.png',anisotropy),alphaTest:.3,alphaToCoverage:true,side:THREE.DoubleSide});
+ // Plain alpha blending: the mip-averaged string coverage fades the net naturally with distance.
+ const netMaterial=new THREE.MeshLambertMaterial({color:0xf2f6f8,map:loadTexture('goal-net.png',anisotropy),transparent:true,opacity:.95,depthWrite:false,side:THREE.DoubleSide});
  const goals=[];for(const s of [-1,1]){
   const goal=new THREE.Group();stadium.add(goal);goals.push(goal);
   for(const z of [-3.72,3.72])beam(goal,[s*52.5,.06,z],[s*52.5,2.5,z],.06,white);

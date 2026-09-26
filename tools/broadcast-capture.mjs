@@ -35,9 +35,11 @@ async function kickoff(){
 }
 // Fast-forward at a tiny viewport (SwiftShader cost scales with pixels); the simulation is
 // unaffected, and the view is restored and settled for a second before any capture.
-async function until(test,limit=90,step=.2){await page.setViewportSize({width:320,height:180});try{for(let t=0;t<limit;t+=step){const s=await state();if(test(s))return s;await advance(step,1/20);}throw Error('scene not reached');}finally{await page.setViewportSize({width:1280,height:720});await page.waitForTimeout(1500);}}
-// Give the compositor a real-time moment to present the last virtual-time frame.
-const shot=async name=>{await page.evaluate(()=>{document.getElementById('qa-panel')?.remove();});await page.waitForTimeout(400);await page.screenshot({path:path.join(out,name+'.png')});console.log('saved',name,JSON.stringify(await state()));};
+async function until(test,limit=90,step=.2){await page.setViewportSize({width:320,height:180});try{for(let t=0;t<limit;t+=step){const s=await state();if(test(s))return s;await advance(step,1/20);}throw Error('scene not reached');}finally{await page.setViewportSize({width:1280,height:720});await page.waitForTimeout(500);}}
+// Stills read the WebGL canvas in the same task as the render (page screenshots can catch a
+// cleared back buffer under virtual time); the HUD is not included.
+const grab=(dt,type)=>page.evaluate(([dt,type])=>{window.__advance(1,dt);return document.getElementById('scene').toDataURL(type,.9);},[dt,type]);
+const shot=async name=>{const data=await grab(1/60,'image/png');fs.writeFileSync(path.join(out,name+'.png'),Buffer.from(data.split(',')[1],'base64'));console.log('saved',name,JSON.stringify(await state()));};
 if(mode==='shots'){
  await kickoff();
  await until(s=>s.state==='playing'||s.state==='kickoff',30);await advance(1.2,1/60);await shot(night?'night-kickoff':'kickoff');
@@ -49,7 +51,7 @@ if(mode==='shots'){
  // Same 16 s of AI play for both builds: frames at 30 fps, encoded afterwards with ffmpeg.
  await kickoff();await until(s=>s.state==='playing',30);await advance(3);
  // Read the canvas in the same task as the render (no preserveDrawingBuffer needed); HUD excluded.
- for(let i=0;i<480;i++){const data=await page.evaluate(()=>{window.__advance(1,1/30);return document.getElementById('scene').toDataURL('image/jpeg',.88);});
+ for(let i=0;i<480;i++){const data=await grab(1/30,'image/jpeg');
   fs.writeFileSync(path.join(out,`f${String(i).padStart(4,'0')}.jpg`),Buffer.from(data.split(',')[1],'base64'));}
 }else if(mode==='fps'){
  // Real time: 22-player AI match; report mean fps and p95 frame time over 20 s.
