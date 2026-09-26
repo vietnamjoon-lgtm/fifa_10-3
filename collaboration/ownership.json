@@ -62,6 +62,7 @@
         "src/receive-control.js",
         "src/throw-in.js",
         "src/headers.js",
+        "src/skill-guide.js",
         "tools/convert-mocap.mjs",
         "assets-source/09.asf",
         "assets-source/09_01.amc",

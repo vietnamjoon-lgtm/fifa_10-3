@@ -1,5 +1,6 @@
 import {KEEPER} from './keeper-tuning.js';
-import {SKILLS} from './skills.js';
+import {SKILLS,skillImpulse} from './skills.js';
+import {initSkillGuide} from './skill-guide.js';
 import {CELEBRATIONS} from './celebrations.js';
 import {locomotionCadence} from './motion-planner.js';
 import {animatePlayer} from './player.js';
@@ -31,10 +32,23 @@ export function previewSample(kind,t,foot='right'){
  if(kind==='fall'||kind==='recover')p.down=t<.3?0:Math.max(0,(kind==='fall'?1.4:.8)-t);
  // Throw-in: hold overhead, throw at 0.55 s, ball released at THROW.release.
  if(kind==='throw-in'){if(actionTime<0)p.throwHold=true;else if(actionTime<THROW.end)p.action={id:1,type:'throw',elapsed:actionTime,hit:actionTime>=THROW.release};const after=actionTime-THROW.release,held=heldBallPosition(p,Math.min(Math.max(actionTime,-1),THROW.release));return {p,ball:after>0?{x:held.x,y:held.y+after*3-4.9*after*after,z:held.z+after*9}:held,celebrate:false,phase:0};}
+ if(SKILLS[kind])return {p,ball:skillBall(kind,t,foot),celebrate:false,phase:0};
  const volleyAfter=Math.max(0,actionTime-.21);
  if(kind==='volley'){const x=foot==='left'?-.12:.12;return {p,ball:volleyAfter>0?{x,y:.9+volleyAfter*2,z:24.6+.5+volleyAfter*18}:{x,y:.9+Math.max(0,-actionTime)*.4,z:24.6+.5+Math.max(0,.21-actionTime)*3},celebrate:false,phase:0};}
  const after=kick?Math.max(0,actionTime-contact):0,ball=kind==='dribble'?{x:lerp(toucher==='left'?-.06:.06,toucher==='left'?.06:-.06,since/.45),y:.11,z:24.6+.33+.6*Math.sin(Math.PI*since/.45)}:receiving?{x:arrival.x,y:t<.65?arrival.y+(.65-t)*(arrival.y>.2?1.4:0):Math.max(.11,arrival.y-(t-.65)*3),z:arrival.z+Math.max(0,.65-t)*9}:{x:foot==='left'?-.11:.11,y:kind==='header'?1.65:.11+Math.max(0,Math.sin(after*3))*.55,z:25.14+after*10};
  return {p,ball,celebrate:kind==='celebrate'||kind.startsWith('celebration:'),phase:t*locomotionCadence(Math.hypot(p.vx,p.vz),p.motionStyle,p)};
+}
+// Ball for a skill preview: rests at the touching foot and is moved by the same touch impulses
+// the match applies at each skill event, then rolls (or flies and bounces) freely.
+function skillBall(kind,t,foot){
+ const config=SKILLS[kind],a={skill:kind,foot},p={yaw:0},events=config.events.map(at=>.55+at),dt=1/120;
+ let x=(foot==='left'?-1:1)*.06,y=.11,z=.34,vx=0,vy=0,vz=0,next=0;
+ for(let s=0;s<t;s+=dt){
+  if(next<events.length&&s>=events[next]){const hit=skillImpulse(p,a,next),n=Math.hypot(hit.aim.x,hit.aim.z)||1;vx=hit.aim.x/n*hit.speed;vz=hit.aim.z/n*hit.speed;vy=hit.lift;next++;}
+  x+=vx*dt;y+=vy*dt;z+=vz*dt;
+  if(y>.11)vy-=9.81*dt;else{y=.11;vy=vy<-1?-vy*.45:0;const roll=Math.exp(-1.1*dt);vx*=roll;vz*=roll;}
+ }
+ return {x,y,z:24.6+z};
 }
 export class MotionPreview{
  constructor(hero){this.hero=hero;this.active=false;this.time=0;this.playing=true;this.kind='run';this.foot='right';this.speed=1;this.angle=.65;const $=id=>document.getElementById(id);
@@ -43,12 +57,16 @@ export class MotionPreview{
   if(!Array.from($('motion-kind').options).some(o=>o.value==='throw-in')){const option=document.createElement('option');option.value='throw-in';option.textContent='스로인';$('motion-kind').append(option);}
   for(const clip of CELEBRATIONS){const option=document.createElement('option');option.value='celebration:'+clip.id;option.textContent='세리머니 · '+clip.name;$('motion-kind').append(option);}
   $('motion-open').onclick=()=>{this.active=true;this.time=0;$('menu').classList.add('hidden');$('motion-preview').classList.remove('hidden');};
-  this.close=()=>{this.active=false;delete hero.motionPhaseOverride;hero.root.position.set(0,0,24.6);$('motion-preview').classList.add('hidden');$('menu').classList.remove('hidden');};
+  this.onClose=[];
+  // Plays one motion kind (used by the skill guide and the research panel).
+  this.show=kind=>{if(!Array.from($('motion-kind').options).some(o=>o.value===kind))return;$('motion-kind').value=kind;this.kind=kind;this.time=0;this.active=true;this.playing=true;this.hero.plantState=null;$('motion-play').textContent='멈춤 Ⅱ';$('menu').classList.add('hidden');$('motion-preview').classList.remove('hidden');};
+  this.close=()=>{for(const fn of this.onClose)fn();this.active=false;delete hero.motionPhaseOverride;hero.root.position.set(0,0,24.6);$('motion-preview').classList.add('hidden');$('menu').classList.remove('hidden');};
   addEventListener('touchline-preview',e=>{const value=e.detail;if(!Array.from($('motion-kind').options).some(o=>o.value===value))return;$('research-panel').classList.add('hidden');$('research-video').pause();$('motion-kind').value=value;this.kind=value;this.time=0;this.active=true;this.playing=true;this.hero.plantState=null;$('menu').classList.add('hidden');$('motion-preview').classList.remove('hidden');});
   $('motion-close').onclick=this.close;$('motion-foot').onchange=e=>this.foot=e.target.value;$('motion-kind').onchange=e=>{this.kind=e.target.value;this.hero.plantState=null;this.hero.impactError=undefined;this.time=0;this.playing=true;$('motion-play').textContent='멈춤 Ⅱ';};$('motion-speed').onchange=e=>this.speed=Number(e.target.value);$('motion-angle').oninput=e=>this.angle=Number(e.target.value);
   $('motion-frame').oninput=e=>{this.playing=false;this.hero.plantState=null;this.time=Number(e.target.value)*this.duration;$('motion-play').textContent='재생 ▶';};
   $('motion-play').onclick=()=>{this.playing=!this.playing;$('motion-play').textContent=this.playing?'멈춤 Ⅱ':'재생 ▶';};
   addEventListener('keydown',e=>{if(e.code==='Escape'&&this.active)this.close();});
+  initSkillGuide(this);
  }
  get duration(){return this.kind.startsWith('celebration:')||this.kind==='celebrate'?5:2;}
  animate(ball,camera,dt){
