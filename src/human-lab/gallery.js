@@ -28,17 +28,21 @@ const LINE=[
  ['ulsan','seoul',0,false,{name:'D. CHOI',number:23,skin:'#e1ad88',hairStyle:'short',height:1.78,weight:92,body:{muscle:45,softness:80,waist:125,chest:106,thigh:112}}],
  ['seoul','bucheon',1,false,{name:'Y. JUNG',number:11,skin:'#bf8561',hairStyle:'crop',height:1.66,weight:60,body:{legLength:94,armLength:95}}],
  ['bucheon','seoul',0,true,{name:'K. HAN',number:1,skin:'#c89572',hairStyle:'short',height:1.94,weight:88,body:{armLength:108}}],
+ // Photo face from the bundled fictional reference athlete (src/assets/default-face.jpg).
+ ['bucheon','seoul',0,false,{name:'H. SEO',number:8,skin:'#d3ad9d',hair:'#141210',hairStyle:'short',height:1.80,face:{enabled:true,mode:'photo',fitted:true},faceTexture:'./src/assets/default-face.jpg'}],
 ];
 const players=LINE.map(([home,away,team,keeper,profile],i)=>{
  applyClubs(home,away);const rig=createPlayer(team,profile.number,keeper,{...profile,role:keeper?'GK':'MF'});
  attachHumanBody(rig);rig.root.position.set((i-(LINE.length-1)/2)*1.05,0,0);scene.add(rig.root);return {rig,profile};
 });
-let view='front',running=false,time=0;
-function place(){const d=9.2,a=view==='front'?0:view==='back'?Math.PI:Math.PI/2;camera.position.set(Math.sin(a)*d,1.25,Math.cos(a)*d);camera.lookAt(0,.95,0);
+let view='front',running=false,time=0,focus=0;
+function place(){
+ if(view==='face'){const p=players[focus].rig,head=new THREE.Vector3();p.human?.bones.Head.getWorldPosition(head);camera.position.set(head.x+.35,head.y+.02,head.z+1.25);camera.lookAt(head.x,head.y-.02,head.z);$('info').textContent=`얼굴 · ${LINE[focus][4].name}`;return;}
+ const d=9.2,a=view==='front'?0:view==='back'?Math.PI:Math.PI/2;camera.position.set(Math.sin(a)*d,1.25,Math.cos(a)*d);camera.lookAt(0,.95,0);
  $('info').textContent=`${view==='front'?'앞':view==='back'?'뒤':'옆'} · ${running?'달리기':'서 있기'} · 구단 유니폼과 체형(키 1.66~1.94 m, 마름·근육·통통, 다리 길이)`;}
-for(const v of ['front','back','side'])$(v).onclick=()=>{view=v;place();};$('run').onclick=()=>{running=!running;place();};
+for(const v of ['front','back','side'])$(v).onclick=()=>{view=v;place();};$('face').onclick=()=>{focus=view==='face'?(focus+1)%players.length:0;view='face';place();};$('run').onclick=()=>{running=!running;place();};
 function step(dt){time+=dt;for(const {rig,profile} of players){const speed=running?5:0;animatePlayer(rig,speed,dt,time,false,{...profile,x:rig.root.position.x,z:0,vx:0,vz:speed,yaw:0,id:profile.number});}}
 let last=performance.now();function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;step(dt);renderer.render(scene,camera);}
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
-window.setView=(v,r=running)=>{view=v;running=r;place();step(1/60);renderer.render(scene,camera);};
+window.setView=(v,r=running,i=focus)=>{view=v;running=r;focus=i;step(1/60);place();renderer.render(scene,camera);};
 place();requestAnimationFrame(loop);

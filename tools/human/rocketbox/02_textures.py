@@ -228,11 +228,21 @@ for avatar in AVATARS:
     Image.fromarray((out * 255).astype(np.uint8)).save(os.path.join(OUT, f'{name}-body.jpg'), quality=88)
     head = tex(avatar, 'head_color')
     head.save(os.path.join(OUT, f'{name}-head.jpg'), quality=90)
+    # Hair on the scalp texture (tinted by the profile hair colour); the eye and mouth corner stays out.
+    hrgb = np.asarray(head).astype(float) / 255
+    hh, hs, hv = hsv(hrgb)
+    hair = ((hv < 0.36) | ((hh > 12) & (hh < 50) & (hs > 0.42) & (hv < 0.5))) & (hv > 0.02)
+    ey = np.arange(N)[:, None]
+    hair &= (ey < N * 0.56)
+    hair[int(EYES[1]):, :int(EYES[2])] = False
+    hair = blur(hair.astype(float), 1.5) > 0.5
+    Image.fromarray((blur(hair.astype(float), 1.0) * 255).astype(np.uint8)).save(os.path.join(OUT, f'{name}-hairmask.png'), optimize=True)
     for kind in ('body', 'head'):
         nm = tex(avatar, kind + '_normal')
         if nm:
             nm.save(os.path.join(OUT, f'{name}-{kind}-normal.jpg'), quality=90)
-    entry = {'body': f'{name}-body.jpg', 'head': f'{name}-head.jpg', 'bodyNormal': f'{name}-body-normal.jpg', 'headNormal': f'{name}-head-normal.jpg', 'model': f'{name}.glb'}
+    entry = {'body': f'{name}-body.jpg', 'head': f'{name}-head.jpg', 'bodyNormal': f'{name}-body-normal.jpg', 'headNormal': f'{name}-head-normal.jpg', 'model': f'{name}.glb', 'hairMask': f'{name}-hairmask.png'}
+    entry['hairColor'] = '#%02x%02x%02x' % tuple(int(c * 255) for c in np.median(hrgb[hair], 0))
     op = tex(avatar, 'opacity_color', 'RGBA')
     if op:
         op.resize((512, 512), Image.LANCZOS).save(os.path.join(OUT, f'{name}-hair.png'), optimize=True)

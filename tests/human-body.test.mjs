@@ -5,9 +5,9 @@ import {register} from 'node:module';
 import * as THREE from '../vendor/three.module.js';
 import {fixture} from '../tools/human-fixture.mjs';
 register('../tools/three-loader.mjs',import.meta.url);
-const {JOINT_BONES,bindData,retarget,humanLook,bodyShape,reachAnkles}=await import('../src/human-body.js');
+const {JOINT_BONES,bindData,retarget,humanLook,bodyShape,reachAnkles,faceShape}=await import('../src/human-body.js');
 const {bodyMetrics,BODY_PRESETS}=await import('../src/body-shape.js');
-const {kitColours,shirtName,DECALS}=await import('../src/human-kit.js');
+const {kitColours,shirtName,DECALS,headToAtlas,photoWeight}=await import('../src/human-kit.js');
 const MODELS=['male_02','male_03'];
 
 // The 22-bone skeleton straight from a model's node table (no meshes needed).
@@ -96,4 +96,19 @@ test('ankle IK puts the model ankles on the old rig ankles',()=>{
    rig.legs.forEach((leg,i)=>{const want=leg.foot.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0,lift,0).applyQuaternion(leg.foot.getWorldQuaternion(new THREE.Quaternion())));
     const got=bones[i===0?'RightFoot':'LeftFoot'].getWorldPosition(new THREE.Vector3());assert.ok(got.distanceTo(want)<.01,`${model} ${i} ${got.distanceTo(want)}`);});}
  }
+});
+
+test('photo faces land on the head texture landmarks and stay inside the face oval',()=>{
+ const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-6,`${a} vs ${b}`);
+ // Eyes, nose, mouth and chin of the head texture read the same landmarks of the editor atlas.
+ for(const [hv,av] of [[.283,.44],[.342,.59],[.40,.775],[.483,.92]])near(headToAtlas(.5,hv)[1],av);
+ near(headToAtlas(.571,.3)[0],.552);near(headToAtlas(.429,.3)[0],.448);
+ assert.ok(photoWeight(.5,.36)>.9,'full photo in the middle of the face');
+ for(const [u,v] of [[.5,.1],[.2,.33],[.8,.33],[.5,.6]])assert.equal(photoWeight(u,v),0,`${u},${v}`);
+});
+
+test('face shapes follow the sliders and default faces differ per player',()=>{
+ const f=faceShape({face:{shape:{width:1.2,nose:.6}}},3);assert.ok(Math.abs(f.face_width-1)<1e-9&&Math.abs(f.face_nose+1)<1e-9&&f.face_jaw===0);
+ const a=faceShape({uid:'a'},1),b=faceShape({uid:'b'},1);assert.notDeepEqual(a,b);assert.deepEqual(a,faceShape({uid:'a'},1));
+ for(const v of Object.values(a))assert.ok(Math.abs(v)<=.7);
 });

@@ -59,6 +59,8 @@
    "bodyNormal": "male_02-body-normal.jpg",
    "headNormal": "male_02-head-normal.jpg",
    "model": "male_02.glb",
+   "hairMask": "male_02-hairmask.png",
+   "hairColor": "#372619",
    "skin": "#c28b70"
   },
   "male_03": {
@@ -67,6 +69,8 @@
    "bodyNormal": "male_03-body-normal.jpg",
    "headNormal": "male_03-head-normal.jpg",
    "model": "male_03.glb",
+   "hairMask": "male_03-hairmask.png",
+   "hairColor": "#16100c",
    "hair": "male_03-hair.png",
    "skin": "#a46a4a"
   }

@@ -96,12 +96,47 @@ export function setKitColours(m,c){
  u.kitShorts.value.set(c.shorts);u.kitSocks.value.set(c.socks);u.kitBoots.value.set(c.boots);u.kitGloves.value.set(c.gloves||'#ffffff');u.kitPattern.value=c.pattern;u.kitKeeper.value=c.gloves?1:0;
 }
 
-/** Head material: skin tint everywhere except the eyes and teeth corner. */
-export function headMaterial({map,normalMap,eyes},tint){
- const m=new THREE.MeshStandardMaterial({map,normalMap,roughness:.58,metalness:0});const u={skinTint:{value:tint.clone()},eyesRect:{value:new THREE.Vector4(...eyes)}};m.userData.kit=u;
+/** Head material: skin tint on the face and neck, hair tint on the painted hair (and beard); the eyes and
+ * teeth corner keep their colours. */
+export function headMaterial({map,normalMap,eyes,hairMask},tint,hairTint){
+ const m=new THREE.MeshStandardMaterial({map,normalMap,roughness:.58,metalness:0});
+ const u={skinTint:{value:tint.clone()},hairTint:{value:(hairTint||tint).clone()},eyesRect:{value:new THREE.Vector4(...eyes)},hairMask:{value:hairMask}};m.userData.kit=u;
  m.onBeforeCompile=shader=>{Object.assign(shader.uniforms,u);
-  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 skinTint;uniform vec4 eyesRect;')
-   .replace('#include <map_fragment>','#include <map_fragment>\nif(!(vMapUv.x>eyesRect.x&&vMapUv.x<eyesRect.z&&vMapUv.y>eyesRect.y&&vMapUv.y<eyesRect.w))diffuseColor.rgb*=skinTint;');};
- m.customProgramCacheKey=()=> 'rocketbox-head-v1';
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 skinTint,hairTint;uniform vec4 eyesRect;uniform sampler2D hairMask;')
+   .replace('#include <map_fragment>','#include <map_fragment>\nif(!(vMapUv.x>eyesRect.x&&vMapUv.x<eyesRect.z&&vMapUv.y>eyesRect.y&&vMapUv.y<eyesRect.w))diffuseColor.rgb*=mix(skinTint,hairTint,texture2D(hairMask,vMapUv).r);');};
+ m.customProgramCacheKey=()=> 'rocketbox-head-v2';
  return m;
+}
+
+// Photo faces: the editor's atlas (src/face-assets.js bakeFaceAsset, 1024 x 512, front at u = .5) and the
+// Rocketbox head texture are both unwrapped by angle around the head. Landmarks (eyes, nose, mouth, chin,
+// ears) are matched with piecewise-linear maps, and only the face oval is blended over the painted head.
+const ATLAS_V=[0,.205,.44,.59,.775,.92,1],HEAD_V=[.06,.17,.283,.342,.40,.483,.53];
+const ATLAS_U=[0,.052,.155,.305,.5],HEAD_U=[0,.071,.17,.246,.5]; // distance from the face centre line
+const lerpMap=(x,from,to)=>{if(x<=from[0])return to[0];for(let i=1;i<from.length;i++)if(x<=from[i])return to[i-1]+(to[i]-to[i-1])*(x-from[i-1])/(from[i]-from[i-1]);return to.at(-1);};
+/** Head texture position -> atlas position (the inverse of the landmark maps). */
+export function headToAtlas(u,v){const d=Math.abs(u-.5),s=u<.5?-1:1;return [.5+s*lerpMap(d,HEAD_U,ATLAS_U),lerpMap(v,HEAD_V,ATLAS_V)];}
+/** Blend weight of the photo at a head texture position: the face oval, softened at the edge and around the eyes. */
+export function photoWeight(u,v){
+ // Oval from under the photo's fringe (v ~.21) to the chin, cheek to cheek.
+ const e=((u-.5)/.16)**2+((v-(v<.35?.35:.35))/(v<.35?.14:.15))**2,edge=Math.min(1,Math.max(0,(1-e)/.3));
+ const eye=Math.min(...[.435,.571].map(x=>((u-x)/.034)**2+((v-.283)/.016)**2));
+ return edge*edge*(3-2*edge)*(eye<1?.55+.45*eye:1);
+}
+/**
+ * One player's head texture with their photo face. The photo is colour-matched per channel to the painted
+ * skin on the edge of the oval, so the skin tint the shader applies afterwards treats both alike and the
+ * seam disappears; inside the oval the photo keeps its own detail.
+ */
+export function composePhotoHead(headImage,atlasImage){
+ const N=headImage.width||1024,c=document.createElement('canvas');c.width=c.height=N;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(headImage,0,0,N,N);
+ const a=document.createElement('canvas');a.width=1024;a.height=512;const ga=a.getContext('2d',{willReadFrequently:true});ga.drawImage(atlasImage,0,0,1024,512);
+ const src=ga.getImageData(0,0,1024,512).data,x0=Math.floor(N*.32),x1=Math.ceil(N*.68),y0=Math.floor(N*.14),y1=Math.ceil(N*.52),img=g.getImageData(x0,y0,x1-x0,y1-y0),d=img.data;
+ const sample=(u,v)=>{const [au,av]=headToAtlas(u,v);return (Math.min(511,Math.max(0,Math.round(av*511)))*1024+Math.min(1023,Math.max(0,Math.round(au*1023))))*4;};
+ const base=[0,0,0],photo=[0,0,0];
+ for(let y=0;y<img.height;y+=2)for(let x=0;x<img.width;x+=2){const u=(x0+x+.5)/N,v=(y0+y+.5)/N,w=photoWeight(u,v);if(w<.03||w>.4)continue;const i=(y*img.width+x)*4,j=sample(u,v);for(let k=0;k<3;k++){base[k]+=d[i+k];photo[k]+=src[j+k];}}
+ const gain=base.map((b,k)=>photo[k]>0?Math.min(1.6,Math.max(.6,b/photo[k])):1);
+ for(let y=0;y<img.height;y++)for(let x=0;x<img.width;x++){const u=(x0+x+.5)/N,v=(y0+y+.5)/N,w=photoWeight(u,v);if(w<=0)continue;const i=(y*img.width+x)*4,j=sample(u,v);
+  for(let k=0;k<3;k++)d[i+k]=d[i+k]*(1-w)+Math.min(255,src[j+k]*gain[k])*w;}
+ g.putImageData(img,x0,y0);return c;
 }

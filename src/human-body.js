@@ -8,7 +8,8 @@ import {MeshoptDecoder} from '../vendor/three-addons/libs/meshopt_decoder.module
 import {clone} from '../vendor/three-addons/utils/SkeletonUtils.js';
 import {TEAMS} from './config.js';
 import {kitHooks} from './player.js';
-import {kitColours,kitMaterial,setKitColours,headMaterial,drawDecals} from './human-kit.js';
+import {kitColours,kitMaterial,setKitColours,headMaterial,drawDecals,composePhotoHead} from './human-kit.js';
+import {cleanFace,FACE_SHAPE} from './face-settings.js';
 
 // Old joint -> new bones, from tools/human/maps/game13.json (index 0 is the player's right side).
 // Each bone takes the cumulative share of the old joint's local rotation. `align` turns the new limb's
@@ -70,9 +71,9 @@ export function loadHumanBodies(renderer){
   const mask=await tex('kit-mask.png',false);mask.generateMipmaps=false;mask.minFilter=mask.magFilter=THREE.NearestFilter;mask.anisotropy=1;
   const avatars={};
   for(const [id,a] of Object.entries(layout.avatars)){
-   const [gltf,body,head,bodyNormal,headNormal,hair]=await Promise.all([loader.loadAsync(BASE+a.model),tex(a.body),tex(a.head),tex(a.bodyNormal,false),tex(a.headNormal,false),tex(a.hair)]);
+   const [gltf,body,head,bodyNormal,headNormal,hair,hairMask]=await Promise.all([loader.loadAsync(BASE+a.model),tex(a.body),tex(a.head),tex(a.bodyNormal,false),tex(a.headNormal,false),tex(a.hair),tex(a.hairMask,false)]);
    addBindPositions(gltf.scene);
-   avatars[id]={...a,gltf,body,head,bodyNormal,headNormal,hair,bind:bindData(gltf.scene),skinColor:new THREE.Color(a.skin)};
+   avatars[id]={...a,gltf,body,head,bodyNormal,headNormal,hair,hairMask,bind:bindData(gltf.scene),skinColor:new THREE.Color(a.skin)};
   }
   assets={layout,mask,avatars};return true;
  };
@@ -84,12 +85,16 @@ export const humanBodiesDisabled=()=>typeof location!=='undefined'&&new URLSearc
 const lum=c=>.2126*c.r+.7152*c.g+.0722*c.b;
 const defaultSkins=['#bf8561','#976143','#deb18a','#74482f','#c89572','#e1ad88'];
 /** Which Rocketbox player and skin tint suit the saved profile (the profile itself is not changed). */
-export function humanLook(profile={},number=10,avatars={male_02:{skin:'#c18a6f'},male_03:{skin:'#a0674a'}}){
+export function humanLook(profile={},number=10,avatars={male_02:{skin:'#c18a6f',hairColor:'#372619'},male_03:{skin:'#a0674a',hairColor:'#16100c'}}){
  const target=new THREE.Color(profile.skin||defaultSkins[number%6]),ids=Object.keys(avatars);
  const dark=ids.find(id=>id.endsWith('03'))||ids.at(-1),light=ids.find(id=>id.endsWith('02'))||ids[0];
  const id=profile.hairStyle==='crest'||lum(target)<lum(new THREE.Color(avatars[dark].skin))*1.05?dark:light;
- const ref=new THREE.Color(avatars[id].skin),tint=new THREE.Color(...['r','g','b'].map(k=>THREE.MathUtils.clamp(target[k]/Math.max(ref[k],.01),.3,1.7)));
- return {avatar:id,tint};
+ // Mostly a brightness change, half of the hue difference: per-channel ratios alone turn light skin grey-green.
+ // The reference is a median that includes shadowed skin, so the change is softened (power .6).
+ const ratio=(want,have)=>{const l=(lum(want)/Math.max(lum(have),.005))**.6;return new THREE.Color(...['r','g','b'].map(k=>clamp(l*(1+((want[k]/Math.max(have[k],.005))/(lum(want)/Math.max(lum(have),.005))-1)*.45),.25,1.8)));};
+ const tint=ratio(target,new THREE.Color(avatars[id].skin));
+ const hairTint=ratio(new THREE.Color(profile.hair||'#211a15'),new THREE.Color(avatars[id].hairColor||'#2a1d14'));
+ return {avatar:id,tint,hairTint};
 }
 const bootColors=['#d3ff47','#f18e54','#dce7f0'];
 function coloursFor(look){return kitColours(TEAMS[look.team],{keeper:look.keeper,boots:look.profile.boots||bootColors[look.number%3]});}
@@ -126,10 +131,20 @@ export function bodyShape(m){
  return {morphs:{body_heavy:clamp((m.width-1)/.22+m.soft*.35,-1,1.5),body_muscle:clamp(m.muscle,-1,1),body_chest:pct(b.chest,25),body_waist:pct(b.waist,30),
   body_thigh:pct(b.thigh,30),body_calf:pct(b.calf,30),body_arms:pct((b.upperArm+b.forearm)/2,30)},leg:b.legLength/100,arm:b.armLength/100,shoulders:b.shoulders/100};
 }
+const seeded=text=>{let h=2166136261;for(const c of String(text))h=Math.imul(h^c.charCodeAt(0),16777619);return ()=>((h=Math.imul(h^h>>>15,2246822507)^Math.imul(h^h>>>13,3266489909))>>>0)/4294967296;};
+/** Face-shape morph weights from the saved face sliders; players who never sculpted a face get their own
+ * stable variation (from uid or number) so a squad does not share one face. */
+export function faceShape(profile={},number=10){
+ const f=cleanFace(profile.face).shape,infl=(key,v=f[key])=>{const [,min,max]=FACE_SHAPE[key];return v>=1?(v-1)/(max-1):-(1-v)/(1-min);};
+ const out={face_width:infl('width'),face_jaw:infl('jaw'),face_chin:clamp(infl('chin')+.6*infl('length'),-1,1),face_cheek:infl('cheek'),face_nose:infl('nose'),
+  face_noseWidth:infl('noseWidth'),face_mouth:infl('mouth'),face_lips:infl('lips'),face_brow:infl('brow'),face_depth:infl('depth')};
+ if(Object.values(f).every(v=>v===1)){const r=seeded(profile.uid??profile.name??number);for(const k of Object.keys(out))out[k]=(r()*2-1)*.7;}
+ return out;
+}
 /** Sets morphs and bone lengths on one model; returns how much the hips rise for longer legs (model units). */
-function applyBodyShape(bones,meshes,m,bind){
- const shape=bodyShape(m);
- for(const mesh of meshes){const d=mesh.morphTargetDictionary;if(!d)continue;for(const [k,v] of Object.entries(shape.morphs))if(k in d)mesh.morphTargetInfluences[d[k]]=v;}
+function applyBodyShape(bones,meshes,m,bind,face={}){
+ const shape=bodyShape(m),morphs={...shape.morphs,...face};
+ for(const mesh of meshes){const d=mesh.morphTargetDictionary;if(!d)continue;for(const [k,v] of Object.entries(morphs))if(k in d)mesh.morphTargetInfluences[d[k]]=v;}
  for(const side of ['Left','Right']){
   for(const n of ['Leg','Foot'])bones[side+n].position.multiplyScalar(shape.leg);
   for(const n of ['ForeArm','Hand'])bones[side+n].position.multiplyScalar(shape.arm);
@@ -166,18 +181,18 @@ export function reachAnkles(rig,root,bones,m,bind,worldScale){
 }
 function attach(rig){
  if(rig.human||rig.disposed)return;const look=rig.look||(rig.look={team:0,number:10,keeper:false,profile:{}}),m=rig.bodyMetrics;
- const {avatar:id,tint}=humanLook(look.profile,look.number,assets.avatars),a=assets.avatars[id],bind=a.bind;
+ const {avatar:id,tint,hairTint}=humanLook(look.profile,look.number,assets.avatars),a=assets.avatars[id],bind=a.bind;
  const root=clone(a.gltf.scene),bones={},meshes=[];root.traverse(o=>{if(o.isBone)bones[o.name]=o;if(o.isSkinnedMesh)meshes.push(o);});
  const decalCanvas=document.createElement('canvas');decalCanvas.width=decalCanvas.height=512;
  const decals=new THREE.CanvasTexture(decalCanvas);decals.flipY=false;decals.colorSpace=THREE.SRGBColorSpace;decals.anisotropy=4;
  const materials={
   body:kitMaterial({map:a.body,normalMap:a.bodyNormal,mask:assets.mask,layout:assets.layout},coloursFor(look),decals,tint),
-  head:headMaterial({map:a.head,normalMap:a.headNormal,eyes:assets.layout.eyes},tint),
-  hair:a.hair&&new THREE.MeshStandardMaterial({map:a.hair,alphaTest:.5,side:THREE.DoubleSide,roughness:.8})};
+  head:headMaterial({map:a.head,normalMap:a.headNormal,eyes:assets.layout.eyes,hairMask:a.hairMask},tint,hairTint),
+  hair:a.hair&&new THREE.MeshStandardMaterial({map:a.hair,color:hairTint,alphaTest:.5,side:THREE.DoubleSide,roughness:.8})};
  for(const mesh of meshes){mesh.material=materials[mesh.material.name]||materials.body;mesh.frustumCulled=false;mesh.castShadow=true;mesh.receiveShadow=true;}
  // Profile height, limb lengths and girth; the feet then reach the old rig's ankles by IK every frame.
  const worldScale=m.height/bind.height,toModel=m.scale/worldScale;root.scale.setScalar(1/toModel);
- const hipsLift=applyBodyShape(bones,meshes,m,bind);
+ const hipsLift=applyBodyShape(bones,meshes,m,bind,faceShape(look.profile,look.number));
  // Hide the old body (its bones keep updating) but keep the blob shadow.
  rig.hips.visible=false;for(const c of rig.root.children)if(c.isMesh&&c.geometry?.type!=='CircleGeometry')c.visible=false;
  rig.details=[];rig.lod=[];rig.root.add(root);
@@ -186,6 +201,11 @@ function attach(rig){
   retarget(rig,bones,bind);
   bones.Hips.position.set(bind.hips.x+rig.hips.position.x*toModel,bind.hips.y+hipsLift+(rig.hips.position.y-m.hipY)*toModel,bind.hips.z+rig.hips.position.z*toModel);
   reachAnkles(rig,root,bones,m,bind,worldScale);
- },dispose(){live.delete(rig);root.removeFromParent();for(const mat of Object.values(materials))mat?.dispose();decals.dispose();for(const s of skeletons)s.dispose();}};
+ },dispose(){live.delete(rig);root.removeFromParent();for(const mat of Object.values(materials))mat?.dispose();decals.dispose();rig.human.photoTexture?.dispose();for(const s of skeletons)s.dispose();}};
  decalsFor(rig);live.add(rig);rig.human.sync();
+ // A saved photo face replaces the painted face (the texture is per player).
+ const face=cleanFace(look.profile.face);
+ if(face.enabled&&look.profile.faceTexture){const image=new Image();image.onload=()=>{if(rig.disposed||!rig.human)return;
+  const t=new THREE.CanvasTexture(composePhotoHead(a.head.image,image));t.flipY=false;t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;t.wrapS=THREE.RepeatWrapping;
+  materials.head.map=t;materials.head.needsUpdate=true;rig.human.photoTexture=t;};image.src=look.profile.faceTexture;}
 }

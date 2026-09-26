@@ -55,6 +55,16 @@ arm.name = 'Rig'
 arm.data.name = 'Rig'
 mesh.name = 'Player'
 
+# Face landmarks from the face bones (metres, before they are merged away).
+def bone_pos(name):
+    return arm.matrix_world @ arm.data.bones[name].head_local
+eye = (bone_pos('Bip01 REye') + bone_pos('Bip01 LEye')) / 2
+head_co = [mesh.matrix_world @ v.co for v in mesh.data.vertices]
+FACE = {'eyes': eye.z, 'nose': bone_pos('Bip01 MNose').z - 0.02, 'nose_y': min(c.y for c in head_co if abs(c.x) < .01 and abs(c.z - eye.z + .04) < .02),
+        'mouth': bone_pos('Bip01 MUpperLip').z - 0.008, 'chin': bone_pos('Bip01 MUpperLip').z - 0.058, 'brow': eye.z + 0.03,
+        'ear_y': eye.y + 0.07, 'head_y': bone_pos('Bip01 Head').y}
+print('FACE', {k: round(v, 3) for k, v in FACE.items()})
+
 # Weights of dropped bones go to the nearest kept ancestor.
 def kept(bone):
     while bone and bone.name not in KEEP:
@@ -115,6 +125,43 @@ for key, amounts in MORPHS.items():
         w = sum(amounts.get(names_by_index[g.group], 0) * g.weight for g in v.groups)
         if w:
             sk.data[v.index].co = v.co + v.normal * w
+
+# Face-shape morphs on the head (the game's face sliders, src/face-settings.js FACE_SHAPE). Displacements
+# are smooth functions of position around the face landmarks (metres, model faces -Y), so lids, eyeballs and
+# teeth move together. Landmarks are read from the face bones before they were merged.
+import math
+def smooth(t):
+    t = max(0.0, min(1.0, t))
+    return t * t * (3 - 2 * t)
+def band(v, a, b, soft=0.012):
+    return smooth((v - a) / soft + 0.5) * smooth((b - v) / soft + 0.5)
+F = FACE
+def front(y):  # 0 behind the ears, 1 on the face
+    return smooth((F['ear_y'] - y) / 0.05)
+def face_morph(name, c):
+    x, y, z = c.x, c.y, c.z
+    ax, fw = abs(x), front(y)
+    sx = 1 if x >= 0 else -1
+    if name == 'face_width':   return Vector((x * 0.14 * fw * band(z, F['chin'], F['brow'] + .02, .03), 0, 0))
+    if name == 'face_jaw':     return Vector((sx * 0.014 * smooth(ax / 0.045) * band(z, F['chin'] - .01, F['mouth'] + .012, .02) * smooth((F['ear_y'] + .03 - y) / .04), 0, 0))
+    if name == 'face_chin':    w = band(z, F['chin'] - .03, F['mouth'] - .008, .02) * fw * smooth((0.04 - ax) / 0.03); return Vector((0, -0.006 * w, -0.014 * w))
+    if name == 'face_cheek':   w = band(z, F['nose'] - .01, F['eyes'] - .004, .018) * band(ax, .035, .085, .02) * fw; return Vector((sx * 0.008 * w, -0.005 * w, 0))
+    if name == 'face_nose':    w = band(z, F['nose'] - .012, F['eyes'] - .006, .014) * smooth((0.022 - ax) / 0.012) * smooth((F['nose_y'] + .035 - y) / .02); return Vector((0, -0.012 * w, 0))
+    if name == 'face_noseWidth': w = band(z, F['nose'] - .014, F['nose'] + .02, .012) * smooth((0.03 - ax) / 0.012) * smooth((F['nose_y'] + .04 - y) / .02); return Vector((x * 0.35 * w, 0, 0))
+    if name == 'face_mouth':   w = band(z, F['mouth'] - .016, F['mouth'] + .012, .01) * smooth((0.04 - ax) / 0.015) * fw; return Vector((x * 0.25 * w, 0, 0))
+    if name == 'face_lips':    w = band(z, F['mouth'] - .012, F['mouth'] + .01, .008) * smooth((0.028 - ax) / 0.012) * smooth((F['nose_y'] + .03 - y) / .015); return Vector((0, -0.005 * w, 0))
+    if name == 'face_brow':    w = band(z, F['eyes'] + .008, F['brow'], .012) * smooth((0.07 - ax) / 0.02) * fw; return Vector((0, -0.005 * w, 0.004 * w))
+    if name == 'face_depth':   return Vector((0, (y - F['head_y']) * 0.1 * band(z, F['chin'] - .03, 2.5, .03), 0))
+    return Vector()
+head_index = [i for i, m in enumerate(me0.materials) if m.name.endswith('_head') or m.name == 'head']
+head_verts = {v for p in me0.polygons if p.material_index in head_index for v in p.vertices}
+hair_index = [i for i, m in enumerate(me0.materials) if m.name.endswith('_opacity') or m.name == 'hair']
+head_verts |= {v for p in me0.polygons if p.material_index in hair_index for v in p.vertices}
+for key in ('face_width', 'face_jaw', 'face_chin', 'face_cheek', 'face_nose', 'face_noseWidth', 'face_mouth', 'face_lips', 'face_brow', 'face_depth'):
+    sk = mesh.shape_key_add(name=key, from_mix=False)
+    for i in head_verts:
+        co = me0.vertices[i].co
+        sk.data[i].co = co + face_morph(key, co)
 
 # Material names the game looks for.
 for m in mesh.data.materials:
