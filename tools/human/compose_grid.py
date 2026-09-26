@@ -23,5 +23,6 @@ for r, view in views.items():
     draw.text((10, top + r * h + h // 2 - 12), view, fill=(200, 200, 200), font=font)
 for t in tiles:
     sheet.paste(Image.open(t['path']).convert('RGB').resize((w, h)), (left + t['col'] * w, top + t['row'] * h))
-sheet.save(spec['out'])
-print('GRID', spec['out'])
+out = spec['out'].rsplit('.', 1)[0] + '.jpg'  # JPEG keeps report images small in the repo
+sheet.save(out, quality=88)
+print('GRID', out)

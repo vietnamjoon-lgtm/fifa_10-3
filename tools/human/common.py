@@ -103,7 +103,7 @@ def render_grid(items, name, views=('front', 'side', 'back', 'threequarter'), re
     for o, (hidden, loc) in saved.items():
         o.hide_render = hidden
         o.location = loc
-    out = os.path.join(REPORT, name + '.png')
+    out = os.path.join(REPORT, name + '.jpg')
     spec = os.path.join(tmp, name + '.json')
     with open(spec, 'w') as f:
         json.dump({'tiles': tiles, 'out': out, 'size': res}, f)

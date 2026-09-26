@@ -292,6 +292,13 @@ test('body presets stay in the footballer ranges',()=>{
 
 ---
 
+> **태스크 2 실제 결과 (2026-09-26, 위 초안과 달라진 점)**
+> - `game13.json`: 기존 리그는 +z를 보고 `legs[0]`·`arms[0]`이 x<0, 즉 **선수의 오른쪽**이다(브라우저에서 확인). 그런데 게임 코드 12곳은 `'left'→0`으로 변환한다(지금 게임은 왼발 동작을 오른다리로 그림, 킥 자세는 항상 `legs[1]`). 대응표는 위치 기준(0 = Right)으로 두고, 4단계 연결 때 12곳을 `'left'→1`로 뒤집는다고 적었다. 변환 위치 목록은 테스트가 소스와 대조한다.
+> - 얼굴 타깃 이름 수정: `chin-jutting-incr` → `chin-prognathism-incr`, `eye-size-decr` → `eye-scale-decr`, f1 눈 높이는 양쪽.
+> - `skinTones`는 `{id, base}` 객체 4개(young 남성)로 바꾸고, 중간 톤 후보는 `skinToneCandidates`(색조·섞기 4개, middleage 3개)에 둔다. 비교 렌더 `tools/human/experiments/skin_tones.py` → `reports/human-v2/02b-skin-tones-{body,head}.jpg`. 선택 결과로 `skinTones`를 확정한다.
+> - 머리카락: 짧은 머리 `short01~04`, `afro01`. 긴 머리 후보 `ponytail01`, `long01`.
+> - 리포트 격자 이미지는 JPEG(품질 88)로 저장한다(PNG는 장당 3.5~4.6 MB).
+
 ### Task 3: `01_body.py` — 기본 몸, 체형 3종, Mixamo 리그, 기본 뼈 위치, 몸 영역
 
 **Files:**

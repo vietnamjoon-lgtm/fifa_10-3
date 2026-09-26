@@ -1,0 +1,7 @@
+{"source":"100STYLE BVH (CC BY 4.0, Ian Mason et al.), T-pose, cm, Y up, 60 fps. Checked from 100STYLE/Kick/Kick_FR.bvh on 2026-09-26.",
+ "bones":{"Hips":{"target":"Hips"},"Chest":{"target":"Spine"},"Chest2":{"target":"Spine1"},"Chest3":{"target":"Spine2","compose":"first"},"Chest4":{"target":"Spine2","compose":"second"},
+  "Neck":{"target":"Neck"},"Head":{"target":"Head"},
+  "LeftCollar":{"target":"LeftShoulder"},"LeftShoulder":{"target":"LeftArm"},"LeftElbow":{"target":"LeftForeArm"},"LeftWrist":{"target":"LeftHand"},
+  "RightCollar":{"target":"RightShoulder"},"RightShoulder":{"target":"RightArm"},"RightElbow":{"target":"RightForeArm"},"RightWrist":{"target":"RightHand"},
+  "LeftHip":{"target":"LeftUpLeg"},"LeftKnee":{"target":"LeftLeg"},"LeftAnkle":{"target":"LeftFoot"},"LeftToe":{"target":"LeftToeBase"},
+  "RightHip":{"target":"RightUpLeg"},"RightKnee":{"target":"RightLeg"},"RightAnkle":{"target":"RightFoot"},"RightToe":{"target":"RightToeBase"}}}

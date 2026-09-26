@@ -1,0 +1,5 @@
+{"bones":"near LOD only: Left/Right Hand{Thumb,Index,Middle,Ring,Pinky}{1,2,3} (MPFB mixamo rig)",
+ "poses":{
+  "relaxed":{"curl":{"Thumb":0.25,"Index":0.35,"Middle":0.45,"Ring":0.55,"Pinky":0.6},"spread":0.05},
+  "open":null,"fist":null,"gk_catch":null,"gk_punch":null},
+ "note":"null slots are filled when goalkeeper catching and punching are animated (ROADMAP stage 7)."}
