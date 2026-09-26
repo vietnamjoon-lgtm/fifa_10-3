@@ -20,27 +20,19 @@ test('bone maps only target the 22 body bones and cover every source joint',()=>
  for(const j of Object.values(g.joints))for(const part of j.bones)assert.ok(BODY22.includes(part.bone),part.bone);
  for(const j of Object.values(g.joints))assert.ok(Math.abs(j.bones.reduce((s,b)=>s+b.share,0)-1)<1e-9);
 });
-test('game13 records which side index 0 is, with evidence and every left/right conversion site',()=>{
+test('game13 records which side index 0 is and the convention it relies on',()=>{
  const g=read('tools/human/maps/game13.json');
  assert.equal(g.sides.legs0,'Right');assert.equal(g.sides.arms0,'Right');
  assert.ok(g.joints['legs0.upper'].read.startsWith('Right')&&g.joints['legs1.upper'].read.startsWith('Left'));
- const src=f=>fs.readFileSync(f,'utf8');
- for(const site of g.sides.conversion_sites){const [loc,...code]=site.split(' ');const [file,line]=loc.split(':');const expr=code[0];
-  assert.ok(src(file).split('\n')[+line-1].includes(expr.slice(expr.indexOf('foot'))),site);}
- const count=['src/foot-plant.js','src/motion.js','src/skills.js'].reduce((n,f)=>n+(src(f).match(/foot==='left'\?[01]:[01]/g)||[]).length,0);
- assert.equal(count,g.sides.conversion_sites.length,'every conversion site is listed');
+ assert.match(g.sides.convention,/sides\.js/);assert.match(g.sides.requires,/PR #34/);
 });
-test('humans.json: footballer bodies, 8 faces, CC0 skins and hair that exist in the asset pack',()=>{
+test('humans.json: 3-day scope, CC0 skins and hair that exist in the asset pack',()=>{
  const c=read('tools/human/config/humans.json'),lic=read('reports/human-v2/assets-licenses.json');
- assert.deepEqual(Object.keys(c.bodies),['slim','standard','large']);
- for(const b of Object.values(c.bodies)){assert.ok(b.heightRange[0]>=1.70&&b.heightRange[1]<=1.95);assert.ok(b.macro.weight<=0.35&&b.macro.muscle>=0.5);}
- assert.equal(c.faces.length,8);assert.equal(c.hairColors.length,5);
- const cc0=kind=>new Set(lic[kind].filter(a=>a.license==='CC0').map(a=>a.name));
- const skins=cc0('skins'),hair=cc0('hair');
- const bases=[...c.skinTones.map(s=>s.base),...c.skinToneCandidates.tinted.flatMap(s=>[s.base,s.mix?.with].filter(Boolean)),...c.skinToneCandidates.middleage];
- for(const b of bases)assert.ok(skins.has(b),b);
- assert.ok(c.skinTones.length>=4);
- for(const h of [...c.hair.short,...c.hair.long])assert.ok(hair.has(h),h);
- assert.ok(c.hair.short.includes('afro01')&&c.hair.long.length<=2);
- assert.deepEqual(Object.keys(c.kits),['field_short','field_long','gk']);
+ assert.deepEqual(Object.keys(c.bodies),['standard']);
+ const b=c.bodies.standard;assert.ok(b.heightRange[0]>=1.70&&b.heightRange[1]<=1.95);assert.ok(b.macro.weight<=0.35&&b.macro.muscle>=0.5);
+ assert.equal(c.faces.length,3);assert.deepEqual(c.skinTones.map(t=>t.id),['light','brown','dark']);
+ const cc0=kind=>new Set(lic[kind].filter(a=>a.license==='CC0').map(a=>a.name)),skins=cc0('skins'),hair=cc0('hair');
+ for(const t of c.skinTones){assert.ok(skins.has(t.base),t.base);if(t.mix)assert.ok(skins.has(t.mix.with),t.mix.with);}
+ assert.deepEqual(c.hair.short,['short01','afro01']);for(const h of c.hair.short)assert.ok(hair.has(h),h);
+ assert.deepEqual(Object.keys(c.kits),['field_short']);assert.deepEqual(c.lod.player,{maxTriangles:8000,bones:22});
 });

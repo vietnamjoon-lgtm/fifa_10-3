@@ -1,0 +1,1387 @@
+{
+  "scope": "32 identical moving kick fixtures, current Match/player.js; only foot-plant module compared HEAD versus working tree; 120Hz rig and simulation",
+  "allPhysicalStatesUnchanged": true,
+  "before": {
+    "maxAnchorError": 3.345649733468077,
+    "maxSupportFrameStep": 0.2451731264376321,
+    "maxLockedDrift": 3.2842310482653936,
+    "lockedFrames": 1830,
+    "groundedFrames": 239,
+    "landingFrames": 1591,
+    "unlockedFrames": 106,
+    "releases": 14,
+    "worst": [
+      {
+        "team": 1,
+        "sprint": true,
+        "type": "pass",
+        "turn": 0.5,
+        "maxError": 1.7663202646747271,
+        "maxStep": 0.2451731264376321,
+        "maxDrift": 1.6744203096698085,
+        "locked": 40,
+        "grounded": 2,
+        "landing": 38,
+        "free": 9,
+        "releases": 0,
+        "event": {
+          "age": -0.08666666666666668,
+          "delta": 0.2451731264376321
+        }
+      },
+      {
+        "team": 1,
+        "sprint": true,
+        "type": "pass",
+        "turn": 1,
+        "maxError": 1.34091281047434,
+        "maxStep": 0.241015207119043,
+        "maxDrift": 1.2405240953413708,
+        "locked": 40,
+        "grounded": 2,
+        "landing": 38,
+        "free": 9,
+        "releases": 0,
+        "event": {
+          "age": -0.08666666666666668,
+          "delta": 0.241015207119043
+        }
+      }
+    ]
+  },
+  "after": {
+    "maxAnchorError": 2.7618628289595948e-15,
+    "maxSupportFrameStep": 0.10879211468735346,
+    "maxLockedDrift": 1.8695394253863585e-15,
+    "lockedFrames": 122,
+    "groundedFrames": 45,
+    "landingFrames": 77,
+    "unlockedFrames": 1814,
+    "releases": 29,
+    "worst": [
+      {
+        "team": 0,
+        "sprint": true,
+        "type": "shoot",
+        "turn": 1,
+        "maxError": 4.304351991299644e-16,
+        "maxStep": 0.10879211468735346,
+        "maxDrift": 5.551115123125783e-17,
+        "locked": 3,
+        "grounded": 3,
+        "landing": 0,
+        "free": 69,
+        "releases": 1,
+        "event": {
+          "age": -0.10666666666666666,
+          "delta": 0.10879211468735346
+        }
+      },
+      {
+        "team": 0,
+        "sprint": true,
+        "type": "shoot",
+        "turn": 0,
+        "maxError": 8.355534721610419e-16,
+        "maxStep": 0.10850471350714526,
+        "maxDrift": 1.942890293094024e-16,
+        "locked": 3,
+        "grounded": 3,
+        "landing": 0,
+        "free": 69,
+        "releases": 1,
+        "event": {
+          "age": -0.10666666666666666,
+          "delta": 0.10850471350714526
+        }
+      }
+    ]
+  },
+  "worseFrameStepCases": [
+    {
+      "team": 0,
+      "sprint": false,
+      "type": "pass",
+      "turn": 0.5,
+      "before": 0.03726510461471551,
+      "after": 0.05899361756653038
+    },
+    {
+      "team": 0,
+      "sprint": false,
+      "type": "pass",
+      "turn": -0.5,
+      "before": 0.08843039066798279,
+      "after": 0.09042017270431567
+    },
+    {
+      "team": 0,
+      "sprint": false,
+      "type": "pass",
+      "turn": 1,
+      "before": 0.02596116865215064,
+      "after": 0.05563346920387268
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "pass",
+      "turn": 0,
+      "before": 0.06713363595729373,
+      "after": 0.08509590418396061
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "pass",
+      "turn": 0.5,
+      "before": 0.06080606084957175,
+      "after": 0.0789386464066091
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "pass",
+      "turn": 1,
+      "before": 0.05085023776109479,
+      "after": 0.07042173546656007
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "shoot",
+      "turn": 0,
+      "before": 0.0717340266451442,
+      "after": 0.10850471350714526
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "shoot",
+      "turn": 0.5,
+      "before": 0.07170841931156403,
+      "after": 0.10770706858597673
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "shoot",
+      "turn": -0.5,
+      "before": 0.0715320049440849,
+      "after": 0.10616417547936198
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "shoot",
+      "turn": 1,
+      "before": 0.07174031953725954,
+      "after": 0.10879211468735346
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "type": "pass",
+      "turn": 0,
+      "before": 0.06927437411660996,
+      "after": 0.07531499624183977
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "type": "pass",
+      "turn": 0.5,
+      "before": 0.07477928852278154,
+      "after": 0.0878010714518696
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "type": "pass",
+      "turn": 1,
+      "before": 0.06941024072518252,
+      "after": 0.07412344915124361
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "pass",
+      "turn": 0,
+      "before": 0.0653901818057613,
+      "after": 0.08483150100151006
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "pass",
+      "turn": -0.5,
+      "before": 0.05928209088860596,
+      "after": 0.07779681233572919
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "shoot",
+      "turn": 0,
+      "before": 0.06726386175772399,
+      "after": 0.10043797955744438
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "shoot",
+      "turn": 0.5,
+      "before": 0.06927760850957639,
+      "after": 0.10181281767445635
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "shoot",
+      "turn": -0.5,
+      "before": 0.07113227996380875,
+      "after": 0.10653824483043349
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "shoot",
+      "turn": 1,
+      "before": 0.06692875677809262,
+      "after": 0.10000456906654273
+    }
+  ],
+  "status": "EXPERIMENT REJECTED: support helper reverted; not part of shipped source",
+  "beforeLabel": "HEAD aa6faf6 foot-plant.js combined with current Match, player.js and body fixture; only the foot-plant module changes in this comparison",
+  "afterLabel": "Uncommitted support experiment: preserve reachable stance, predict reach, latched release, hip-relative 0.20s release blend; subsequently reverted",
+  "limitations": [
+    "Synthetic fixture, not a live-game or visual-quality measurement",
+    "Frame displacement increased by more than 1mm in 19 of 32 cases despite lower overall maximum",
+    "Locked-grounded frames fell from 239 to 45; bounded anchor error alone does not establish a better stance",
+    "landingFrames means locked frames with ankle more than 1cm above sole, including baseline unreachable targets; it does not prove intentional landing",
+    "Physical release time and final ball/player states were identical; this does not validate online playback",
+    "Current shipped source excludes this experiment; retain original support issue as follow-up"
+  ],
+  "scenarios": [
+    {
+      "team": 0,
+      "sprint": false,
+      "type": "pass",
+      "aimZ": 0,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.4533135584117114,
+        "maxStep": 0.10088813633855974,
+        "maxDrift": 1.3569013342123202,
+        "locked": 47,
+        "grounded": 10,
+        "landing": 37,
+        "free": 2,
+        "releases": 1,
+        "event": {
+          "age": -0.12833333333333335,
+          "delta": 0.10088813633855974
+        }
+      },
+      "after": {
+        "maxError": 9.730298868281309e-16,
+        "maxStep": 0.07366472394746988,
+        "maxDrift": 2.220446049250313e-16,
+        "locked": 4,
+        "grounded": 0,
+        "landing": 4,
+        "free": 45,
+        "releases": 1,
+        "event": {
+          "age": 0,
+          "delta": 0.07366472394746988
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": false,
+      "type": "pass",
+      "aimZ": 0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.0090423859379216,
+        "maxStep": 0.03726510461471551,
+        "maxDrift": 0.9048278035512126,
+        "locked": 49,
+        "grounded": 14,
+        "landing": 35,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0.024999999999999994,
+          "delta": 0.03726510461471551
+        }
+      },
+      "after": {
+        "maxError": 8.899114524108741e-16,
+        "maxStep": 0.05899361756653038,
+        "maxDrift": 2.3592239273284576e-16,
+        "locked": 7,
+        "grounded": 1,
+        "landing": 6,
+        "free": 42,
+        "releases": 1,
+        "event": {
+          "age": 0.016666666666666663,
+          "delta": 0.05899361756653038
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": false,
+      "type": "pass",
+      "aimZ": -0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.5401186259191508,
+        "maxStep": 0.08843039066798279,
+        "maxDrift": 1.3689815479334766,
+        "locked": 41,
+        "grounded": 0,
+        "landing": 41,
+        "free": 8,
+        "releases": 1,
+        "event": {
+          "age": -0.09500000000000001,
+          "delta": 0.08843039066798279
+        }
+      },
+      "after": {
+        "maxError": 0,
+        "maxStep": 0.09042017270431567,
+        "maxDrift": 0,
+        "locked": 0,
+        "grounded": 0,
+        "landing": 0,
+        "free": 49,
+        "releases": 0,
+        "event": {
+          "age": -0.020000000000000018,
+          "delta": 0.09042017270431567
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": false,
+      "type": "pass",
+      "aimZ": 1,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 0.5410714564825335,
+        "maxStep": 0.02596116865215064,
+        "maxDrift": 0.437127652537009,
+        "locked": 49,
+        "grounded": 15,
+        "landing": 34,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0.024999999999999994,
+          "delta": 0.02596116865215064
+        }
+      },
+      "after": {
+        "maxError": 1.139331726283876e-15,
+        "maxStep": 0.05563346920387268,
+        "maxDrift": 4.3021142204224816e-16,
+        "locked": 8,
+        "grounded": 2,
+        "landing": 6,
+        "free": 41,
+        "releases": 1,
+        "event": {
+          "age": -0.15333333333333335,
+          "delta": 0.05563346920387268
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": false,
+      "type": "shoot",
+      "aimZ": 0,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.99643753502482,
+        "maxStep": 0.14835311041864732,
+        "maxDrift": 1.9222785648247867,
+        "locked": 66,
+        "grounded": 13,
+        "landing": 53,
+        "free": 6,
+        "releases": 1,
+        "event": {
+          "age": -0.16499999999999998,
+          "delta": 0.14835311041864732
+        }
+      },
+      "after": {
+        "maxError": 2.2408652668112023e-15,
+        "maxStep": 0.08200348477083638,
+        "maxDrift": 1.807312143953211e-15,
+        "locked": 6,
+        "grounded": 0,
+        "landing": 6,
+        "free": 66,
+        "releases": 1,
+        "event": {
+          "age": -0.19833333333333333,
+          "delta": 0.08200348477083638
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": false,
+      "type": "shoot",
+      "aimZ": 0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 2.043077783039319,
+        "maxStep": 0.14708071338596473,
+        "maxDrift": 1.9695704667610434,
+        "locked": 66,
+        "grounded": 13,
+        "landing": 53,
+        "free": 6,
+        "releases": 1,
+        "event": {
+          "age": -0.16499999999999998,
+          "delta": 0.14708071338596473
+        }
+      },
+      "after": {
+        "maxError": 1.1188630228279524e-15,
+        "maxStep": 0.08210983249863,
+        "maxDrift": 3.885780586188048e-16,
+        "locked": 6,
+        "grounded": 0,
+        "landing": 6,
+        "free": 66,
+        "releases": 1,
+        "event": {
+          "age": -0.19833333333333333,
+          "delta": 0.08210983249863
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": false,
+      "type": "shoot",
+      "aimZ": -0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 2.071024303226534,
+        "maxStep": 0.143377617021657,
+        "maxDrift": 1.9976480154096943,
+        "locked": 66,
+        "grounded": 13,
+        "landing": 53,
+        "free": 6,
+        "releases": 1,
+        "event": {
+          "age": -0.16499999999999998,
+          "delta": 0.143377617021657
+        }
+      },
+      "after": {
+        "maxError": 2.097015937473861e-15,
+        "maxStep": 0.08219780598831855,
+        "maxDrift": 1.8001047556827143e-15,
+        "locked": 6,
+        "grounded": 0,
+        "landing": 6,
+        "free": 66,
+        "releases": 1,
+        "event": {
+          "age": -0.19833333333333333,
+          "delta": 0.08219780598831855
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": false,
+      "type": "shoot",
+      "aimZ": 1,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.9816732902533545,
+        "maxStep": 0.14870915214112973,
+        "maxDrift": 1.907304078763583,
+        "locked": 66,
+        "grounded": 13,
+        "landing": 53,
+        "free": 6,
+        "releases": 1,
+        "event": {
+          "age": -0.16499999999999998,
+          "delta": 0.14870915214112973
+        }
+      },
+      "after": {
+        "maxError": 2.2898349882893854e-15,
+        "maxStep": 0.08196625509694214,
+        "maxDrift": 1.8695394253863585e-15,
+        "locked": 6,
+        "grounded": 0,
+        "landing": 6,
+        "free": 66,
+        "releases": 1,
+        "event": {
+          "age": -0.19833333333333333,
+          "delta": 0.08196625509694214
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "pass",
+      "aimZ": 0,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 2.2862074608557914,
+        "maxStep": 0.06713363595729373,
+        "maxDrift": 2.2058014379832946,
+        "locked": 49,
+        "grounded": 4,
+        "landing": 45,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0,
+          "delta": 0.06713363595729373
+        }
+      },
+      "after": {
+        "maxError": 7.634044807122746e-16,
+        "maxStep": 0.08509590418396061,
+        "maxDrift": 1.5265566588595902e-16,
+        "locked": 2,
+        "grounded": 2,
+        "landing": 0,
+        "free": 47,
+        "releases": 1,
+        "event": {
+          "age": -0.011666666666666686,
+          "delta": 0.08509590418396061
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "pass",
+      "aimZ": 0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.9304923221694676,
+        "maxStep": 0.06080606084957175,
+        "maxDrift": 1.8437106238461616,
+        "locked": 49,
+        "grounded": 4,
+        "landing": 45,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0.008333333333333331,
+          "delta": 0.06080606084957175
+        }
+      },
+      "after": {
+        "maxError": 2.9176378038049177e-16,
+        "maxStep": 0.0789386464066091,
+        "maxDrift": 1.5265566588595902e-16,
+        "locked": 2,
+        "grounded": 2,
+        "landing": 0,
+        "free": 47,
+        "releases": 1,
+        "event": {
+          "age": 0.008333333333333331,
+          "delta": 0.0789386464066091
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "pass",
+      "aimZ": -0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.7065749378388526,
+        "maxStep": 0.22337479819349643,
+        "maxDrift": 1.6156455648210668,
+        "locked": 40,
+        "grounded": 3,
+        "landing": 37,
+        "free": 9,
+        "releases": 0,
+        "event": {
+          "age": -0.08666666666666668,
+          "delta": 0.22337479819349643
+        }
+      },
+      "after": {
+        "maxError": 1.6653345369377348e-16,
+        "maxStep": 0.08600045615658652,
+        "maxDrift": 0,
+        "locked": 1,
+        "grounded": 0,
+        "landing": 1,
+        "free": 48,
+        "releases": 1,
+        "event": {
+          "age": -0.08666666666666668,
+          "delta": 0.08600045615658652
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "pass",
+      "aimZ": 1,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.5895360088108725,
+        "maxStep": 0.05085023776109479,
+        "maxDrift": 1.496106699766146,
+        "locked": 49,
+        "grounded": 4,
+        "landing": 45,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0.008333333333333331,
+          "delta": 0.05085023776109479
+        }
+      },
+      "after": {
+        "maxError": 5.253434695803222e-16,
+        "maxStep": 0.07042173546656007,
+        "maxDrift": 9.71445146547012e-17,
+        "locked": 2,
+        "grounded": 2,
+        "landing": 0,
+        "free": 47,
+        "releases": 1,
+        "event": {
+          "age": 0.008333333333333331,
+          "delta": 0.07042173546656007
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "shoot",
+      "aimZ": 0,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 3.342754510938955,
+        "maxStep": 0.0717340266451442,
+        "maxDrift": 3.281304311845609,
+        "locked": 72,
+        "grounded": 5,
+        "landing": 67,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0,
+          "delta": 0.0717340266451442
+        }
+      },
+      "after": {
+        "maxError": 8.355534721610419e-16,
+        "maxStep": 0.10850471350714526,
+        "maxDrift": 1.942890293094024e-16,
+        "locked": 3,
+        "grounded": 3,
+        "landing": 0,
+        "free": 69,
+        "releases": 1,
+        "event": {
+          "age": -0.10666666666666666,
+          "delta": 0.10850471350714526
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "shoot",
+      "aimZ": 0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 3.331968991840206,
+        "maxStep": 0.07170841931156403,
+        "maxDrift": 3.270401115983074,
+        "locked": 72,
+        "grounded": 5,
+        "landing": 67,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0,
+          "delta": 0.07170841931156403
+        }
+      },
+      "after": {
+        "maxError": 8.465450562766819e-16,
+        "maxStep": 0.10770706858597673,
+        "maxDrift": 8.326672684688674e-17,
+        "locked": 3,
+        "grounded": 3,
+        "landing": 0,
+        "free": 69,
+        "releases": 1,
+        "event": {
+          "age": -0.10666666666666666,
+          "delta": 0.10770706858597673
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "shoot",
+      "aimZ": -0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 3.296393646711615,
+        "maxStep": 0.0715320049440849,
+        "maxDrift": 3.2344344334954993,
+        "locked": 72,
+        "grounded": 5,
+        "landing": 67,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0,
+          "delta": 0.0715320049440849
+        }
+      },
+      "after": {
+        "maxError": 5.284504157781969e-16,
+        "maxStep": 0.10616417547936198,
+        "maxDrift": 1.942890293094024e-16,
+        "locked": 3,
+        "grounded": 3,
+        "landing": 0,
+        "free": 69,
+        "releases": 1,
+        "event": {
+          "age": -0.10666666666666666,
+          "delta": 0.10616417547936198
+        }
+      }
+    },
+    {
+      "team": 0,
+      "sprint": true,
+      "type": "shoot",
+      "aimZ": 1,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 3.345649733468077,
+        "maxStep": 0.07174031953725954,
+        "maxDrift": 3.2842310482653936,
+        "locked": 72,
+        "grounded": 5,
+        "landing": 67,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0,
+          "delta": 0.07174031953725954
+        }
+      },
+      "after": {
+        "maxError": 4.304351991299644e-16,
+        "maxStep": 0.10879211468735346,
+        "maxDrift": 5.551115123125783e-17,
+        "locked": 3,
+        "grounded": 3,
+        "landing": 0,
+        "free": 69,
+        "releases": 1,
+        "event": {
+          "age": -0.10666666666666666,
+          "delta": 0.10879211468735346
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "type": "pass",
+      "aimZ": 0,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.453153118668593,
+        "maxStep": 0.06927437411660996,
+        "maxDrift": 1.3546328645369816,
+        "locked": 45,
+        "grounded": 8,
+        "landing": 37,
+        "free": 4,
+        "releases": 1,
+        "event": {
+          "age": -0.12000000000000002,
+          "delta": 0.06927437411660996
+        }
+      },
+      "after": {
+        "maxError": 1.4240125134440781e-15,
+        "maxStep": 0.07531499624183977,
+        "maxDrift": 5.273559366969494e-16,
+        "locked": 4,
+        "grounded": 0,
+        "landing": 4,
+        "free": 45,
+        "releases": 1,
+        "event": {
+          "age": 0,
+          "delta": 0.07531499624183977
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "type": "pass",
+      "aimZ": 0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.6256304980365623,
+        "maxStep": 0.07477928852278154,
+        "maxDrift": 1.44108077197416,
+        "locked": 43,
+        "grounded": 0,
+        "landing": 43,
+        "free": 6,
+        "releases": 1,
+        "event": {
+          "age": -0.10333333333333335,
+          "delta": 0.07477928852278154
+        }
+      },
+      "after": {
+        "maxError": 0,
+        "maxStep": 0.0878010714518696,
+        "maxDrift": 0,
+        "locked": 0,
+        "grounded": 0,
+        "landing": 0,
+        "free": 49,
+        "releases": 0,
+        "event": {
+          "age": -0.02833333333333335,
+          "delta": 0.0878010714518696
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "type": "pass",
+      "aimZ": -0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 0.9431039047541948,
+        "maxStep": 0.06447952211885441,
+        "maxDrift": 0.8360813256575188,
+        "locked": 45,
+        "grounded": 11,
+        "landing": 34,
+        "free": 4,
+        "releases": 1,
+        "event": {
+          "age": -0.12000000000000002,
+          "delta": 0.06447952211885441
+        }
+      },
+      "after": {
+        "maxError": 2.5371693372969605e-15,
+        "maxStep": 0.059973662376218546,
+        "maxDrift": 6.938893903907228e-16,
+        "locked": 6,
+        "grounded": 0,
+        "landing": 6,
+        "free": 43,
+        "releases": 1,
+        "event": {
+          "age": -0.15333333333333335,
+          "delta": 0.059973662376218546
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "type": "pass",
+      "aimZ": 1,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 0.9712855578535404,
+        "maxStep": 0.06941024072518252,
+        "maxDrift": 0.7927798340415183,
+        "locked": 42,
+        "grounded": 0,
+        "landing": 42,
+        "free": 7,
+        "releases": 1,
+        "event": {
+          "age": -0.09500000000000001,
+          "delta": 0.06941024072518252
+        }
+      },
+      "after": {
+        "maxError": 0,
+        "maxStep": 0.07412344915124361,
+        "maxDrift": 0,
+        "locked": 0,
+        "grounded": 0,
+        "landing": 0,
+        "free": 49,
+        "releases": 0,
+        "event": {
+          "age": -0.02833333333333335,
+          "delta": 0.07412344915124361
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "type": "shoot",
+      "aimZ": 0,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.885265736918387,
+        "maxStep": 0.1486203392762948,
+        "maxDrift": 1.801624597617844,
+        "locked": 66,
+        "grounded": 13,
+        "landing": 53,
+        "free": 6,
+        "releases": 1,
+        "event": {
+          "age": -0.16499999999999998,
+          "delta": 0.1486203392762948
+        }
+      },
+      "after": {
+        "maxError": 1.348432593975683e-15,
+        "maxStep": 0.08423816141853825,
+        "maxDrift": 3.677613769070831e-16,
+        "locked": 6,
+        "grounded": 0,
+        "landing": 6,
+        "free": 66,
+        "releases": 1,
+        "event": {
+          "age": -0.19833333333333333,
+          "delta": 0.08423816141853825
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "type": "shoot",
+      "aimZ": 0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 2.0137685742066926,
+        "maxStep": 0.14933829561596373,
+        "maxDrift": 1.9323795147781118,
+        "locked": 66,
+        "grounded": 13,
+        "landing": 53,
+        "free": 6,
+        "releases": 1,
+        "event": {
+          "age": -0.16499999999999998,
+          "delta": 0.14933829561596373
+        }
+      },
+      "after": {
+        "maxError": 2.1138016631127878e-15,
+        "maxStep": 0.08444758505594904,
+        "maxDrift": 9.020562075079397e-16,
+        "locked": 6,
+        "grounded": 0,
+        "landing": 6,
+        "free": 66,
+        "releases": 1,
+        "event": {
+          "age": -0.19833333333333333,
+          "delta": 0.08444758505594904
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "type": "shoot",
+      "aimZ": -0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.95642347342522,
+        "maxStep": 0.15629362741694047,
+        "maxDrift": 1.874756903301026,
+        "locked": 66,
+        "grounded": 14,
+        "landing": 52,
+        "free": 6,
+        "releases": 1,
+        "event": {
+          "age": -0.16499999999999998,
+          "delta": 0.15629362741694047
+        }
+      },
+      "after": {
+        "maxError": 1.8484567385625758e-15,
+        "maxStep": 0.08436043761049648,
+        "maxDrift": 3.191891195797325e-16,
+        "locked": 6,
+        "grounded": 0,
+        "landing": 6,
+        "free": 66,
+        "releases": 1,
+        "event": {
+          "age": -0.19833333333333333,
+          "delta": 0.08436043761049648
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": false,
+      "type": "shoot",
+      "aimZ": 1,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.8454840158649846,
+        "maxStep": 0.14836514194810932,
+        "maxDrift": 1.7611350290025316,
+        "locked": 66,
+        "grounded": 13,
+        "landing": 53,
+        "free": 6,
+        "releases": 1,
+        "event": {
+          "age": -0.16499999999999998,
+          "delta": 0.14836514194810932
+        }
+      },
+      "after": {
+        "maxError": 2.7618628289595948e-15,
+        "maxStep": 0.08413727014349845,
+        "maxDrift": 7.632783294297951e-16,
+        "locked": 6,
+        "grounded": 0,
+        "landing": 6,
+        "free": 66,
+        "releases": 1,
+        "event": {
+          "age": -0.19833333333333333,
+          "delta": 0.08413727014349845
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "pass",
+      "aimZ": 0,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 2.149114847684131,
+        "maxStep": 0.0653901818057613,
+        "maxDrift": 2.0643058925508364,
+        "locked": 49,
+        "grounded": 6,
+        "landing": 43,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0,
+          "delta": 0.0653901818057613
+        }
+      },
+      "after": {
+        "maxError": 1.3467890783726674e-15,
+        "maxStep": 0.08483150100151006,
+        "maxDrift": 1.1102230246251565e-16,
+        "locked": 4,
+        "grounded": 4,
+        "landing": 0,
+        "free": 45,
+        "releases": 1,
+        "event": {
+          "age": -0.011666666666666686,
+          "delta": 0.08483150100151006
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "pass",
+      "aimZ": 0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.7663202646747271,
+        "maxStep": 0.2451731264376321,
+        "maxDrift": 1.6744203096698085,
+        "locked": 40,
+        "grounded": 2,
+        "landing": 38,
+        "free": 9,
+        "releases": 0,
+        "event": {
+          "age": -0.08666666666666668,
+          "delta": 0.2451731264376321
+        }
+      },
+      "after": {
+        "maxError": 1.3414875847488985e-15,
+        "maxStep": 0.09293833261969929,
+        "maxDrift": 0,
+        "locked": 1,
+        "grounded": 0,
+        "landing": 1,
+        "free": 48,
+        "releases": 1,
+        "event": {
+          "age": -0.08666666666666668,
+          "delta": 0.09293833261969929
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "pass",
+      "aimZ": -0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.8032321391668054,
+        "maxStep": 0.05928209088860596,
+        "maxDrift": 1.7119262160511928,
+        "locked": 49,
+        "grounded": 7,
+        "landing": 42,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0.008333333333333331,
+          "delta": 0.05928209088860596
+        }
+      },
+      "after": {
+        "maxError": 1.5444300683823763e-15,
+        "maxStep": 0.07779681233572919,
+        "maxDrift": 1.8041124150158794e-16,
+        "locked": 4,
+        "grounded": 4,
+        "landing": 0,
+        "free": 45,
+        "releases": 1,
+        "event": {
+          "age": 0.008333333333333331,
+          "delta": 0.07779681233572919
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "pass",
+      "aimZ": 1,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 1.34091281047434,
+        "maxStep": 0.241015207119043,
+        "maxDrift": 1.2405240953413708,
+        "locked": 40,
+        "grounded": 2,
+        "landing": 38,
+        "free": 9,
+        "releases": 0,
+        "event": {
+          "age": -0.08666666666666668,
+          "delta": 0.241015207119043
+        }
+      },
+      "after": {
+        "maxError": 7.889616961715915e-16,
+        "maxStep": 0.08460526994282082,
+        "maxDrift": 0,
+        "locked": 1,
+        "grounded": 0,
+        "landing": 1,
+        "free": 48,
+        "releases": 1,
+        "event": {
+          "age": -0.07833333333333335,
+          "delta": 0.08460526994282082
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "shoot",
+      "aimZ": 0,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 2.957571085907815,
+        "maxStep": 0.06726386175772399,
+        "maxDrift": 2.8898908258715394,
+        "locked": 72,
+        "grounded": 6,
+        "landing": 66,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0.008333333333333331,
+          "delta": 0.06726386175772399
+        }
+      },
+      "after": {
+        "maxError": 1.2628786905111156e-15,
+        "maxStep": 0.10043797955744438,
+        "maxDrift": 5.551115123125783e-17,
+        "locked": 4,
+        "grounded": 4,
+        "landing": 0,
+        "free": 68,
+        "releases": 1,
+        "event": {
+          "age": -0.10666666666666666,
+          "delta": 0.10043797955744438
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "shoot",
+      "aimZ": 0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 3.0750007370574632,
+        "maxStep": 0.06927760850957639,
+        "maxDrift": 3.008777131823048,
+        "locked": 72,
+        "grounded": 6,
+        "landing": 66,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0,
+          "delta": 0.06927760850957639
+        }
+      },
+      "after": {
+        "maxError": 9.611808333100265e-16,
+        "maxStep": 0.10181281767445635,
+        "maxDrift": 9.71445146547012e-17,
+        "locked": 4,
+        "grounded": 4,
+        "landing": 0,
+        "free": 68,
+        "releases": 1,
+        "event": {
+          "age": -0.115,
+          "delta": 0.10181281767445635
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "shoot",
+      "aimZ": -0.5,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 3.2184979445112685,
+        "maxStep": 0.07113227996380875,
+        "maxDrift": 3.1539732249652865,
+        "locked": 72,
+        "grounded": 6,
+        "landing": 66,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0,
+          "delta": 0.07113227996380875
+        }
+      },
+      "after": {
+        "maxError": 2.111659442296453e-15,
+        "maxStep": 0.10653824483043349,
+        "maxDrift": 1.3877787807814457e-16,
+        "locked": 4,
+        "grounded": 4,
+        "landing": 0,
+        "free": 68,
+        "releases": 1,
+        "event": {
+          "age": -0.115,
+          "delta": 0.10653824483043349
+        }
+      }
+    },
+    {
+      "team": 1,
+      "sprint": true,
+      "type": "shoot",
+      "aimZ": 1,
+      "physicsUnchanged": true,
+      "before": {
+        "maxError": 2.9349505760424823,
+        "maxStep": 0.06692875677809262,
+        "maxDrift": 2.8669828760988683,
+        "locked": 72,
+        "grounded": 6,
+        "landing": 66,
+        "free": 0,
+        "releases": 0,
+        "event": {
+          "age": 0.008333333333333331,
+          "delta": 0.06692875677809262
+        }
+      },
+      "after": {
+        "maxError": 3.227891107075167e-16,
+        "maxStep": 0.10000456906654273,
+        "maxDrift": 1.5265566588595902e-16,
+        "locked": 4,
+        "grounded": 4,
+        "landing": 0,
+        "free": 68,
+        "releases": 1,
+        "event": {
+          "age": -0.10666666666666666,
+          "delta": 0.10000456906654273
+        }
+      }
+    }
+  ]
+}

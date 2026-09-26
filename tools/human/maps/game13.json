@@ -1,29 +1,142 @@
-{"note":"Old 13-joint rig (src/player.js createPlayer) -> new 22-bone rig. 'bones' spreads a rotation written to the old joint; 'read' is the bone that stands for the old joint. This table maps BY POSITION: old index 0 is the limb at x<0.",
- "joints":{
-  "hips":{"bones":[{"bone":"Hips","share":1}],"read":"Hips"},
-  "torso":{"bones":[{"bone":"Spine","share":0.3},{"bone":"Spine1","share":0.3},{"bone":"Spine2","share":0.4}],"read":"Spine2"},
-  "head":{"bones":[{"bone":"Neck","share":0.4},{"bone":"Head","share":0.6}],"read":"Head"},
-  "arms0.upper":{"bones":[{"bone":"RightArm","share":1}],"read":"RightArm"},"arms0.lower":{"bones":[{"bone":"RightForeArm","share":1}],"read":"RightForeArm"},
-  "arms1.upper":{"bones":[{"bone":"LeftArm","share":1}],"read":"LeftArm"},"arms1.lower":{"bones":[{"bone":"LeftForeArm","share":1}],"read":"LeftForeArm"},
-  "legs0.upper":{"bones":[{"bone":"RightUpLeg","share":1}],"read":"RightUpLeg"},"legs0.lower":{"bones":[{"bone":"RightLeg","share":1}],"read":"RightLeg"},"legs0.foot":{"bones":[{"bone":"RightFoot","share":1}],"read":"RightFoot"},
-  "legs1.upper":{"bones":[{"bone":"LeftUpLeg","share":1}],"read":"LeftUpLeg"},"legs1.lower":{"bones":[{"bone":"LeftLeg","share":1}],"read":"LeftLeg"},"legs1.foot":{"bones":[{"bone":"LeftFoot","share":1}],"read":"LeftFoot"}},
- "sides":{
-  "legs0":"Right",
-  "arms0":"Right",
-  "evidence":"Checked 2026-09-26 on main e40fa61 in the browser: createPlayer() at yaw 0 faces +z (boot toe reaches z=+0.196 from the ankle at z=0; gameplay forward is (sin yaw, cos yaw)). legs[0] hip is at x=-0.09 and arms[0] at x=-0.209. Facing +z, -x is the player's RIGHT. New rig: LeftUpLeg at +x after glTF export (checked by 01_body.py).",
-  "mirrored_in_game_code":"The game names index 0 'left' ('left'->0) although index 0 is drawn on the anatomical right. So today a 'left' foot kick/receive is drawn with the right leg, and the fixed kick pose in motion.js always swings legs[1] (anatomical left).",
-  "conversion_sites":[
-   "src/foot-plant.js:35 kickIndex=action?.foot==='left'?0:1",
-   "src/foot-plant.js:41 receiveIndex=receive?.foot==='left'?0:1",
-   "src/foot-plant.js:42 p.receive.foot==='left'?0:1",
-   "src/motion.js:55 p.foot==='left'?0:1 (receive knee bend)",
-   "src/motion.js:96 p.foot==='left'?0:1",
-   "src/motion.js:108 r.foot==='left'?0:1 (receive prepare)",
-   "src/motion.js:109 r.foot==='left'?0:1 (receive)",
-   "src/motion.js:110 p.turnPlan.foot==='left'?1:0 (plant foot, opposite by design)",
-   "src/motion.js:115 action.foot==='left'?0:1",
-   "src/motion.js:116 r.foot==='left'?0:1",
-   "src/motion.js:117 action.foot==='left'?0:1 (outside-foot touch)",
-   "src/skills.js:19 a.foot==='left'?0:1"],
-  "fixed_leg_poses":"src/motion.js kick pose writes pose.legs[1] as the kicking leg regardless of action.foot; celebrations.js and skills.js also address legs/arms by index.",
-  "decision_for_stage_4":"Keep this positional table (index 0 = Right) and flip the 12 conversion sites to 'left'->1 (turnPlan to 'left'->0) when the new rig is connected; that also fixes today's mirrored left/right. The alternative (index 0 = Left) would need every lateral sign such as gait.js (i===0?-1:1)*hipX flipped instead. Owners: 02 (foot-plant.js, motion.js), 03 (skills.js)."}}
+{
+ "note": "Old 13-joint rig (src/player.js createPlayer) -> new 22-bone rig. 'bones' spreads a rotation written to the old joint; 'read' is the bone that stands for the old joint. This table maps BY POSITION: old index 0 is the limb at x<0.",
+ "joints": {
+  "hips": {
+   "bones": [
+    {
+     "bone": "Hips",
+     "share": 1
+    }
+   ],
+   "read": "Hips"
+  },
+  "torso": {
+   "bones": [
+    {
+     "bone": "Spine",
+     "share": 0.3
+    },
+    {
+     "bone": "Spine1",
+     "share": 0.3
+    },
+    {
+     "bone": "Spine2",
+     "share": 0.4
+    }
+   ],
+   "read": "Spine2"
+  },
+  "head": {
+   "bones": [
+    {
+     "bone": "Neck",
+     "share": 0.4
+    },
+    {
+     "bone": "Head",
+     "share": 0.6
+    }
+   ],
+   "read": "Head"
+  },
+  "arms0.upper": {
+   "bones": [
+    {
+     "bone": "RightArm",
+     "share": 1
+    }
+   ],
+   "read": "RightArm"
+  },
+  "arms0.lower": {
+   "bones": [
+    {
+     "bone": "RightForeArm",
+     "share": 1
+    }
+   ],
+   "read": "RightForeArm"
+  },
+  "arms1.upper": {
+   "bones": [
+    {
+     "bone": "LeftArm",
+     "share": 1
+    }
+   ],
+   "read": "LeftArm"
+  },
+  "arms1.lower": {
+   "bones": [
+    {
+     "bone": "LeftForeArm",
+     "share": 1
+    }
+   ],
+   "read": "LeftForeArm"
+  },
+  "legs0.upper": {
+   "bones": [
+    {
+     "bone": "RightUpLeg",
+     "share": 1
+    }
+   ],
+   "read": "RightUpLeg"
+  },
+  "legs0.lower": {
+   "bones": [
+    {
+     "bone": "RightLeg",
+     "share": 1
+    }
+   ],
+   "read": "RightLeg"
+  },
+  "legs0.foot": {
+   "bones": [
+    {
+     "bone": "RightFoot",
+     "share": 1
+    }
+   ],
+   "read": "RightFoot"
+  },
+  "legs1.upper": {
+   "bones": [
+    {
+     "bone": "LeftUpLeg",
+     "share": 1
+    }
+   ],
+   "read": "LeftUpLeg"
+  },
+  "legs1.lower": {
+   "bones": [
+    {
+     "bone": "LeftLeg",
+     "share": 1
+    }
+   ],
+   "read": "LeftLeg"
+  },
+  "legs1.foot": {
+   "bones": [
+    {
+     "bone": "LeftFoot",
+     "share": 1
+    }
+   ],
+   "read": "LeftFoot"
+  }
+ },
+ "sides": {
+  "legs0": "Right",
+  "arms0": "Right",
+  "evidence": "Checked 2026-09-26 in the browser on main e40fa61: createPlayer() at yaw 0 faces +z (boot toe at z=+0.196 from the ankle; gameplay forward is (sin yaw, cos yaw)); legs[0] hip at x=-0.09, arms[0] at x=-0.209. Facing +z, -x is the player's RIGHT. New rig: LeftUpLeg at +x after glTF export (checked by 01_body.py).",
+  "convention": "After PR #34 (fix/left-right): 'left' means the player's left everywhere. src/sides.js has RIGHT=0, LEFT=1 and sideIndex(foot); every foot->index conversion in motion.js, foot-plant.js and skills.js goes through it, and contact-model.js footSign('left') is +1. This table therefore maps legs0/arms0 -> Right* and legs1/arms1 -> Left* with no further flips when the new body is connected.",
+  "before_fix": "Until PR #34 the game mirrored both sides consistently: footSign('left')=-1 put the logical left foot on the player's right and 13 sites mapped 'left'->0 (the right leg). A left-footed player was drawn kicking with the right leg. The kick pose and CMU 10_01 are authored on legs[1] (left) and mirrored for the other foot.",
+  "requires": "Connect the new body only on top of PR #34, otherwise left/right are mirrored."
+ }
+}

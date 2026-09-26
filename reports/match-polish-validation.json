@@ -1,0 +1,36 @@
+{
+  "gameSourceCommit": "64b41a3",
+  "fullSuite": {
+    "passed": 284,
+    "failed": 0,
+    "durationMs": 63108.1029
+  },
+  "additionalMeasurementTests": {
+    "passed": 2,
+    "failed": 0
+  },
+  "build": {
+    "files": 143,
+    "bytes": 25641719,
+    "qaEnabled": false
+  },
+  "browser": {
+    "firstTouch": "passed reception fixture",
+    "keeper": "save observed",
+    "penalty": "D kick, save, returned to play",
+    "editor": {
+      "fixture": "QA ORIGINAL",
+      "heightCm": 192.3,
+      "weightKg": 92.4,
+      "bodyType": "sturdy",
+      "activeLineup": false
+    },
+    "consoleErrors": [],
+    "origin": "http://127.0.0.1:4191"
+  },
+  "limitations": [
+    "Performance target not met; normalized P95 regressed.",
+    "Club identities from new upstream feature are not synchronized by the existing online server.",
+    "Not a production deployment or a two-human network latency test."
+  ]
+}
