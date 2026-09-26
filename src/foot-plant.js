@@ -1,22 +1,29 @@
 import * as THREE from '../vendor/three.module.js';
 const down=new THREE.Vector3(0,-1,0),v=new THREE.Vector3(),q=new THREE.Quaternion();
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+// solveFoot is synchronous. Reuse scratch values across players instead of
+// creating temporary vectors and quaternions for every rendered leg.
+const ik={hip:new THREE.Vector3(),knee:new THREE.Vector3(),ankle:new THREE.Vector3(),direction:new THREE.Vector3(),forward:new THREE.Vector3(),kneeTarget:new THREE.Vector3(),end:new THREE.Vector3(),delta:new THREE.Vector3(),matrixPosition:new THREE.Vector3(),matrixScale:new THREE.Vector3(),parent:new THREE.Quaternion(),root:new THREE.Quaternion()};
 
 // Analytic two-bone IK in world space. Clamp unreachable targets; never stretch limbs.
 export function solveFoot(rig,index,target){
  const leg=rig.legs[index];rig.root.updateWorldMatrix(true,false);
- const hip=leg.upper.getWorldPosition(new THREE.Vector3()),knee=leg.lower.getWorldPosition(new THREE.Vector3()),ankle=leg.foot.getWorldPosition(new THREE.Vector3());
- const a=hip.distanceTo(knee),b=knee.distanceTo(ankle),direction=target.clone().sub(hip),requested=direction.length(),r=clamp(requested,Math.abs(a-b)+.001,a+b-.001);direction.normalize();
- const forward=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(new THREE.Quaternion()));
+ // The rig's leg chain is root -> hips -> upper -> lower -> foot. Refresh only
+ // this chain, instead of asking each world getter to revisit every ancestor.
+ leg.upper.parent.updateWorldMatrix(false,false);leg.upper.updateWorldMatrix(false,false);leg.lower.updateWorldMatrix(false,false);leg.foot.updateWorldMatrix(false,false);
+ const hip=ik.hip.setFromMatrixPosition(leg.upper.matrixWorld),knee=ik.knee.setFromMatrixPosition(leg.lower.matrixWorld),ankle=ik.ankle.setFromMatrixPosition(leg.foot.matrixWorld);
+ const a=hip.distanceTo(knee),b=knee.distanceTo(ankle),direction=ik.direction.copy(target).sub(hip),requested=direction.length(),r=clamp(requested,Math.abs(a-b)+.001,a+b-.001);direction.normalize();
+ rig.root.matrixWorld.decompose(ik.matrixPosition,ik.root,ik.matrixScale);
+ const forward=ik.forward.set(0,0,1).applyQuaternion(ik.root);
  const bend=forward.addScaledVector(direction,-forward.dot(direction));if(bend.lengthSq()<.001)bend.set(1,0,0);bend.normalize();
  const projection=(a*a+r*r-b*b)/(2*r),height=Math.sqrt(Math.max(0,a*a-projection*projection));
- const kneeTarget=hip.clone().addScaledVector(direction,projection).addScaledVector(bend,height),end=hip.clone().addScaledVector(direction,r);
- const parentQ=leg.upper.parent.getWorldQuaternion(new THREE.Quaternion()).invert();
- leg.upper.quaternion.setFromUnitVectors(down,kneeTarget.clone().sub(hip).normalize().applyQuaternion(parentQ));rig.root.updateWorldMatrix(true,false);
- const kneeQ=leg.lower.parent.getWorldQuaternion(new THREE.Quaternion()).invert();
- leg.lower.quaternion.setFromUnitVectors(down,end.clone().sub(kneeTarget).normalize().applyQuaternion(kneeQ));rig.root.updateWorldMatrix(true,false);
- const footQ=leg.foot.parent.getWorldQuaternion(new THREE.Quaternion()).invert(),rootQ=rig.root.getWorldQuaternion(new THREE.Quaternion());leg.foot.quaternion.copy(footQ.multiply(rootQ));rig.root.updateWorldMatrix(true,false);
- return {error:leg.foot.getWorldPosition(v).distanceTo(target),clamped:requested>r+.005};
+ const kneeTarget=ik.kneeTarget.copy(hip).addScaledVector(direction,projection).addScaledVector(bend,height),end=ik.end.copy(hip).addScaledVector(direction,r);
+ leg.upper.parent.matrixWorld.decompose(ik.matrixPosition,ik.parent,ik.matrixScale);
+ leg.upper.quaternion.setFromUnitVectors(down,ik.delta.copy(kneeTarget).sub(hip).normalize().applyQuaternion(ik.parent.invert()));leg.upper.updateWorldMatrix(false,false);
+ leg.upper.matrixWorld.decompose(ik.matrixPosition,ik.parent,ik.matrixScale);
+ leg.lower.quaternion.setFromUnitVectors(down,ik.delta.copy(end).sub(kneeTarget).normalize().applyQuaternion(ik.parent.invert()));leg.lower.updateWorldMatrix(false,false);
+ leg.lower.matrixWorld.decompose(ik.matrixPosition,ik.parent,ik.matrixScale);leg.foot.quaternion.copy(ik.parent.invert().multiply(ik.root));leg.foot.updateWorldMatrix(false,false);
+ return {error:v.setFromMatrixPosition(leg.foot.matrixWorld).distanceTo(target),clamped:requested>r+.005};
 }
 export function stabilizeFeet(rig,p,pose,dt){
  if(pose.gaitTargets&&!p.action&&!p.down&&!p.dive){stabilizeGait(rig,p,pose,dt);return;}

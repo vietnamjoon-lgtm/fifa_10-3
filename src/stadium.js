@@ -29,7 +29,9 @@ export function buildStadium(scene){
  const stadium=new THREE.Group();scene.add(stadium);
  const asphalt=mat(0x16332b),concrete=mat(0x263b39),metal=mat(0x455e60,.46),white=mat(0xe9eee8,.46),dark=mat(0x101e24);
  box(stadium,0,-.3,0,180,.5,142,asphalt);
- const grass=new THREE.MeshStandardMaterial({map:pitchTexture(),roughness:.95});
+ // Grass is diffuse at match distance: keep its bump detail and received shadows,
+ // without paying for the player/kit PMREM reflection lookup across the entire pitch.
+ const grass=new THREE.MeshLambertMaterial({map:pitchTexture()});
  const field=new THREE.Mesh(new THREE.PlaneGeometry(116,78),grass);field.rotation.x=-Math.PI/2;field.position.y=.004;field.receiveShadow=true;stadium.add(field);
  const detail=canvasTexture(128,128,(c,w,h)=>{c.fillStyle='#888';c.fillRect(0,0,w,h);for(let i=0;i<7000;i++){c.fillStyle=Math.random()>.5?'#aaa':'#666';c.fillRect(Math.random()*w,Math.random()*h,1,3)}});detail.wrapS=detail.wrapT=THREE.RepeatWrapping;detail.repeat.set(140,95);grass.bumpMap=detail;grass.bumpScale=.027;
  const goals=[];for(const s of [-1,1]){
