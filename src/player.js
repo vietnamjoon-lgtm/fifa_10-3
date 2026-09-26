@@ -22,7 +22,9 @@ const bootMats=[new THREE.MeshStandardMaterial({color:0xd3ff47,roughness:.38}),n
 const gkMat=new THREE.MeshStandardMaterial({color:0xecc842,roughness:.84}),keeperMats=[gkMat,new THREE.MeshStandardMaterial({color:0x3fb8e8,roughness:.84})];
 // Shared kit colours: the anatomical shader reads these objects, so a club change recolours every player at once.
 const kitSecond=[new THREE.Color(0xd7edc0),new THREE.Color(0xdf593e)],kitSleeves=[new THREE.Color(0xd7edc0),new THREE.Color(0xdf593e)],kitPattern=[{value:0},{value:0}],solidPattern={value:0};
-export function applyKitColours(){for(let t=0;t<2;t++){const k=TEAMS[t]?.kit;if(!k)continue;kitMats[t].color.set(k.shirt);kitSecond[t].set(k.second);kitSleeves[t].set(k.sleeves);kitPattern[t].value=k.pattern;shortMats[t].color.set(k.shorts);socksMats[t].color.set(k.socks);if(TEAMS[t].keeper)keeperMats[t].color.set(TEAMS[t].keeper);}}
+// Called after a kit change (the new player model re-dresses its per-player materials).
+export const kitHooks=new Set();
+export function applyKitColours(){for(let t=0;t<2;t++){const k=TEAMS[t]?.kit;if(!k)continue;kitMats[t].color.set(k.shirt);kitSecond[t].set(k.second);kitSleeves[t].set(k.sleeves);kitPattern[t].value=k.pattern;shortMats[t].color.set(k.shorts);socksMats[t].color.set(k.socks);if(TEAMS[t].keeper)keeperMats[t].color.set(TEAMS[t].keeper);}for(const hook of kitHooks)hook();}
 // A small woven club badge for the chest: the club's shield or roundel in its two colours with the initial.
 function crestMat(team){const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d'),crest=TEAMS[team]?.club?.crest||{shape:'shield',a:'#c6ff5d',b:'#183b27',glyph:'A'};g.beginPath();if(crest.shape==='round')g.arc(64,64,56,0,Math.PI*2);else{g.moveTo(16,12);g.lineTo(112,12);g.lineTo(112,64);g.quadraticCurveTo(112,100,64,118);g.quadraticCurveTo(16,100,16,64);g.closePath();}g.save();g.clip();g.fillStyle=crest.a;g.fillRect(0,0,128,128);g.fillStyle=crest.b;g.fillRect(64,0,64,128);g.restore();g.lineWidth=7;g.strokeStyle='#fff';g.stroke();g.fillStyle='#fff';g.font='900 58px Arial';g.textAlign='center';g.textBaseline='middle';g.fillText(crest.glyph,64,66);const tex=new THREE.CanvasTexture(c);tex.colorSpace=THREE.SRGBColorSpace;return new THREE.MeshStandardMaterial({map:tex,transparent:true,roughness:.8,side:THREE.DoubleSide,depthWrite:false});}
 let fabricReady=false;
@@ -63,14 +65,14 @@ export function createPlayer(team=0,number=10,keeper=false,profile={}){
   const lod=[{near:[human.near],far:human.far},...legs.flatMap(l=>l.foot.userData.bootLOD||[])];
   for(const group of [head,torso,...arms.flatMap(a=>[a.upper,a.lower]),...legs.flatMap(l=>[l.upper,l.lower,l.foot])]){mergeMeshes(group);const level=addDistantGeometry(group,group===head);if(level)lod.push(level);}
   const details=torso.children.filter(m=>m.isMesh&&m.material.transparent);
-  const rig={ready:human.ready,disposeHead:human.dispose,animateFace:human.animate,details,root,hips,torso,head,arms,legs,lod,face,eyelids,distant:false,phase:number,kickTime:0,tackle:0};
+  const rig={look:{team,number,keeper,profile},ready:human.ready,disposeHead:human.dispose,animateFace:human.animate,details,root,hips,torso,head,arms,legs,lod,face,eyelids,distant:false,phase:number,kickTime:0,tackle:0};
   // Keep labels and boots; replace primitive torso, neck, hands and limbs with anatomy.
   for(const parent of [hips,torso,...arms.flatMap(a=>[a.upper,a.lower])])for(const child of [...parent.children])if(child.isMesh&&!child.material.transparent){child.removeFromParent();child.geometry.dispose();}
   configureBodyRig(rig,profile);
   const body=createAnatomicalBody(rig,{skin:skin.color,kit:kit.color,shorts:shorts.color,sock:sock.color,kit2:keeper?kit.color:kitSecond[team],sleeve:keeper?kit.color:kitSleeves[team],pattern:keeper?solidPattern:kitPattern[team]});rig.anatomy=body;
   return rig;
 }
-export function disposePlayerRig(rig){rig.disposed=true;rig.disposeHead?.();const sharedGeometry=new Set([sphere,cylinder]),sharedMaterial=new Set([...kitMats,...shortMats,...socksMats,...bootMats,black,white,...keeperMats]),geometries=new Set(),materials=new Set(),skeletons=new Set();rig.root.traverse(o=>{if(o.geometry&&!sharedGeometry.has(o.geometry))geometries.add(o.geometry);for(const material of [o.material,o.customDepthMaterial,o.customDistanceMaterial])if(material)for(const m of Array.isArray(material)?material:[material])if(!sharedMaterial.has(m))materials.add(m);if(o.skeleton)skeletons.add(o.skeleton);});for(const g of geometries)g.dispose();for(const m of materials){for(const key of ['map','bumpMap','normalMap'])if(!m[key]?.userData.shared)m[key]?.dispose();m.dispose();}for(const s of skeletons)s.dispose();rig.root.removeFromParent();}
+export function disposePlayerRig(rig){rig.disposed=true;rig.human?.dispose();rig.disposeHead?.();const sharedGeometry=new Set([sphere,cylinder]),sharedMaterial=new Set([...kitMats,...shortMats,...socksMats,...bootMats,black,white,...keeperMats]),geometries=new Set(),materials=new Set(),skeletons=new Set();rig.root.traverse(o=>{if(o.geometry&&!sharedGeometry.has(o.geometry))geometries.add(o.geometry);for(const material of [o.material,o.customDepthMaterial,o.customDistanceMaterial])if(material)for(const m of Array.isArray(material)?material:[material])if(!sharedMaterial.has(m))materials.add(m);if(o.skeleton)skeletons.add(o.skeleton);});for(const g of geometries)g.dispose();for(const m of materials){for(const key of ['map','bumpMap','normalMap'])if(!m[key]?.userData.shared)m[key]?.dispose();m.dispose();}for(const s of skeletons)s.dispose();rig.root.removeFromParent();}
 const poseEuler=new THREE.Euler(),poseQuaternion=new THREE.Quaternion();
 export function animatePlayer(rig,speed,dt,time,celebrate=false,player=null,ball=null){
  const p=player||{x:rig.root.position.x,z:rig.root.position.z,vx:0,vz:speed,yaw:0},history=rig.motionHistory||{yaw:p.yaw||0,speed};
@@ -88,10 +90,12 @@ export function animatePlayer(rig,speed,dt,time,celebrate=false,player=null,ball
  for(let i=0;i<2;i++){rotation(rig.legs[i].upper,pose.legs[i].upper);rotation(rig.legs[i].lower,pose.legs[i].lower);rotation(rig.legs[i].foot,pose.feet[i]);rotation(rig.arms[i].upper,pose.arms[i].upper);rotation(rig.arms[i].lower,pose.arms[i].lower);}
  stabilizeFeet(rig,{...p,sampleTime:time},pose,dt);inertializeFeet(rig,p,pose,dt);stabilizeHands(rig,p,time);
  rig.animationPlayer=p;rig.animationTime=time;updateBoots(rig,pose,speed);
+ // The new player model (human-body.js) copies the finished old-rig pose.
+ rig.human?.sync();
  rig.centerOfMass=bodyCenterOfMass(rig);rig.jointWarnings=jointViolations(rig);rig.jointViolationCount=(rig.jointViolationCount||0)+rig.jointWarnings.length;
  // The distant head has no eye/mouth morphs. Resume at the current time as soon
  // as the near head becomes visible; never reduce body, contact or input updates.
- if(!rig.distant){
+ if(!rig.distant&&!rig.human){
   const blink=Math.max(0,1-Math.abs(((time+(p.id||0)*.31)%4.1)-3.9)/.075);for(const eye of rig.eyelids)eye.scale.y=(eye.userData.baseEyeY||.006)*(1-blink*.88);
   if(rig.animateFace)rig.animateFace(time,speed,celebrate,pose.head[1]);else rig.face.morphTargetInfluences[0]=celebrate?.8:Math.min(.45,speed*.045);
  }
