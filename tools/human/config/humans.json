@@ -1,30 +1,95 @@
-{"referenceHeight":1.83,
- "bodies":{
-  "slim":{"heightRange":[1.70,1.80],"macro":{"gender":1.0,"age":0.5,"muscle":0.55,"weight":0.2,"proportions":0.85},"targets":{"legs/l-upperleg-muscle-incr":0.35,"legs/r-upperleg-muscle-incr":0.35,"legs/l-lowerleg-muscle-incr":0.3,"legs/r-lowerleg-muscle-incr":0.3,"torso/measure-shoulder-dist-decr":0.2}},
-  "standard":{"heightRange":[1.75,1.85],"macro":{"gender":1.0,"age":0.5,"muscle":0.65,"weight":0.25,"proportions":0.85},"targets":{"legs/l-upperleg-muscle-incr":0.55,"legs/r-upperleg-muscle-incr":0.55,"legs/l-lowerleg-muscle-incr":0.45,"legs/r-lowerleg-muscle-incr":0.45}},
-  "large":{"heightRange":[1.85,1.95],"macro":{"gender":1.0,"age":0.55,"muscle":0.7,"weight":0.3,"proportions":0.85},"targets":{"legs/l-upperleg-muscle-incr":0.6,"legs/r-upperleg-muscle-incr":0.6,"legs/l-lowerleg-muscle-incr":0.5,"legs/r-lowerleg-muscle-incr":0.5,"torso/measure-shoulder-dist-incr":0.3}}},
- "faces":[
-  {"id":"f1","targets":{"chin/chin-width-decr":0.3,"nose/nose-width1-decr":0.2,"eyes/l-eye-height2-incr":0.1,"eyes/r-eye-height2-incr":0.1}},
-  {"id":"f2","targets":{"cheek/l-cheek-bones-incr":0.4,"cheek/r-cheek-bones-incr":0.4,"chin/chin-prognathism-incr":0.2}},
-  {"id":"f3","targets":{"nose/nose-hump-incr":0.4,"forehead/forehead-scale-vert-incr":0.2}},
-  {"id":"f4","targets":{"mouth/mouth-scale-horiz-incr":0.3,"chin/chin-width-incr":0.3}},
-  {"id":"f5","targets":{"eyes/l-eye-scale-decr":0.2,"eyes/r-eye-scale-decr":0.2,"nose/nose-scale-vert-incr":0.3}},
-  {"id":"f6","targets":{"head/head-square":0.4,"chin/chin-prominent-incr":0.3}},
-  {"id":"f7","targets":{"head/head-oval":0.5,"nose/nose-point-width-decr":0.3}},
-  {"id":"f8","targets":{"cheek/l-cheek-inner-decr":0.3,"cheek/r-cheek-inner-decr":0.3,"mouth/mouth-lowerlip-volume-incr":0.3}}],
- "skinTones":[
-  {"id":"light","base":"young_caucasian_male"},
-  {"id":"light2","base":"young_caucasian_male2"},
-  {"id":"east_asian","base":"young_asian_male"},
-  {"id":"dark","base":"young_african_male"}],
- "skinToneCandidates":{
-  "note":"Mid tones are chosen from the task 2 comparison render (reports/human-v2/02b-skin-tones-*.png) and then moved into skinTones.",
-  "tinted":[
-   {"id":"olive","base":"young_caucasian_male","hsv":[0.0,1.15,0.82]},
-   {"id":"tan","base":"young_asian_male","hsv":[-0.01,1.1,0.8]},
-   {"id":"brown","base":"young_caucasian_male","mix":{"with":"young_african_male","factor":0.5}},
-   {"id":"medium_dark","base":"young_african_male","hsv":[0.0,1.0,1.25]}],
-  "middleage":["middleage_caucasian_male","middleage_asian_male","middleage_african_male"]},
- "hair":{"short":["short01","short02","short03","short04","afro01"],"long":["ponytail01","long01"]},
- "hairColors":["#1b1410","#3a2718","#6b4a2b","#b58a55","#2a2a2a"],
- "kits":{"field_short":{"shirt":"short","pants":"shorts","gloves":false},"field_long":{"shirt":"long","pants":"shorts","gloves":false},"gk":{"shirt":"long","pants":["shorts","long"],"gloves":true}}}
+{
+ "referenceHeight": 1.83,
+ "bodies": {
+  "standard": {
+   "heightRange": [
+    1.75,
+    1.85
+   ],
+   "macro": {
+    "gender": 1.0,
+    "age": 0.5,
+    "muscle": 0.65,
+    "weight": 0.25,
+    "proportions": 0.85
+   },
+   "targets": {
+    "legs/l-upperleg-muscle-incr": 0.55,
+    "legs/r-upperleg-muscle-incr": 0.55,
+    "legs/l-lowerleg-muscle-incr": 0.45,
+    "legs/r-lowerleg-muscle-incr": 0.45
+   }
+  }
+ },
+ "faces": [
+  {
+   "id": "f1",
+   "targets": {
+    "chin/chin-width-decr": 0.3,
+    "nose/nose-width1-decr": 0.2,
+    "eyes/l-eye-height2-incr": 0.1,
+    "eyes/r-eye-height2-incr": 0.1
+   }
+  },
+  {
+   "id": "f2",
+   "targets": {
+    "cheek/l-cheek-bones-incr": 0.4,
+    "cheek/r-cheek-bones-incr": 0.4,
+    "chin/chin-prognathism-incr": 0.2
+   }
+  },
+  {
+   "id": "f3",
+   "targets": {
+    "nose/nose-hump-incr": 0.4,
+    "forehead/forehead-scale-vert-incr": 0.2
+   }
+  }
+ ],
+ "skinTones": [
+  {
+   "id": "light",
+   "base": "young_caucasian_male"
+  },
+  {
+   "id": "brown",
+   "base": "young_caucasian_male",
+   "mix": {
+    "with": "young_african_male",
+    "factor": 0.5
+   }
+  },
+  {
+   "id": "dark",
+   "base": "young_african_male"
+  }
+ ],
+ "hair": {
+  "short": [
+   "short01",
+   "afro01"
+  ],
+  "long": []
+ },
+ "hairColors": [
+  "#1b1410",
+  "#3a2718",
+  "#6b4a2b",
+  "#b58a55",
+  "#2a2a2a"
+ ],
+ "kits": {
+  "field_short": {
+   "shirt": "short",
+   "pants": "shorts",
+   "gloves": false
+  }
+ },
+ "lod": {
+  "player": {
+   "maxTriangles": 8000,
+   "bones": 22
+  }
+ }
+}
