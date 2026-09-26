@@ -29,7 +29,7 @@ export function createAnatomicalBody(rig,colors){
  g.setAttribute('wardrobePosition',new THREE.BufferAttribute(wardrobePositions,3));g.setAttribute('wardrobeArm',new THREE.Float32BufferAttribute(armWeights,1));g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(anatomy.detail.skinIndices,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(torsoSafeWeights(),4));g.computeVertexNormals();
  const mat=new THREE.MeshStandardMaterial({roughness:.79});
  // Evaluate garment borders per pixel; interpolated per-vertex colours made torn, triangular necklines.
- mat.onBeforeCompile=shader=>{for(const key of ['skin','kit','shorts','sock'])shader.uniforms['uniform'+key]={value:colors[key]};shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nattribute vec3 wardrobePosition; attribute float wardrobeArm; varying vec3 vWardrobe; varying float vArm;').replace('#include <begin_vertex>','#include <begin_vertex>\nvWardrobe=wardrobePosition; vArm=wardrobeArm;');shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vWardrobe; varying float vArm; uniform vec3 uniformskin,uniformkit,uniformshorts,uniformsock;').replace('#include <color_fragment>',`#include <color_fragment>
+ mat.onBeforeCompile=shader=>{for(const key of ['skin','kit','shorts','sock'])shader.uniforms['uniform'+key]={value:colors[key]};shader.uniforms.uniformkit2={value:colors.kit2||colors.kit};shader.uniforms.uniformsleeve={value:colors.sleeve||colors.kit};shader.uniforms.uniformpattern=colors.pattern||{value:0};shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nattribute vec3 wardrobePosition; attribute float wardrobeArm; varying vec3 vWardrobe; varying float vArm;').replace('#include <begin_vertex>','#include <begin_vertex>\nvWardrobe=wardrobePosition; vArm=wardrobeArm;');shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vWardrobe; varying float vArm; uniform vec3 uniformskin,uniformkit,uniformshorts,uniformsock,uniformkit2,uniformsleeve; uniform float uniformpattern;').replace('#include <color_fragment>',`#include <color_fragment>
  float y=vWardrobe.y;
  float neckline=1.42+.13*min(1.0,abs(vWardrobe.x)/.15);
  float top=neckline;
@@ -39,11 +39,19 @@ export function createAnatomicalBody(rig,colors){
  float sock=(1.0-smoothstep(.418,.422,y))*(1.0-vArm);
  vec3 clothing=mix(uniformskin,uniformsock,sock);
  clothing=mix(clothing,uniformshorts,shorts);
- clothing=mix(clothing,uniformkit,shirt);
+ // Club kit patterns: 1 vertical stripes, 2 gradient from the second colour at the hem to the shirt colour at the chest,
+ // 3 hoops, 4 a faint diamond weave; sleeves take the club's sleeve colour.
+ vec3 kitColour=uniformkit;
+ if(uniformpattern>.5&&uniformpattern<1.5)kitColour=mix(uniformkit,uniformkit2,step(.5,fract(vWardrobe.x*11.0+.25)));
+ else if(uniformpattern>1.5&&uniformpattern<2.5)kitColour=mix(uniformkit2,uniformkit,smoothstep(1.0,1.34,y));
+ else if(uniformpattern>2.5&&uniformpattern<3.5)kitColour=mix(uniformkit,uniformkit2,step(.5,fract(y*9.0)));
+ else if(uniformpattern>3.5)kitColour=mix(uniformkit,uniformkit2,1.0-step(.22,abs(fract(vWardrobe.x*9.0)-.5)+abs(fract(y*9.0)-.5)));
+ kitColour=mix(kitColour,uniformsleeve,vArm);
+ clothing=mix(clothing,kitColour,shirt);
  float collar=torsoShirt*smoothstep(top-.014,top-.01,y)*(1.0-vArm);
  diffuseColor.rgb*=mix(clothing,uniformshorts,collar*.7);
  `);dualQuaternionShader(shader);};
- mat.customProgramCacheKey=()=> 'human-dqs-wardrobe-v1';
+ mat.customProgramCacheKey=()=> 'human-dqs-wardrobe-v2';
  addHumanCorrectives(g,rig);const mesh=new THREE.SkinnedMesh(g,mat);mesh.castShadow=true;mesh.receiveShadow=true;mesh.frustumCulled=false;
  const depth=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking}),distance=new THREE.MeshDistanceMaterial();for(const material of [depth,distance]){material.onBeforeCompile=dualQuaternionShader;material.customProgramCacheKey=()=> 'human-dqs-shadow-v1';}mesh.customDepthMaterial=depth;mesh.customDistanceMaterial=distance;
  // Data is baked at these neutral bone angles, not at the previous mannequin pose.
@@ -59,7 +67,7 @@ export function createAnatomicalBody(rig,colors){
  for(let i=0;i<g.index.count;i+=3){const ids=[g.index.getX(i),g.index.getX(i+1),g.index.getX(i+2)];if(ids.every(v=>[1,2].includes(anatomy.body.regions[v])))clothIndices.push(...ids);}
  clothing.setIndex(clothIndices);clothing.computeVertexNormals();const garment=new THREE.SkinnedMesh(clothing,mat);garment.castShadow=true;garment.frustumCulled=false;garment.customDepthMaterial=depth;garment.customDistanceMaterial=distance;rig.root.add(garment);garment.bind(skeleton,mesh.bindMatrix);
  const farSource=g.clone();farSource.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(anatomy.body.skinIndices,4));farSource.setAttribute('skinWeight',new THREE.Float32BufferAttribute(anatomy.body.skinWeights,4));
- const farMat=mat.clone();farMat.onBeforeCompile=shader=>{const original=shader.vertexShader;mat.onBeforeCompile(shader);shader.vertexShader=original.replace('#include <common>','#include <common>\nattribute vec3 wardrobePosition; attribute float wardrobeArm; varying vec3 vWardrobe; varying float vArm;').replace('#include <begin_vertex>','#include <begin_vertex>\nvWardrobe=wardrobePosition;vArm=wardrobeArm;');};farMat.customProgramCacheKey=()=> 'human-lbs-wardrobe-v1';
+ const farMat=mat.clone();farMat.onBeforeCompile=shader=>{const original=shader.vertexShader;mat.onBeforeCompile(shader);shader.vertexShader=original.replace('#include <common>','#include <common>\nattribute vec3 wardrobePosition; attribute float wardrobeArm; varying vec3 vWardrobe; varying float vArm;').replace('#include <begin_vertex>','#include <begin_vertex>\nvWardrobe=wardrobePosition;vArm=wardrobeArm;');};farMat.customProgramCacheKey=()=> 'human-lbs-wardrobe-v2';
  // Capture neutral bind matrices, not the relaxed upper-arm pose restored above.
  const posed=rig.arms.flatMap(a=>[a.upper.quaternion.clone(),a.lower.quaternion.clone()]);for(const a of rig.arms){a.upper.quaternion.identity();a.lower.quaternion.identity();}rig.root.updateMatrixWorld(true);
  const farSkeleton=new THREE.Skeleton(bones),far=new THREE.SkinnedMesh(distantGeometry(farSource,.035),farMat);farSource.dispose();far.castShadow=true;far.receiveShadow=true;far.frustumCulled=false;far.visible=false;rig.root.add(far);far.bind(farSkeleton,mesh.bindMatrix);rig.arms.forEach((a,i)=>{a.upper.quaternion.copy(posed[i*2]);a.lower.quaternion.copy(posed[i*2+1]);});
