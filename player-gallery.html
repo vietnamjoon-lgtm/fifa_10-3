@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Player Gallery</title>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","cannon-es":"./vendor/cannon-es.js"}}</script>
+<style>
+ html,body{margin:0;height:100%;background:#0b1a2a;color:#e8eef5;font:14px/1.4 system-ui,-apple-system,sans-serif;overflow:hidden}
+ #ui{position:fixed;left:12px;top:12px;background:rgba(8,14,22,.78);padding:8px 10px;border-radius:10px}
+ #ui button{margin:2px;padding:6px 10px;border:0;border-radius:7px;background:#23364b;color:inherit;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="ui"><button id="front">앞</button><button id="back">뒤</button><button id="side">옆</button><button id="face">얼굴</button><button id="run">달리기 켬/끔</button> <span id="info">불러오는 중...</span></div>
+<script type="module" src="./src/human-lab/gallery.js"></script>
+</body>
+</html>
