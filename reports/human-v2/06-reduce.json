@@ -1,0 +1,42 @@
+{
+ "before_after": {
+  "Body": [
+   17688,
+   3000
+  ],
+  "Kit_shirt": [
+   3110,
+   1097
+  ],
+  "Kit_shorts": [
+   1224,
+   498
+  ],
+  "Kit_socks": [
+   600,
+   350
+  ],
+  "Kit_boots": [
+   4264,
+   448
+  ],
+  "Hair_short01": [
+   3678,
+   900
+  ],
+  "Hair_afro01": [
+   2192,
+   900
+  ]
+ },
+ "total_with_hair": {
+  "Hair_short01": 6657,
+  "Hair_afro01": 6657
+ },
+ "bones": 22,
+ "face_keys": [
+  "face_f1",
+  "face_f2",
+  "face_f3"
+ ]
+}

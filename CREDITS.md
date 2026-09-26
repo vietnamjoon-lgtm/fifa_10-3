@@ -31,3 +31,12 @@ The exact frame ranges and file hashes are in `tools/anim/100style-selection.jso
 game's 13-joint rig (`tools/anim/bvh-export.py` in Blender, then `tools/anim/convert-100style.mjs`), made in-place,
 time-warped so the right foot lands exactly half a cycle after the left, and blended at the loop seam. The original
 BVH files are not included in this repository.
+
+## Player model v2 (`assets/human/`, not yet used by the game)
+
+- MakeHuman / MPFB 2: base mesh, face targets, skins `young_caucasian_male` and `young_african_male`, eyes `low-poly`,
+  `eyebrow001`, hair `short01` and `afro01` from `makehuman_system_assets`. All CC0 (each asset file declares it; list in
+  `reports/human-v2/assets-licenses.json`). https://static.makehumancommunity.org/about/license.html
+- The MPFB add-on itself (GPL-3.0) is not in this repository, only its CC0 output.
+- Kit, boots and number layout are made in this repository (`tools/human/blender/05_kit.py`).
+- Details: `licenses/HUMAN-ASSETS.md`.

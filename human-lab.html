@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Human Lab</title>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.js","cannon-es":"./vendor/cannon-es.js"}}</script>
+<style>
+ :root{--bg:#0b1a2a;--panel:rgba(8,14,22,.78);--text:#e8eef5;--accent:#9fd36b}
+ html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,-apple-system,sans-serif;overflow:hidden}
+ #ui{position:fixed;left:12px;top:12px;background:var(--panel);padding:10px 12px;border-radius:10px;max-width:calc(100vw - 48px)}
+ #ui button{margin:2px;padding:6px 10px;border:0;border-radius:7px;background:#23364b;color:var(--text);cursor:pointer}
+ #ui button:hover{background:#2f4a66}
+ #info{margin-top:6px;color:var(--accent)}#result{margin-top:4px;font-family:ui-monospace,monospace;font-size:12px;white-space:pre-wrap;max-width:560px}
+</style>
+</head>
+<body>
+<div id="ui">
+ <button id="compare">기존 vs 새 모델</button><button id="crowd-new">22명 (새 모델)</button><button id="crowd-old">22명 (기존)</button><button id="anim">애니메이션 켬/끔</button><button id="measure">프레임 시간 측정</button>
+ <div id="info">불러오는 중...</div><div id="result"></div>
+</div>
+<script type="module" src="./src/human-lab/view.js"></script>
+</body>
+</html>

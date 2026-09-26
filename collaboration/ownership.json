@@ -37,7 +37,14 @@
         "tools/human-skin-check.mjs",
         "tools/human-fixture.mjs",
         "src/uniform-labels.js",
-        "src/clubs.js"
+        "src/clubs.js",
+        "tools/human/",
+        "assets/human/",
+        "human-lab.html",
+        "src/human-lab/",
+        "vendor/three-addons/",
+        "reports/human-v2/",
+        "docs/ROADMAP-motion.md"
       ],
       "tests": [
         "tests/body-customization.test.mjs",
@@ -45,7 +52,8 @@
         "tests/identity-and-keeper-v2.test.mjs",
         "tests/human-rebuild.test.mjs",
         "tests/player-surface-quality.test.mjs",
-        "tests/clubs.test.mjs"
+        "tests/clubs.test.mjs",
+        "tests/human-v2.test.mjs"
       ]
     },
     {

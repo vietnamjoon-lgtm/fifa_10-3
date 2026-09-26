@@ -1,0 +1,6 @@
+{"source":"CMU Graphics Lab ASF/AMC, 31 bones. null = dropped (hand detail, hip joints).",
+ "bones":{"root":{"target":"Hips"},"lowerback":{"target":"Spine"},"upperback":{"target":"Spine1"},"thorax":{"target":"Spine2"},"lowerneck":{"target":"Neck","compose":"first"},"upperneck":{"target":"Neck","compose":"second"},"head":{"target":"Head"},
+  "lclavicle":{"target":"LeftShoulder"},"lhumerus":{"target":"LeftArm"},"lradius":{"target":"LeftForeArm"},"lwrist":{"target":"LeftHand"},"lhand":null,"lfingers":null,"lthumb":null,
+  "rclavicle":{"target":"RightShoulder"},"rhumerus":{"target":"RightArm"},"rradius":{"target":"RightForeArm"},"rwrist":{"target":"RightHand"},"rhand":null,"rfingers":null,"rthumb":null,
+  "lhipjoint":null,"lfemur":{"target":"LeftUpLeg"},"ltibia":{"target":"LeftLeg"},"lfoot":{"target":"LeftFoot"},"ltoes":{"target":"LeftToeBase"},
+  "rhipjoint":null,"rfemur":{"target":"RightUpLeg"},"rtibia":{"target":"RightLeg"},"rfoot":{"target":"RightFoot"},"rtoes":{"target":"RightToeBase"}}}
