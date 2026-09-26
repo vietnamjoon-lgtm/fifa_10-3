@@ -1,12 +1,18 @@
 import * as THREE from '../vendor/three.module.js';
+import {decayOffset} from './inertial-motion.js';
+import {locomotionCadence,stanceFraction} from './motion-planner.js';
 const down=new THREE.Vector3(0,-1,0),v=new THREE.Vector3(),q=new THREE.Quaternion();
-const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),smooth=t=>t*t*(3-2*t),liftFade=.075,gaitSoft=.04;
 
+// Soft IK: near full extension the knee angle changes without bound per millimetre of target
+// travel, so a leg reaching for a target just past its length straightened or bent in one
+// render step. Within `soft` of full length the reach approaches the limit exponentially.
+const softReach=(r,length,soft)=>{const start=length-soft;return soft>0&&r>start?start+soft*(1-Math.exp(-(r-start)/soft)):r;};
 // Analytic two-bone IK in world space. Clamp unreachable targets; never stretch limbs.
-export function solveFoot(rig,index,target){
+export function solveFoot(rig,index,target,soft=0){
  const leg=rig.legs[index];rig.root.updateWorldMatrix(true,false);
  const hip=leg.upper.getWorldPosition(new THREE.Vector3()),knee=leg.lower.getWorldPosition(new THREE.Vector3()),ankle=leg.foot.getWorldPosition(new THREE.Vector3());
- const a=hip.distanceTo(knee),b=knee.distanceTo(ankle),direction=target.clone().sub(hip),requested=direction.length(),r=clamp(requested,Math.abs(a-b)+.001,a+b-.001);direction.normalize();
+ const a=hip.distanceTo(knee),b=knee.distanceTo(ankle),direction=target.clone().sub(hip),requested=direction.length(),r=clamp(softReach(requested,a+b,soft),Math.abs(a-b)+.001,a+b-.001);direction.normalize();
  const forward=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(new THREE.Quaternion()));
  const bend=forward.addScaledVector(direction,-forward.dot(direction));if(bend.lengthSq()<.001)bend.set(1,0,0);bend.normalize();
  const projection=(a*a+r*r-b*b)/(2*r),height=Math.sqrt(Math.max(0,a*a-projection*projection));
@@ -32,16 +38,23 @@ export function stabilizeFeet(rig,p,pose,dt){
   const leg=rig.legs[i],cycle=((rig.phase/(Math.PI*2)+i*.5)%1+1)%1;
   if(ground&&pose.gaitTargets){const g=pose.gaitTargets[i],target=rig.root.localToWorld(new THREE.Vector3(g.x,g.y,g.z));solveFoot(rig,i,target);}
   const current=leg.foot.getWorldPosition(new THREE.Vector3());
-  const kickIndex=action?.foot==='left'?0:1,kicking=action&&['shoot','pass','through','lob'].includes(action.type),impact=kicking&&i===kickIndex&&Math.abs(action.elapsed-action.contactAt)<.055;
+  const kickIndex=action?.foot==='left'?0:1,kicking=action&&['shoot','pass','through','lob'].includes(action.type),fromContact=kicking?action.elapsed-action.contactAt:0;
+  // Raise the ball-contact IK over 0.125 s before the contact window and lower it over
+  // 0.18 s after, instead of switching the kicking leg onto the ball in one render step.
+  const reach=!kicking||i!==kickIndex?0:fromContact<-.055?smooth(clamp((fromContact+.18)/.125,0,1)):fromContact>.055?1-smooth(clamp((fromContact-.055)/.18,0,1)):1,impact=reach>0;
   if(impact&&action.contactTarget){
    state.feet[i]=null;const b=action.contactTarget,f=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(q));
    const target=new THREE.Vector3(b.x,b.y,b.z).addScaledVector(f,-.06*size);target.y=Math.max(sole,b.y-.025*size);
-   const solved=solveFoot(rig,i,target);rig.impactError=solved.error;rig.impactClamped=solved.clamped;continue;
+   // After contact the boot eases out from where it met the ball relative to the body; a
+   // world-fixed target left the leg trailing behind a player who kept running.
+   if(fromContact<=.055)state.kickLocal={id:action.id,point:rig.root.worldToLocal(target.clone())};
+   else if(state.kickLocal?.id===action.id)target.copy(rig.root.localToWorld(state.kickLocal.point.clone()));
+   const solved=solveFoot(rig,i,reach<1?current.clone().lerp(target,reach):target);if(Math.abs(fromContact)<.055){rig.impactError=solved.error;rig.impactClamped=solved.clamped;}continue;
   }
   const receiving=pose.state.startsWith('receive'),receive=p.receivePrep||p.receive,receiveIndex=receive?.foot==='left'?0:1;
   if(receiving&&p.receive?.target&&i===(p.receive.foot==='left'?0:1)){
    const r=p.receive,age=(p.sampleTime??r.contactTime??0)-(r.contactTime??0),b=r.target;
-   if(b.y<=.65&&age>=0&&age<.16){const target=new THREE.Vector3(b.x,b.y-.025,b.z),f=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(q));target.addScaledVector(f,-.06*size);target.y=Math.max(sole,target.y);const hip=leg.upper.getWorldPosition(new THREE.Vector3());if(hip.distanceTo(target)<.74*size){const upper=leg.upper.quaternion.clone(),lower=leg.lower.quaternion.clone(),foot=leg.foot.quaternion.clone(),weight=.72*(1-age/.16);solveFoot(rig,i,target);leg.upper.quaternion.slerp(upper,1-weight);leg.lower.quaternion.slerp(lower,1-weight);leg.foot.quaternion.slerp(foot,1-weight);state.feet[i]=null;continue;}}
+   if(b.y<=.65&&age>=-.1&&age<.16){const target=new THREE.Vector3(b.x,b.y-.025,b.z),f=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(q));target.addScaledVector(f,-.06*size);target.y=Math.max(sole,target.y);const hip=leg.upper.getWorldPosition(new THREE.Vector3());const inReach=clamp((.74*size-hip.distanceTo(target))/(.06*size),0,1);if(inReach>0){const upper=leg.upper.quaternion.clone(),lower=leg.lower.quaternion.clone(),foot=leg.foot.quaternion.clone(),weight=.72*inReach*(age<0?smooth((age+.1)/.1):1-age/.16);solveFoot(rig,i,target);leg.upper.quaternion.slerp(upper,1-weight);leg.lower.quaternion.slerp(lower,1-weight);leg.foot.quaternion.slerp(foot,1-weight);state.feet[i]=null;continue;}}
   }
   const plant=ground&&(!receiving||i!==receiveIndex)&&(!kicking||i!==kickIndex)&&(kicking||(pose.contacts?pose.contacts[i]>.5:speed<.2||cycle<.5));
   if(!plant||teleport||current.y>sole+.20){state.release||=[null,null];if(state.feet[i]&&ground&&!teleport)state.release[i]={offset:state.feet[i].position.clone().sub(current),age:0};state.feet[i]=null;const release=state.release[i];if(release&&ground&&!teleport&&release.age<.16){const t=release.age;solveFoot(rig,i,current.clone().addScaledVector(release.offset,(1-Math.min(1,t/.16))**3*(1+3*Math.min(1,t/.16))));release.age+=dt;}else state.release[i]=null;continue;}if(state.release)state.release[i]=null;
@@ -85,15 +98,53 @@ function stabilizeGait(rig,p,pose,dt){
   if(planted){
    if(!state.feet[i]){const from=state.previous[i]||target;state.feet[i]={position:new THREE.Vector3(from.x,sole,from.z),fromY:from.y,since:state.time};state.release[i]=null;}
    const anchor=state.feet[i],u=Math.min(1,(state.time-anchor.since)/.09),weight=u*u*u*(10+u*(-15+6*u));target.copy(anchor.position);target.y=anchor.fromY+(sole-anchor.fromY)*weight;
+   // Hand the foot back to the animation over the last 0.075 s of stance instead of holding
+   // the anchor until the leg is straight and letting go in one step. Lift-off comes either
+   // from the gait cycle or from the reach limit above, whichever is sooner.
+   const speed=Math.hypot(p.vx||0,p.vz||0);
+   if(speed>.3){const cycle=((rig.phase/(2*Math.PI)+i*.5)%1+1)%1,stance=stanceFraction(speed),cycles=locomotionCadence(speed,p.motionStyle,p)/(2*Math.PI);
+    const hip=rig.legs[i].upper.getWorldPosition(new THREE.Vector3()),reach=(rig.bodyMetrics.upperLeg+rig.bodyMetrics.lowerLeg)*size,vertical=Math.max(0,hip.y-sole-.045*size),available=Math.sqrt(Math.max(.01,reach*reach-vertical*vertical));
+    const toCycle=cycle<stance&&cycles>0?(stance-cycle)/cycles:Infinity,toReach=(Math.min(.62*reach,.96*available)-Math.hypot(hip.x-anchor.position.x,hip.z-anchor.position.z))/speed;
+    const hold=smooth(clamp(Math.min(toCycle,toReach)/liftFade,0,1));if(hold<1)target.lerp(base,1-hold);}
   }
   targets.push(target);state.previousBase[i]=base;
  }
  // Lower the pelvis geometrically when a support foot would otherwise exceed
  // limb reach. This changes the rendered pose only, never player/ball physics.
- let correction=0;for(let i=0;i<2;i++)if(state.feet[i]){const hip=rig.legs[i].upper.getWorldPosition(new THREE.Vector3()),goal=targets[i],reach=(rig.bodyMetrics.upperLeg+rig.bodyMetrics.lowerLeg-.003)*size,horizontal=(hip.x-goal.x)**2+(hip.z-goal.z)**2,maxY=goal.y+Math.sqrt(Math.max(.04,reach*reach-horizontal));correction=Math.max(correction,hip.y-maxY);}
+ let correction=0;for(let i=0;i<2;i++)if(state.feet[i]){const hip=rig.legs[i].upper.getWorldPosition(new THREE.Vector3()),goal=targets[i],reach=(rig.bodyMetrics.upperLeg+rig.bodyMetrics.lowerLeg-.003-gaitSoft*.4)*size,horizontal=(hip.x-goal.x)**2+(hip.z-goal.z)**2,maxY=goal.y+Math.sqrt(Math.max(.04,reach*reach-horizontal));correction=Math.max(correction,hip.y-maxY);}
  const desired=Math.min(.045,Math.max(0,correction/size));
  state.hipCorrection=Math.max(desired,(state.hipCorrection||0)*Math.exp(-dt/0.065));
  rig.hips.position.y-=state.hipCorrection;
- let error=0,locks=0;for(let i=0;i<2;i++){const result=solveFoot(rig,i,targets[i]);if(state.feet[i]){error=Math.max(error,result.error);locks++;}state.previous[i]=rig.legs[i].foot.getWorldPosition(new THREE.Vector3());}
+ let error=0,locks=0;for(let i=0;i<2;i++){const result=solveFoot(rig,i,targets[i],gaitSoft*size);if(state.feet[i]){error=Math.max(error,result.error);locks++;}state.previous[i]=rig.legs[i].foot.getWorldPosition(new THREE.Vector3());}
  rig.plantError=error;rig.plantLocks=locks;
+}
+
+// Output inertialization for the drawn feet. The joint rotations are inertialized on a
+// state change (InertialJoint), but the foot IK above rewrites the legs afterwards, so a
+// switch of contact branch, motion state or action still moved the ankle up to 1 m in one
+// render step. Carry the last drawn foot position and velocity across such a switch, and
+// across any step faster than a real foot, then decay the offset to the new pose.
+const footLimit=22,rawFoot=new THREE.Vector3(),footGoal=new THREE.Vector3();
+export function inertializeFeet(rig,p,pose,dt){
+ dt=Math.max(.001,Math.min(dt,.1));
+ const state=rig.footOutput||(rig.footOutput={key:null,root:null,feet:[null,null]}),action=p.action;
+ const key=(action?.id!==undefined?'action-'+action.id:pose.state)+'|'+(rig.plantState?.mode||'free');
+ const root=rig.root.getWorldPosition(new THREE.Vector3()),teleport=!state.root||state.root.distanceTo(root)>1.2,switched=key!==state.key;state.root=root;state.key=key;
+  const sole=.075*rig.root.scale.y,kicking=['shoot','pass','through','lob'].includes(action?.type),kickIndex=action?.foot==='left'?0:1;
+ for(let i=0;i<2;i++){
+  const raw=rig.legs[i].foot.getWorldPosition(rawFoot).clone(),f=state.feet[i];
+  // No exemption for the kick: the contact IK is already raised on a curve before impact, and
+  // dropping a live offset at the impact window moved the boot up to 0.4 m in one step.
+  if(!f||teleport){state.feet[i]={out:raw,raw,vel:new THREE.Vector3(),offset:new THREE.Vector3(),offsetVelocity:new THREE.Vector3(),age:1};continue;}
+  const rawVelocity=raw.clone().sub(f.raw).multiplyScalar(1/dt);f.age+=dt;
+  let correction=f.age<.5?decayOffset(f.offset,f.offsetVelocity,f.age):null;
+  const candidate=correction?raw.clone().add(correction):raw;
+  if(switched||candidate.distanceTo(f.out)/dt>footLimit){f.offset=f.out.clone().sub(raw);f.offsetVelocity=f.vel.clone().sub(rawVelocity).clampLength(0,footLimit);f.age=0;correction=f.offset.clone();}
+  // The kicking boot converges on the contact target: the offset fades out on the same curve that
+  // raises the contact IK, so it is zero at impact and nothing is dropped in one step.
+  if(correction&&kicking&&i===kickIndex){const fromContact=action.elapsed-action.contactAt,exact=fromContact<-.055?smooth(clamp((fromContact+.18)/.125,0,1)):fromContact>.055?1-smooth(clamp((fromContact-.055)/.18,0,1)):1;correction.multiplyScalar(1-exact);}
+  let drawn=raw;
+  if(correction&&correction.lengthSq()>4e-6){footGoal.copy(raw).add(correction);footGoal.y=Math.max(sole,footGoal.y);solveFoot(rig,i,footGoal,rig.plantState?.mode==='gait'?gaitSoft*rig.root.scale.y:0);drawn=rig.legs[i].foot.getWorldPosition(new THREE.Vector3());}
+  f.vel=drawn.clone().sub(f.out).multiplyScalar(1/dt);f.out=drawn.clone();f.raw=raw;
+ }
 }
