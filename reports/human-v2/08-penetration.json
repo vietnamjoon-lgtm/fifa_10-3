@@ -1,0 +1,44 @@
+{
+ "rest": {
+  "Kit_shirt": 3,
+  "Kit_shorts": 0,
+  "Kit_socks": 0,
+  "Kit_boots": 0
+ },
+ "knee_max": {
+  "Kit_shirt": 3,
+  "Kit_shorts": 0,
+  "Kit_socks": 1,
+  "Kit_boots": 0
+ },
+ "kick_backswing": {
+  "Kit_shirt": 3,
+  "Kit_shorts": 0,
+  "Kit_socks": 1,
+  "Kit_boots": 0
+ },
+ "kick_follow": {
+  "Kit_shirt": 3,
+  "Kit_shorts": 0,
+  "Kit_socks": 0,
+  "Kit_boots": 0
+ },
+ "arms_up": {
+  "Kit_shirt": 3,
+  "Kit_shorts": 0,
+  "Kit_socks": 0,
+  "Kit_boots": 0
+ },
+ "waist_twist": {
+  "Kit_shirt": 3,
+  "Kit_shorts": 0,
+  "Kit_socks": 0,
+  "Kit_boots": 0
+ },
+ "squat": {
+  "Kit_shirt": 3,
+  "Kit_shorts": 0,
+  "Kit_socks": 0,
+  "Kit_boots": 0
+ }
+}
