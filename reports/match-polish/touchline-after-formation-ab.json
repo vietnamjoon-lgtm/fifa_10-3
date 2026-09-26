@@ -1,0 +1,172 @@
+{
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+    "hardwareConcurrency": 8,
+    "deviceMemoryGiB": 8,
+    "webglVendor": "Google Inc. (Intel)",
+    "webglRenderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "viewport": [
+      1292,
+      918
+    ],
+    "drawingBuffer": [
+      1292,
+      918
+    ],
+    "devicePixelRatio": 1,
+    "settings": {
+      "passFollow": true,
+      "looseBallAssist": true,
+      "receiveAssist": true,
+      "autoSwitch": "aerial",
+      "switchCarry": "none",
+      "passAssist": "auto",
+      "crossAssist": "semi",
+      "throughAssist": "auto",
+      "analogSprint": false,
+      "defenceAssist": true,
+      "runType": 3,
+      "gameplay": {
+        "acceleration": 100,
+        "braking": 100,
+        "turnResponse": 100,
+        "ballRoll": 100,
+        "ballBounce": 100,
+        "firstTouch": 100,
+        "referee": "standard"
+      },
+      "quality": "high",
+      "adaptiveQuality": true,
+      "camera": 0,
+      "volume": 0.5,
+      "sound": false,
+      "halfSeconds": 600,
+      "difficulty": "normal",
+      "userTeam": 0,
+      "deadzone": 0.15,
+      "sensitivity": 1,
+      "shadows": true,
+      "crowd": true,
+      "scale": 1,
+      "helpers": true,
+      "controls": "online",
+      "defence": "basic"
+    },
+    "gpuTimerSupported": true
+  },
+  "scope": "Identical kickoff formation, all 22 players, camera [0,104,55], CPU submission A/B; GPU not isolated",
+  "samples": [
+    {
+      "crowd": true,
+      "shadows": true,
+      "render": {
+        "count": 75,
+        "mean": 21.729333329995473,
+        "p95": 28.600000023841858,
+        "max": 33.39999997615814
+      },
+      "shadow": {
+        "count": 75,
+        "mean": 7.6839999985694885,
+        "p95": 14,
+        "max": 18.600000023841858
+      },
+      "calls": {
+        "count": 75,
+        "mean": 191,
+        "p95": 191,
+        "max": 191
+      },
+      "triangles": {
+        "count": 75,
+        "mean": 375385,
+        "p95": 375385,
+        "max": 375385
+      }
+    },
+    {
+      "crowd": false,
+      "shadows": true,
+      "render": {
+        "count": 75,
+        "mean": 20.92666666984558,
+        "p95": 27,
+        "max": 38.90000003576279
+      },
+      "shadow": {
+        "count": 75,
+        "mean": 7.450666663646698,
+        "p95": 11.300000011920929,
+        "max": 20.899999976158142
+      },
+      "calls": {
+        "count": 75,
+        "mean": 183,
+        "p95": 183,
+        "max": 183
+      },
+      "triangles": {
+        "count": 75,
+        "mean": 148953,
+        "p95": 148953,
+        "max": 148953
+      }
+    },
+    {
+      "crowd": true,
+      "shadows": false,
+      "render": {
+        "count": 75,
+        "mean": 14.252000006834665,
+        "p95": 18.400000035762787,
+        "max": 29
+      },
+      "shadow": {
+        "count": 75,
+        "mean": 0.013333333333333334,
+        "p95": 0.10000002384185791,
+        "max": 0.10000002384185791
+      },
+      "calls": {
+        "count": 75,
+        "mean": 191,
+        "p95": 191,
+        "max": 191
+      },
+      "triangles": {
+        "count": 75,
+        "mean": 375385,
+        "p95": 375385,
+        "max": 375385
+      }
+    },
+    {
+      "crowd": false,
+      "shadows": false,
+      "render": {
+        "count": 75,
+        "mean": 14.694666668574015,
+        "p95": 18.80000001192093,
+        "max": 23.399999976158142
+      },
+      "shadow": {
+        "count": 75,
+        "mean": 0.007999999523162842,
+        "p95": 0.09999996423721313,
+        "max": 0.10000002384185791
+      },
+      "calls": {
+        "count": 75,
+        "mean": 183,
+        "p95": 183,
+        "max": 183
+      },
+      "triangles": {
+        "count": 75,
+        "mean": 148953,
+        "p95": 148953,
+        "max": 148953
+      }
+    }
+  ]
+}

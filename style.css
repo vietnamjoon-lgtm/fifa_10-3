@@ -106,6 +106,8 @@
 #cards-status{font-size:12px;color:#c7ff59;min-height:24px;margin:14px 0 0}
 .cards-note{display:block;font-size:10px;line-height:1.7;color:#7f9389}
 @media(max-width:700px){.cards-shop{grid-template-columns:1fr}.cards-stage{height:340px}.player-card{width:184px}.cards-result-actions{flex-direction:column}}
+
+.setup-intro,.setup-note{font-size:12px;line-height:1.6;color:#a9bdb0}.setup-dialog details{border-top:1px solid #ffffff24;margin:18px 0;padding-top:15px}.setup-dialog summary{cursor:pointer;font-size:12px;color:#c6ff5d}.setup-dialog details[open] summary{margin-bottom:14px}.setup-basic{margin:18px 0}.setup-dialog #setup-start{margin-top:12px}
 /* ---- Menu v2: one clear primary action, a tidy dock, nothing floating over the stadium ---- */
 #menu{background:linear-gradient(90deg,rgba(4,14,12,.93) 0%,rgba(4,14,12,.62) 38%,rgba(4,14,12,0) 70%),linear-gradient(0deg,rgba(4,14,12,.88) 0%,rgba(4,14,12,0) 34%)}
 #menu .menu-header{top:30px;left:5vw;right:5vw;gap:18px}

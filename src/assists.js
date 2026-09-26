@@ -3,8 +3,8 @@ import {FIELD,clamp,distance,jogSpeed,sprintSpeed} from './config.js';
 import {gameplayValue} from './gameplay-settings.js';
 import {rollLaunchSpeed} from './physics.js';
 
-// Foot touches and initial targeting. Target-following pass velocity is handled
-// separately by guided-pass.js; shots retain their unassisted physical flight.
+// Foot touches and initial targeting. Passes and shots keep their physical flight
+// after release; guided-pass.js only tracks the intended recipient and expiry.
 export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:3,pendingKick:1.5,kickStart:1.35,footReach:.22,footLane:.12,underfootReach:.45,stretchReach:.6,turnReach:.9,turnCarry:.2,laneLead:.1,dribbleGap:.7,turnKnock:.6,closeGap:.45,touchLead:.3,touchGap:.3,sprintTouchGap:.22,knockGap:1.2,knockStart:.25,knockPace:2,freshKnock:2.7,freshCatch:.55,sprintKnockSpeed:2.5,sprintKickStart:.2,kickBurst:1.15,kickLook:.25,poseLead:.05,trapPace:2.5,lunge:.2,footForward:.35,dribbleStride:.35,startTouch:2.5,receiveRadius:1.04,contactRadius:.49};
 
 export const footPosition=logicalFoot;

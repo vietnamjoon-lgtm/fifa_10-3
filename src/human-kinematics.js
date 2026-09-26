@@ -14,13 +14,17 @@ export function jointExcursion(q,axis=[1,0,0]){
 export function jointViolations(rig){const failures=[],deg=180/Math.PI;for(let i=0;i<2;i++){for(const [name,bone,min,max]of [['knee',rig.legs[i].lower,-5,140],['elbow',rig.arms[i].lower,-150,0]]){const value=jointExcursion(bone.quaternion).twist*deg;if(value<min-.01||value>max+.01)failures.push({joint:name,side:i===0?'R':'L',degrees:value,min,max});}}return failures;}
 export function bodyCenterOfMass(rig){
  const a=rig.comScratchA??=rig.root.position.clone(),b=rig.comScratchB??=rig.root.position.clone(),sum={x:0,y:0,z:0};let total=0;
+ // Only the 13 controls contribute. Update them once, parent before child,
+ // without traversing hidden faces or the 74-bone deformation hierarchy.
+ const controls=rig.comControls??=[rig.hips,rig.torso,rig.head,...rig.arms.flatMap(arm=>[arm.upper,arm.lower]),...rig.legs.flatMap(leg=>[leg.upper,leg.lower,leg.foot])];
+ rig.root.updateWorldMatrix(true,false);for(const bone of controls)bone.updateWorldMatrix(false,false);
  const add=(mass)=>{sum.x+=a.x*mass;sum.y+=a.y*mass;sum.z+=a.z*mass;total+=mass;};
- const segment=(first,last,mass,fraction=.5)=>{first.getWorldPosition(a);last.getWorldPosition(b);a.lerp(b,fraction);add(mass);};
+ const segment=(first,last,mass,fraction=.5)=>{a.setFromMatrixPosition(first.matrixWorld);b.setFromMatrixPosition(last.matrixWorld);a.lerp(b,fraction);add(mass);};
  segment(rig.hips,rig.head,.497);segment(rig.head,rig.head,.081);
  for(let i=0;i<2;i++){
   const arm=rig.arms[i],leg=rig.legs[i],m=rig.bodyMetrics;segment(arm.upper,arm.lower,.028,.436);
-  a.set(0,-(m?.lowerArm||.24)*.43,0);arm.lower.localToWorld(a);add(.016);
-  a.set(0,-(m?.lowerArm||.24)-.065*(m?.body.handSize||100)/100,0);arm.lower.localToWorld(a);add(.006);
+  a.set(0,-(m?.lowerArm||.24)*.43,0).applyMatrix4(arm.lower.matrixWorld);add(.016);
+  a.set(0,-(m?.lowerArm||.24)-.065*(m?.body.handSize||100)/100,0).applyMatrix4(arm.lower.matrixWorld);add(.006);
   segment(leg.upper,leg.lower,.100,.433);segment(leg.lower,leg.foot,.0465,.433);segment(leg.foot,leg.foot,.0145);
  }
  return {x:sum.x/total,y:sum.y/total,z:sum.z/total};

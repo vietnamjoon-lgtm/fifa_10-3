@@ -51,7 +51,7 @@
   <div id="help" class="overlay hidden"><section class="dialog help-dialog"><span class="eyebrow">MASTER THE GAME</span><h2>당신의 플레이북</h2><div class="help-grid"><span>선수 이동</span><kbd>W A S D / 방향키</kbd><span>전력 질주</span><kbd>SHIFT</kbd><span>짧은 패스</span><kbd>J</kbd><span>슈팅 (길게 눌러 파워 조절)</span><kbd>K</kbd><span>스루패스 / 로빙 패스</span><kbd>L / I</kbd><span>스탠딩 태클</span><kbd>SPACE</kbd><span>공에 가까운 선수로 변경</span><kbd>Q</kbd><span>카메라 변경</span><kbd>C</kbd><span>일시정지</span><kbd>ESC</kbd></div><p>화면 기준으로 이동합니다. 공격 방향은 경기 안내를 확인하세요.<br>패스는 입력 방향의 동료로, 전방 슛은 골대 안쪽으로 보정됩니다.<br>위/아래 입력으로 슛 코너를 고르세요. 드리블과 첫 터치는 자동 보정됩니다.<br>Xbox 호환 게임패드: 왼쪽 스틱 · A 패스 · B 슛 · X 로빙 · Y 스루 · RT 질주 · LB 선수 변경.</p><button id="close-help" class="primary">준비 완료 <span>✓</span></button></section></div>
   <div id="results" class="overlay hidden"><section class="dialog results-dialog"><span class="eyebrow">FULL TIME</span><h2 id="result-title">경기 종료</h2><div class="result-score"><span class="result-home">APEX FC</span><b id="result-score">0 : 0</b><span class="result-away">VOLT UNITED</span></div><div id="statistics"></div><button id="play-again" class="primary">다시 도전 <span>↗</span></button><button id="result-menu" class="text-button">메인 메뉴로</button></section></div>
   <div id="setup" class="overlay hidden"><section class="dialog setup-dialog" role="dialog" aria-modal="true" aria-labelledby="setup-title"><header class="setup-head"><div><span class="eyebrow">MATCH CENTER</span><h2 id="setup-title">매치 센터</h2></div><button id="setup-close" class="setup-x" aria-label="돌아가기">✕</button></header>
-<div class="setup-tabs" role="tablist"><button role="tab" data-tab="match" aria-selected="true">경기</button><button role="tab" data-tab="controls" aria-selected="false">조작</button><button role="tab" data-tab="assist" aria-selected="false">보조 기능</button><button role="tab" data-tab="display" aria-selected="false">화면 · 소리</button></div>
+<details id="advanced-settings"><summary>고급 설정 · 조작 / 지원 / 화면 / 소리</summary><div class="setup-tabs" role="tablist"><button role="tab" data-tab="match" aria-selected="true">경기</button><button role="tab" data-tab="controls" aria-selected="false">조작</button><button role="tab" data-tab="assist" aria-selected="false">보조 기능</button><button role="tab" data-tab="display" aria-selected="false">화면 · 소리</button></div></details>
 <div class="setup-panel" data-panel="match" role="tabpanel">
  <div class="setting"><label for="home-club-select">홈 구단<small>K리그1 2026 · 홈 경기장에서 경기</small></label><select id="home-club-select"></select></div>
  <div class="setting"><label for="away-club-select">원정 구단<small>유니폼 색이 겹치면 원정 유니폼을 입어요</small></label><select id="away-club-select"></select></div>
@@ -69,13 +69,12 @@
  <div class="setting"><label for="analogSprint-select">아날로그 스프린트<small>게임패드 트리거 세기로 속도 조절</small></label><input id="analogSprint-select" type="checkbox" class="switch"></div>
  <div class="setting"><label for="deadzone-select">게임패드 데드존</label><input id="deadzone-select" type="range" min="0.05" max="0.4" step="0.01"></div>
 </div>
-<div class="setup-panel hidden" data-panel="assist" role="tabpanel">
+<div class="setup-panel hidden" data-panel="assist" role="tabpanel"><p class="setup-note">패스 지원은 차기 전 방향과 세기를 돕습니다. 출발한 공은 물리 궤적을 따르며 가로챌 수 있습니다.</p>
  <div class="setting"><label for="passAssist-select">패스 지원</label><select id="passAssist-select"><option value="auto">자동</option><option value="semi">중간</option><option value="manual">수동</option></select></div>
  <div class="setting"><label for="crossAssist-select">크로스 지원</label><select id="crossAssist-select"><option value="auto">자동</option><option value="semi">중간</option><option value="manual">수동</option></select></div>
  <div class="setting"><label for="throughAssist-select">스루 · 로빙 스루 지원</label><select id="throughAssist-select"><option value="auto">자동</option><option value="semi">중간</option><option value="manual">수동</option></select></div>
- <div class="setting"><label for="passFollow-select">패스 정확도 100<small>공이 받는 선수를 따라감</small></label><input id="passFollow-select" type="checkbox" class="switch"></div>
  <div class="setting"><label for="looseBallAssist-select">빈 공 자동 접근</label><input id="looseBallAssist-select" type="checkbox" class="switch"></div>
- <div class="setting"><label for="receiveAssist-select">받기 이동 지원<small>패스 정확도 100을 끈 경우</small></label><input id="receiveAssist-select" type="checkbox" class="switch"></div>
+ <div class="setting"><label for="receiveAssist-select">첫 터치 접근 지원<small>반대·옆 방향으로 이동하면 해제</small></label><input id="receiveAssist-select" type="checkbox" class="switch"></div>
  <div class="setting"><label for="defenceAssist-select">수비 방향 지원</label><input id="defenceAssist-select" type="checkbox" class="switch"></div>
  <div class="setup-extra" id="setup-assist-extra"><button id="assist-preset" class="secondary">추천 조작 지원으로 되돌리기</button></div>
 </div>
@@ -84,6 +83,7 @@
  <div class="setting"><label for="resolution-select">렌더 해상도</label><select id="resolution-select"><option value="1">100%</option><option value="0.8">80%</option><option value="0.6">60%</option></select></div>
  <div class="setting"><label for="shadow-select">그림자</label><input id="shadow-select" type="checkbox" class="switch"></div>
  <div class="setting"><label for="crowd-select">관중</label><input id="crowd-select" type="checkbox" class="switch"></div>
+ <div class="setting"><label for="adaptiveQuality-select">프레임 저하 시 해상도 자동 조절</label><input id="adaptiveQuality-select" type="checkbox" class="switch"></div>
  <div class="setting"><label for="volume-select">오디오 볼륨</label><input id="volume-select" type="range" min="0" max="1" step="0.05"></div>
  <div class="setup-extra"><button id="fullscreen" class="secondary">전체화면 전환 <span>⛶</span></button></div>
 </div>
