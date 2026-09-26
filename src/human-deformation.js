@@ -35,7 +35,8 @@ export function updateHumanDeformation(rig,p={},time=0){
     goal.multiplyMatrices(parent.matrixWorld,d.restLocal[i]);goal.decompose(pos,rot,scale);
     const curl=rig.distant?.13:p.keeperMotion?.kind==='catch'&&time<p.keeperMotion.until?.65:rig.motionState==='celebrate'?.4:.22;
     const finger=/finger(\d)-(\d)/.exec(spec.name);
-    if(finger){const sign=spec.name.endsWith('.R')?1:-1,angle=curl*(Number(finger[2])===1?.7:1),axis=new THREE.Vector3(0,0,sign);rot.multiply(new THREE.Quaternion().setFromAxisAngle(axis,angle));goal.compose(pos,rot,scale);}
+    // A relaxed hand is curled about 25 degrees per joint; the thumb keeps the lighter curl.
+    if(finger){const sign=spec.name.endsWith('.R')?1:-1,relaxed=Number(finger[1])===1||curl!==.22?1:2.1,angle=curl*relaxed*(Number(finger[2])===1?.7:1),axis=new THREE.Vector3(0,0,sign);rot.multiply(new THREE.Quaternion().setFromAxisAngle(axis,angle));goal.compose(pos,rot,scale);}
    }
   }
   inverse.copy(parent.matrixWorld).invert();local.multiplyMatrices(inverse,goal);local.decompose(bone.position,bone.quaternion,bone.scale);bone.updateMatrix();bone.matrixWorld.multiplyMatrices(parent.matrixWorld,bone.matrix);

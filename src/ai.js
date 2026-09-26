@@ -21,23 +21,26 @@ export function updateTeamAI(match){
  const dir=match.direction(team),flight=activePass(match),hasBall=owner?.team===team||flight?.team===team;
  const assistance=match.assistanceForTeam?.(team)||match.settings;
  const candidates=match.players.filter(p=>p.active&&p.team===team&&p.role!=='GK'&&(!match.isHumanControlled(p)||assistance.looseBallAssist!==false&&Math.hypot(match.inputForTeam(p.team).axis?.x||0,match.inputForTeam(p.team).axis?.z||0)<.12)).sort((a,c)=>distance(a,b)-distance(c,b));const chaser=flight?.team===team?match.players.find(p=>p.id===flight.receiver):candidates[0];
- // A second defender closes the carrier down from the goal side once the ball is in or near our half,
- // so a single presser is not the only resistance to a dribble.
- const cover=owner&&owner.team!==team&&owner.x*dir<12?candidates.filter(p=>p!==chaser&&!match.isHumanControlled(p)&&(owner.x-p.x)*dir>-1).sort((a,c)=>distance(a,owner)-distance(c,owner))[0]:null;
- for(const p of match.players){if(!p.active||p.team!==team||match.isHumanControlled(p))continue;
+ // Against a carrier the defence works as a unit: one presser engages goal-side and jockeys, a cover player sits behind
+ // him on the inside, and in a press one more player cuts the carrier's nearest passing lane (see defenceRoles).
+ const roles=owner&&owner.team!==team?defenceRoles(match,team,owner,candidates):null,cover=roles?.cover||null;
+ for(const p of match.players){if(!p.active||p.team!==team||match.isHumanControlled(p))continue;p.jockey=false;p.speedCap=0;
  if(p.role==='GK'){keeperTarget(match,p);continue;}
  if(!owner&&flight?.receiver===p.id){if(flight.follow){p.aiState=flight.type==='through'?'THROUGH RUN':'HOLD PASS LANE';p.target={...flight.runTarget};p.sprinting=flight.type==='through';continue;}const target=interceptPoint(match,p);if(target){p.aiState='MEET PASS';p.target=target;p.sprinting=distance(p,target)>2.2;continue;}}
  if(owner!==p&&p.runUntil>match.time){p.aiState='RUN';p.target=p.runTarget||{x:clamp(p.x+dir*10,-49,49),z:p.z};p.sprinting=true;continue;}
  if(owner!==p&&p.supportUntil>match.time&&owner?.team===team){p.aiState='SUPPORT CALL';p.target={x:owner.x-dir*5,z:owner.z+Math.sign(p.z-owner.z||1)*5};p.sprinting=false;continue;}
  if(owner===p){carrierDecision(match,p);
- }else if(p===cover){p.aiState='CLOSE DOWN';const gx=-dir*52.5,dx=gx-owner.x,dz=-owner.z,n=Math.hypot(dx,dz)||1,gap=clamp(distance(p,owner)*.35,1.4,2.7);p.target={x:clamp(owner.x+owner.vx*.15+dx/n*gap,-49,49),z:clamp(owner.z+owner.vz*.15+dz/n*gap,-30,30)};p.sprinting=distance(p,p.target)>1.8;if(safeAutoTackle(match,p))match.tackle(p);}
- else if(p===chaser&&(!hasBall||!owner)){p.aiState='PRESS';const target=interceptPoint(match,p);p.target=target||{x:b.x,z:b.z};p.sprinting=distance(p,b)>4.5;if(owner&&owner.team!==team&&safeAutoTackle(match,p))match.tackle(p);}
+ }else if(roles&&p===roles.presser){engageCarrier(match,p,owner,roles);
+ }else if(p===cover){coverPresser(match,p,owner,roles);
+ }else if(roles&&p===roles.lane){blockLane(match,p,owner,roles);
+ }else if(p===chaser&&!roles&&(!hasBall||!owner)){p.aiState='PRESS';const target=interceptPoint(match,p);p.target=target||{x:b.x,z:b.z};p.sprinting=distance(p,b)>4.5;if(owner&&owner.team!==team&&safeAutoTackle(match,p))match.tackle(p);}
  else {p.aiState=hasBall?'SUPPORT':'COVER';const progress=b.x*dir,shift=clamp(progress*.5+(hasBall?20:7),-10,36);let x=(p.homeX+shift)*dir,z=p.homeZ+b.z*.19;
  if(hasBall&&p.role==='FWD'){x=clamp((progress+12)*dir,-46,46);z=p.homeZ*.88+b.z*.12;}
  if(hasBall&&p.role==='MID'&&owner){x=owner.x-dir*(p.index%2?7:12);z=owner.z+(p.homeZ<0?-11:11);}
  if(hasBall&&owner){const shaped=supportShape(match,p,owner);if(shaped){x=shaped.x;z=shaped.z;}}
  if(!hasBall&&p.role==='DEF'){x=dir*clamp(progress-10,-42,-10);z=p.homeZ*.65+b.z*.45;}
- p.target={x:clamp(x,-49,49),z:clamp(z,-30,30)};p.sprinting=distance(p,p.target)>15;}
+ if(!hasBall){const block=blockPosition(match,p,roles);if(block){x=block.x;z=block.z;p.aiState=block.state;}}
+ p.target={x:clamp(x,-49,49),z:clamp(z,-30,30)};p.sprinting=distance(p,p.target)>(hasBall?15:7);}
  }
  }
 }
@@ -133,4 +136,85 @@ export function supportShape(match,p,owner){
   if(plan.kind==='direct'&&!wide)x=Math.min(progress+4,line-.8);
  }
  return {x:clamp(x,-49,49)*dir,z:clamp(z,-30,30)};
+}
+// ---- Defending ----------------------------------------------------------------------------------------------------
+// Coaching principles used here: the nearest goal-side player engages but does not dive in (delay, jockey at arm's
+// length and show the carrier outside), a second player covers behind him on the inside, the back line holds a
+// compact line and stays goal-side of runners, and in a press another player cuts the carrier's easiest pass.
+// Each opponent possession the defence picks a block height: press (engage anywhere), mid (engage from the halfway
+// line) or low (engage around our box), so the defending shape and trigger vary.
+export const DEFENCE_BLOCKS={press:{weight:.35,line:-18,engage:60,depth:-5},mid:{weight:.45,line:-14,engage:8,depth:-18},low:{weight:.2,line:-10,engage:-12,depth:-28}};
+export function defencePlan(match,team){
+ match.aiDefence||=[null,null];const current=match.aiDefence[team];if(current&&match.time<current.until)return current;
+ const dir=match.direction(team),losing=match.score[team]<match.score[1-team],late=match.elapsed>(match.settings.halfSeconds||120)*.7;
+ let pick=match.random(),mode='mid';const weights={press:DEFENCE_BLOCKS.press.weight+(losing?.25:0),mid:DEFENCE_BLOCKS.mid.weight,low:DEFENCE_BLOCKS.low.weight+(!losing&&late&&match.score[team]>match.score[1-team]?.25:0)},total=Object.values(weights).reduce((a,c)=>a+c,0);
+ for(const [name,w] of Object.entries(weights)){if(pick<w/total){mode=name;break;}pick-=w/total;}
+ return match.aiDefence[team]={mode,dir,until:match.time+10+match.random()*8};
+}
+// The goal-side point from which to jockey: on the line from the carrier to a spot just inside our goal, `gap` metres
+// from him, nudged toward the middle so the carrier is shown the touchline, and led by his velocity.
+export function jockeyPoint(match,team,owner,gap){
+ const dir=match.direction(team),gx=-dir*52.5-owner.x,gz=clamp(owner.z*.3,-3,3)-owner.z,n=Math.hypot(gx,gz)||1,ux=gx/n,uz=gz/n;
+ const inside=-(Math.sign(owner.z)||1),along=uz*inside,lx=-ux*along,lz=inside-uz*along,ln=Math.hypot(lx,lz)||1,shade=clamp(Math.abs(owner.z)/20,0,1)*.45;
+ // Lead his sideways movement fully but give ground only slowly: a defender who retreats as fast as the carrier runs
+ // never gets a tackle in, one who holds his ground makes the carrier come to him.
+ const run=owner.vx*ux+owner.vz*uz,sideX=owner.vx-run*ux,sideZ=owner.vz-run*uz,give=Math.max(0,run)*.12;
+ return {x:owner.x+sideX*.35+ux*(gap+give)+lx/ln*shade,z:owner.z+sideZ*.35+uz*(gap+give)+lz/ln*shade,ux,uz};
+}
+export function goalSide(match,team,p,owner){const dir=match.direction(team),gx=-dir*52.5-owner.x,gz=-owner.z,n=Math.hypot(gx,gz)||1;return ((p.x-owner.x)*gx+(p.z-owner.z)*gz)/n;}
+export function defenceRoles(match,team,owner,candidates){
+ const plan=defencePlan(match,team),dir=match.direction(team),carrierU=owner.x*dir,block=DEFENCE_BLOCKS[plan.mode],engaging=carrierU<block.engage;
+ const pool=candidates.filter(p=>p.down<=0);
+ // The presser is whoever can get goal-side of the carrier soonest; a player behind the ball must first run round it.
+ const cost=p=>{const jp=jockeyPoint(match,team,owner,2);return distance(p,jp)+(goalSide(match,team,p,owner)<.3?5:0);};
+ const presser=pool.slice().sort((a,c)=>cost(a)-cost(c))[0]||null;
+ const cover=pool.filter(p=>p!==presser&&p.role!=='FWD'&&goalSide(match,team,p,owner)>2).sort((a,c)=>distance(a,owner)-distance(c,owner))[0]||null;
+ let lane=null,laneTarget=null;
+ if(plan.mode==='press'){const receiver=match.players.filter(q=>q.active&&q.team===owner.team&&q!==owner&&q.role!=='GK'&&distance(q,owner)<22).sort((a,c)=>distance(a,owner)-distance(c,owner))[0];
+  if(receiver){laneTarget={x:owner.x+(receiver.x-owner.x)*.45,z:owner.z+(receiver.z-owner.z)*.45};lane=pool.filter(p=>p!==presser&&p!==cover&&p.role!=='DEF').sort((a,c)=>distance(a,laneTarget)-distance(c,laneTarget))[0]||null;}}
+ return {plan,block,engaging,presser,cover,lane,laneTarget,owner};
+}
+const TACKLE_RATE={easy:.3,normal:.45,hard:.6};
+export function engageCarrier(match,p,owner,roles){
+ const team=p.team,carrierSpeed=Math.hypot(owner.vx,owner.vz),d=distance(p,owner),side=goalSide(match,team,p,owner),b=match.physics.ball.position;
+ // Outside the block's trigger zone the presser only screens from a distance; inside it he closes to arm's length.
+ const danger=clamp((20-(52.5+owner.x*match.direction(team)))/20,0,1),gap=!roles.engaging?5.5:clamp(1.05+carrierSpeed*.05-danger*.15,.85,1.35),jp=jockeyPoint(match,team,owner,side<.3?gap+2.5:gap);
+ p.aiState=side<.3?'RECOVER':roles.engaging?'PRESS':'SCREEN';p.target={x:clamp(jp.x,-51,51),z:clamp(jp.z,-33,33)};
+ const toTarget=distance(p,p.target);p.sprinting=toTarget>2.5||side<.3||carrierSpeed>5;
+ // Jockeying: side-on, matching a slow carrier at arm's length rather than running at the ball.
+ p.jockey=roles.engaging&&side>=.3&&d<4.2&&carrierSpeed<4.2;
+ // Approach fast, arrive slow: close to within a few metres at speed, then brake so the carrier cannot simply cut past
+ // a defender carried on by his own momentum.
+ if(side>=.3&&roles.engaging)p.speedCap=Math.max(carrierSpeed+1.1,2.2+Math.max(0,d-1.4)*1.15);
+ if(p.action||p.cooldown>0)return;
+ // Tackle only when it can be won: a ball that has run away from the carrier's feet, or a slow carrier shielding
+ // poorly at close range (a chance per decision scaled by tackling skill and difficulty).
+ const ballGap=distance(owner,b),exposed=ballGap>.62||distance(p,b)<ballGap+.25,steal=match.random()<(TACKLE_RATE[match.settings.difficulty]||TACKLE_RATE.normal)*(p.tackling??.8)/.8;
+ if((exposed||roles.engaging&&steal)&&safeAutoTackle(match,p))match.tackle(p);
+}
+export function coverPresser(match,p,owner,roles){
+ const team=p.team,dir=match.direction(team),presser=roles.presser,beaten=!presser||goalSide(match,team,presser,owner)<-.5;
+ // Double up on a carrier pinned against the touchline or entering our final third.
+ const trap=Math.abs(owner.z)>23||owner.x*dir<-20;
+ // If the presser has been beaten the cover player becomes the new presser; otherwise he waits 6-8 m behind him on the
+ // inside, where the carrier would have to go past both.
+ if(beaten||trap&&roles.engaging){engageCarrier(match,p,owner,{...roles,engaging:true});p.aiState=beaten?'COVER PRESS':'DOUBLE TEAM';return;}
+ const jp=jockeyPoint(match,team,owner,clamp(distance(presser,owner)+5.5,6,9)),inside=-(Math.sign(owner.z)||1);
+ p.aiState='COVER';p.target={x:clamp(jp.x,-51,51),z:clamp(jp.z+inside*1.2,-33,33)};p.sprinting=distance(p,p.target)>4;p.jockey=false;
+ if(distance(p,match.physics.ball.position)<1&&safeAutoTackle(match,p)&&distance(owner,match.physics.ball.position)>.62)match.tackle(p);
+}
+export function blockLane(match,p,owner,roles){p.aiState='CUT LANE';p.target={x:clamp(roles.laneTarget.x,-51,51),z:clamp(roles.laneTarget.z,-33,33)};p.sprinting=distance(p,p.target)>3;p.jockey=false;}
+// Out of possession every other player takes a place in a compact block: the back line at the block's height, holding
+// together and goal-side of the attackers in its zone; midfield 11 m in front; forwards screening the next line.
+export function blockPosition(match,p,roles){
+ if(p.role==='GK')return null;const team=p.team,dir=match.direction(team),b=match.physics.ball.position,ballU=b.x*dir,plan=defencePlan(match,team),block=DEFENCE_BLOCKS[plan.mode];
+ const line=clamp(ballU+block.line,-41,block.depth+(plan.mode==='press'?14:0)),opponents=match.players.filter(q=>q.active&&q.team!==team&&q.role!=='GK');
+ let u,z,state='COVER';
+ if(p.role==='DEF'){u=line;z=p.homeZ*.62+b.z*.42;
+  // Stay goal-side of an attacker in this defender's channel who is near or beyond the line (not one clearly offside).
+  const threat=opponents.filter(q=>Math.abs(q.z-z)<9&&q.x*dir<line+7&&q.x*dir>line-12).sort((a,c)=>a.x*dir-c.x*dir)[0];
+  if(threat){u=Math.min(line,threat.x*dir-1.4);z=z*.3+threat.z*.7+Math.sign(b.z-threat.z||0)*.5;state='MARK';}
+ }else if(p.role==='MID'){u=line+11;z=p.homeZ*.7+b.z*.38;}
+ else{u=clamp(Math.min(line+24,ballU+3),-22,35);z=p.homeZ*.55+b.z*.3;}
+ u=clamp(u,-46,40);return {x:u*dir,z:clamp(z,-30,30),state};
 }

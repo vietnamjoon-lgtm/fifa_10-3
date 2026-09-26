@@ -12,7 +12,9 @@ export function resolvePlayerContacts(match,dt){
   if(a.team!==b.team&&a.down<=0&&b.down<=0){
    if(!a.interaction||match.time>a.interaction.until){const shared={id:++match.actionId,start:match.time,until:match.time+.22,anchor:{x:(a.x+b.x)/2,z:(a.z+b.z)/2}};a.interaction={...shared,partner:b.id,side:1};b.interaction={...shared,partner:a.id,side:-1};}
    const victim=match.owner===a?a:match.owner===b?b:null,offender=victim===a?b:a;
-   if(victim&&closing>4.2*foulThreshold(match)&&match.time>=Math.max(a.chargeContactUntil||0,b.chargeContactUntil||0)&&!['slide','tackle'].includes(offender.action?.type)){
+   // Only the offender's own run into the ball carrier counts: a carrier backing or turning into a defender is not fouled.
+   const into=victim?((victim.x-offender.x)*offender.vx+(victim.z-offender.z)*offender.vz)/(d||1):0;
+   if(victim&&closing>4.2*foulThreshold(match)&&into>closing*.6&&match.time>=Math.max(a.chargeContactUntil||0,b.chargeContactUntil||0)&&!['slide','tackle'].includes(offender.action?.type)){
     const behind=(offender.x-victim.x)*Math.sin(victim.yaw)+(offender.z-victim.z)*Math.cos(victim.yaw)<-.2;
     if(behind&&distance(victim,match.physics.ball.position)<1.7){a.chargeContactUntil=b.chargeContactUntil=match.time+1;foul(match,offender,victim,{relativeSpeed:closing,ballAttempt:false,reason:'뒤에서 충돌'});}
    }
