@@ -129,6 +129,9 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
   if(p.turnPlan&&time<p.turnPlan.start+p.turnPlan.duration){const u=clamp((time-p.turnPlan.start)/p.turnPlan.duration,0,1);blendUpperCapture(pose,'turn',u*mocap.turn.duration,.22*Math.sin(u*Math.PI)**2,p.turnPlan.angle<0);}
   else if((kinematics.acceleration||0)<-2)blendUpperCapture(pose,'stop',mocap.stop.duration-clamp(speed/8,0,1)*.7,.20*smooth((-(kinematics.acceleration||0)-2)/6));
  }
+ // Carrying the ball: chest and eyes over the ball and the arms a little wider for balance, as a dribbler runs,
+ // instead of the upright jogging posture the ball carrier used to share with everyone else.
+ if(ball&&!action&&!p.down&&!p.dive&&!celebrate&&speed>.4&&(ball.y??0)<.5){const d=Math.hypot(ball.x-p.x,ball.z-p.z),w=clamp((1.4-d)/.6,0,1)*clamp(speed/2,0,1);if(w>0){pose.torso[0]+=.1*w;pose.head[0]+=.12*w;for(let i=0;i<2;i++){pose.arms[i].upper[2]+=(i===0?-1:1)*.16*w;pose.arms[i].lower[0]-=.12*w;}}}
  // Keep daylight between the upper arms and the ribs. With less than about 11 degrees of abduction the sleeve pressed into
  // the flank and arm and body read as one piece; poses that already hold the arms wider are left alone.
  for(let i=0;i<2;i++){const out=i===0?-1:1,upper=pose.arms[i].upper;if(upper[2]*out<ARM_CLEARANCE)upper[2]=out*ARM_CLEARANCE;}
