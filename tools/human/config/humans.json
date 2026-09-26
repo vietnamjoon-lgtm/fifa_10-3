@@ -24,26 +24,35 @@
  "faces": [
   {
    "id": "f1",
+   "note": "narrow, oval",
    "targets": {
-    "chin/chin-width-decr": 0.3,
-    "nose/nose-width1-decr": 0.2,
-    "eyes/l-eye-height2-incr": 0.1,
-    "eyes/r-eye-height2-incr": 0.1
+    "head/head-oval": 0.8,
+    "chin/chin-width-decr": 0.7,
+    "nose/nose-width1-decr": 0.6,
+    "cheek/l-cheek-inner-decr": 0.5,
+    "cheek/r-cheek-inner-decr": 0.5
    }
   },
   {
    "id": "f2",
+   "note": "broad, square jaw",
    "targets": {
-    "cheek/l-cheek-bones-incr": 0.4,
-    "cheek/r-cheek-bones-incr": 0.4,
-    "chin/chin-prognathism-incr": 0.2
+    "head/head-square": 0.9,
+    "chin/chin-width-incr": 0.7,
+    "cheek/l-cheek-bones-incr": 0.8,
+    "cheek/r-cheek-bones-incr": 0.8,
+    "chin/chin-prominent-incr": 0.6
    }
   },
   {
    "id": "f3",
+   "note": "long face, strong nose",
    "targets": {
-    "nose/nose-hump-incr": 0.4,
-    "forehead/forehead-scale-vert-incr": 0.2
+    "head/head-scale-vert-incr": 0.6,
+    "nose/nose-hump-incr": 0.9,
+    "nose/nose-scale-vert-incr": 0.7,
+    "chin/chin-prognathism-incr": 0.5,
+    "mouth/mouth-scale-horiz-incr": 0.4
    }
   }
  ],
