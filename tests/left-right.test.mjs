@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {sampleMotion} from '../src/motion.js';
+import {sampleMotion,clipPhase,CLIP_PHASE} from '../src/motion.js';
+import {mocap} from '../src/mocap-data.js';
+import {gaitTargets} from '../src/gait.js';
 import {LEFT,RIGHT,sideIndex} from '../src/sides.js';
 
 // The rig faces +z and legs[0]/arms[0] sit at x<0, i.e. on the player's right.
@@ -42,4 +44,18 @@ test('every left/right to index conversion goes through sides.js',()=>{
   const src=fs.readFileSync('src/'+f,'utf8');
   assert.equal((src.match(/foot===?'(left|right)'\?[01]:[01]/g)||[]).length,0,f);
  }
+});
+
+test('locomotion clips are read in step with the feet gait.js plants',()=>{
+ // A fixed half-cycle offset (right for 100STYLE clips) read the CMU jog and run with the opposite leg in contact: 23%
+ // and 36% agreement with gait.js. Each clip now starts from its own right-foot touchdown.
+ for(const [name,speed] of [['walk',1.4],['jog',3],['run',5.5]]){
+  const c=mocap[name],n=c.contacts.length-1;let same=0,total=0;
+  for(let k=0;k<200;k++){const u=k/200,frame=Math.round(((u+CLIP_PHASE[name])%1)*n),gait=gaitTargets({vx:0,vz:speed,yaw:0},u*Math.PI*2);
+   for(const i of [RIGHT,LEFT]){same+=(c.contacts[frame][i]===1)===!!gait.contacts[i];total++;}}
+  assert.ok(same/total>.8,`${name}: ${same}/${total}`);
+ }
+ // A 100STYLE-convention clip (left touchdown at 0, right at 0.5) is read half a cycle ahead.
+ const contacts=Array.from({length:61},(_,i)=>{const u=i/60,stance=v=>((v%1)+1)%1<.6?1:0;const c=[0,0];c[LEFT]=stance(u);c[RIGHT]=stance(u-.5);return c;});
+ assert.ok(Math.abs(clipPhase({contacts})-.5)<.02);
 });
