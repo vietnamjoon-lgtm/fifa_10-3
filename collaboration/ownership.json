@@ -191,7 +191,12 @@
         "src/adaptive-quality.js",
         "src/match-audit.js",
         "tools/audit-server.mjs",
-        "tools/normalize-audit.mjs"
+        "tools/normalize-audit.mjs",
+        "src/textures/**",
+        "tools/make-pitch-textures.mjs",
+        "tools/camera-metrics.mjs",
+        "tools/broadcast-capture.mjs",
+        "CREDITS.md"
       ],
       "tests": [
         "tests/online-room.test.mjs",
