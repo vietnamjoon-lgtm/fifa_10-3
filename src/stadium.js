@@ -42,13 +42,16 @@ vec2 pitchXZ=vPitchWorld.xz;
 vec3 pitchMacroSample=texture2D(pitchMacro,pitchXZ/57.).rgb;
 vec2 pitchUv1=pitchXZ/2.4;mat2 pitchRot=mat2(.8,-.6,.6,.8);vec2 pitchUv2=pitchRot*pitchXZ/3.7+vec2(.31,.17);
 float pitchBlend=smoothstep(.32,.68,pitchMacroSample.g);
-vec3 pitchDetail=mix(texture2D(grassAlbedo,pitchUv1).rgb,texture2D(grassAlbedo,pitchUv2).rgb,pitchBlend)/.3;
+// Normalised by the texture's linear mean so grassColor alone sets the hue; clump contrast fades
+// with distance so the wide gantry view reads as even turf rather than blotches.
+vec3 pitchDetail=mix(texture2D(grassAlbedo,pitchUv1).rgb,texture2D(grassAlbedo,pitchUv2).rgb,pitchBlend)/vec3(.275,.334,.238);
+pitchDetail=mix(pitchDetail,vec3(1.),.55*smoothstep(20.,75.,length(cameraPosition-vPitchWorld)));
 // Mowing bands every 105/18 m across the length; blades lean +-z so contrast depends on view.
 float pitchBand=sin((pitchXZ.x+52.5)*3.14159265/5.8333);float pitchStripe=clamp(pitchBand/(fwidth(pitchBand)*1.5+1e-4),-1.,1.);
 vec3 pitchView=normalize(cameraPosition-vPitchWorld);
 float pitchSheen=1.+stripeStrength*pitchStripe*(.06+.1*abs(pitchView.z));
 float pitchWear=smoothstep(.55,.8,pitchMacroSample.b)*(1.-smoothstep(4.,11.,length(vec2(abs(pitchXZ.x)-49.5,pitchXZ.y*.8))))+.35*(1.-smoothstep(1.,6.,length(pitchXZ)));
-vec3 pitchColor=grassColor*pitchDetail*mix(.86,1.14,pitchMacroSample.r)*pitchSheen;
+vec3 pitchColor=grassColor*pitchDetail*mix(.94,1.06,pitchMacroSample.r)*pitchSheen;
 pitchColor=mix(pitchColor,pitchColor*vec3(1.45,1.08,.62),clamp(pitchWear,0.,1.)*.55);
 float pitchLine=pitchCoverage(pitchXZ,.06);
 diffuseColor.rgb=mix(pitchColor,lineColor,pitchLine*.94);
@@ -168,9 +171,9 @@ const DAY_SUN=new THREE.Vector3(-38,74,52).normalize();
 export const FLOODLIGHTS=[[-48,29,43],[48,29,43],[-48,29,-43],[48,29,-43]];
 export const LIGHTING={
  day:{background:0x9cc3e2,fog:[0xb5cfdf,.0019],hemi:[0xd8e8f6,0x4c6b35,1.35],key:{color:0xfff1dc,intensity:3.4,direction:DAY_SUN},
-  rim:[0xcfe2ff,.55,[30,40,-35]],fill:[0xffffff,0],exposure:.92,environment:.55,lamps:0x9aa4a8,glow:false,grass:0x45724a,stripes:1,towerShadows:0},
+  rim:[0xcfe2ff,.55,[30,40,-35]],fill:[0xffffff,0],exposure:1,environment:.55,lamps:0x9aa4a8,glow:false,grass:0x467a40,stripes:1,towerShadows:0},
  night:{background:0x08121b,fog:[0x0e2127,.0026],hemi:[0xa9bfd2,0x22401f,1.25],key:{color:0xf4f7ff,intensity:4.4,direction:new THREE.Vector3(-48,29,43).normalize()},
-  rim:[0xa8d0ff,1.1,[48,29,-43]],fill:[0xf0f4ff,1.6,[48,29,43]],exposure:1.32,environment:.6,lamps:0xe3f0ff,glow:true,grass:0x3a7040,stripes:1.1,towerShadows:.32}
+  rim:[0xa8d0ff,1.1,[48,29,-43]],fill:[0xf0f4ff,1.6,[48,29,43]],exposure:1.32,environment:.6,lamps:0xe3f0ff,glow:true,grass:0x387638,stripes:1.1,towerShadows:.32}
 };
 export function applyLighting(scene,stadium,renderer,preset='night',quality='high'){
  const L=LIGHTING[preset]||LIGHTING.night;

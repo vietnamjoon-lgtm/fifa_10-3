@@ -2,17 +2,18 @@
 // Requires a local server (node server.mjs) and Playwright's Chromium (not a repo dependency).
 // Time is virtual: requestAnimationFrame/performance.now are driven by the script and
 // Math.random is seeded, so two builds replay the identical AI match frame for frame.
-// Usage: node tools/broadcast-capture.mjs <baseUrl> <outDir> [shots|video|fps] [--night] [--quality high]
+// Usage: node tools/broadcast-capture.mjs <baseUrl> <outDir> [shots|video|fps] [--night] [--quality high] [--only kickoff,box] [--size 1280x720]
 import fs from 'node:fs';
 import path from 'node:path';
 const playwrightPath=process.env.PLAYWRIGHT_MODULE||'/opt/node22/lib/node_modules/playwright/index.mjs';
 const {chromium}=await import(playwrightPath);
-const positional=process.argv.slice(2).filter((a,i,all)=>!a.startsWith('--')&&!['--quality','--only'].includes(all[i-1]));
+const positional=process.argv.slice(2).filter((a,i,all)=>!a.startsWith('--')&&!['--quality','--only','--size'].includes(all[i-1]));
 const [base='http://127.0.0.1:4173',out='captures',mode='shots']=positional;
+const si=process.argv.indexOf('--size'),[width,height]=si>0?process.argv[si+1].split('x').map(Number):[1280,720];
 const night=process.argv.includes('--night'),qi=process.argv.indexOf('--quality'),quality=qi>0?process.argv[qi+1]:'high',oi=process.argv.indexOf('--only'),only=oi>0?process.argv[oi+1].split(','):null,want=name=>!only||only.includes(name);
 fs.mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
-const page=await browser.newPage({viewport:{width:1280,height:720}});page.setDefaultTimeout(180000);
+const page=await browser.newPage({viewport:{width,height}});page.setDefaultTimeout(180000);
 page.on('pageerror',e=>console.error('pageerror',e.message));
 const settings={quality,adaptiveQuality:false,timeOfDay:night?'night':'day',halfSeconds:600,sound:false};
 await page.addInitScript(([settings,virtual])=>{
@@ -35,7 +36,7 @@ async function kickoff(){
 }
 // Fast-forward at a tiny viewport (SwiftShader cost scales with pixels); the simulation is
 // unaffected, and the view is restored and settled for a second before any capture.
-async function until(test,limit=90,step=.2){await page.setViewportSize({width:320,height:180});try{for(let t=0;t<limit;t+=step){const s=await state();if(test(s))return s;await advance(step,1/20);}throw Error('scene not reached');}finally{await page.setViewportSize({width:1280,height:720});await page.waitForTimeout(500);}}
+async function until(test,limit=90,step=.2){await page.setViewportSize({width:320,height:180});try{for(let t=0;t<limit;t+=step){const s=await state();if(test(s))return s;await advance(step,1/20);}throw Error('scene not reached');}finally{await page.setViewportSize({width,height});await page.waitForTimeout(500);}}
 // Stills read the WebGL canvas in the same task as the render (page screenshots can catch a
 // cleared back buffer under virtual time); the HUD is not included.
 const grab=(dt,type)=>page.evaluate(([dt,type])=>{window.__advance(1,dt);return document.getElementById('scene').toDataURL(type,.9);},[dt,type]);
@@ -57,6 +58,6 @@ if(mode==='shots'){
  // Real time: 22-player AI match; report mean fps and p95 frame time over 20 s.
  await kickoff();await page.waitForTimeout(4000);
  const result=await page.evaluate(()=>new Promise(resolve=>{const times=[];let last=performance.now();const start=last;const tick=now=>{times.push(now-last);last=now;if(now-start<20000)requestAnimationFrame(tick);else{const s=[...times].sort((a,b)=>a-b);resolve({frames:times.length,meanFps:+(1000*times.length/(now-start)).toFixed(2),p50Ms:+s[Math.floor(s.length*.5)].toFixed(1),p95Ms:+s[Math.floor(s.length*.95)].toFixed(1),active:window.touchlineQA.match.players.filter(p=>p.active).length,drawCalls:window.touchline.snapshot().drawCalls});}};requestAnimationFrame(tick);}));
- console.log(JSON.stringify({base,quality,night,...result}));
+ console.log(JSON.stringify({base,quality,night,viewport:`${width}x${height}`,...result}));
 }
 await browser.close();
