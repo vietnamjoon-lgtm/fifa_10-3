@@ -5,7 +5,8 @@ import {register} from 'node:module';
 import * as THREE from '../vendor/three.module.js';
 import {fixture} from '../tools/human-fixture.mjs';
 register('../tools/three-loader.mjs',import.meta.url);
-const {JOINT_BONES,bindData,retarget,humanLook}=await import('../src/human-body.js');
+const {JOINT_BONES,bindData,retarget,humanLook,bodyShape,reachAnkles}=await import('../src/human-body.js');
+const {bodyMetrics,BODY_PRESETS}=await import('../src/body-shape.js');
 const {kitColours,shirtName,DECALS}=await import('../src/human-kit.js');
 const MODELS=['male_02','male_03'];
 
@@ -74,4 +75,25 @@ test('decal rectangles sit inside the texture and the kit mask marks every part'
  const layout=JSON.parse(fs.readFileSync(new URL('../assets/human/rocketbox/rocketbox.json',import.meta.url)));
  for(const k of DECALS){const r=layout.decals[k];assert.ok(r&&r[0]>=0&&r[2]<=1&&r[1]>=0&&r[3]<=1&&r[0]<r[2]&&r[1]<r[3],k);}
  for(const [id,a] of Object.entries(layout.avatars))for(const f of [a.model,a.body,a.head,a.bodyNormal,a.headNormal,a.hair].filter(Boolean))assert.ok(fs.existsSync(new URL(`../assets/human/rocketbox/${f}`,import.meta.url)),`${id} ${f}`);
+});
+
+test('body sliders drive the shape morphs in the right direction and default to neutral',()=>{
+ const base=bodyShape(bodyMetrics({}));for(const [k,v] of Object.entries(base.morphs))assert.ok(Math.abs(v)<.2,`${k} ${v}`);assert.equal(base.leg,1);
+ const sturdy=bodyShape(bodyMetrics({body:BODY_PRESETS.sturdy.values})),slim=bodyShape(bodyMetrics({body:BODY_PRESETS.slim.values,weight:62}));
+ assert.ok(sturdy.morphs.body_muscle>.4&&sturdy.morphs.body_chest>0&&sturdy.morphs.body_thigh>0);
+ assert.ok(slim.morphs.body_heavy<0&&slim.morphs.body_waist<0&&slim.morphs.body_muscle<0);
+ assert.ok(bodyShape(bodyMetrics({body:{legLength:108}})).leg>1);
+});
+
+test('ankle IK puts the model ankles on the old rig ankles',()=>{
+ for(const model of MODELS){const {scene,bones}=glbSkeleton(model),rig=fixture({});
+  // Positions for kitBind-free bind data (height is not used here).
+  const data=bindData(scene),m=rig.bodyMetrics,worldScale=1.81/1.82;scene.scale.setScalar(worldScale/m.scale);rig.root.add(scene);
+  for(const seed of [5,17]){pose(rig,seed);for(const leg of rig.legs)leg.upper.quaternion.setFromEuler(new THREE.Euler(-.6,0,0)),leg.lower.quaternion.setFromEuler(new THREE.Euler(1.1,0,0));
+   // Reachable by construction: a bent knee (the model leg is a little shorter than the old rig's).
+   rig.root.updateMatrixWorld(true);retarget(rig,bones,data);reachAnkles(rig,scene,bones,m,data,worldScale);
+   const lift=data.ankle*worldScale-m.ankle*m.scale;
+   rig.legs.forEach((leg,i)=>{const want=leg.foot.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0,lift,0).applyQuaternion(leg.foot.getWorldQuaternion(new THREE.Quaternion())));
+    const got=bones[i===0?'RightFoot':'LeftFoot'].getWorldPosition(new THREE.Vector3());assert.ok(got.distanceTo(want)<.01,`${model} ${i} ${got.distanceTo(want)}`);});}
+ }
 });

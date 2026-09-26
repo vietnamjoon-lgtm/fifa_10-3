@@ -92,6 +92,30 @@ for old, new in KEEP.items():
     if old in mesh.vertex_groups:
         mesh.vertex_groups[old].name = new
 
+# Body-shape morph targets (the kit is part of the same mesh and follows): each pushes vertices along their
+# normal by (metres x skin weight of the listed bones). The game drives them from the saved body sliders.
+MORPHS = {
+ 'body_heavy': {'Hips': .018, 'Spine': .024, 'Spine1': .022, 'Spine2': .014, 'Neck': .006, 'LeftShoulder': .006, 'RightShoulder': .006,
+                'LeftArm': .008, 'RightArm': .008, 'LeftForeArm': .005, 'RightForeArm': .005, 'LeftUpLeg': .014, 'RightUpLeg': .014,
+                'LeftLeg': .007, 'RightLeg': .007},
+ 'body_muscle': {'Spine2': .012, 'LeftShoulder': .012, 'RightShoulder': .012, 'LeftArm': .010, 'RightArm': .010, 'LeftForeArm': .006,
+                 'RightForeArm': .006, 'LeftUpLeg': .012, 'RightUpLeg': .012, 'LeftLeg': .010, 'RightLeg': .010, 'Neck': .008},
+ 'body_chest': {'Spine2': .02},
+ 'body_waist': {'Spine': .024, 'Spine1': .02, 'Hips': .01},
+ 'body_thigh': {'LeftUpLeg': .02, 'RightUpLeg': .02},
+ 'body_calf': {'LeftLeg': .016, 'RightLeg': .016},
+ 'body_arms': {'LeftArm': .013, 'RightArm': .013, 'LeftForeArm': .009, 'RightForeArm': .009},
+}
+names_by_index = {g.index: KEEP.get(g.name, g.name) for g in mesh.vertex_groups}
+me0 = mesh.data
+basis = mesh.shape_key_add(name='Basis', from_mix=False)
+for key, amounts in MORPHS.items():
+    sk = mesh.shape_key_add(name=key, from_mix=False)
+    for v in me0.vertices:
+        w = sum(amounts.get(names_by_index[g.group], 0) * g.weight for g in v.groups)
+        if w:
+            sk.data[v.index].co = v.co + v.normal * w
+
 # Material names the game looks for.
 for m in mesh.data.materials:
     m.name = 'body' if m.name.endswith('_body') else 'head' if m.name.endswith('_head') else 'hair'

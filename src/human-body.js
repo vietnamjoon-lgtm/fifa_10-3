@@ -42,10 +42,11 @@ export function bindData(scene){
   const child=align&&bones[name].children.find(c=>c.isBone);
   correction[name]=child?new THREE.Quaternion().setFromUnitVectors(scenePosition(child).sub(scenePosition(bones[name])).normalize(),DOWN):identity.clone();
  }
- const legTop=(scenePosition(bones.LeftUpLeg).y+scenePosition(bones.RightUpLeg).y)/2;
+ const legTop=(scenePosition(bones.LeftUpLeg).y+scenePosition(bones.RightUpLeg).y)/2,ankle=(scenePosition(bones.LeftFoot).y+scenePosition(bones.RightFoot).y)/2;
+ let height=0;scene.traverse(o=>{const a=o.geometry?.attributes.kitBind;if(a)for(let i=1;i<a.array.length;i+=3)height=Math.max(height,a.array[i]);});
  // Order: every bone after its parent.
  const order=[];const visit=n=>{order.push(n);for(const c of bones[n].children)if(c.isBone)visit(c.name);};visit('Hips');
- return {local,model,parent,correction,legTop,hips:bones.Hips.position.clone(),order};
+ return {local,model,parent,correction,legTop,ankle,height:height||1.82,hips:bones.Hips.position.clone(),order};
 }
 
 /** Rest-pose position of every vertex in metres (`kitBind`), for kit patterns. The file's positions are quantized
@@ -118,6 +119,51 @@ export function retarget(rig,bones,data){
   if(target[name]){b.quaternion.copy(parentModel).invert().multiply(target[name]);model[name].copy(target[name]);}
   else{b.quaternion.copy(data.local[name]);model[name].copy(parentModel).multiply(b.quaternion);}}
 }
+const clamp=THREE.MathUtils.clamp;
+/** Morph weights and joint lengths from the saved body sliders (src/body-shape.js bodyMetrics). */
+export function bodyShape(m){
+ const b=m.body,pct=(v,range)=>clamp((v-100)/range,-1,1.5);
+ return {morphs:{body_heavy:clamp((m.width-1)/.22+m.soft*.35,-1,1.5),body_muscle:clamp(m.muscle,-1,1),body_chest:pct(b.chest,25),body_waist:pct(b.waist,30),
+  body_thigh:pct(b.thigh,30),body_calf:pct(b.calf,30),body_arms:pct((b.upperArm+b.forearm)/2,30)},leg:b.legLength/100,arm:b.armLength/100,shoulders:b.shoulders/100};
+}
+/** Sets morphs and bone lengths on one model; returns how much the hips rise for longer legs (model units). */
+function applyBodyShape(bones,meshes,m,bind){
+ const shape=bodyShape(m);
+ for(const mesh of meshes){const d=mesh.morphTargetDictionary;if(!d)continue;for(const [k,v] of Object.entries(shape.morphs))if(k in d)mesh.morphTargetInfluences[d[k]]=v;}
+ for(const side of ['Left','Right']){
+  for(const n of ['Leg','Foot'])bones[side+n].position.multiplyScalar(shape.leg);
+  for(const n of ['ForeArm','Hand'])bones[side+n].position.multiplyScalar(shape.arm);
+  bones[side+'Arm'].position.multiplyScalar(shape.shoulders);
+ }
+ return (shape.leg-1)*(bind.legTop-bind.ankle);
+}
+const ik={a:new THREE.Vector3(),b:new THREE.Vector3(),c:new THREE.Vector3(),t:new THREE.Vector3(),k:new THREE.Vector3(),pole:new THREE.Vector3(),dir:new THREE.Vector3(),
+ q:new THREE.Quaternion(),qp:new THREE.Quaternion(),foot:new THREE.Quaternion(),up:new THREE.Vector3()};
+/** Rotates bone so the direction from its joint to `from` turns to `to` (world space). */
+function aim(bone,from,to){
+ const j=bone.getWorldPosition(ik.dir);const f=from.clone().sub(j).normalize(),t=to.clone().sub(j).normalize();
+ ik.q.setFromUnitVectors(f,t);bone.parent.getWorldQuaternion(ik.qp);
+ const world=bone.getWorldQuaternion(new THREE.Quaternion()).premultiply(ik.q);bone.quaternion.copy(ik.qp.invert().multiply(world));bone.updateMatrixWorld(true);
+}
+/** Two-bone IK: each model ankle goes where the old rig's ankle is (foot planting, kicks), knee toward the old knee. */
+export function reachAnkles(rig,root,bones,m,bind,worldScale){
+ root.updateMatrixWorld(true);rig.root.updateMatrixWorld(true);
+ const lift=(bind.ankle*worldScale-m.ankle*m.scale); // model ankle sits higher above the sole than the old one
+ rig.legs.forEach((leg,i)=>{
+  const side=i===0?'Right':'Left',up=bones[side+'UpLeg'],low=bones[side+'Leg'],foot=bones[side+'Foot'];
+  foot.getWorldQuaternion(ik.foot);
+  leg.foot.getWorldPosition(ik.t);ik.up.set(0,lift,0).applyQuaternion(leg.foot.getWorldQuaternion(ik.q));ik.t.add(ik.up);
+  up.getWorldPosition(ik.a);low.getWorldPosition(ik.b);foot.getWorldPosition(ik.c);
+  const a=ik.a.distanceTo(ik.b),b=ik.b.distanceTo(ik.c);ik.dir.subVectors(ik.t,ik.a);const d=clamp(ik.dir.length(),Math.abs(a-b)+1e-4,a+b-1e-4);ik.dir.normalize();
+  // Knee plane from the old knee.
+  leg.lower.getWorldPosition(ik.pole).sub(ik.a);ik.pole.addScaledVector(ik.dir,-ik.pole.dot(ik.dir));if(ik.pole.lengthSq()<1e-8)ik.pole.set(0,0,1).applyQuaternion(rig.root.quaternion);ik.pole.normalize();
+  const x=(a*a-b*b+d*d)/(2*d),y=Math.sqrt(Math.max(a*a-x*x,0));ik.k.copy(ik.a).addScaledVector(ik.dir,x).addScaledVector(ik.pole,y);
+  const target=ik.a.clone().addScaledVector(ik.dir,d),knee=ik.k.clone();
+  aim(up,ik.b.clone(),knee);low.getWorldPosition(ik.b);foot.getWorldPosition(ik.c);aim(low,ik.c.clone(),target);
+  // The foot keeps the orientation the retarget gave it.
+  low.getWorldQuaternion(ik.qp);foot.quaternion.copy(ik.qp.invert().multiply(ik.foot));foot.updateMatrixWorld(true);
+ });
+}
 function attach(rig){
  if(rig.human||rig.disposed)return;const look=rig.look||(rig.look={team:0,number:10,keeper:false,profile:{}}),m=rig.bodyMetrics;
  const {avatar:id,tint}=humanLook(look.profile,look.number,assets.avatars),a=assets.avatars[id],bind=a.bind;
@@ -129,15 +175,17 @@ function attach(rig){
   head:headMaterial({map:a.head,normalMap:a.headNormal,eyes:assets.layout.eyes},tint),
   hair:a.hair&&new THREE.MeshStandardMaterial({map:a.hair,alphaTest:.5,side:THREE.DoubleSide,roughness:.8})};
  for(const mesh of meshes){mesh.material=materials[mesh.material.name]||materials.body;mesh.frustumCulled=false;mesh.castShadow=true;mesh.receiveShadow=true;}
- // Same leg-top height as the old rig, so its foot IK and contacts stay valid.
- const worldScale=(m.hipY-.075)*m.scale/bind.legTop,toModel=m.scale/worldScale;root.scale.setScalar(1/toModel);
+ // Profile height, limb lengths and girth; the feet then reach the old rig's ankles by IK every frame.
+ const worldScale=m.height/bind.height,toModel=m.scale/worldScale;root.scale.setScalar(1/toModel);
+ const hipsLift=applyBodyShape(bones,meshes,m,bind);
  // Hide the old body (its bones keep updating) but keep the blob shadow.
  rig.hips.visible=false;for(const c of rig.root.children)if(c.isMesh&&c.geometry?.type!=='CircleGeometry')c.visible=false;
  rig.details=[];rig.lod=[];rig.root.add(root);
  const skeletons=new Set(meshes.map(mesh=>mesh.skeleton));
  rig.human={root,bones,meshes,materials,decals,decalCanvas,avatar:id,sync(){
   retarget(rig,bones,bind);
-  bones.Hips.position.set(bind.hips.x+rig.hips.position.x*toModel,bind.hips.y+(rig.hips.position.y-m.hipY)*toModel,bind.hips.z+rig.hips.position.z*toModel);
+  bones.Hips.position.set(bind.hips.x+rig.hips.position.x*toModel,bind.hips.y+hipsLift+(rig.hips.position.y-m.hipY)*toModel,bind.hips.z+rig.hips.position.z*toModel);
+  reachAnkles(rig,root,bones,m,bind,worldScale);
  },dispose(){live.delete(rig);root.removeFromParent();for(const mat of Object.values(materials))mat?.dispose();decals.dispose();for(const s of skeletons)s.dispose();}};
  decalsFor(rig);live.add(rig);rig.human.sync();
 }

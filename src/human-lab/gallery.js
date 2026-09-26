@@ -21,13 +21,13 @@ const pitch=new THREE.Mesh(new THREE.PlaneGeometry(60,30),new THREE.MeshStandard
 await loadHumanBodies(renderer);
 // [home club, away club, team index, keeper, profile]
 const LINE=[
- ['bucheon','seoul',0,false,{name:'J. KANG',number:10,skin:'#c89572',hairStyle:'short'}],
- ['bucheon','seoul',1,false,{name:'M. PARK',number:7,skin:'#976143',hairStyle:'crest'}],
- ['daejeon','pohang',0,false,{name:'S. LEE',number:9,skin:'#deb18a',hairStyle:'short'}],
- ['daejeon','pohang',1,false,{name:'H. KIM',number:4,skin:'#74482f',hairStyle:'crest'}],
- ['ulsan','seoul',0,false,{name:'D. CHOI',number:23,skin:'#e1ad88',hairStyle:'short'}],
- ['seoul','bucheon',1,false,{name:'Y. JUNG',number:11,skin:'#bf8561',hairStyle:'crop'}],
- ['bucheon','seoul',0,true,{name:'K. HAN',number:1,skin:'#c89572',hairStyle:'short'}],
+ ['bucheon','seoul',0,false,{name:'J. KANG',number:10,skin:'#c89572',hairStyle:'short',height:1.81}],
+ ['bucheon','seoul',1,false,{name:'M. PARK',number:7,skin:'#976143',hairStyle:'crest',height:1.92,weight:84,body:{legLength:106}}],
+ ['daejeon','pohang',0,false,{name:'S. LEE',number:9,skin:'#deb18a',hairStyle:'short',height:1.70,weight:63,body:{muscle:30,softness:15,shoulders:94,chest:92,waist:88,upperArm:88,thigh:90}}],
+ ['daejeon','pohang',1,false,{name:'H. KIM',number:4,skin:'#74482f',hairStyle:'crest',height:1.86,weight:88,body:{muscle:90,softness:25,shoulders:112,chest:110,upperArm:118,thigh:115,calf:110}}],
+ ['ulsan','seoul',0,false,{name:'D. CHOI',number:23,skin:'#e1ad88',hairStyle:'short',height:1.78,weight:92,body:{muscle:45,softness:80,waist:125,chest:106,thigh:112}}],
+ ['seoul','bucheon',1,false,{name:'Y. JUNG',number:11,skin:'#bf8561',hairStyle:'crop',height:1.66,weight:60,body:{legLength:94,armLength:95}}],
+ ['bucheon','seoul',0,true,{name:'K. HAN',number:1,skin:'#c89572',hairStyle:'short',height:1.94,weight:88,body:{armLength:108}}],
 ];
 const players=LINE.map(([home,away,team,keeper,profile],i)=>{
  applyClubs(home,away);const rig=createPlayer(team,profile.number,keeper,{...profile,role:keeper?'GK':'MF'});
@@ -35,7 +35,7 @@ const players=LINE.map(([home,away,team,keeper,profile],i)=>{
 });
 let view='front',running=false,time=0;
 function place(){const d=9.2,a=view==='front'?0:view==='back'?Math.PI:Math.PI/2;camera.position.set(Math.sin(a)*d,1.25,Math.cos(a)*d);camera.lookAt(0,.95,0);
- $('info').textContent=`${view==='front'?'앞':view==='back'?'뒤':'옆'} · ${running?'달리기':'서 있기'} · 부천 홈/원정, 대전·포항, 울산, 서울 원정, 골키퍼`;}
+ $('info').textContent=`${view==='front'?'앞':view==='back'?'뒤':'옆'} · ${running?'달리기':'서 있기'} · 구단 유니폼과 체형(키 1.66~1.94 m, 마름·근육·통통, 다리 길이)`;}
 for(const v of ['front','back','side'])$(v).onclick=()=>{view=v;place();};$('run').onclick=()=>{running=!running;place();};
 function step(dt){time+=dt;for(const {rig,profile} of players){const speed=running?5:0;animatePlayer(rig,speed,dt,time,false,{...profile,x:rig.root.position.x,z:0,vx:0,vz:speed,yaw:0,id:profile.number});}}
 let last=performance.now();function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;step(dt);renderer.render(scene,camera);}
