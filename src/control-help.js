@@ -1,4 +1,5 @@
 import {MOVES} from './skill-moves.js';
+import {ensureSkillGuide} from './skill-guide.js';
 
 export function updateControlLabels(settings){
  const legacy=settings.controls==='legacy',tactical=settings.defence==='tactical';
@@ -14,6 +15,7 @@ export function updateControlLabels(settings){
   const seen=new Set(),list=MOVES.filter(m=>{const key=m.id+(m.labels?m.side:'');if(seen.has(key))return false;seen.add(key);return true;});
   skills.innerHTML='<span><b>개인기 (오른쪽으로 공격할 때 기준 · 반대쪽은 방향 반대)</b></span><kbd></kbd>'+list.map(m=>`<span>${'★'.repeat(m.stars)} ${m.sided&&!m.labels?m.name+' (좌우)':m.label}</span><kbd>${moveKeys(m)}</kbd>`).join('');}
  else if(skills)skills.remove();
+ ensureSkillGuide();
  document.querySelector('.help-dialog p').innerHTML=legacy?'기존 조작 방식입니다. 매치 센터에서 온라인 키 배치로 바꿀 수 있습니다.':'공격·수비 상황에 따라 같은 키의 기능이 바뀝니다. 기본 수비/전략 수비는 매치 센터에서 선택하세요.<br>패드: LS 이동 · RT 질주 · A 패스 · B 슛 · X 크로스 · Y 스루 · LB 조합 · RB 감아차기.<br>개인기 1~7: 엘라스티코 · 드래그 백 · 볼 롤 · 넛메그 · 힐 플릭 · 드래그 투 힐 · 스텝 오버.<br>세리머니는 선수 편집에서 고르고, 동작 자세히 보기에서 확인할 수 있습니다.';
  const hints=legacy?[['WASD','이동'],['SHIFT','질주'],['J','패스'],['K','슛'],['L','스루'],['SPACE','태클'],['Q','변경']]:[['↑↓←→','이동'],['E / SHIFT','질주'],['S','패스'],['D','슛·태클'],['A','크로스·슬라이딩'],['W','스루'],['H','조작표']];
  document.querySelector('.bottom-controls').innerHTML=hints.map(([key,label])=>`<span><kbd>${key}</kbd> ${label}</span>`).join('');
