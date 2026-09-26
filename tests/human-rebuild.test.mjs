@@ -30,7 +30,9 @@ test('deformation weights retain original fingers, twist chains, spine and neck 
 });
 test('right anatomical leg remains legacy left and prediction is pure in both directions',()=>{
  assert.deepEqual(FOOT_SIDES.map(f=>[f.anatomical,f.legacy]),[['R','right'],['L','left']]);
- for(const yaw of [-Math.PI/2,Math.PI/2])for(const height of [1.55,2.1]){const p={x:5,z:2,height,yaw,vx:Math.sin(yaw)*3,vz:0,body:cleanBody()},before=JSON.stringify(p),left=predictFoot(p,1,'left'),right=predictFoot(p,1,'R');assert.deepEqual(left,right);assert.equal(before,JSON.stringify(p));assert.ok(Object.values(left.surfaces).every(v=>Object.values(v).every(Number.isFinite)));}
+ for(const yaw of [-Math.PI/2,Math.PI/2])for(const height of [1.55,2.1]){const p={x:5,z:2,height,yaw,vx:Math.sin(yaw)*3,vz:0,body:cleanBody()},before=JSON.stringify(p),left=predictFoot(p,1,'left'),right=predictFoot(p,1,'right');assert.deepEqual(left,predictFoot(p,1,'L'));assert.deepEqual(right,predictFoot(p,1,'R'));assert.equal(left.anatomical,'L');assert.equal(right.anatomical,'R');
+  // The player's left foot is on his left: +x in the player frame, (cos yaw, -sin yaw) in the world.
+  assert.ok((left.x-right.x)*Math.cos(yaw)-(left.z-right.z)*Math.sin(yaw)>0);assert.equal(before,JSON.stringify(p));assert.ok(Object.values(left.surfaces).every(v=>Object.values(v).every(Number.isFinite)));}
 });
 test('real skin separates garments and distant LOD has the same legacy controls',()=>{
  const r=fixture({height:1.81}),c=new THREE.Color('white'),body=createAnatomicalBody(r,{skin:c,kit:c,shorts:c,sock:c});

@@ -2,6 +2,21 @@
 
 팀원들이 누가 무엇을 바꿨는지 알 수 있게 날짜·시간(UTC+7)과 담당 파일을 적습니다. 최신 기록이 위에 옵니다. 커밋 해시로 GitHub에서 전체 변경분을 볼 수 있습니다.
 
+## 2026-09-26 16:18 ~ 23:59 · namseonghun37-create, Claude · PR #30, #34, #35 (PR #35로 한 번에 머지됨)
+
+| 시각 | 커밋 | 담당 | 파일 | 내용 |
+|---|---|---|---|---|
+| 16:18 | e325e66 | 02·01 | `src/foot-plant.js`, `src/motion.js`, `src/player.js` | 관절 튐 1차 수정: 발 IK 관성 블렌딩, 발 떼기 전 IK 감쇠, 소프트 IK, 모캡 무게값, 상태 히스테리시스 |
+| 17:12 | 236fcd2 | 02 | `src/foot-plant.js`, `src/motion.js` | 튐 2차 수정: 발 보정을 다시 걸 때 멈춤 제거, 골반 보정 상승 곡선, 팔 흔들기 무게값 (AI 경기 60초 seed 5: 5,308 → 355, `docs/MOTION-POPS.md`) |
+| 22:25 | b4653b4 | 02·03·05 | `src/sides.js`(신규), `src/motion.js`, `src/foot-plant.js`, `src/contact-model.js`, `src/assists.js`, `src/skills.js`, `src/motion-preview.js`, `src/human-deformation.js`, `tests/left-right.test.mjs`(신규) | 왼발·오른발 뒤집힘 수정: `legs[0]`은 선수의 오른쪽. 왼발잡이가 실제로 왼발로 참. 공을 차는 위치가 선수의 반대쪽으로 바뀌어 AI 경기 흐름이 달라짐 (`docs/LEFT-RIGHT.md`) |
+| 22:59 | 9593f47 | 02 | `tools/anim/*`(신규), `src/motion.js`, `CREDITS.md` | 100STYLE 클립 변환·측정 도구, 걷기·달리기 클립 위상 규칙(`CLIP_PHASE=0.5`) |
+| 23:11 | 819c57f | 02 | `tools/anim/synthetic-100style.mjs`(신규), `tools/anim/convert-100style.mjs`, `docs/100STYLE.md`(신규) | 합성 테이크로 변환 도구를 끝까지 검증, stop 구간이 감속 앞 일정 속도 구간까지 잘라 오던 문제 수정 |
+| 23:46 | ec42aa6 | 02 | `CREDITS.md` | 지금 들어 있는 클립은 모두 CMU, 100STYLE은 준비 중으로 표시 |
+| 23:59 | (이 커밋) | 02·05 | `src/human-kinematics.js`, `src/foot-plant.js`, `tests/human-rebuild.test.mjs`, `tests/contact-blending.test.mjs`, `collaboration/ownership.json` | `predictFoot`도 해부학 기준으로(`'left'`가 왼발), id 없는 킥이 이전 킥의 접촉점으로 팔로스루하던 문제 수정, `tools/anim/**`와 동작 문서를 02번 담당으로 추가 |
+
+※ 100STYLE 실제 클립은 아직 들어가지 않았습니다. 작업 환경에서 zenodo.org 접근이 막혀 있습니다. 순서는 `docs/100STYLE.md`에 있습니다.
+※ 03·04번: 공을 차는 발 위치가 바뀌었으니 슛·패스 밸런스를 한 번 확인해 주세요.
+
 ## 2026-09-26 20:29 ~ 20:54 · jooinwna · PR #31 (머지·배포됨), PR #32
 
 | 시각 | 커밋 | 담당 | 파일 | 내용 |
