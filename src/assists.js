@@ -177,7 +177,11 @@ export function controlReach(p,relative){return (.5+.3*(p.control||.8))*clamp(1.
 export function cushionFirstTouch(match,p){
  const b=match.physics.ball,v=b.velocity;
  const relative=Math.hypot(v.x-p.vx,v.z-p.vz);
- const retained=relative>23?.48:clamp((.27-p.control*.20)/gameplayValue(match,'firstTouch'),.06,.21);
+ // A hard pass, a weaker first touch or a defender at the shoulder sometimes lets the ball run off the foot (a heavy
+ // touch); before, every ball but the very fastest died at the receiver's feet.
+ const marked=Math.min(9,...match.players.filter(q=>q.active&&q.team!==p.team).map(q=>distance(p,q))),heavyChance=clamp((relative-9)/14,0,1)*(1.15-(p.control??.8))*(marked<2.2?1.6:1)*.8;
+ const heavy=relative<=23&&match.random()<heavyChance;
+ const retained=relative>23?.48:clamp((.27-p.control*.20)/gameplayValue(match,'firstTouch'),.06,.21)*(heavy?2.1:1);
  const input=match.isHumanControlled(p)?match.inputForTeam(p.team):null,axis=input?.axis,n=Math.hypot(axis?.x||0,axis?.z||0),directed=n>.15&&relative<=23;
  const touchSpeed=clamp(Math.hypot(p.vx,p.vz)+.65,.9,3.4),targetX=directed?axis.x/n*touchSpeed:p.vx,targetZ=directed?axis.z/n*touchSpeed:p.vz;
  const vx=targetX+(v.x-targetX)*retained,vz=targetZ+(v.z-targetZ)*retained;
