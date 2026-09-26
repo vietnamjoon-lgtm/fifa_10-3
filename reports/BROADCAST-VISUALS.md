@@ -17,6 +17,23 @@
 | `src/goal-net.js` | 변경 없음 — 새 골망 메시도 같은 `userData.net` 형식이라 흔들림 애니메이션 그대로 동작 | — |
 | 신규 | `src/textures/*`(1.4 MB, CC0), `CREDITS.md`, `tools/make-pitch-textures.mjs`, `tools/camera-metrics.mjs`, `tools/broadcast-capture.mjs`, 테스트 4개 | 담당표에 05번으로 추가 |
 
+## 전후 비교 자료
+
+같은 시드·같은 시뮬레이션 프레임을 두 빌드로 캡처했습니다(`tools/broadcast-capture.mjs`, 가상 시간). 왼쪽 main, 오른쪽 이 브랜치. main에는 야간 조명 하나뿐이라 낮 장면의 "before"도 야간 조명입니다. 캔버스만 캡처해서 HUD는 없습니다.
+
+| 장면 | 파일 |
+|---|---|
+| 킥오프 | [broadcast/kickoff.jpg](broadcast/kickoff.jpg) |
+| 박스 근처 | [broadcast/box.jpg](broadcast/box.jpg) |
+| 롱패스 중(공 높이 2.0 m, 20.7 m/s) | [broadcast/long-pass.jpg](broadcast/long-pass.jpg) |
+| 저녁(야간 조명) 경기 | [broadcast/night-kickoff.jpg](broadcast/night-kickoff.jpg) |
+| 카메라 비교 영상 16 s | [broadcast/camera-before-after.mp4](broadcast/camera-before-after.mp4) |
+
+![kickoff](broadcast/kickoff.jpg)
+![box](broadcast/box.jpg)
+![long pass](broadcast/long-pass.jpg)
+![night](broadcast/night-kickoff.jpg)
+
 ## 1. 중계 카메라
 
 측정: `node tools/camera-metrics.mjs [camera.js] --seed N` — `main.js`와 같은 고정 스텝 시뮬레이션 + `LocalPresentation` 보간으로 AI 경기 120 s를 돌리고, 60 Hz ±25% 흔들림과 가끔 33 ms 멈춤이 있는 프레임 간격으로 카메라를 갱신합니다. "떨림"은 프레임 속도에서 자기 ±100 ms 평균을 뺀 RMS입니다(부드러운 팬은 0에 가깝고 프레임 단위 흔들림만 커짐).
@@ -64,7 +81,36 @@
 
 ## 5. FPS (22명 AI 경기)
 
-FPS_TABLE
+측정: `node tools/broadcast-capture.mjs <url> <out> fps --quality <q> [--night] [--size WxH]` — 실제 시간으로 킥오프 후 AI 22명 자동 경기를 20 s 동안 돌리며 requestAnimationFrame 간격을 잽니다. 이전(main, 4174)과 이후(이 브랜치, 4175)를 번갈아 실행했습니다. 적응형 해상도는 끔.
+
+**환경: GPU 없는 컨테이너, Chromium + SwiftShader(CPU 소프트웨어 렌더링), 4코어.** 실제 GPU에서는 절대값이 수십 배 높고, 비율도 달라질 수 있습니다.
+
+### 1280×720
+
+| 품질 · 조명 | 이전 main 평균 FPS (p95 ms) | 이후 평균 FPS (p95 ms) | 변화 | draw calls 전→후 |
+|---|---|---|---|---|
+| 높음 · 야간 | 1.79 (1367) | 2.04 (1225) | +14% | 127 → 111 |
+| 보통 · 야간 | 1.92 (1242) | 2.12 (1175) | +10% | 127 → 111 |
+| 낮음 · 야간 | 4.18 (542) | 4.87 (533) | +16% | 119 → 140 |
+| 높음 · 낮 경기 | — (main에 없음) | 2.09 (1233) | — | — → 110 |
+
+실행 수: 조건마다 2회 평균, 각 20 s, AI 22명 자동 경기.
+
+### 640×360 (프레임 수가 많아 편차가 작음)
+
+| 품질 · 조명 | 이전 main 평균 FPS (p95 ms) | 이후 평균 FPS (p95 ms) | 변화 | draw calls 전→후 |
+|---|---|---|---|---|
+| 높음 · 야간 | 2.67 (883) | 2.99 (778) | +12% | 109 → 111 |
+| 보통 · 야간 | 2.90 (800) | 3.02 (756) | +4% | 109 → 111 |
+| 낮음 · 야간 | 7.98 (294) | 8.34 (272) | +5% | 108 → 121 |
+| 높음 · 낮 경기 | — (main에 없음) | 2.96 (778) | — | — → 110 |
+
+실행 수: 조건마다 3회 평균, 각 20 s, AI 22명 자동 경기.
+
+- 모든 품질에서 이후가 같거나 빠릅니다(22명, 야간 기준 +4–16%). 22명 fps가 떨어지지 않아야 한다는 조건은 이 환경에서 충족했습니다.
+- 빨라진 이유(추정): 그림자 프러스텀을 화면 안 선수로 맞춰 그림자 패스에서 화면 밖 선수가 컬링됨, 잔디 bump map(텍스처 3회 + 미분) 제거, 3072×2048 잔디 텍스처 제거(로딩 시 수백만 픽셀 캔버스 루프도 사라짐).
+- 새 CPU 작업: 카메라 4.3 µs/프레임(이전 0.6 µs), 그림자 맞춤 1.5 µs/프레임(Node 마이크로벤치) — 무시할 수준.
+- 낮음 품질의 draw call 증가(+13–21)는 접지·조명탑 데칼 2개와 카메라 구도 차이로 보이는 선수 LOD 차이입니다. fps는 여전히 높습니다.
 
 ## 6. 텍스처 · 라이선스
 
