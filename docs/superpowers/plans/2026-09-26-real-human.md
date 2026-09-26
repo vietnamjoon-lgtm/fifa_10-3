@@ -21,7 +21,11 @@
 - 게임 코드(src/ 기존 파일) 수정 금지. 새 파일만 추가.
 - 원본(에셋 팩, .blend, 100STYLE·CMU 원본)은 `tools/human/.cache/`(gitignore)에만. 커밋은 압축본 GLB·JSON·스크립트·문서.
 - 커밋: `git -c user.name=namseonghun37-create -c user.email=namseonghun37@gmail.com commit`, 끝에 `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`
-- **진행 규칙: Blender 스크립트 태스크(3~9, 11)는 끝날 때마다 렌더 이미지를 사용자에게 보여주고 멈춘다.** 다음 태스크의 세부 단계는 직전 체크포인트 결과(실제 에셋 목록, 치수)를 반영해 시작 전에 확정한다.
+- **진행 규칙: 모든 태스크는 끝날 때마다 결과(렌더·표)를 사용자에게 보여주고 멈춘다.** 태스크 4~11의 세부는 직전 결과(실제 에셋 목록, 치수)를 반영해 시작 전에 확정하고, 바뀐 내용을 이 문서에 반영해 커밋한다.
+- 렌더는 항상 `render_views`의 고정 카메라 4방향(front, side, back, threequarter)과 고정 조명으로 한다.
+- 에셋 팩을 받으면 실제 들어 있는 피부·머리카락·눈(눈썹·속눈썹·치아 포함) 목록과 각각의 라이선스를 먼저 보여준다. CC0가 아닌 것은 쓰지 않는다.
+- `legs[0]`·`arms[0]` 좌우는 `game13.json`에 적고, 기존 게임 코드에서 좌우를 가정하는 곳(`action.foot`, `receive.foot`, `turnPlan.foot`의 'left'/'right'와 인덱스 변환)을 함께 적는다.
+- 브랜치는 태스크 3개마다 푸시한다(태스크 3, 6, 9, 12 끝).
 - 실행 위치: `~/fifa_10-3-human` (브랜치 `work/01-human-v2`)
 
 ## 파일 구조
@@ -81,13 +85,17 @@ echo 0.180.0 > vendor/three-addons/VERSION
 
 - [ ] **Step 5: KTX-Software, gltf-transform 확인**
 
-```bash
-brew install ktx && toktx --version
-npx -y @gltf-transform/cli@4 --version
-```
-Expected: 두 버전 문자열 출력.
+Homebrew에는 KTX-Software 포뮬러가 없다(2026-09-26 확인). 공식 GitHub 릴리스 `.pkg`를 시스템에 설치하지 않고 풀어서 `.cache/ktx/`에 둔다.
 
-- [ ] **Step 6: `common.py`와 `.gitignore` 작성**
+```bash
+cd tools/human/.cache && gh release download v4.4.2 -R KhronosGroup/KTX-Software -p "KTX-Software-4.4.2-Darwin-arm64.pkg"
+pkgutil --expand-full KTX-Software-4.4.2-Darwin-arm64.pkg ktx-pkg && mkdir -p ktx/bin ktx/lib
+cp ktx-pkg/*tools.pkg/Payload/usr/local/bin/* ktx/bin/ && cp -a ktx-pkg/*library.pkg/Payload/usr/local/lib/* ktx/lib/
+./ktx/bin/toktx --version && npx -y @gltf-transform/cli@4 --version
+```
+Expected: `toktx v4.4.2`, `4.5.0`. `compress.mjs`는 `tools/human/.cache/ktx/bin`을 PATH 앞에 넣고 실행한다.
+
+- [ ] **Step 6: `common.py`와 `.gitignore` 작성** (실제 구현: `render_views` 대신 `render_grid(items, name)` — 항목마다 원점에 혼자 세워 고정 카메라 4방향으로 찍고, `compose_grid.py`(시스템 python3 + Pillow)가 행=방향, 열=항목인 한 장으로 합친다. 여러 몸을 x축으로 늘어놓으면 측면에서 서로 가리기 때문.)
 
 ```python
 # tools/human/common.py
@@ -108,24 +116,25 @@ def save_stage(name): bpy.ops.wm.save_as_mainfile(filepath=os.path.join(CACHE,na
 def open_stage(name): bpy.ops.wm.open_mainfile(filepath=os.path.join(CACHE,name+'.blend'))
 def clear_scene():
     for o in list(bpy.data.objects): bpy.data.objects.remove(o,do_unlink=True)
-def render_views(objs,path,views=('front','side'),height=1.83,res=(900,1100),engine='BLENDER_EEVEE_NEXT'):
-    """Renders the given objects from each view into one strip image at path."""
-    sc=bpy.context.scene; sc.render.engine=engine; sc.render.resolution_x,sc.render.resolution_y=res; sc.render.film_transparent=False
-    if not sc.world: sc.world=bpy.data.worlds.new('w')
-    sc.world.color=(0.62,0.66,0.7)
-    cam=bpy.data.objects.get('ReportCam') or bpy.data.objects.new('ReportCam',bpy.data.cameras.new('ReportCam')); 
-    if cam.name not in sc.collection.objects: sc.collection.objects.link(cam)
-    cam.data.type='ORTHO'; cam.data.ortho_scale=height*1.15; sc.camera=cam
-    sun=bpy.data.objects.get('ReportSun') or bpy.data.objects.new('ReportSun',bpy.data.lights.new('ReportSun','SUN'))
-    if sun.name not in sc.collection.objects: sc.collection.objects.link(sun)
-    sun.data.energy=3; sun.rotation_euler=(math.radians(50),0,math.radians(30))
-    xs=[o.location.x for o in objs]; cx=(min(xs)+max(xs))/2 if xs else 0
+VIEWS={'front':0,'side':90,'back':180,'threequarter':-45}  # camera azimuth around the model, degrees; fixed for every report
+def render_views(objs,path,views=('front','side','back','threequarter'),frame_height=2.1,res=(900,1100),engine='BLENDER_EEVEE_NEXT'):
+    """Renders objs from the same fixed cameras and lights every time, one PNG per view (path-<view>.png)."""
+    sc=bpy.context.scene; sc.render.engine=engine; sc.render.resolution_x,sc.render.resolution_y=res
+    if not sc.world: sc.world=bpy.data.worlds.new('ReportWorld')
+    sc.world.use_nodes=False; sc.world.color=(0.62,0.66,0.70); sc.view_settings.view_transform='AgX'; sc.view_settings.exposure=0
+    def ensure(name,data):
+        o=bpy.data.objects.get(name) or bpy.data.objects.new(name,data)
+        if o.name not in sc.collection.objects: sc.collection.objects.link(o)
+        return o
+    cam=ensure('ReportCam',bpy.data.cameras.get('ReportCam') or bpy.data.cameras.new('ReportCam')); cam.data.type='ORTHO'; sc.camera=cam
+    key=ensure('ReportKey',bpy.data.lights.get('ReportKey') or bpy.data.lights.new('ReportKey','SUN')); key.data.energy=3.0; key.rotation_euler=(math.radians(50),0,math.radians(35))
+    fill=ensure('ReportFill',bpy.data.lights.get('ReportFill') or bpy.data.lights.new('ReportFill','SUN')); fill.data.energy=1.0; fill.rotation_euler=(math.radians(70),0,math.radians(-140))
+    xs=[o.location.x for o in objs] or [0]; cx=(min(xs)+max(xs))/2; width=max(xs)-min(xs)+1.0
     files=[]
     for v in views:
-        if v=='front': cam.location=(cx,-12,height/2); cam.rotation_euler=(math.radians(90),0,0)
-        elif v=='side': cam.location=(cx+12,0,height/2); cam.rotation_euler=(math.radians(90),0,math.radians(90))
-        elif v=='back': cam.location=(cx,12,height/2); cam.rotation_euler=(math.radians(90),0,math.radians(180))
-        cam.data.ortho_scale=max(height*1.15,(max(xs)-min(xs)+1.2) if xs else 0)
+        a=math.radians(VIEWS[v]); d=12
+        cam.location=(cx+d*math.sin(a),-d*math.cos(a),frame_height/2); cam.rotation_euler=(math.radians(90),0,a)
+        cam.data.ortho_scale=max(frame_height,width*res[1]/res[0])
         f=path.replace('.png',f'-{v}.png'); sc.render.filepath=f; bpy.ops.render.render(write_still=True); files.append(f)
     return files
 ```
@@ -160,7 +169,7 @@ print('SKINS',len(AssetService.list_mhmat_assets('skins')),'HAIR',len(AssetServi
 ```
 
 Run: `MH_SYSTEM_ASSETS_URL=<링크> /Applications/Blender.app/Contents/MacOS/Blender -b --python-exit-code 1 --python tools/human/setup_assets.py`
-Expected: `SKINS n HAIR n EYEBROWS n` (0이 아닌 수). 이 목록을 태스크 5·6 시작 전에 확인한다.
+Expected: `ASSETS <종류> <개수> | 이름[라이선스]…`. 라이선스는 파일 첫머리 주석("explicitly released as CC0")이나 `license` 줄에서 읽고, 목록은 `reports/human-v2/assets-licenses.json`에 저장한다. 결과(2026-09-26): 피부 23, 머리카락 10, 눈 2, 눈썹 12, 속눈썹 4, 치아 6, 전부 CC0.
 
 - [ ] **Step 8: 담당표 갱신과 커밋**
 
