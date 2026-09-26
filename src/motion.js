@@ -7,7 +7,9 @@ import {Quaternion,Euler} from '../vendor/three.module.js';
 import {mocap} from './mocap-data.js';
 import {clamp} from './config.js';
 const lerp=(a,b,t)=>a+(b-a)*t;
-const WALK_SHIFT=.55;
+// Locomotion clips start at a left-foot (legs[1]) touchdown and land the right foot at 0.5 (tools/anim/convert-100style.mjs).
+// gait.js plants legs[0], the right foot, at phase 0, so every clip is read half a cycle ahead.
+const CLIP_PHASE=.5;
 const HELD_STATES=new Set(['idle','run','sprint','close-control','jockey','start','stop','turn','backpedal','keeper-step','keeper-ready']);
 const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
 export function sampleMocap(name,time){
@@ -86,12 +88,10 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  if(!p.down&&!p.dive&&!celebrate){
   if(!action&&capture>.001&&speed>.25){const cycle=((phase/(Math.PI*2))%1+1)%1;
    const jog=smooth((speed-1.5)/1.3),run=smooth((speed-3.5)/1.5),weight=smooth((speed-.25)/.9)*.78*capture;
-   // CMU 16_15 lands its right foot at cycle 0.02 and left at 0.61, half a stride away from the
-   // jog and run clips (left at 0.04 / 0.98, right at 0.54 / 0.50) that it is blended with. Shift it
-   // by 0.55 of a cycle so all three land the same foot together (residual 0.05 on each foot).
-   if(jog<1)blendCapture(pose,sampleMocap('walk',((cycle+WALK_SHIFT)%1)*mocap.walk.duration),weight*(1-jog));
-   if(jog>0&&run<1)blendCapture(pose,sampleMocap('jog',cycle*mocap.jog.duration),weight*jog*(1-run));
-   if(run>0)blendCapture(pose,sampleMocap('run',cycle*mocap.run.duration),weight*run);
+   const clipCycle=(cycle+CLIP_PHASE)%1;
+   if(jog<1)blendCapture(pose,sampleMocap('walk',clipCycle*mocap.walk.duration),weight*(1-jog));
+   if(jog>0&&run<1)blendCapture(pose,sampleMocap('jog',clipCycle*mocap.jog.duration),weight*jog*(1-run));
+   if(run>0)blendCapture(pose,sampleMocap('run',clipCycle*mocap.run.duration),weight*run);
    pose.clipId=speed<2?'walk':speed<4?'jog':'run';pose.torso[2]+=clamp(-(kinematics.turn||0)*.018,-.18,.18)*capture;
   }
   else if(action&&!action.aerial&&(action.type==='shoot'||action.type==='lob')){

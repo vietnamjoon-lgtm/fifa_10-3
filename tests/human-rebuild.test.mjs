@@ -41,8 +41,9 @@ test('real skin separates garments and distant LOD has the same legacy controls'
 test('swing/twist diagnostics catch hyperextension without changing the source quaternion',()=>{
  const q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-.25),copy=q.clone(),e=jointExcursion(q);assert.ok(e.twist<-.24);assert.ok(e.swing<1e-6);assert.deepEqual(q,copy);
 });
-test('CMU walking, jogging, stopping and turning are present and running has a flight interval',()=>{
- for(const name of ['walk','jog','turn','stop']){assert.ok(mocap[name].frames.length>20);assert.equal(mocap[name].sourceRate,120);}
+test('captured walking, jogging, stopping and turning are present and running has a flight interval',()=>{
+ // CMU clips were captured at 120 Hz, 100STYLE at 60 Hz; both are stored as 60 fps frames.
+ for(const name of ['walk','jog','turn','stop']){assert.ok(mocap[name].frames.length>20);assert.ok([60,120].includes(mocap[name].sourceRate));assert.ok(Math.abs(mocap[name].duration-(mocap[name].frames.length-1)/60)<1e-6);}
  for(const i of [0,1]){const ratio=mocap.run.contacts.reduce((n,c)=>n+c[i],0)/mocap.run.contacts.length;assert.ok(ratio>.1&&ratio<.55);}
 });
 test('stopping gait foot lift approaches zero instead of jumping at the idle threshold',()=>{
