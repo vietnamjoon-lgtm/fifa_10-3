@@ -116,19 +116,25 @@ for t in tris:
         dc.polygon(pts, fill=255)
 covered = np.asarray(covered) > 0
 # The torso island is all shirt, including the longer untucked hem of some avatars (weighted to the hips).
-for part_id, boxes in ((3, [(0, 0, 292, 206), (732, 0, 1024, 206)]), (4, [(0, 330, 278, 562), (746, 330, 1024, 562)]), (1, [(362, 40, 664, 900)])):
+for part_id, boxes in ((3, [(0, 0, 292, 206), (732, 0, 1024, 206)]), (4, [(0, 330, 278, 562), (746, 330, 1024, 562)]), (1, [(362, 40, 664, 900)]),
+                        # The arm islands at the bottom carry the upper arm below the sleeve too (weighted to the arm).
+                        (0, [(0, 590, 280, 1024), (744, 590, 1024, 1024)])):
     for x0, y0, x1, y1 in boxes:
         region[y0:y1, x0:x1] = np.where(covered[y0:y1, x0:x1], part_id, region[y0:y1, x0:x1])
 # Skin only where skin is modelled (arms below the sleeves, hands, the thigh band under the shorts), never as the thin
 # antialiased fringe of a coloured trim.
 skin &= np.isin(region, (0, 2, 3, 4)) & (blur(skin.astype(float), 1.5) > 0.6) & ~(((h < 28) | (h > 345)) & (s >= 0.5))
+# Fill pinholes inside skin areas (dark shadowed skin at the back of the arms reads as fabric by colour).
+skin |= (blur(skin.astype(float), 2.5) > 0.45) & np.isin(region, (0, 2, 3, 4)) & ~(((h < 22) | (h > 345)) & (s >= 0.62))
+# Forearm and hand islands are all skin (their dark borders would otherwise keep the painted black).
+skin |= covered & (region == 0)
 # Below the shorts hem the thigh island is all skin (its shadowed inner side is too saturated to tell
 # from fabric by colour): per column, everything under the lowest hem-trim texel is skin.
 for x0, x1 in ((0, 292), (732, 1024)):
     for x in range(x0, x1):
         rows = np.nonzero(trim[180:260, x])[0]
         hem = 180 + (rows.max() + 1 if len(rows) else 32)
-        skin[hem:330, x] |= covered[hem:330, x] & (region[hem:330, x] != 4)
+        skin[hem:330, x] |= covered[hem:330, x]
 part = np.where(skin | (sole & (region == 5)), 0, region)
 part[~covered] = 0
 hands = Image.new('L', (N, N), 0)

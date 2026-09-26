@@ -59,7 +59,7 @@
    "bodyNormal": "male_02-body-normal.jpg",
    "headNormal": "male_02-head-normal.jpg",
    "model": "male_02.glb",
-   "skin": "#c48b70"
+   "skin": "#c28b70"
   },
   "male_03": {
    "body": "male_03-body.jpg",
@@ -68,7 +68,7 @@
    "headNormal": "male_03-head-normal.jpg",
    "model": "male_03.glb",
    "hair": "male_03-hair.png",
-   "skin": "#a56b4b"
+   "skin": "#a46a4a"
   }
  }
 }
