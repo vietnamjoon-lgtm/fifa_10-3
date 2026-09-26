@@ -1,0 +1,74 @@
+{
+ "source": "Microsoft Rocketbox (MIT)",
+ "size": 1024,
+ "eyes": [
+  0.0,
+  0.5859375,
+  0.36328125,
+  1.0
+ ],
+ "decals": {
+  "backNumber": [
+   0.439453125,
+   0.203125,
+   0.5634765625,
+   0.36328125
+  ],
+  "backName": [
+   0.43359375,
+   0.359375,
+   0.5673828125,
+   0.41015625
+  ],
+  "crest": [
+   0.51171875,
+   0.5556640625,
+   0.556640625,
+   0.6025390625
+  ],
+  "sponsor": [
+   0.427734375,
+   0.603515625,
+   0.5732421875,
+   0.673828125
+  ],
+  "shortsNumber": [
+   0.146484375,
+   0.140625,
+   0.197265625,
+   0.1923828125
+  ]
+ },
+ "flipped": [
+  "backNumber",
+  "backName"
+ ],
+ "parts": [
+  "keep",
+  "shirt",
+  "sleeve",
+  "shorts",
+  "socks",
+  "boots",
+  "hands"
+ ],
+ "avatars": {
+  "male_02": {
+   "body": "male_02-body.jpg",
+   "head": "male_02-head.jpg",
+   "bodyNormal": "male_02-body-normal.jpg",
+   "headNormal": "male_02-head-normal.jpg",
+   "model": "male_02.glb",
+   "skin": "#c48b70"
+  },
+  "male_03": {
+   "body": "male_03-body.jpg",
+   "head": "male_03-head.jpg",
+   "bodyNormal": "male_03-body-normal.jpg",
+   "headNormal": "male_03-head-normal.jpg",
+   "model": "male_03.glb",
+   "hair": "male_03-hair.png",
+   "skin": "#a56b4b"
+  }
+ }
+}

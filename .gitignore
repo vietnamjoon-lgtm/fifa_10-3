@@ -11,3 +11,4 @@ auth.json
 credentials.json
 Thumbs.db
 .DS_Store
+tools/human/rocketbox/.cache/

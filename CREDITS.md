@@ -32,7 +32,18 @@ game's 13-joint rig (`tools/anim/bvh-export.py` in Blender, then `tools/anim/con
 time-warped so the right foot lands exactly half a cycle after the left, and blended at the loop seam. The original
 BVH files are not included in this repository.
 
-## Player model v2 (`assets/human/`, not yet used by the game)
+## Player model in the game (`assets/human/rocketbox/`)
+
+- Microsoft Rocketbox Avatar Library, avatars `Sports_Male_02` and `Sports_Male_03` (football kit, socks and studded
+  boots modelled over the body). MIT License, Copyright (c) 2020 Microsoft (`licenses/ROCKETBOX-MIT.txt`).
+  https://github.com/microsoft/Microsoft-Rocketbox (commit `0943055db6ec`).
+- **Changes made:** converted from FBX with `tools/human/rocketbox/01_convert.py` (Blender `bpy`): face, eye and finger
+  bones merged into the head and hands (22 bones kept, renamed to the Mixamo names the game uses), metres, facing +Z.
+  `tools/human/rocketbox/02_textures.py` resized the textures to 1024 px, replaced the painted kit with a neutral
+  fabric shade so the game can colour any club, and removed the painted Rocketbox logo, sponsor, crest and numbers.
+  Club colours, numbers, names, sponsor text and crests are drawn by the game (`src/human-kit.js`).
+
+## Player model v2 (`assets/human/`, MPFB, used by `human-lab.html` only)
 
 - MakeHuman / MPFB 2: base mesh, face targets, skins `young_caucasian_male` and `young_african_male`, eyes `low-poly`,
   `eyebrow001`, hair `short01` and `afro01` from `makehuman_system_assets`. All CC0 (each asset file declares it; list in
