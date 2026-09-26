@@ -42,6 +42,7 @@
         "assets/human/",
         "human-lab.html",
         "src/human-lab/",
+        "src/human-body.js",
         "vendor/three-addons/",
         "reports/human-v2/",
         "docs/ROADMAP-motion.md"
@@ -53,7 +54,8 @@
         "tests/human-rebuild.test.mjs",
         "tests/player-surface-quality.test.mjs",
         "tests/clubs.test.mjs",
-        "tests/human-v2.test.mjs"
+        "tests/human-v2.test.mjs",
+        "tests/human-body.test.mjs"
       ]
     },
     {

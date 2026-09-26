@@ -13,13 +13,20 @@ export function bodyMetrics(rest,s){
 }
 
 /** Number and name for the shirt's second UV: back in the left half, front in the right half. */
-export function shirtTexture(color,number,name){
+export function shirtTexture(color,number,name,text='#f4f4f4'){
  const c=document.createElement('canvas');c.width=512;c.height=256;const g=c.getContext('2d');
- g.fillStyle=color;g.fillRect(0,0,512,256);g.fillStyle='#f4f4f4';g.textAlign='center';g.textBaseline='middle';
+ g.fillStyle=color;g.fillRect(0,0,512,256);g.fillStyle=text;g.textAlign='center';g.textBaseline='middle';
  g.font='bold 34px Arial';g.fillText(String(name).toUpperCase(),128,52);
  g.font='bold 128px Arial';g.fillText(String(number),128,150);
  g.font='bold 46px Arial';g.fillText(String(number),330,78);
  const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.channel=1;t.flipY=false;t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;t.anisotropy=4;return t;
+}
+
+/** Per-player kit materials (the shirt carries its own number/name texture). */
+export function kitMaterials(kit,number,name){
+ const cloth=c=>new THREE.MeshStandardMaterial({color:c,roughness:.82,side:THREE.DoubleSide});
+ return {Kit_shirt:new THREE.MeshStandardMaterial({map:shirtTexture(kit.shirt,number,name,kit.text),roughness:.8,side:THREE.DoubleSide}),
+  Kit_shorts:cloth(kit.shorts),Kit_socks:cloth(kit.socks),Kit_boots:new THREE.MeshStandardMaterial({color:kit.boots,roughness:.35,metalness:.05})};
 }
 
 export function createHuman(assets,{skin='light',face=null,hair='short01',height=REFERENCE_HEIGHT,kit={shirt:'#b3121f',shorts:'#f2f2f2',socks:'#b3121f',boots:'#111111'},number=10,name='PLAYER'}={}){
@@ -29,10 +36,7 @@ export function createHuman(assets,{skin='light',face=null,hair='short01',height
  const set=(meshName,material)=>{const m=meshes[meshName];if(m)m.material=material;};
  set('Body',assets.materials.skin[skin]);
  for(const n of ['Eyes','Eyebrows','Hair_short01','Hair_afro01'])set(n,assets.materials[n]);
- const cloth=c=>new THREE.MeshStandardMaterial({color:c,roughness:.82,sheen:0,side:THREE.DoubleSide});
- set('Kit_shirt',new THREE.MeshStandardMaterial({map:shirtTexture(kit.shirt,number,name),roughness:.8,side:THREE.DoubleSide}));
- set('Kit_shorts',cloth(kit.shorts));set('Kit_socks',cloth(kit.socks));
- set('Kit_boots',new THREE.MeshStandardMaterial({color:kit.boots,roughness:.35,metalness:.05}));
+ for(const [n,material] of Object.entries(kitMaterials(kit,number,name)))set(n,material);
  const faceMorphs=assets.manifest.morphs;
  for(const m of Object.values(meshes)){const d=m.morphTargetDictionary;if(!d)continue;for(const k of faceMorphs)if(k in d)m.morphTargetInfluences[d[k]]=face&&k==='face_'+face?1:0;}
  const s=height/REFERENCE_HEIGHT;root.scale.setScalar(s);

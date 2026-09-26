@@ -1,0 +1,59 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {register} from 'node:module';
+import * as THREE from '../vendor/three.module.js';
+import {fixture} from '../tools/human-fixture.mjs';
+register('../tools/three-loader.mjs',import.meta.url);
+const {JOINT_BONES,bindData,retarget,humanLook}=await import('../src/human-body.js');
+
+// The 22-bone skeleton straight from player.glb's node table (no meshes needed).
+function glbSkeleton(){
+ const b=fs.readFileSync(new URL('../assets/human/player.glb',import.meta.url)),json=JSON.parse(b.subarray(20,20+b.readUInt32LE(12)).toString());
+ const objects=json.nodes.map(n=>{const o=n.skin===undefined&&n.mesh===undefined&&n.name!=='Rig'?new THREE.Bone():new THREE.Group();o.name=n.name;if(n.translation)o.position.fromArray(n.translation);if(n.rotation)o.quaternion.fromArray(n.rotation);return o;});
+ json.nodes.forEach((n,i)=>{for(const c of n.children||[])objects[i].add(objects[c]);});
+ const scene=new THREE.Group();for(const i of json.scenes[0].nodes)scene.add(objects[i]);
+ const bones={};scene.traverse(o=>{if(o.isBone)bones[o.name]=o;});return {scene,bones};
+}
+const old=rig=>({upLeg:rig.legs[0].upper,leg:rig.legs[0].lower,arm:rig.arms[0].upper,foreArm:rig.arms[0].lower});
+const worldDir=(o,axis)=>axis.clone().applyQuaternion(o.getWorldQuaternion(new THREE.Quaternion())).normalize();
+const pose=(rig,seed)=>{let s=seed;const r=()=>((s=(s*16807)%2147483647)/2147483647-.5)*1.6;for(const [path] of JOINT_BONES){const [part,key]=path.split('.'),m=/^(arms|legs)(\d)$/.exec(part),j=key?rig[m[1]][+m[2]][key]:rig[part];j.quaternion.setFromEuler(new THREE.Euler(r(),r()*.5,r()*.5));}rig.root.updateMatrixWorld(true);};
+
+test('every mapped bone exists in player.glb and follows game13.json',()=>{
+ const {bones}=glbSkeleton(),map=JSON.parse(fs.readFileSync(new URL('../tools/human/maps/game13.json',import.meta.url))).joints;
+ for(const [path,,list] of JOINT_BONES){assert.deepEqual(list.map(([n])=>n),map[path].bones.map(b=>b.bone),path);for(const [n] of list)assert.ok(bones[n],n);
+  assert.equal(list.at(-1)[1],1);}
+ // Index 0 is the player's right side in both rigs (x<0 when facing +z).
+ assert.ok(bones.RightUpLeg.getWorldPosition(new THREE.Vector3()).x<0);
+});
+
+test('retarget puts thighs, shins and arms on the old limb directions in any pose',()=>{
+ const {scene,bones}=glbSkeleton(),data=bindData(scene),rig=fixture({});rig.root.add(scene);
+ for(const seed of [3,11,29,57]){
+  pose(rig,seed);retarget(rig,bones,data);scene.updateMatrixWorld(true);
+  const o=old(rig);
+  for(const [name,joint] of [['RightUpLeg',o.upLeg],['RightLeg',o.leg],['RightArm',o.arm],['RightForeArm',o.foreArm],['LeftUpLeg',rig.legs[1].upper],['LeftLeg',rig.legs[1].lower]]){
+   const angle=worldDir(bones[name],new THREE.Vector3(0,1,0)).angleTo(worldDir(joint,new THREE.Vector3(0,-1,0)));
+   assert.ok(angle<1e-3,`${name} seed ${seed}: ${angle}`);
+  }
+  // Feet, chest and head keep their bind offset to the old joint.
+  for(const [name,joint] of [['RightFoot',rig.legs[0].foot],['Spine2',rig.torso],['Head',rig.head],['Hips',rig.hips]]){
+   const q=joint.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(bones[name].getWorldQuaternion(new THREE.Quaternion()));
+   assert.ok(q.angleTo(data.model[name])<1e-3,`${name} seed ${seed}: ${q.angleTo(data.model[name])}`);
+  }
+ }
+});
+
+test('the new leg is as long as the old rig leg once scaled to the same leg top',()=>{
+ const {scene,bones}=glbSkeleton(),data=bindData(scene),rig=fixture({}),m=rig.bodyMetrics;
+ const worldScale=(m.hipY-.075)*m.scale/data.legTop,p=o=>o.getWorldPosition(new THREE.Vector3());scene.updateMatrixWorld(true);rig.root.updateMatrixWorld(true);
+ const newLeg=p(bones.RightUpLeg).distanceTo(p(bones.RightLeg))+p(bones.RightLeg).distanceTo(p(bones.RightFoot)),oldLeg=(m.upperLeg+m.lowerLeg)*m.scale;
+ assert.ok(Math.abs(newLeg*worldScale-oldLeg)/oldLeg<.05,`${newLeg*worldScale} vs ${oldLeg}`);
+});
+
+test('looks come from the saved profile without changing it',()=>{
+ const profile={skin:'#74482f',hairStyle:'crest',uid:'a'},copy=JSON.stringify(profile);
+ assert.deepEqual({...humanLook(profile,7),face:undefined},{skin:'dark',hair:'afro01',face:undefined});
+ assert.equal(humanLook({skin:'#e1ad88'},3).skin,'light');assert.equal(humanLook({hairStyle:'bald'},3).hair,null);
+ assert.equal(JSON.stringify(profile),copy);
+});

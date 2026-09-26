@@ -8,7 +8,7 @@ const output=path.resolve(root,'.vercel','output');
 if(output!==path.join(root,'.vercel','output')||!output.startsWith(root+path.sep))throw Error('Invalid build output directory');
 fs.rmSync(output,{recursive:true,force:true});
 const staticRoot=path.join(output,'static');fs.mkdirSync(staticRoot,{recursive:true});
-for(const name of ['index.html','style.css','src','vendor','licenses'])fs.cpSync(path.join(root,name),path.join(staticRoot,name),{recursive:true,filter:source=>!source.includes(path.join('vendor','mediapipe'))||fs.statSync(source).isDirectory()||['vision-module.js','face_landmarker.task','vision_wasm_module_internal.js','vision_wasm_module_internal.wasm'].includes(path.basename(source))});
+for(const name of ['index.html','style.css','src','vendor','licenses','assets'])fs.cpSync(path.join(root,name),path.join(staticRoot,name),{recursive:true,filter:source=>!source.includes(path.join('vendor','mediapipe'))||fs.statSync(source).isDirectory()||['vision-module.js','face_landmarker.task','vision_wasm_module_internal.js','vision_wasm_module_internal.wasm'].includes(path.basename(source))});
 fs.writeFileSync(path.join(staticRoot,'src','qa.js'),'// Production build: developer scene controls are disabled.\nexport function installQA(){}\n');
 fs.writeFileSync(path.join(output,'config.json'),JSON.stringify({version:3,routes:[
  {src:'/(.*)',headers:{'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Cache-Control':'public, max-age=0, must-revalidate'},continue:true},
