@@ -125,5 +125,9 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
   if(p.turnPlan&&time<p.turnPlan.start+p.turnPlan.duration){const u=clamp((time-p.turnPlan.start)/p.turnPlan.duration,0,1);blendUpperCapture(pose,'turn',u*mocap.turn.duration,.22*Math.sin(u*Math.PI)**2,p.turnPlan.angle<0);}
   else if((kinematics.acceleration||0)<-2)blendUpperCapture(pose,'stop',mocap.stop.duration-clamp(speed/8,0,1)*.7,.20*smooth((-(kinematics.acceleration||0)-2)/6));
  }
+ // Keep daylight between the upper arms and the ribs. With less than about 11 degrees of abduction the sleeve pressed into
+ // the flank and arm and body read as one piece; poses that already hold the arms wider are left alone.
+ for(let i=0;i<2;i++){const out=i===0?-1:1,upper=pose.arms[i].upper;if(upper[2]*out<ARM_CLEARANCE)upper[2]=out*ARM_CLEARANCE;}
  return pose;
 }
+export const ARM_CLEARANCE=.2;
