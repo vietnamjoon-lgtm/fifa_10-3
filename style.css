@@ -108,3 +108,79 @@
 @media(max-width:700px){.cards-shop{grid-template-columns:1fr}.cards-stage{height:340px}.player-card{width:184px}.cards-result-actions{flex-direction:column}}
 
 .setup-intro,.setup-note{font-size:12px;line-height:1.6;color:#a9bdb0}.setup-dialog details{border-top:1px solid #ffffff24;margin:18px 0;padding-top:15px}.setup-dialog summary{cursor:pointer;font-size:12px;color:#c6ff5d}.setup-dialog details[open] summary{margin-bottom:14px}.setup-basic{margin:18px 0}.setup-dialog #setup-start{margin-top:12px}
+/* ---- Menu v2: one clear primary action, a tidy dock, nothing floating over the stadium ---- */
+#menu{background:linear-gradient(90deg,rgba(4,14,12,.93) 0%,rgba(4,14,12,.62) 38%,rgba(4,14,12,0) 70%),linear-gradient(0deg,rgba(4,14,12,.88) 0%,rgba(4,14,12,0) 34%)}
+#menu .menu-header{top:30px;left:5vw;right:5vw;gap:18px}
+#menu .lobby-bar{margin-left:auto}
+#menu .hero-copy{left:5vw;top:17vh;max-width:none;width:min(560px,50vw)}
+#menu .eyebrow{letter-spacing:2.4px}
+#menu .hero-copy h1{font-size:clamp(60px,7vw,118px);margin:20px 0 14px}
+#menu .hero-korean{font-size:17px;color:#e6eee0;margin:0 0 30px;font-weight:600}
+#menu .hero-actions{display:flex;flex-direction:column;gap:12px;max-width:470px;flex-wrap:nowrap}
+#menu .hero-actions button{gap:18px;border-radius:12px;text-align:left}
+#menu .hero-main{min-height:78px;padding:16px 26px;box-shadow:0 12px 40px #baff4b30}
+#menu .hero-main .cta-text b{font-size:21px;letter-spacing:-.4px}
+#menu .hero-main>span:last-child{font-size:30px}
+#menu .hero-secondary{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#menu .hero-secondary .secondary{min-height:66px;padding:12px 18px;background:#0a1d17b8;backdrop-filter:blur(10px)}
+#menu .cta-text{display:flex;flex-direction:column;gap:5px}
+#menu .cta-text b{font-size:15px;font-weight:800}
+#menu .cta-text small{font-size:11px;font-weight:500;opacity:.72;letter-spacing:0}
+#menu .online-cta{border-color:#c6ff5d80!important}
+#menu .match-card{top:17vh;bottom:auto;right:5vw;width:300px;border-radius:14px;padding:18px 22px}
+#menu .menu-dock{position:absolute;left:5vw;right:5vw;bottom:calc(3vh + 46px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;max-width:1100px}
+.dock-tile{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:14px;row-gap:4px;align-items:center;text-align:left;padding:16px 18px;border-radius:12px;background:#0b1c16c2;border:1px solid #ffffff1f;backdrop-filter:blur(12px)}
+.dock-tile i{grid-row:1/3;font:800 italic 22px 'Barlow Condensed',Impact,sans-serif;color:var(--lime);opacity:.9;font-style:italic}
+.dock-tile b{font-size:14px}
+.dock-tile small{font-size:11px;color:#9fb3a6}
+.dock-tile:hover{border-color:#c6ff5d88;background:#12281fd9}
+.dock-tile kbd{margin-left:4px}
+#menu .menu-footer{bottom:3vh;left:5vw;right:5vw;gap:26px;padding-top:14px;font-size:9px;flex-wrap:nowrap}
+#menu .lab-links{display:flex;align-items:center;gap:16px;color:#7f948a;letter-spacing:2px}
+#menu .lab-links button{font-size:10px;letter-spacing:0;color:#b9c9bd}
+#menu .lab-links button:hover{color:#fff}
+#menu .original{display:inline;margin-left:auto}
+@media(max-width:1100px){#menu .match-card{display:none}}
+@media(max-width:900px){#menu .menu-dock{grid-template-columns:repeat(2,minmax(0,1fr));bottom:calc(3vh + 40px)}#menu .hero-copy{top:14vh;width:min(520px,88vw)}#menu .hero-copy h1{font-size:64px}#menu .original{display:none}}
+@media(max-width:650px){#menu .hero-secondary{grid-template-columns:1fr}#menu .hero-copy h1{font-size:52px}#menu .hero-korean{margin-bottom:18px}#menu .dock-tile{padding:12px}#menu .dock-tile small{display:none}#menu .lab-links{display:none}}
+@media(max-height:760px){#menu .hero-copy{top:13vh}#menu .hero-copy h1{font-size:clamp(52px,6vw,92px);margin:14px 0 10px}#menu .hero-korean{margin-bottom:18px}#menu .hero-main{min-height:66px}#menu .hero-secondary .secondary{min-height:56px}#menu .dock-tile{padding:11px 16px}#menu .dock-tile small{display:none}}
+@media(max-height:600px){#menu .menu-dock{display:none}}
+/* ---- Match centre: tabs instead of one long list ---- */
+.setup-dialog{width:min(640px,94vw);max-height:90vh;display:flex;flex-direction:column;padding:28px 30px 22px;border-radius:16px;overflow:hidden}
+.setup-head{display:flex;justify-content:space-between;align-items:flex-start}
+.setup-head h2{margin:10px 0 18px}
+.setup-x{width:38px;height:38px;border-radius:50%;border:1px solid #ffffff2e;font-size:14px;color:#cfdcd2}
+.setup-x:hover{background:#ffffff14}
+.setup-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;background:#071310;border:1px solid #ffffff17;border-radius:11px;margin-bottom:8px}
+.setup-tabs button{padding:10px 6px;border-radius:8px;font-size:13px;font-weight:700;color:#a8b9ad}
+.setup-tabs button[aria-selected=true]{background:var(--lime);color:var(--ink)}
+.setup-tabs button:hover{transform:none}
+.setup-panel{overflow-y:auto;min-height:0;flex:1;padding:4px 2px}
+.setting{display:grid;grid-template-columns:1fr auto;align-items:center;gap:16px;padding:13px 2px;border-bottom:1px solid #ffffff12}
+.setting label{font-size:13px;font-weight:700;color:#eef4ea;display:flex;flex-direction:column;gap:4px}
+.setting label small{font-size:11px;font-weight:400;color:#93a89b}
+.setting select{min-width:220px;background:#152b21;color:#eef4ea;border:1px solid #ffffff26;border-radius:8px;padding:10px 12px;font-size:12px}
+.setting input[type=range]{width:220px;accent-color:var(--lime)}
+.switch{appearance:none;-webkit-appearance:none;width:46px;height:26px;border-radius:13px;background:#2b3d34;position:relative;cursor:pointer;transition:background .2s;margin:0}
+.switch::before{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#dfe8e1;transition:transform .2s}
+.switch:checked{background:var(--lime)}
+.switch:checked::before{transform:translateX(20px);background:#0b1a13}
+.switch:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+.setup-extra{display:flex;flex-direction:column;gap:10px;padding-top:16px}
+.setup-extra button,.setup-extra #gameplay-open{width:100%;margin:0;justify-content:center;border-radius:10px;min-height:46px}
+.setup-actions{padding-top:16px;border-top:1px solid #ffffff14;margin-top:8px}
+.setup-actions .primary{width:100%;border-radius:12px;min-height:56px;font-size:15px}
+@media(max-width:600px){.setting{grid-template-columns:1fr}.setting select,.setting input[type=range]{min-width:0;width:100%}.setup-dialog{padding:20px 18px}}
+.setup-dialog{height:min(620px,90vh)}
+.setup-panel,.setup-dialog{scrollbar-width:thin;scrollbar-color:#c6ff5d55 transparent}
+.setup-panel::-webkit-scrollbar{width:6px}.setup-panel::-webkit-scrollbar-thumb{background:#c6ff5d55;border-radius:3px}.setup-panel::-webkit-scrollbar-track{background:transparent}
+/* Dialogs share the match centre's look: rounded panels and buttons, calmer backdrop. */
+.overlay{background:#030d0acc}
+.dialog{border-radius:16px;box-shadow:0 30px 90px #000a}
+.dialog>button,.dialog .primary,.dialog .secondary{border-radius:12px}
+.dialog .text-button{border-radius:10px}
+.dialog .text-button:hover{background:#ffffff0d}
+.help-grid kbd{border-radius:5px;padding:5px 8px;background:#ffffff0f}
+#statistics>div{border-top-color:#ffffff14}
+.dialog,.dialog *{scrollbar-width:thin;scrollbar-color:#c6ff5d55 transparent}
+.dialog::-webkit-scrollbar,.dialog *::-webkit-scrollbar{width:6px;height:6px}.dialog::-webkit-scrollbar-thumb,.dialog *::-webkit-scrollbar-thumb{background:#c6ff5d55;border-radius:3px}.dialog::-webkit-scrollbar-track,.dialog *::-webkit-scrollbar-track{background:transparent}

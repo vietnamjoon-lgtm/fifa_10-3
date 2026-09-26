@@ -32,7 +32,9 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  pose.hips[1]=Math.sin(phase)*amount*.075;pose.hips[2]=Math.cos(phase)*amount*.025;
  pose.torso[0]=amount*.1+sprint*.07+clamp((kinematics.acceleration||0)*.008,-.12,.12);
  pose.torso[1]=-Math.sin(phase)*amount*.11;pose.torso[2]=clamp(-(kinematics.turn||0)*amount*.024,-.22,.22)-side*.014;
- if(speed<.2){pose.hips[2]=Math.sin(time*1.1)*.035;pose.torso[2]=-pose.hips[2]*.7;}
+ // Standing: a relaxed athletic stance rather than a mannequin's. Knees soft, chest slightly over the feet, arms loose
+ // at the sides, and a slow weight shift from one leg to the other (the pelvis tilts, the shoulders counter it).
+ if(speed<.2){const shift=Math.sin(time*.55+(p.id||0)*1.7);pose.hips[2]=shift*.045+Math.sin(time*1.1)*.012;pose.torso[2]=-pose.hips[2]*.75;pose.torso[0]+=.035;pose.hipY-=.016;pose.head[0]+=.03;for(let i=0;i<2;i++){pose.arms[i].upper[0]=-.06+Math.sin(time*.9+i)*.015;pose.arms[i].upper[2]=(i===0?1:-1)*.075;pose.arms[i].lower[0]=-.34;}}
  for(let i=0;i<2;i++){
   const cycle=((phase/(Math.PI*2)+i*.5)%1+1)%1,stance=cycle<.56;
   pose.contacts[i]=stance?1:0;const t=stance?cycle/.56:(cycle-.56)/.44;

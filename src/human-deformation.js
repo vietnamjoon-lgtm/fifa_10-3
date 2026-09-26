@@ -16,7 +16,7 @@ export function createHumanDeformation(rig){
   const neck=spec.name.startsWith('neck'),spine=spec.name.startsWith('spine'),finger=/finger(\d)-(\d)/.exec(spec.name);
   return {interpolate:neck||spine,neck,a:neck?1:0,b:neck?2:1,weight:neck?Number(spec.name.slice(-2))/4:spine?(6-Number(spec.name.slice(-2)))/5:0,
    twist:/^(upper|lower)(arm|leg)01\./.test(spec.name),hand:/finger|metacarpal/.test(spec.name),finger,
-   curlScale:finger&&Number(finger[2])===1?.7:1,axis:finger?new THREE.Vector3(0,0,spec.name.endsWith('.R')?1:-1):null};
+   curlScale:finger&&Number(finger[2])===1?.7:1,relaxedScale:finger&&Number(finger[1])!==1?2.1:1,axis:finger?new THREE.Vector3(0,0,spec.name.endsWith('.R')?1:-1):null};
  });
  const state={group,bones,specs,operations,controls,controlBind,bind,restLocal,targets,deltas:controls.map(()=>new THREE.Matrix4()),translations:controls.map(()=>new THREE.Vector3()),rotations:controls.map(()=>new THREE.Quaternion()),scales:controls.map(()=>new THREE.Vector3())};rig.deformation=state;return state;
 }
@@ -40,7 +40,7 @@ export function updateHumanDeformation(rig,p={},time=0){
   // Finger joints have their own bind positions, not a single rigid palm.
   if(operation.hand){
    goal.multiplyMatrices(parent.matrixWorld,d.restLocal[i]);goal.decompose(pos,rot,scale);
-   if(operation.finger){rot.multiply(fingerRotation.setFromAxisAngle(operation.axis,curl*operation.curlScale));goal.compose(pos,rot,scale);}
+   if(operation.finger){rot.multiply(fingerRotation.setFromAxisAngle(operation.axis,curl*operation.curlScale*(curl===.22?operation.relaxedScale:1)));goal.compose(pos,rot,scale);}
   }
   inverse.copy(parent.matrixWorld).invert();local.multiplyMatrices(inverse,goal);local.decompose(bone.position,bone.quaternion,bone.scale);bone.updateMatrix();bone.matrixWorld.multiplyMatrices(parent.matrixWorld,bone.matrix);
  }

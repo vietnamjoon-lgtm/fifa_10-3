@@ -66,16 +66,22 @@ export function updateAdvantage(match){
  if(match.time>=a.expires){match.advantage=null;}
 }
 
+export function closingSpeed(a,b){const dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz)||1;return Math.max(0,((a.vx-b.vx)*dx+(a.vz-b.vz)*dz)/d);}
 export function resolveTackle(match,p,action){
  const b=match.physics.ball.position,slide=action.type==='slide',range=(slide?1.7:1.25)*(.8+.24*(p.tackling??.8));
  const dx=b.x-p.x,dz=b.z-p.z,d=Math.hypot(dx,dz),f={x:Math.sin(p.yaw),z:Math.cos(p.yaw)};
  const alignment=d?((dx*f.x+dz*f.z)/d):1;
  const end={x:p.x+f.x*range,z:p.z+f.z*range},ballHit=b.y<.7?sweepCircle(p,end,b,slide?.25:.23):null;
  const contacts=match.players.filter(q=>q.active&&q.team!==p.team&&q.down<=0).map(q=>({q,t:sweepCircle(p,end,q,slide?.34:.29)})).filter(c=>c.t!==null).sort((a,b)=>a.t-b.t||a.q.id-b.q.id),contact=contacts[0],victim=contact?.q;
- const relativeSpeed=victim?Math.hypot(p.vx-victim.vx,p.vz-victim.vz):0;
+ // Contact speed is how fast the two close on each other along the line between them. The magnitude of their velocity
+ // difference also counted a victim running away, so a walking tackler touching a sprinter from behind was a hard foul.
+ const relativeSpeed=victim?closingSpeed(p,victim):0;
  const side=victim?Math.abs((victim.x-p.x)*f.z-(victim.z-p.z)*f.x):Infinity;
  // Grazing the edge of the tackle capsule at walking speed is incidental contact.
- const meaningful=!!victim&&(side<(slide?.25:.18)||relativeSpeed>(slide?2:3)*foulThreshold(match));
+ // A tackle straight through the body counts when the players close on each other or the victim is (nearly) standing; a
+ // runner pulling away from a tackler behind him is out of reach, so that swing meets nothing.
+ const escaping=victim?Math.hypot(victim.vx,victim.vz)>1.2&&relativeSpeed<(slide?.4:.8):false;
+ const meaningful=!!victim&&(side<(slide?.25:.18)&&!escaping||relativeSpeed>(slide?2:3)*foulThreshold(match));
  const dangerous=victim&&slide&&relativeSpeed>9;
  const bodyFirst=meaningful&&contact.t<(ballHit??Infinity)-.06;
  const ballFirst=ballHit!==null&&d<range+.11&&alignment>.15&&!bodyFirst&&!match.heldBy;

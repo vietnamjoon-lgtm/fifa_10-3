@@ -18,7 +18,9 @@ export class MatchCamera{
  }
  else if(mode===1){this.position.set(x*.65,68,z*.3+47);this.look.set(x*.65,0,z*.3);}
  else if(mode===2){this.position.set(x-3,9+extra,z+13+extra);this.look.set(x,0,z);}
- else {this.position.set(x,25+extra,z+30+extra);this.look.set(x,.35,z-1.2);}
+ // Keep the latest lower gantry framing; bounded lead and transition speed
+ // still keep rebounds and player switches from jolting this closer view.
+ else {this.position.set(x,19+extra*.7,z+30+extra*.8);this.look.set(x,.4,z-1);}
  const step=Math.min(Math.max(dt,0),.1),alpha=1-Math.exp(-step*3);
  // Limit large switch/set-piece transitions, while retaining smooth exponential tracking.
  const distance=c.position.distanceTo(this.position),move=Math.min(alpha,distance?28*step/distance:alpha);

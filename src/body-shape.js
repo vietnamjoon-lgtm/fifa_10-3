@@ -24,20 +24,20 @@ export function applyBodyPreset(profile,type){const key=cleanBodyType(type,profi
 export function bodyMetrics(profile={}){
  const b=cleanBody(profile.body),height=number(profile.height,1.81,1.55,2.1),weight=cleanWeight(profile.weight,profile),build=number(profile.build,1,.8,1.25);
  const massWidth=clamp(Math.sqrt(weight/(78*(height/1.81)**2)),.78,1.26),width=build*massWidth,muscle=(b.muscle-50)/50,soft=(b.softness-35)/65;
- const leg=b.legLength/100,arm=b.armLength/100,head=.9*b.headSize/100,neutralHeight=1.585+.159663*.9;
+ const leg=b.legLength/100,arm=b.armLength/100,head=.94*b.headSize/100,neutralHeight=1.585+.159663*.94;
  const ankle=.039*neutralHeight,upperLeg=.245*neutralHeight*leg,lowerLeg=.246*neutralHeight*leg,hipY=ankle+upperLeg+lowerLeg+.075,hipOffset=hipY-.91;
  const shoulderY=.818*neutralHeight+(hipY-(ankle+.491*neutralHeight+.075))*.3,upperArm=.186*neutralHeight*arm,lowerArm=.146*neutralHeight*arm;
  const from=[.085,.485,.835,.91,1.357,1.585],to=[ankle,ankle+lowerLeg,hipY-.075,hipY,shoulderY,1.585];
  const mapY=y=>{if(y<=from[0])return y+ankle-.085;if(y>=from.at(-1))return y;let i=1;while(y>from[i])i++;return to[i-1]+(y-from[i-1])/(from[i]-from[i-1])*(to[i]-to[i-1]);};
  const scale=height/(1.585+.159663*head*number(profile.face?.shape?.length,1,.85,1.15));
- return {body:b,height,weight,width,muscle,soft,leg,arm,head,scale,mapY,hipOffset,hipY,ankle,shoulderY,shoulderX:.222*width*b.shoulders/100,hipX:.05*neutralHeight*width*b.hips/100,
+ return {body:b,height,weight,width,muscle,soft,leg,arm,head,scale,mapY,hipOffset,hipY,ankle,shoulderY,shoulderX:.2*width*b.shoulders/100,hipX:.05*neutralHeight*width*b.hips/100,
   upperLeg,lowerLeg,upperArm,lowerArm,handReach:lowerArm+.03*b.handSize/100,foot:b.footSize/100};
 }
 const bell=(v,s)=>Math.exp(-((v/s)**2));
 export function bodyPoint(x,y,z,bone,m){
  const b=m.body,side=[3,4,7,8,9].includes(bone)?-1:1;
  if(bone>=3&&bone<=6){const upper=bone===3||bone===5,baseY=upper?1.357:1.102,newY=upper?m.shoulderY:m.shoulderY-m.upperArm,hand=clamp((.90-y)/.06,0,1),radius=m.width*(1+m.muscle*(upper?.13:.075)+m.soft*.05)*(upper?b.upperArm:b.forearm)/100;
-  const thickness=radius*(1-hand)+b.handSize/100*hand,dy=!upper&&y<.862?-m.lowerArm+(y-.862)*b.handSize/100:(y-baseY)*(upper?m.upperArm/.255:m.lowerArm/.24);
+  const cap=upper?1-.1*bell(y-1.36,.07):1,thickness=radius*cap*(1-hand)+.93*b.handSize/100*hand,dy=!upper&&y<.862?-m.lowerArm+(y-.862)*b.handSize/100:(y-baseY)*(upper?m.upperArm/.255:m.lowerArm/.24);
   return [side*m.shoulderX+(x-side*.222)*thickness,newY+dy,z*thickness];
  }
  if(bone>=7){const hip=bone===7||bone===10,knee=bone===8||bone===11,baseY=hip?.835:knee?.485:.085,newY=hip?m.hipY-.075:knee?m.ankle+m.lowerLeg:m.ankle;
