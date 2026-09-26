@@ -77,11 +77,12 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  if(p.down>0){pose.state=p.down<.3?'recover':'fall';const weight=smooth(p.down/.3);pose.rootRoll=weight*1.15*(p.interaction?.side||1);pose.hipY=lerp(.87,.28,weight);pose.torso[0]=weight*.25;pose.legs[0].lower[0]=weight*1.4;pose.legs[1].lower[0]=weight*.8;pose.arms[0].upper=[-.5,0,1.1];pose.arms[1].upper=[-.5,0,-.5];}
  if(celebrate&&!p.down&&!action){pose.state='celebrate';pose.arms[0].upper=[-.2,0,2.5];pose.arms[1].upper=[-.2,0,-2.5];pose.rootY=Math.max(0,Math.sin(time*5+p.id))*.12;}
  for(const arm of pose.arms)arm.upper[2]*=-1;
+ // The captured gait and the arm swing used to switch on and off with "running forward"
+ // (forward > 0.65 x speed) in one frame, without a state change for the inertial blend to cover.
+ // Both now use one weight: 0 at 0.5 and 1 at 0.8 of speed forward, followed by the renderer over
+ // 0.2 s (kinematics.capture).
+ const captureTarget=!action&&!p.shield&&speed>.25?smooth((forward/speed-.5)/.3):0,capture=kinematics.capture??captureTarget;pose.captureTarget=captureTarget;
  if(!p.down&&!p.dive&&!celebrate){
-  // The captured gait used to switch on and off with "running forward" (forward > 0.65 x speed)
-  // in one frame, without a state change for the inertial blend to cover. It is now a weight:
-  // 0 at 0.5 and 1 at 0.8 of speed forward, followed by the renderer over 0.2 s (kinematics.capture).
-  const captureTarget=!action&&!p.shield&&speed>.25?smooth((forward/speed-.5)/.3):0,capture=kinematics.capture??captureTarget;pose.captureTarget=captureTarget;
   if(!action&&capture>.001&&speed>.25){const cycle=((phase/(Math.PI*2))%1+1)%1;
    const jog=smooth((speed-1.5)/1.3),run=smooth((speed-3.5)/1.5),weight=smooth((speed-.25)/.9)*.78*capture;
    // CMU 16_15 lands its right foot at cycle 0.02 and left at 0.61, half a stride away from the
@@ -112,7 +113,7 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  }
  // Keep the running swing opposite the legs; transferred shoulder twist is not
  // compatible with this rig's straight upper-arm bind pose.
- if(!action&&!p.down&&!p.dive&&!celebrate&&!p.shield&&!p.defending&&forward>speed*.65&&speed>1.2){const w=smooth((speed-1.2)/2.4);for(let i=0;i<2;i++){const arm=pose.arms[i],side=i===0?-1:1;arm.upper[0]=lerp(arm.upper[0],clamp(-(pose.legs[i].upper[0]-pose.legs[1-i].upper[0])*.55,-.58,.66),w);arm.upper[1]*=1-w*.95;arm.upper[2]=lerp(arm.upper[2],side*.16,w);arm.lower[0]=lerp(arm.lower[0],-1.12-sprint*.14,w);arm.lower[1]*=1-w;arm.lower[2]*=1-w;}}
+ if(!action&&!p.down&&!p.dive&&!celebrate&&!p.shield&&!p.defending&&capture>.001&&speed>1.2){const w=smooth((speed-1.2)/2.4)*capture;for(let i=0;i<2;i++){const arm=pose.arms[i],side=i===0?-1:1;arm.upper[0]=lerp(arm.upper[0],clamp(-(pose.legs[i].upper[0]-pose.legs[1-i].upper[0])*.55,-.58,.66),w);arm.upper[1]*=1-w*.95;arm.upper[2]=lerp(arm.upper[2],side*.16,w);arm.lower[0]=lerp(arm.lower[0],-1.12-sprint*.14,w);arm.lower[1]*=1-w;arm.lower[2]*=1-w;}}
  // Separate receiving, turning and goalkeeper poses are authored independently of the kick capture.
  if(!action&&p.receivePrep&&time<p.receivePrep.until){const r=p.receivePrep,w=r.weight,i=r.foot==='left'?0:1;pose.state='receive-prepare';pose.hipY-=w*.026;pose.torso[0]+=.07*w;pose.torso[1]+=(i===0?-1:1)*.16*w;pose.arms[0].upper[2]-=.25*w;pose.arms[1].upper[2]+=.25*w;if(r.eta<.32){pose.legs[i].upper[0]-=.22*w;pose.legs[i].lower[0]+=.23*w;pose.legs[i].upper[1]=(i===0?-.38:.38)*w;pose.feet[i][1]=(i===0?-.38:.38)*w;pose.contacts[i]=0;}}
  if(!action&&p.receive&&time<p.receive.start+p.receive.duration){const r=p.receive,t=clamp((time-r.start)/r.duration,0,1),w=Math.sin(t*Math.PI),i=r.foot==='left'?0:1;pose.state='receive-'+r.kind;pose.hipY-=w*.03;if(r.kind==='chest'){pose.torso[0]=-.17*w;pose.arms[0].upper[2]=-.6*w;pose.arms[1].upper[2]=.6*w;pose.head[0]=.08*w;}else{pose.legs[i].upper[0]-=w*(r.kind==='thigh'?.9:r.kind==='instep'?.48:.18);pose.legs[i].upper[1]=r.kind==='inside'?(i===0?-.38:.38)*w:0;pose.legs[i].lower[0]+=.26*w;pose.feet[i][1]=(i===0?-.38:.38)*w;pose.contacts[i]=0;}}

@@ -2,7 +2,7 @@ import * as THREE from '../vendor/three.module.js';
 import {decayOffset} from './inertial-motion.js';
 import {locomotionCadence,stanceFraction} from './motion-planner.js';
 const down=new THREE.Vector3(0,-1,0),v=new THREE.Vector3(),q=new THREE.Quaternion();
-const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),smooth=t=>t*t*(3-2*t),liftFade=.075,gaitSoft=.04;
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),smooth=t=>t*t*(3-2*t),liftFade=.075,gaitSoft=.04,hipRise=.04;
 
 // Soft IK: near full extension the knee angle changes without bound per millimetre of target
 // travel, so a leg reaching for a target just past its length straightened or bent in one
@@ -113,7 +113,10 @@ function stabilizeGait(rig,p,pose,dt){
  // limb reach. This changes the rendered pose only, never player/ball physics.
  let correction=0;for(let i=0;i<2;i++)if(state.feet[i]){const hip=rig.legs[i].upper.getWorldPosition(new THREE.Vector3()),goal=targets[i],reach=(rig.bodyMetrics.upperLeg+rig.bodyMetrics.lowerLeg-.003-gaitSoft*.4)*size,horizontal=(hip.x-goal.x)**2+(hip.z-goal.z)**2,maxY=goal.y+Math.sqrt(Math.max(.04,reach*reach-horizontal));correction=Math.max(correction,hip.y-maxY);}
  const desired=Math.min(.045,Math.max(0,correction/size));
- state.hipCorrection=Math.max(desired,(state.hipCorrection||0)*Math.exp(-dt/0.065));
+ // Rise on a curve as well as fall: jumping to the full correction on the landing frame dropped
+ // the pelvis 5.6 cm in one 1/120 s step and bent the knee of the held foot 7 -> 50 degrees.
+ const heldCorrection=state.hipCorrection||0;
+ state.hipCorrection=desired>heldCorrection?heldCorrection+(desired-heldCorrection)*(1-Math.exp(-dt/hipRise)):Math.max(desired,heldCorrection*Math.exp(-dt/0.065));
  rig.hips.position.y-=state.hipCorrection;
  let error=0,locks=0;for(let i=0;i<2;i++){const result=solveFoot(rig,i,targets[i],gaitSoft*size);if(state.feet[i]){error=Math.max(error,result.error);locks++;}state.previous[i]=rig.legs[i].foot.getWorldPosition(new THREE.Vector3());}
  rig.plantError=error;rig.plantLocks=locks;
@@ -125,6 +128,13 @@ function stabilizeGait(rig,p,pose,dt){
 // render step. Carry the last drawn foot position and velocity across such a switch, and
 // across any step faster than a real foot, then decay the offset to the new pose.
 const footLimit=22,rawFoot=new THREE.Vector3(),footGoal=new THREE.Vector3();
+// Pull a goal that lies past the raw foot's reach back toward the leg length on the same
+// exponential as softReach, starting from the raw reach so an unchanged goal stays exact.
+function softenBeyond(rig,i,raw,goal,soft){
+ const leg=rig.legs[i],hip=leg.upper.getWorldPosition(new THREE.Vector3()),knee=leg.lower.getWorldPosition(new THREE.Vector3()),ankle=leg.foot.getWorldPosition(new THREE.Vector3());
+ const length=hip.distanceTo(knee)+knee.distanceTo(ankle),start=Math.max(raw.distanceTo(hip),length-soft),toGoal=goal.clone().sub(hip),r=toGoal.length();
+ if(r<=start)return;const room=Math.max(1e-4,length-start);goal.copy(hip).addScaledVector(toGoal.normalize(),start+room*(1-Math.exp(-(r-start)/room)));
+}
 export function inertializeFeet(rig,p,pose,dt){
  dt=Math.max(.001,Math.min(dt,.1));
  const state=rig.footOutput||(rig.footOutput={key:null,root:null,feet:[null,null]}),action=p.action;
@@ -139,12 +149,25 @@ export function inertializeFeet(rig,p,pose,dt){
   const rawVelocity=raw.clone().sub(f.raw).multiplyScalar(1/dt);f.age+=dt;
   let correction=f.age<.5?decayOffset(f.offset,f.offsetVelocity,f.age):null;
   const candidate=correction?raw.clone().add(correction):raw;
-  if(switched||candidate.distanceTo(f.out)/dt>footLimit){f.offset=f.out.clone().sub(raw);f.offsetVelocity=f.vel.clone().sub(rawVelocity).clampLength(0,footLimit);f.age=0;correction=f.offset.clone();}
+  // Re-base from where the foot would be now at its last velocity, not from where it was last
+  // frame: holding the old position stopped a swinging foot for one step (6 cm at a sprint) while
+  // the pelvis moved on, and the knee bent up to 31 degrees on every state-label change.
+  // Only a state switch carries the velocity. A re-base fired by the speed check starts from the
+  // last drawn position: carrying velocity there fed itself every frame and a standing player's
+  // foot flew off at 14 m/s.
+  const carried=switched?f.out.clone().addScaledVector(f.vel.clone().clampLength(0,footLimit),dt):f.out.clone();
+  if(switched||candidate.distanceTo(f.out)/dt>footLimit){f.offset=carried.sub(raw);f.offsetVelocity=f.vel.clone().sub(rawVelocity).clampLength(0,footLimit);f.age=0;correction=f.offset.clone();}
   // The kicking boot converges on the contact target: the offset fades out on the same curve that
   // raises the contact IK, so it is zero at impact and nothing is dropped in one step.
   if(correction&&kicking&&i===kickIndex){const fromContact=action.elapsed-action.contactAt,exact=fromContact<-.055?smooth(clamp((fromContact+.18)/.125,0,1)):fromContact>.055?1-smooth(clamp((fromContact-.055)/.18,0,1)):1;correction.multiplyScalar(1-exact);}
   let drawn=raw;
-  if(correction&&correction.lengthSq()>4e-6){footGoal.copy(raw).add(correction);footGoal.y=Math.max(sole,footGoal.y);solveFoot(rig,i,footGoal,rig.plantState?.mode==='gait'?gaitSoft*rig.root.scale.y:0);drawn=rig.legs[i].foot.getWorldPosition(new THREE.Vector3());}
+  if(correction&&correction.lengthSq()>4e-6){
+   footGoal.copy(raw).add(correction);footGoal.y=Math.max(sole,footGoal.y);
+   // raw is already this frame's soft-IK result. Solving the goal with soft IK again shortened an
+   // already shortened leg, so near full extension the knee bent up to 31 degrees with the foot in
+   // place. Only the part of the goal beyond the raw reach is softened: soft IK applies once.
+   if(rig.plantState?.mode==='gait')softenBeyond(rig,i,raw,footGoal,gaitSoft*rig.root.scale.y);
+   solveFoot(rig,i,footGoal);drawn=rig.legs[i].foot.getWorldPosition(new THREE.Vector3());}
   f.vel=drawn.clone().sub(f.out).multiplyScalar(1/dt);f.out=drawn.clone();f.raw=raw;
  }
 }
