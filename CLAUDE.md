@@ -6,4 +6,4 @@ Use the full checkout to run the game. Work on your assigned work/ branch, commi
 
 This ES module JavaScript game vendors Three.js and Cannon-es. Browser and Cloudflare server share simulation code. Run node --test --experimental-test-isolation=none tests/*.test.mjs and node tools/build-web.mjs for gameplay changes. Baseline: 183 passing tests. Report measurements and limitations, not claims of FC-identical behavior.
 
-Preserve legacy player saves, network sanitization, both team directions and receiver-following passes. Use fictional face fixtures and a separate browser origin for UI tests. Never clear the user's saved players or photographs. Never commit credentials or user photo exports.
+Preserve legacy player saves, network sanitization, both team directions, physics-based pass flight and legacy assistance save keys. Use fictional face fixtures and a separate browser origin for UI tests. Never clear the user's saved players or photographs. Never commit credentials or user photo exports.

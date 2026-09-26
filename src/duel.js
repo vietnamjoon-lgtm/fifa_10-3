@@ -31,6 +31,7 @@ export class DuelMatch extends Match{
  inputForTeam(team){return team===this.seatTeam?this.input:this.seats[team].input;}
  assistanceForTeam(team){return this.seats[team].assistance;}
  kickoff(team){super.kickoff(team);for(let t=0;t<2;t++)this.withSeat(t,()=>{this.controlled=this.players.find(p=>p.active&&p.team===t&&p.index===9)||this.players.find(p=>p.active&&p.team===t);this.charging=false;this.charge=0;this.receiving=null;this.manualSwitchUntil=this.controlLockUntil=0;this.carryInput=null;});}
+ startKickoff(){this.withSeat(this.kickoffTeam,()=>super.startKickoff());}
  finishRestart(){this.withSeat(this.restart.team,()=>super.finishRestart());}
  autoRestart(s){this.withSeat(s.team,()=>super.autoRestart(s));}
  updatePress(dt){for(let t=0;t<2;t++)this.withSeat(t,()=>super.updatePress(dt,this.input));}

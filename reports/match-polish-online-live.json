@@ -1,0 +1,35 @@
+{
+  "server": "https://project-touchline-arena.project-touchline.workers.dev",
+  "origin": "https://vietnamjoon-lgtm.github.io",
+  "room": "DJDFART7",
+  "clients": 2,
+  "identicalAuthoritativeState": true,
+  "autoDefenceHoldAndRelease": true,
+  "customSquadsShared": true,
+  "hostGameplaySettingsShared": true,
+  "gameplay": {
+    "acceleration": 112,
+    "braking": 108,
+    "turnResponse": 104,
+    "ballRoll": 96,
+    "ballBounce": 92,
+    "firstTouch": 116,
+    "referee": "strict"
+  },
+  "photoFeatureIdentityShared": true,
+  "bodyProportionsShared": true,
+  "allElevenFaceTexturesShared": true,
+  "unsharedFacesAbsent": true,
+  "photosAbsentFromSnapshots": true,
+  "faceTextureCharacters": 15447,
+  "snapshots": [
+    100,
+    100
+  ],
+  "reconnectPassed": true,
+  "lastScore": [
+    0,
+    0
+  ],
+  "checkedAt": "2026-09-25T21:04:11.162Z"
+}

@@ -1,0 +1,39 @@
+{
+  "scope": "Node control-skeleton 22-player animation only, alternating 3.5/8.5mps, 1controlled/21distant, 60Hz, 40warmup160samples. Legacy and optimized run interleaved in the same process, alternating order. No GPU or browser FPS.",
+  "legacy": {
+    "mean": 10.92281562499998,
+    "median": 8.573900000000322,
+    "p95": 23.711600000000544,
+    "count": 160
+  },
+  "optimized": {
+    "mean": 10.891810000000074,
+    "median": 8.293299999999363,
+    "p95": 22.76110000000017,
+    "count": 160
+  },
+  "equality": {
+    "cases": 120,
+    "maxQuaternionComponentDelta": 0,
+    "maxEndpointErrorDelta": 0
+  },
+  "rejectedDistantSkip": {
+    "reason": "Rendered support feet slide and leave the ground; guard was restored to preserve gait IK at every LOD.",
+    "speed1_3": {
+      "meanPositionDeltaM": 0.167584,
+      "maxGroundHeightErrorM": 0.029724,
+      "lockedFootSpeedP95Mps": 1.011668
+    },
+    "speed3_5": {
+      "meanPositionDeltaM": 0.126016,
+      "maxGroundHeightErrorM": 0.112575,
+      "lockedFootSpeedP95Mps": 2.475207
+    },
+    "speed8_5": {
+      "meanPositionDeltaM": 0.131773,
+      "maxGroundHeightErrorM": 0.097398,
+      "lockedFootSpeedP95Mps": 3.92095
+    }
+  },
+  "validation": "foot-solver-performance + human-rebuild: 12 passing tests; contact easing, release point and gait state machine unchanged"
+}
