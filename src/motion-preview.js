@@ -1,3 +1,4 @@
+import {footSign} from './contact-model.js';
 import {KEEPER} from './keeper-tuning.js';
 import {SKILLS} from './skills.js';
 import {CELEBRATIONS} from './celebrations.js';
@@ -21,7 +22,7 @@ export class MotionPreview{
   const p={id:9,foot:this.foot,x:0,z:24.6,yaw:0,vx:0,vz:kind==='run'?5.8:kind==='sprint'?8.3:kind==='dribble'?3:0,closeControl:kind==='dribble',shield:kind==='shield',down:0};
   if(kind.startsWith('celebration:')){p.celebration=kind.split(':')[1];p.celebrationStart=0;}
   const kick=['shoot','pass','lob','chip','finesse','low','setpiece'].includes(kind),actionTime=t-.55,contact=kind==='shoot'?.24:.18;
-  if(kick&&actionTime>=0&&actionTime<contact+.36)p.action={type:['chip','finesse','low','setpiece'].includes(kind)?'shoot':kind,chip:kind==='chip',curve:kind==='finesse'?18:0,low:kind==='low',foot:this.foot,contactTarget:{x:this.foot==='left'?-.11:.11,y:.11,z:25.14},elapsed:actionTime,contactAt:contact,hit:actionTime>=contact,power:.8};
+  if(kick&&actionTime>=0&&actionTime<contact+.36)p.action={type:['chip','finesse','low','setpiece'].includes(kind)?'shoot':kind,chip:kind==='chip',curve:kind==='finesse'?18:0,low:kind==='low',foot:this.foot,contactTarget:{x:footSign(this.foot)*.11,y:.11,z:25.14},elapsed:actionTime,contactAt:contact,hit:actionTime>=contact,power:.8};
   if(['slide','tackle','feint'].includes(kind)&&actionTime>=0&&actionTime<(kind==='slide'?.85:kind==='tackle'?.55:.28))p.action={type:kind,elapsed:actionTime};
   if(kind==='header'&&actionTime>=0&&actionTime<.7)p.action={type:'shoot',aerial:true,elapsed:actionTime};
   if(kind==='dive'&&actionTime>=0&&actionTime<KEEPER.diveDuration){p.dive=KEEPER.diveDuration-actionTime;p.diveDuration=KEEPER.diveDuration;p.diveDirection=1;}
@@ -34,7 +35,7 @@ export class MotionPreview{
   if(kind==='duel')p.interaction={start:0,until:3,side:1};
   if(kind==='fall'||kind==='recover')p.down=kind==='fall'?.7:.2;
   this.hero.root.position.set(0,0,24.6);this.hero.root.rotation.y=0;this.hero.motionPhaseOverride=t*locomotionCadence(Math.hypot(p.vx,p.vz),p.motionStyle,p);
-  const after=kick?Math.max(0,actionTime-contact):0;ball.position.set(this.foot==='left'?-.11:.11,kind==='header'?1.65:.11+Math.max(0,Math.sin(after*3))*.55,25.14+after*10);ball.rotation.x=t*8;
+  const after=kick?Math.max(0,actionTime-contact):0;ball.position.set(footSign(this.foot)*.11,kind==='header'?1.65:.11+Math.max(0,Math.sin(after*3))*.55,25.14+after*10);ball.rotation.x=t*8;
   animatePlayer(this.hero,Math.hypot(p.vx,p.vz),Math.max(dt,.016),t,kind==='celebrate'||kind.startsWith('celebration:'),p,ball.position);
   camera.position.set(Math.sin(this.angle)*3.7,1.6,24.6+Math.cos(this.angle)*3.7);camera.lookAt(0,1.02,24.6);
   document.getElementById('motion-state').textContent=this.hero.motionState.toUpperCase();if(this.playing)document.getElementById('motion-frame').value=String(t/this.duration);

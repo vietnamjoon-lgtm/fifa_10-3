@@ -1,4 +1,47 @@
-# Credits — textures and visual assets
+# Credits
+
+Third-party data used by Project Touchline. License texts for code and other assets are in `licenses/`.
+
+## Motion capture
+
+### CMU Graphics Lab Motion Capture Database (current clips)
+
+All clips currently in `src/mocap-data.js` are retargeted from the CMU database: `run` 09_01, `kick` 10_01, and the
+walk, jog, turn and stop clips from subject 16 (16_15, 16_35, 16_17, 16_08). The data comes from mocap.cs.cmu.edu,
+created with funding from NSF EIA-0196217. See `licenses/CMU-MOCAP.txt`. After the 100STYLE conversion only `kick`
+remains CMU data.
+
+### 100STYLE (walk, jog, run, turn and stop clips, pending)
+
+**Status: prepared, not yet in the game.** `tools/anim/convert-100style.mjs` will replace the `walk`, `jog`, `run`,
+`turn` and `stop` clips in `src/mocap-data.js` with ones derived from the **Neutral** style of the 100STYLE dataset
+(see `docs/100STYLE.md`). Until that conversion is committed, every clip in the game is CMU data (above). When it is,
+this section applies:
+
+- Ian Mason, Sebastian Starke and Taku Komura. *Real-Time Style Modelling of Human Locomotion via Feature-Wise
+  Transformations and Local Motion Phases.* Proceedings of the ACM on Computer Graphics and Interactive Techniques
+  5(1), article 6, 2022. https://doi.org/10.1145/3522618
+- Dataset: 100STYLE, https://zenodo.org/records/8127870 (project page https://www.ianxmason.com/100style/)
+- License: Creative Commons Attribution 4.0 International (CC BY 4.0), https://creativecommons.org/licenses/by/4.0/
+
+Source files: `Neutral_FW.bvh`, `Neutral_FR.bvh` and `Neutral_TR1.bvh`, trimmed with the dataset's `Frame_Cuts.csv`.
+The exact frame ranges and file hashes are in `tools/anim/100style-selection.json`.
+
+**Changes made:** single cycles and segments were cut from the takes, retargeted from the 100STYLE skeleton to the
+game's 13-joint rig (`tools/anim/bvh-export.py` in Blender, then `tools/anim/convert-100style.mjs`), made in-place,
+time-warped so the right foot lands exactly half a cycle after the left, and blended at the loop seam. The original
+BVH files are not included in this repository.
+
+## Player model v2 (`assets/human/`, not yet used by the game)
+
+- MakeHuman / MPFB 2: base mesh, face targets, skins `young_caucasian_male` and `young_african_male`, eyes `low-poly`,
+  `eyebrow001`, hair `short01` and `afro01` from `makehuman_system_assets`. All CC0 (each asset file declares it; list in
+  `reports/human-v2/assets-licenses.json`). https://static.makehumancommunity.org/about/license.html
+- The MPFB add-on itself (GPL-3.0) is not in this repository, only its CC0 output.
+- Kit, boots and number layout are made in this repository (`tools/human/blender/05_kit.py`).
+- Details: `licenses/HUMAN-ASSETS.md`.
+
+## Pitch and goal-net textures (`src/textures/`)
 
 All textures used for the pitch and goal nets are **CC0 1.0 (public domain dedication)**.
 
@@ -11,7 +54,7 @@ All textures used for the pitch and goal nets are **CC0 1.0 (public domain dedic
 
 Total: about 1.4 MB (budget 5 MB).
 
-## Why generated rather than downloaded
+### Why generated rather than downloaded
 
 Poly Haven (`dl.polyhaven.org`, `api.polyhaven.com`) and ambientCG (`ambientcg.com`) were
 unreachable from the build environment (egress proxy returned 403), so no third-party files were
@@ -20,8 +63,9 @@ public domain under CC0 1.0 by the project, the same license Poly Haven and ambi
 
 To swap in a real scan later (for example Poly Haven "aerial_grass_rock" or ambientCG "Grass004"),
 keep the same file names, keep each map tileable, stay under the 5 MB total and add a row with the
-asset page URL and download date to the table above. The pitch shader expects an sRGB albedo whose
-average is about 0.3 linear, and an OpenGL-convention (green up) tangent-space normal map.
+asset page URL and download date to the table above. The pitch shader divides the sRGB albedo by its linear mean
+(`vec3(.275,.334,.238)` in `src/stadium.js`; update it for a new map), and an OpenGL-convention (green up) tangent-space normal map.
 
-KTX2/Basis compression was not used: it needs `KTX2Loader` and the Basis transcoder from
-`vendor/three-addons/`, which is not in this checkout and is outside this change's scope.
+KTX2/Basis compression was not used for these maps: `vendor/three-addons/` (KTX2Loader, Basis
+transcoder) belongs to another part and was outside this change's scope; the maps are already
+within the 5 MB budget as PNG.

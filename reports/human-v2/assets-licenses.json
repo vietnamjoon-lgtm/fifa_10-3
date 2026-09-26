@@ -1,0 +1,299 @@
+{
+ "skins": [
+  {
+   "name": "middleage_african_female",
+   "file": "skins/middleage_african_female/middleage_african_female.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "middleage_african_male",
+   "file": "skins/middleage_african_male/middleage_african_male.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "middleage_asian_female",
+   "file": "skins/middleage_asian_female/middleage_asian_female.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "middleage_asian_male",
+   "file": "skins/middleage_asian_male/middleage_asian_male.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "middleage_caucasian_female",
+   "file": "skins/middleage_caucasian_female/middleage_caucasian_female.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "middleage_caucasian_male",
+   "file": "skins/middleage_caucasian_male/middleage_caucasian_male.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "old_african_female",
+   "file": "skins/old_african_female/old_african_female.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "old_african_male",
+   "file": "skins/old_african_male/old_african_male.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "old_asian_female",
+   "file": "skins/old_asian_female/old_asian_female.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "old_asian_male",
+   "file": "skins/old_asian_male/old_asian_male.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "old_caucasian_female",
+   "file": "skins/old_caucasian_female/old_caucasian_female.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "old_caucasian_male",
+   "file": "skins/old_caucasian_male/old_caucasian_male.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "toon01",
+   "file": "skins/toon01/toon01.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "young_african_female",
+   "file": "skins/young_african_female/young_african_female.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "young_african_male",
+   "file": "skins/young_african_male/young_african_male.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "young_asian_female",
+   "file": "skins/young_asian_female/young_asian_female.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "young_asian_male",
+   "file": "skins/young_asian_male/young_asian_male.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "young_caucasian_female",
+   "file": "skins/young_caucasian_female/young_caucasian_female.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "young_caucasian_female2",
+   "file": "skins/young_caucasian_female2/young_caucasian_female2.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "young_caucasian_female_special_suit",
+   "file": "skins/young_caucasian_female_special_suit/young_caucasian_female_special_suit.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "young_caucasian_male",
+   "file": "skins/young_caucasian_male/young_caucasian_male.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "young_caucasian_male2",
+   "file": "skins/young_caucasian_male2/young_caucasian_male2.mhmat",
+   "license": "CC0"
+  },
+  {
+   "name": "young_caucasian_male_special_suit",
+   "file": "skins/young_caucasian_male_special_suit/young_caucasian_male_special_suit.mhmat",
+   "license": "CC0"
+  }
+ ],
+ "hair": [
+  {
+   "name": "afro01",
+   "file": "hair/afro01/afro01.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "bob01",
+   "file": "hair/bob01/bob01.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "bob02",
+   "file": "hair/bob02/bob02.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "braid01",
+   "file": "hair/braid01/braid01.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "long01",
+   "file": "hair/long01/long01.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "ponytail01",
+   "file": "hair/ponytail01/ponytail01.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "short01",
+   "file": "hair/short01/short01.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "short02",
+   "file": "hair/short02/short02.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "short03",
+   "file": "hair/short03/short03.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "short04",
+   "file": "hair/short04/short04.mhclo",
+   "license": "CC0"
+  }
+ ],
+ "eyes": [
+  {
+   "name": "high-poly",
+   "file": "eyes/high-poly/high-poly.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "low-poly",
+   "file": "eyes/low-poly/low-poly.mhclo",
+   "license": "CC0"
+  }
+ ],
+ "eyebrows": [
+  {
+   "name": "eyebrow001",
+   "file": "eyebrows/eyebrow001/eyebrow001.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyebrow002",
+   "file": "eyebrows/eyebrow002/eyebrow002.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyebrow003",
+   "file": "eyebrows/eyebrow003/eyebrow003.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyebrow004",
+   "file": "eyebrows/eyebrow004/eyebrow004.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyebrow005",
+   "file": "eyebrows/eyebrow005/eyebrow005.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyebrow006",
+   "file": "eyebrows/eyebrow006/eyebrow006.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyebrow007",
+   "file": "eyebrows/eyebrow007/eyebrow007.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyebrow008",
+   "file": "eyebrows/eyebrow008/eyebrow008.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyebrow009",
+   "file": "eyebrows/eyebrow009/eyebrow009.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyebrow010",
+   "file": "eyebrows/eyebrow010/eyebrow010.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyebrow011",
+   "file": "eyebrows/eyebrow011/eyebrow011.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyebrow012",
+   "file": "eyebrows/eyebrow012/eyebrow012.mhclo",
+   "license": "CC0"
+  }
+ ],
+ "eyelashes": [
+  {
+   "name": "eyelashes01",
+   "file": "eyelashes/eyelashes01/eyelashes01.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyelashes02",
+   "file": "eyelashes/eyelashes02/eyelashes02.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyelashes03",
+   "file": "eyelashes/eyelashes03/eyelashes03.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "eyelashes04",
+   "file": "eyelashes/eyelashes04/eyelashes04.mhclo",
+   "license": "CC0"
+  }
+ ],
+ "teeth": [
+  {
+   "name": "teeth_base",
+   "file": "teeth/teeth_base/teeth_base.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "teeth_shape01",
+   "file": "teeth/teeth_shape01/teeth_shape01.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "teeth_shape02",
+   "file": "teeth/teeth_shape02/teeth_shape02.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "teeth_shape03",
+   "file": "teeth/teeth_shape03/teeth_shape03.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "teeth_shape04",
+   "file": "teeth/teeth_shape04/teeth_shape04.mhclo",
+   "license": "CC0"
+  },
+  {
+   "name": "teeth_shape05",
+   "file": "teeth/teeth_shape05/teeth_shape05.mhclo",
+   "license": "CC0"
+  }
+ ]
+}

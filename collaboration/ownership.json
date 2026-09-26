@@ -37,7 +37,15 @@
         "tools/human-skin-check.mjs",
         "tools/human-fixture.mjs",
         "src/uniform-labels.js",
-        "src/clubs.js"
+        "src/clubs.js",
+        "tools/human/",
+        "assets/human/",
+        "human-lab.html",
+        "src/human-lab/",
+        "src/human-body.js",
+        "vendor/three-addons/",
+        "reports/human-v2/",
+        "docs/ROADMAP-motion.md"
       ],
       "tests": [
         "tests/body-customization.test.mjs",
@@ -45,7 +53,9 @@
         "tests/identity-and-keeper-v2.test.mjs",
         "tests/human-rebuild.test.mjs",
         "tests/player-surface-quality.test.mjs",
-        "tests/clubs.test.mjs"
+        "tests/clubs.test.mjs",
+        "tests/human-v2.test.mjs",
+        "tests/human-body.test.mjs"
       ]
     },
     {
@@ -73,16 +83,22 @@
         "tools/human-baseline.mjs",
         "tools/human-subframe.mjs",
         "tools/three-loader.mjs",
+        "tools/anim/**",
+        "docs/MOTION-POPS.md",
+        "docs/LEFT-RIGHT.md",
+        "docs/100STYLE.md",
         "assets-source/16.asf",
         "assets-source/16_08.amc",
         "assets-source/16_15.amc",
         "assets-source/16_17.amc",
-        "assets-source/16_35.amc"
+        "assets-source/16_35.amc",
+        "src/sides.js"
       ],
       "tests": [
         "tests/human-motion-and-defence.test.mjs",
         "tests/contact-blending.test.mjs",
-        "tests/foot-solver-performance.test.mjs"
+        "tests/foot-solver-performance.test.mjs",
+        "tests/left-right.test.mjs"
       ]
     },
     {

@@ -1,0 +1,13 @@
+{
+ "glb": 184540,
+ "textures": {
+  "eyes.ktx2": 13892,
+  "eyebrows.ktx2": 10217,
+  "hair_short01.ktx2": 87179,
+  "hair_afro01.ktx2": 87796,
+  "skin_light.ktx2": 152529,
+  "skin_brown.ktx2": 132469,
+  "skin_dark.ktx2": 127387
+ },
+ "total": 796009
+}

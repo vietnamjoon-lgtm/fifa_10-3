@@ -1,0 +1,7 @@
+{"setup":"human-lab.html, 22 players, game lights/tone mapping, broadcast camera (0,19,30), shadows on, 240 frames of update + render + gl.finish, Chrome in the Claude browser pane on the user's Mac, 2026-09-27",
+ "note":"old = createPlayer() from src/player.js (main after #33) with its own animatePlayer; new = player.glb with a simple leg/arm swing (skinning active). Not the same animation work.",
+ "results":[
+  {"who":"new","animate":false,"meanMs":2.51,"p95Ms":6.2,"fps":398.5,"drawCalls":177,"triangles":146456},
+  {"who":"old","animate":false,"meanMs":4.95,"p95Ms":6.0,"fps":202.2,"drawCalls":415,"triangles":597370},
+  {"who":"new","animate":true,"meanMs":2.35,"p95Ms":5.6,"fps":424.8,"drawCalls":177,"triangles":146456},
+  {"who":"old","animate":true,"meanMs":5.45,"p95Ms":6.4,"fps":183.5,"drawCalls":429,"triangles":599182}]}

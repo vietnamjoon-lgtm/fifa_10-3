@@ -1,3 +1,4 @@
+import {sideIndex,RIGHT} from './sides.js';
 import {KEEPER} from './keeper-tuning.js';
 import {gaitTargets} from './gait.js';
 import {applySkillPose} from './skills.js';
@@ -6,6 +7,10 @@ import {Quaternion,Euler} from '../vendor/three.module.js';
 import {mocap} from './mocap-data.js';
 import {clamp} from './config.js';
 const lerp=(a,b,t)=>a+(b-a)*t;
+// Locomotion clips start at a left-foot (legs[1]) touchdown and land the right foot at 0.5 (tools/anim/convert-100style.mjs).
+// gait.js plants legs[0], the right foot, at phase 0, so every clip is read half a cycle ahead.
+const CLIP_PHASE=.5;
+const HELD_STATES=new Set(['idle','run','sprint','close-control','jockey','start','stop','turn','backpedal','keeper-step','keeper-ready']);
 const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
 export function sampleMocap(name,time){
  const clip=mocap[name],frames=clip.frames,position=clamp(time/clip.duration,0,1)*(frames.length-1),index=Math.floor(position),next=Math.min(index+1,frames.length-1),t=position-index;
@@ -25,7 +30,7 @@ export function solveLeg(forward,height,hipY,a=.35,b=.4){
 export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinematics={}){
  const speed=Math.hypot(p.vx||0,p.vz||0),amount=clamp(speed/7.5,0,1),sprint=smooth((speed-5)/3),tight=p.closeControl||p.shield;
  const yaw=p.yaw||0,forward=(p.vx||0)*Math.sin(yaw)+(p.vz||0)*Math.cos(yaw),side=(p.vx||0)*Math.cos(yaw)-(p.vz||0)*Math.sin(yaw);
- const pose={contacts:[1,0],state:speed<.2?'idle':tight?'close-control':Math.abs(side)>speed*.65?'jockey':speed>6?'sprint':'run',hipY:.897+Math.sin(time*2.2)*.002,rootRoll:0,rootY:0,hips:[0,0,0],torso:[.02,0,0],head:[0,0,0],legs:[{upper:[0,0,0],lower:[.08,0,0]},{upper:[0,0,0],lower:[.08,0,0]}],arms:[{upper:[0,0,.12],lower:[-.28,0,0]},{upper:[0,0,-.12],lower:[-.28,0,0]}]};
+ const pose={contacts:[1,0],state:speed<.2?'idle':tight?'close-control':Math.abs(side)>speed*.65?'jockey':speed>(kinematics.state==='sprint'?5.6:6)?'sprint':'run',hipY:.897+Math.sin(time*2.2)*.002,rootRoll:0,rootY:0,hips:[0,0,0],torso:[.02,0,0],head:[0,0,0],legs:[{upper:[0,0,0],lower:[.08,0,0]},{upper:[0,0,0],lower:[.08,0,0]}],arms:[{upper:[0,0,.12],lower:[-.28,0,0]},{upper:[0,0,-.12],lower:[-.28,0,0]}]};
  const stride=amount*(tight?.25:.39+sprint*.1),direction=forward<-.3?-1:1;
 
  pose.hipY-=amount*.045;pose.hipY+=Math.cos(phase*2)*amount*.013;
@@ -51,8 +56,8 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  // renderer's inertial transition; the label now changes only for a clear start, stop or turn.
  if(!p.action&&speed>.2){const acceleration=kinematics.acceleration||0,turning=Math.abs(kinematics.turn||0),start=smooth((acceleration-2)/4),stop=smooth((-acceleration-2)/4),turn=smooth((turning-1.2)/2.5);
   pose.torso[0]+=.10*start-.14*stop;pose.hipY-=.035*stop+.025*turn*(1-stop);
-  if(acceleration>4.5)pose.state='start';else if(acceleration<-4.5)pose.state='stop';else if(turning>3)pose.state='turn';else if(forward<-.3)pose.state='backpedal';if(p.defending){pose.state='jockey';pose.hipY-=.035;pose.arms[0].upper[2]=.32;pose.arms[1].upper[2]=-.32;}}
- if(!p.action&&p.receiveUntil>time){pose.state='receive';pose.hipY-=.035;pose.legs[p.foot==='left'?0:1].lower[0]+=.2;}
+  const held=kinematics.state;if(acceleration>(held==='start'?3:4.5))pose.state='start';else if(acceleration<(held==='stop'?-3:-4.5))pose.state='stop';else if(turning>(held==='turn'?2.2:3))pose.state='turn';else if(forward<(held==='backpedal'?-.15:-.3))pose.state='backpedal';if(p.defending){pose.state='jockey';pose.hipY-=.035;pose.arms[0].upper[2]=.32;pose.arms[1].upper[2]=-.32;}}
+ if(!p.action&&p.receiveUntil>time){pose.state='receive';pose.hipY-=.035;pose.legs[sideIndex(p.foot)].lower[0]+=.2;}
  const action=p.action;
  if(action){const t=action.elapsed||0;
   if(action.type==='feint'){pose.state='feint';const wave=Math.sin(clamp(t/.28,0,1)*Math.PI*2);pose.hips[2]=wave*.16;pose.torso[2]=-wave*.28;pose.legs[1].upper[2]=wave*.35;if(action.skill==='drag-back'){pose.legs[1].upper[0]=-.4+wave*.35;pose.legs[1].lower[0]=.7;pose.torso[0]=-.12;}pose.arms[0].upper[2]=.55;}
@@ -79,13 +84,19 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  if(p.down>0){pose.state=p.down<.3?'recover':'fall';const weight=smooth(p.down/.3);pose.rootRoll=weight*1.15*(p.interaction?.side||1);pose.hipY=lerp(.87,.28,weight);pose.torso[0]=weight*.25;pose.legs[0].lower[0]=weight*1.4;pose.legs[1].lower[0]=weight*.8;pose.arms[0].upper=[-.5,0,1.1];pose.arms[1].upper=[-.5,0,-.5];}
  if(celebrate&&!p.down&&!action){pose.state='celebrate';pose.arms[0].upper=[-.2,0,2.5];pose.arms[1].upper=[-.2,0,-2.5];pose.rootY=Math.max(0,Math.sin(time*5+p.id))*.12;}
  for(const arm of pose.arms)arm.upper[2]*=-1;
+ // The captured gait and the arm swing used to switch on and off with "running forward"
+ // (forward > 0.65 x speed) in one frame, without a state change for the inertial blend to cover.
+ // Both now use one weight: 0 at 0.5 and 1 at 0.8 of speed forward, followed by the renderer over
+ // 0.2 s (kinematics.capture).
+ const captureTarget=!action&&!p.shield&&speed>.25?smooth((forward/speed-.5)/.3):0,capture=kinematics.capture??captureTarget;pose.captureTarget=captureTarget;
  if(!p.down&&!p.dive&&!celebrate){
-  if(!action&&!p.shield&&forward>speed*.65&&speed>.25){const cycle=((phase/(Math.PI*2))%1+1)%1;
-   const jog=smooth((speed-1.5)/1.3),run=smooth((speed-3.5)/1.5),weight=smooth((speed-.25)/.9)*.78;
-   if(jog<1)blendCapture(pose,sampleMocap('walk',cycle*mocap.walk.duration),weight*(1-jog));
-   if(jog>0&&run<1)blendCapture(pose,sampleMocap('jog',cycle*mocap.jog.duration),weight*jog*(1-run));
-   if(run>0)blendCapture(pose,sampleMocap('run',cycle*mocap.run.duration),weight*run);
-   pose.clipId=speed<2?'walk':speed<4?'jog':'run';pose.torso[2]+=clamp(-(kinematics.turn||0)*.018,-.18,.18);
+  if(!action&&capture>.001&&speed>.25){const cycle=((phase/(Math.PI*2))%1+1)%1;
+   const jog=smooth((speed-1.5)/1.3),run=smooth((speed-3.5)/1.5),weight=smooth((speed-.25)/.9)*.78*capture;
+   const clipCycle=(cycle+CLIP_PHASE)%1;
+   if(jog<1)blendCapture(pose,sampleMocap('walk',clipCycle*mocap.walk.duration),weight*(1-jog));
+   if(jog>0&&run<1)blendCapture(pose,sampleMocap('jog',clipCycle*mocap.jog.duration),weight*jog*(1-run));
+   if(run>0)blendCapture(pose,sampleMocap('run',clipCycle*mocap.run.duration),weight*run);
+   pose.clipId=speed<2?'walk':speed<4?'jog':'run';pose.torso[2]+=clamp(-(kinematics.turn||0)*.018,-.18,.18)*capture;
   }
   else if(action&&!action.aerial&&['shoot','lob','pass','through'].includes(action.type)){
    // Crosses and lofted passes use the captured instep kick too; the procedural swing alone barely lifted the leg.
@@ -97,28 +108,30 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
   }
  }
  if(!action&&!p.down&&!p.dive&&p.defending){pose.state='jockey';pose.hipY-=.04;pose.torso[0]=.16;for(let i=0;i<2;i++){pose.legs[i].lower[0]+=.12;pose.arms[i].upper[2]=i===0?-.4:.4;pose.arms[i].lower[0]=-.7;}}
- if(!action&&!p.down&&!p.dive){pose.torso[0]+=clamp((kinematics.acceleration||0)*.012,-.15,.12);if(pose.state==='receive')pose.legs[p.foot==='left'?0:1].lower[0]+=.15;}
+ if(!action&&!p.down&&!p.dive){pose.torso[0]+=clamp((kinematics.acceleration||0)*.012,-.15,.12);if(pose.state==='receive')pose.legs[sideIndex(p.foot)].lower[0]+=.15;}
  pose.feet=pose.legs.map((leg,i)=>{const cycle=((phase/(Math.PI*2)+i*.5)%1+1)%1,push=cycle>.32&&cycle<.56?Math.sin((cycle-.32)/.24*Math.PI)*amount*.22:0;return [clamp(-pose.hips[0]-leg.upper[0]-leg.lower[0]+push,-1.1,.8),0,clamp(-leg.upper[2]-leg.lower[2],-.3,.3)];});
  if(pose.captureFeet?.quaternions)for(let i=0;i<2;i++){const e=new Euler().setFromQuaternion(new Quaternion().setFromEuler(new Euler(...pose.feet[i])).slerp(pose.captureFeet.quaternions[i],pose.captureFeet.weight*.55),'XYZ');pose.feet[i]=[e.x,e.y,e.z];}
- if(action?.foot==='left'&&!action.aerial&&['shoot','pass','through','lob'].includes(action.type)){
+ // The kick pose and CMU 10_01 are authored with the kicking leg in legs[1], the player's left.
+ // A right-foot kick is their mirror image (it used to mirror the left foot onto the right leg).
+ if(action&&sideIndex(action.foot)===RIGHT&&!action.aerial&&['shoot','pass','through','lob'].includes(action.type)){
   for(const key of ['hips','torso','head']){pose[key][1]*=-1;pose[key][2]*=-1;}
   for(const key of ['legs','arms']){pose[key].reverse();for(const limb of pose[key])for(const part of ['upper','lower']){limb[part][1]*=-1;limb[part][2]*=-1;}}
   pose.contacts.reverse();pose.feet.reverse();for(const foot of pose.feet){foot[1]*=-1;foot[2]*=-1;}
  }
  // Keep the running swing opposite the legs; transferred shoulder twist is not
  // compatible with this rig's straight upper-arm bind pose.
- if(!action&&!p.down&&!p.dive&&!celebrate&&!p.shield&&!p.defending&&forward>speed*.65&&speed>1.2){const w=smooth((speed-1.2)/2.4);for(let i=0;i<2;i++){const arm=pose.arms[i],side=i===0?-1:1;arm.upper[0]=lerp(arm.upper[0],clamp(-(pose.legs[i].upper[0]-pose.legs[1-i].upper[0])*.55,-.58,.66),w);arm.upper[1]*=1-w*.95;arm.upper[2]=lerp(arm.upper[2],side*.16,w);arm.lower[0]=lerp(arm.lower[0],-1.12-sprint*.14,w);arm.lower[1]*=1-w;arm.lower[2]*=1-w;}}
+ if(!action&&!p.down&&!p.dive&&!celebrate&&!p.shield&&!p.defending&&capture>.001&&speed>1.2){const w=smooth((speed-1.2)/2.4)*capture;for(let i=0;i<2;i++){const arm=pose.arms[i],side=i===0?-1:1;arm.upper[0]=lerp(arm.upper[0],clamp(-(pose.legs[i].upper[0]-pose.legs[1-i].upper[0])*.55,-.58,.66),w);arm.upper[1]*=1-w*.95;arm.upper[2]=lerp(arm.upper[2],side*.16,w);arm.lower[0]=lerp(arm.lower[0],-1.12-sprint*.14,w);arm.lower[1]*=1-w;arm.lower[2]*=1-w;}}
  // Separate receiving, turning and goalkeeper poses are authored independently of the kick capture.
- if(!action&&p.receivePrep&&time<p.receivePrep.until){const r=p.receivePrep,w=r.weight,i=r.foot==='left'?0:1;pose.state='receive-prepare';pose.hipY-=w*.026;pose.torso[0]+=.07*w;pose.torso[1]+=(i===0?-1:1)*.16*w;pose.arms[0].upper[2]-=.25*w;pose.arms[1].upper[2]+=.25*w;if(r.eta<.32){pose.legs[i].upper[0]-=.22*w;pose.legs[i].lower[0]+=.23*w;pose.legs[i].upper[1]=(i===0?-.38:.38)*w;pose.feet[i][1]=(i===0?-.38:.38)*w;pose.contacts[i]=0;}}
- if(!action&&p.receive&&time<p.receive.start+p.receive.duration){const r=p.receive,t=clamp((time-r.start)/r.duration,0,1),w=Math.sin(t*Math.PI),i=r.foot==='left'?0:1;pose.state='receive-'+r.kind;pose.hipY-=w*.03;if(r.kind==='chest'){pose.torso[0]=-.17*w;pose.arms[0].upper[2]=-.6*w;pose.arms[1].upper[2]=.6*w;pose.head[0]=.08*w;}else{pose.legs[i].upper[0]-=w*(r.kind==='thigh'?.9:r.kind==='instep'?.48:.18);pose.legs[i].upper[1]=r.kind==='inside'?(i===0?-.38:.38)*w:0;pose.legs[i].lower[0]+=.26*w;pose.feet[i][1]=(i===0?-.38:.38)*w;pose.contacts[i]=0;}}
- if(!action&&p.turnPlan&&time<p.turnPlan.start+p.turnPlan.duration){const t=clamp((time-p.turnPlan.start)/p.turnPlan.duration,0,1),w=Math.sin(t*Math.PI),sign=Math.sign(p.turnPlan.angle);pose.state=t<.25?'turn-brake':t<.5?'turn-plant':t<.65?'turn-touch':'turn-exit';pose.hipY-=w*.065;pose.torso[1]-=sign*w*.22;pose.hips[1]+=sign*w*.12;pose.torso[2]-=sign*w*.14;pose.contacts[p.turnPlan.foot==='left'?1:0]=1;}
- if(p.role==='GK'&&!p.down&&!p.dive&&!action){pose.state=speed>.5?'keeper-step':'keeper-ready';pose.hipY-=.065;pose.torso[0]=.17;for(let i=0;i<2;i++){pose.legs[i].lower[0]+=.15;pose.arms[i].upper[0]=-.45;pose.arms[i].lower[0]=-.75;}if(p.keeperMotion&&time<p.keeperMotion.until){pose.state='keeper-'+p.keeperMotion.kind;for(let i=0;i<2;i++){pose.arms[i].upper[0]=-1.1;pose.arms[i].lower[0]=-.7;}}}
+ if(!action&&p.receivePrep&&time<p.receivePrep.until){const r=p.receivePrep,w=r.weight,i=sideIndex(r.foot);pose.state='receive-prepare';pose.hipY-=w*.026;pose.torso[0]+=.07*w;pose.torso[1]+=(i===0?-1:1)*.16*w;pose.arms[0].upper[2]-=.25*w;pose.arms[1].upper[2]+=.25*w;if(r.eta<.32){pose.legs[i].upper[0]-=.22*w;pose.legs[i].lower[0]+=.23*w;pose.legs[i].upper[1]=(i===0?-.38:.38)*w;pose.feet[i][1]=(i===0?-.38:.38)*w;pose.contacts[i]=0;}}
+ if(!action&&p.receive&&time<p.receive.start+p.receive.duration){const r=p.receive,t=clamp((time-r.start)/r.duration,0,1),w=Math.sin(t*Math.PI),i=sideIndex(r.foot);pose.state='receive-'+r.kind;pose.hipY-=w*.03;if(r.kind==='chest'){pose.torso[0]=-.17*w;pose.arms[0].upper[2]=-.6*w;pose.arms[1].upper[2]=.6*w;pose.head[0]=.08*w;}else{pose.legs[i].upper[0]-=w*(r.kind==='thigh'?.9:r.kind==='instep'?.48:.18);pose.legs[i].upper[1]=r.kind==='inside'?(i===0?-.38:.38)*w:0;pose.legs[i].lower[0]+=.26*w;pose.feet[i][1]=(i===0?-.38:.38)*w;pose.contacts[i]=0;}}
+ if(!action&&p.turnPlan&&time<p.turnPlan.start+p.turnPlan.duration){const t=clamp((time-p.turnPlan.start)/p.turnPlan.duration,0,1),w=Math.sin(t*Math.PI),sign=Math.sign(p.turnPlan.angle);pose.state=t<.25?'turn-brake':t<.5?'turn-plant':t<.65?'turn-touch':'turn-exit';pose.hipY-=w*.065;pose.torso[1]-=sign*w*.22;pose.hips[1]+=sign*w*.12;pose.torso[2]-=sign*w*.14;pose.contacts[1-sideIndex(p.turnPlan.foot)]=1;}
+ if(p.role==='GK'&&!p.down&&!p.dive&&!action){pose.state=speed>(kinematics.state==='keeper-step'?.35:.5)?'keeper-step':'keeper-ready';pose.hipY-=.065;pose.torso[0]=.17;for(let i=0;i<2;i++){pose.legs[i].lower[0]+=.15;pose.arms[i].upper[0]=-.45;pose.arms[i].lower[0]=-.75;}if(p.keeperMotion&&time<p.keeperMotion.until){pose.state='keeper-'+p.keeperMotion.kind;for(let i=0;i<2;i++){pose.arms[i].upper[0]=-1.1;pose.arms[i].lower[0]=-.7;}}}
  if(!action&&p.interaction&&time<p.interaction.until){pose.state='shoulder-duel';pose.torso[2]=p.interaction.side*.15;pose.arms[p.interaction.side>0?0:1].upper[2]=p.interaction.side*-.8;}
  for(const arm of pose.arms){arm.lower[1]*=.18;arm.lower[2]*=.16;}
  const style=p.motionStyle||'balanced';if(style!=='balanced'){for(const arm of pose.arms)arm.upper[0]*=style==='compact'?.8:1.15;pose.torso[0]+=style==='power'?.035:-.018;}
- if(action?.type==='pass'||action?.type==='through'){const w=Math.sin(clamp((action.elapsed||0)/((action.contactAt||.18)+.25),0,1)*Math.PI),i=action.foot==='left'?0:1;pose.legs[i].upper[1]+=(i===0?-.5:.5)*w;pose.feet[i][1]+=(i===0?-.4:.4)*w;}
- if(!action&&p.dribblePose&&time<p.dribblePose.start+p.dribblePose.duration){const r=p.dribblePose,w=Math.sin(clamp((time-r.start)/r.duration,0,1)*Math.PI),i=r.foot==='left'?0:1;pose.legs[i].upper[0]-=.10*w;pose.feet[i][1]+=(i===0?-.12:.12)*w;}
- if(action?.type==='shoot'&&(action.flair||String(action.flightStyle).toLowerCase().includes('outside'))){const i=action.foot==='left'?0:1,w=Math.sin(clamp(action.elapsed/((action.contactAt||.24)+.25),0,1)*Math.PI);pose.feet[i][1]+=(i===0?.45:-.45)*w;pose.legs[i].upper[1]+=(i===0?.3:-.3)*w;}
+ if(action?.type==='pass'||action?.type==='through'){const w=Math.sin(clamp((action.elapsed||0)/((action.contactAt||.18)+.25),0,1)*Math.PI),i=sideIndex(action.foot);pose.legs[i].upper[1]+=(i===0?-.5:.5)*w;pose.feet[i][1]+=(i===0?-.4:.4)*w;}
+ if(!action&&p.dribblePose&&time<p.dribblePose.start+p.dribblePose.duration){const r=p.dribblePose,w=Math.sin(clamp((time-r.start)/r.duration,0,1)*Math.PI),i=sideIndex(r.foot);pose.legs[i].upper[0]-=.10*w;pose.feet[i][1]+=(i===0?-.12:.12)*w;}
+ if(action?.type==='shoot'&&(action.flair||String(action.flightStyle).toLowerCase().includes('outside'))){const i=sideIndex(action.foot),w=Math.sin(clamp(action.elapsed/((action.contactAt||.24)+.25),0,1)*Math.PI);pose.feet[i][1]+=(i===0?.45:-.45)*w;pose.legs[i].upper[1]+=(i===0?.3:-.3)*w;}
  if(action?.type==='feint')applySkillPose(pose,action);
  if(celebrate&&!p.down&&!action)applyCelebration(pose,p,time);
  if(!action&&!p.down&&!p.dive&&!celebrate&&!pose.state.startsWith('receive')&&!(p.interaction&&time<p.interaction.until)){
@@ -135,6 +148,10 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  // Keep daylight between the upper arms and the ribs. With less than about 11 degrees of abduction the sleeve pressed into
  // the flank and arm and body read as one piece; poses that already hold the arms wider are left alone.
  for(let i=0;i<2;i++){const out=i===0?-1:1,upper=pose.arms[i].upper;if(upper[2]*out<ARM_CLEARANCE)upper[2]=out*ARM_CLEARANCE;}
+ // Locomotion labels flickered for 1-5 frames (run>start>run, run>stop>run, keeper-step>ready),
+ // and every change restarts the renderer's inertial transition. With the thresholds above now
+ // using hysteresis, a locomotion label is also held for at least 0.15 s.
+ if(HELD_STATES.has(pose.state)&&HELD_STATES.has(kinematics.state)&&pose.state!==kinematics.state&&(kinematics.stateAge??1)<.15)pose.state=kinematics.state;
  return pose;
 }
 export const ARM_CLEARANCE=.2;
