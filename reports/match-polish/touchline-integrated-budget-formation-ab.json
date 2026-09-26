@@ -1,0 +1,172 @@
+{
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+    "hardwareConcurrency": 8,
+    "deviceMemoryGiB": 8,
+    "webglVendor": "Google Inc. (Intel)",
+    "webglRenderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "viewport": [
+      1292,
+      918
+    ],
+    "drawingBuffer": [
+      1292,
+      918
+    ],
+    "devicePixelRatio": 1,
+    "settings": {
+      "passFollow": true,
+      "looseBallAssist": true,
+      "receiveAssist": true,
+      "autoSwitch": "aerial",
+      "switchCarry": "none",
+      "passAssist": "auto",
+      "crossAssist": "semi",
+      "throughAssist": "auto",
+      "analogSprint": false,
+      "defenceAssist": true,
+      "runType": 3,
+      "gameplay": {
+        "acceleration": 100,
+        "braking": 100,
+        "turnResponse": 100,
+        "ballRoll": 100,
+        "ballBounce": 100,
+        "firstTouch": 100,
+        "referee": "standard"
+      },
+      "quality": "high",
+      "adaptiveQuality": true,
+      "camera": 0,
+      "volume": 0.5,
+      "sound": false,
+      "halfSeconds": 600,
+      "difficulty": "normal",
+      "userTeam": 0,
+      "deadzone": 0.15,
+      "sensitivity": 1,
+      "shadows": true,
+      "crowd": true,
+      "scale": 1,
+      "helpers": true,
+      "controls": "online",
+      "defence": "basic"
+    },
+    "gpuTimerSupported": true
+  },
+  "scope": "Identical kickoff formation, all 22 players, camera [0,104,55], CPU submission A/B; GPU not isolated",
+  "samples": [
+    {
+      "crowd": true,
+      "shadows": true,
+      "render": {
+        "count": 75,
+        "mean": 27.43733333349228,
+        "p95": 38.69999998807907,
+        "max": 49.19999998807907
+      },
+      "shadow": {
+        "count": 75,
+        "mean": 10.333333334128062,
+        "p95": 16.399999976158142,
+        "max": 20.69999998807907
+      },
+      "calls": {
+        "count": 75,
+        "mean": 191,
+        "p95": 191,
+        "max": 191
+      },
+      "triangles": {
+        "count": 75,
+        "mean": 374247,
+        "p95": 374247,
+        "max": 374247
+      }
+    },
+    {
+      "crowd": false,
+      "shadows": true,
+      "render": {
+        "count": 75,
+        "mean": 25.64533333937327,
+        "p95": 30.900000035762787,
+        "max": 47
+      },
+      "shadow": {
+        "count": 75,
+        "mean": 11.251999996503194,
+        "p95": 15.700000047683716,
+        "max": 30.899999976158142
+      },
+      "calls": {
+        "count": 75,
+        "mean": 183,
+        "p95": 183,
+        "max": 183
+      },
+      "triangles": {
+        "count": 75,
+        "mean": 147815,
+        "p95": 147815,
+        "max": 147815
+      }
+    },
+    {
+      "crowd": true,
+      "shadows": false,
+      "render": {
+        "count": 75,
+        "mean": 15.674666665395101,
+        "p95": 20.69999998807907,
+        "max": 26.799999952316284
+      },
+      "shadow": {
+        "count": 75,
+        "mean": 0.002666666507720947,
+        "p95": 0,
+        "max": 0.10000002384185791
+      },
+      "calls": {
+        "count": 75,
+        "mean": 191,
+        "p95": 191,
+        "max": 191
+      },
+      "triangles": {
+        "count": 75,
+        "mean": 374247,
+        "p95": 374247,
+        "max": 374247
+      }
+    },
+    {
+      "crowd": false,
+      "shadows": false,
+      "render": {
+        "count": 75,
+        "mean": 16.26933333714803,
+        "p95": 21,
+        "max": 50.10000002384186
+      },
+      "shadow": {
+        "count": 75,
+        "mean": 0.009333335558573404,
+        "p95": 0.10000002384185791,
+        "max": 0.10000002384185791
+      },
+      "calls": {
+        "count": 75,
+        "mean": 183,
+        "p95": 183,
+        "max": 183
+      },
+      "triangles": {
+        "count": 75,
+        "mean": 147815,
+        "p95": 147815,
+        "max": 147815
+      }
+    }
+  ]
+}

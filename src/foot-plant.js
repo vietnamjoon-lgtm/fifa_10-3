@@ -4,6 +4,9 @@ import {decayOffset} from './inertial-motion.js';
 import {locomotionCadence,stanceFraction} from './motion-planner.js';
 const down=new THREE.Vector3(0,-1,0),v=new THREE.Vector3(),q=new THREE.Quaternion();
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n)),smooth=t=>t*t*(3-2*t),liftFade=.075,gaitSoft=.04,hipRise=.04;
+// solveFoot is synchronous. Reuse scratch values across players instead of
+// creating temporary vectors and quaternions for every rendered leg.
+const ik={hip:new THREE.Vector3(),knee:new THREE.Vector3(),ankle:new THREE.Vector3(),direction:new THREE.Vector3(),forward:new THREE.Vector3(),kneeTarget:new THREE.Vector3(),end:new THREE.Vector3(),delta:new THREE.Vector3(),matrixPosition:new THREE.Vector3(),matrixScale:new THREE.Vector3(),parent:new THREE.Quaternion(),root:new THREE.Quaternion()};
 
 // Soft IK: near full extension the knee angle changes without bound per millimetre of target
 // travel, so a leg reaching for a target just past its length straightened or bent in one
@@ -12,18 +15,22 @@ const softReach=(r,length,soft)=>{const start=length-soft;return soft>0&&r>start
 // Analytic two-bone IK in world space. Clamp unreachable targets; never stretch limbs.
 export function solveFoot(rig,index,target,soft=0){
  const leg=rig.legs[index];rig.root.updateWorldMatrix(true,false);
- const hip=leg.upper.getWorldPosition(new THREE.Vector3()),knee=leg.lower.getWorldPosition(new THREE.Vector3()),ankle=leg.foot.getWorldPosition(new THREE.Vector3());
- const a=hip.distanceTo(knee),b=knee.distanceTo(ankle),direction=target.clone().sub(hip),requested=direction.length(),r=clamp(softReach(requested,a+b,soft),Math.abs(a-b)+.001,a+b-.001);direction.normalize();
- const forward=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(new THREE.Quaternion()));
+ // The rig's leg chain is root -> hips -> upper -> lower -> foot. Refresh only
+ // this chain, instead of asking each world getter to revisit every ancestor.
+ leg.upper.parent.updateWorldMatrix(false,false);leg.upper.updateWorldMatrix(false,false);leg.lower.updateWorldMatrix(false,false);leg.foot.updateWorldMatrix(false,false);
+ const hip=ik.hip.setFromMatrixPosition(leg.upper.matrixWorld),knee=ik.knee.setFromMatrixPosition(leg.lower.matrixWorld),ankle=ik.ankle.setFromMatrixPosition(leg.foot.matrixWorld);
+ const a=hip.distanceTo(knee),b=knee.distanceTo(ankle),direction=ik.direction.copy(target).sub(hip),requested=direction.length(),r=clamp(softReach(requested,a+b,soft),Math.abs(a-b)+.001,a+b-.001);direction.normalize();
+ rig.root.matrixWorld.decompose(ik.matrixPosition,ik.root,ik.matrixScale);
+ const forward=ik.forward.set(0,0,1).applyQuaternion(ik.root);
  const bend=forward.addScaledVector(direction,-forward.dot(direction));if(bend.lengthSq()<.001)bend.set(1,0,0);bend.normalize();
  const projection=(a*a+r*r-b*b)/(2*r),height=Math.sqrt(Math.max(0,a*a-projection*projection));
- const kneeTarget=hip.clone().addScaledVector(direction,projection).addScaledVector(bend,height),end=hip.clone().addScaledVector(direction,r);
- const parentQ=leg.upper.parent.getWorldQuaternion(new THREE.Quaternion()).invert();
- leg.upper.quaternion.setFromUnitVectors(down,kneeTarget.clone().sub(hip).normalize().applyQuaternion(parentQ));rig.root.updateWorldMatrix(true,false);
- const kneeQ=leg.lower.parent.getWorldQuaternion(new THREE.Quaternion()).invert();
- leg.lower.quaternion.setFromUnitVectors(down,end.clone().sub(kneeTarget).normalize().applyQuaternion(kneeQ));rig.root.updateWorldMatrix(true,false);
- const footQ=leg.foot.parent.getWorldQuaternion(new THREE.Quaternion()).invert(),rootQ=rig.root.getWorldQuaternion(new THREE.Quaternion());leg.foot.quaternion.copy(footQ.multiply(rootQ));rig.root.updateWorldMatrix(true,false);
- return {error:leg.foot.getWorldPosition(v).distanceTo(target),clamped:requested>r+.005};
+ const kneeTarget=ik.kneeTarget.copy(hip).addScaledVector(direction,projection).addScaledVector(bend,height),end=ik.end.copy(hip).addScaledVector(direction,r);
+ leg.upper.parent.matrixWorld.decompose(ik.matrixPosition,ik.parent,ik.matrixScale);
+ leg.upper.quaternion.setFromUnitVectors(down,ik.delta.copy(kneeTarget).sub(hip).normalize().applyQuaternion(ik.parent.invert()));leg.upper.updateWorldMatrix(false,false);
+ leg.upper.matrixWorld.decompose(ik.matrixPosition,ik.parent,ik.matrixScale);
+ leg.lower.quaternion.setFromUnitVectors(down,ik.delta.copy(end).sub(kneeTarget).normalize().applyQuaternion(ik.parent.invert()));leg.lower.updateWorldMatrix(false,false);
+ leg.lower.matrixWorld.decompose(ik.matrixPosition,ik.parent,ik.matrixScale);leg.foot.quaternion.copy(ik.parent.invert().multiply(ik.root));leg.foot.updateWorldMatrix(false,false);
+ return {error:v.setFromMatrixPosition(leg.foot.matrixWorld).distanceTo(target),clamped:requested>r+.005};
 }
 export function stabilizeFeet(rig,p,pose,dt){
  if(pose.gaitTargets&&!p.action&&!p.down&&!p.dive){stabilizeGait(rig,p,pose,dt);return;}
@@ -39,18 +46,21 @@ export function stabilizeFeet(rig,p,pose,dt){
   const leg=rig.legs[i],cycle=((rig.phase/(Math.PI*2)+i*.5)%1+1)%1;
   if(ground&&pose.gaitTargets){const g=pose.gaitTargets[i],target=rig.root.localToWorld(new THREE.Vector3(g.x,g.y,g.z));solveFoot(rig,i,target);}
   const current=leg.foot.getWorldPosition(new THREE.Vector3());
-  const kickIndex=sideIndex(action?.foot),kicking=action&&['shoot','pass','through','lob'].includes(action.type),fromContact=kicking?action.elapsed-action.contactAt:0;
-  // Raise the ball-contact IK over 0.125 s before the contact window and lower it over
-  // 0.18 s after, instead of switching the kicking leg onto the ball in one render step.
-  const reach=!kicking||i!==kickIndex?0:fromContact<-.055?smooth(clamp((fromContact+.18)/.125,0,1)):fromContact>.055?1-smooth(clamp((fromContact-.055)/.18,0,1)):1,impact=reach>0;
+  const kickIndex=sideIndex(action?.foot),kicking=action&&['shoot','pass','through','lob'].includes(action.type),age=action? action.elapsed-action.contactAt:0,impact=kicking&&i===kickIndex&&age>-.13&&age<.16;
   if(impact&&action.contactTarget){
-   state.feet[i]=null;const b=action.contactTarget,f=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(q));
+   state.feet[i]=null;if(state.release)state.release[i]=null;const b=action.contactTarget,f=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(q));
    const target=new THREE.Vector3(b.x,b.y,b.z).addScaledVector(f,-.06*size);target.y=Math.max(sole,b.y-.025*size);
+   // Ease into exact contact and out into follow-through. The old narrow on/off
+   // window replaced the whole joint pose abruptly on its first and last frame.
+   const before=[leg.upper.quaternion.clone(),leg.lower.quaternion.clone(),leg.foot.quaternion.clone()];
+   const u=clamp(age<0?(age+.13)/.13:1-age/.16,0,1),weight=u*u*(3-2*u);
    // After contact the boot eases out from where it met the ball relative to the body; a
    // world-fixed target left the leg trailing behind a player who kept running.
-   if(fromContact<=.055)state.kickLocal={id:action.id,point:rig.root.worldToLocal(target.clone())};
-   else if(state.kickLocal?.id===action.id)target.copy(rig.root.localToWorld(state.kickLocal.point.clone()));
-   const solved=solveFoot(rig,i,reach<1?current.clone().lerp(target,reach):target);if(Math.abs(fromContact)<.055){rig.impactError=solved.error;rig.impactClamped=solved.clamped;}continue;
+   if(age<=.055)state.kickLocal={id:action.id,point:rig.root.worldToLocal(target.clone())};
+   else if(state.kickLocal&&state.kickLocal.id===action.id)target.copy(rig.root.localToWorld(state.kickLocal.point.clone()));
+   const solved=solveFoot(rig,i,target);
+   for(const [index,bone]of [leg.upper,leg.lower,leg.foot].entries())bone.quaternion.slerp(before[index],1-weight);
+   rig.impactError=leg.foot.getWorldPosition(v).distanceTo(target);rig.impactClamped=solved.clamped;continue;
   }
   const receiving=pose.state.startsWith('receive'),receive=p.receivePrep||p.receive,receiveIndex=sideIndex(receive?.foot);
   if(receiving&&p.receive?.target&&i===(sideIndex(p.receive.foot))){
@@ -159,8 +169,8 @@ export function inertializeFeet(rig,p,pose,dt){
   const carried=switched?f.out.clone().addScaledVector(f.vel.clone().clampLength(0,footLimit),dt):f.out.clone();
   if(switched||candidate.distanceTo(f.out)/dt>footLimit){f.offset=carried.sub(raw);f.offsetVelocity=f.vel.clone().sub(rawVelocity).clampLength(0,footLimit);f.age=0;correction=f.offset.clone();}
   // The kicking boot converges on the contact target: the offset fades out on the same curve that
-  // raises the contact IK, so it is zero at impact and nothing is dropped in one step.
-  if(correction&&kicking&&i===kickIndex){const fromContact=action.elapsed-action.contactAt,exact=fromContact<-.055?smooth(clamp((fromContact+.18)/.125,0,1)):fromContact>.055?1-smooth(clamp((fromContact-.055)/.18,0,1)):1;correction.multiplyScalar(1-exact);}
+  // raises the contact IK (-0.13 s to +0.16 s), so it is zero at impact and nothing is dropped in one step.
+  if(correction&&kicking&&i===kickIndex){const age=action.elapsed-action.contactAt,u=clamp(age<0?(age+.13)/.13:1-age/.16,0,1),exact=age>-.13&&age<.16?u*u*(3-2*u):0;correction.multiplyScalar(1-exact);}
   let drawn=raw;
   if(correction&&correction.lengthSq()>4e-6){
    footGoal.copy(raw).add(correction);footGoal.y=Math.max(sole,footGoal.y);

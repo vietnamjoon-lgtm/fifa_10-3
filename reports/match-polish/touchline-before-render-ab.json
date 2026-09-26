@@ -1,0 +1,171 @@
+{
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+    "hardwareConcurrency": 8,
+    "deviceMemoryGiB": 8,
+    "webglVendor": "Google Inc. (Intel)",
+    "webglRenderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "viewport": [
+      1292,
+      918
+    ],
+    "drawingBuffer": [
+      1292,
+      918
+    ],
+    "devicePixelRatio": 1,
+    "settings": {
+      "passFollow": true,
+      "looseBallAssist": true,
+      "receiveAssist": true,
+      "autoSwitch": "aerial",
+      "switchCarry": "none",
+      "passAssist": "auto",
+      "crossAssist": "semi",
+      "throughAssist": "auto",
+      "analogSprint": false,
+      "defenceAssist": true,
+      "runType": 3,
+      "gameplay": {
+        "acceleration": 100,
+        "braking": 100,
+        "turnResponse": 100,
+        "ballRoll": 100,
+        "ballBounce": 100,
+        "firstTouch": 100,
+        "referee": "standard"
+      },
+      "quality": "high",
+      "camera": 0,
+      "volume": 0.5,
+      "sound": false,
+      "halfSeconds": 600,
+      "difficulty": "normal",
+      "userTeam": 0,
+      "deadzone": 0.15,
+      "sensitivity": 1,
+      "shadows": true,
+      "crowd": true,
+      "scale": 1,
+      "helpers": true,
+      "controls": "online",
+      "defence": "basic"
+    },
+    "gpuTimerSupported": true
+  },
+  "scope": "Fixed scene CPU submission difference; not isolated GPU crowd timing",
+  "samples": [
+    {
+      "crowd": true,
+      "shadows": true,
+      "render": {
+        "count": 75,
+        "mean": 30.63599999666214,
+        "p95": 41,
+        "max": 44.09999996423721
+      },
+      "shadow": {
+        "count": 75,
+        "mean": 10.535999995867412,
+        "p95": 20.30000001192093,
+        "max": 22.5
+      },
+      "calls": {
+        "count": 75,
+        "mean": 620,
+        "p95": 620,
+        "max": 620
+      },
+      "triangles": {
+        "count": 75,
+        "mean": 926563,
+        "p95": 926563,
+        "max": 926563
+      }
+    },
+    {
+      "crowd": false,
+      "shadows": true,
+      "render": {
+        "count": 75,
+        "mean": 29.402666669686635,
+        "p95": 36.89999997615814,
+        "max": 41.80000001192093
+      },
+      "shadow": {
+        "count": 75,
+        "mean": 9.951999998092651,
+        "p95": 15.900000035762787,
+        "max": 19.200000047683716
+      },
+      "calls": {
+        "count": 75,
+        "mean": 618,
+        "p95": 618,
+        "max": 618
+      },
+      "triangles": {
+        "count": 75,
+        "mean": 134051,
+        "p95": 134051,
+        "max": 134051
+      }
+    },
+    {
+      "crowd": true,
+      "shadows": false,
+      "render": {
+        "count": 75,
+        "mean": 17.958666671117147,
+        "p95": 24.80000001192093,
+        "max": 27.200000047683716
+      },
+      "shadow": {
+        "count": 75,
+        "mean": 0.0040000001589457195,
+        "p95": 0,
+        "max": 0.10000002384185791
+      },
+      "calls": {
+        "count": 75,
+        "mean": 620,
+        "p95": 620,
+        "max": 620
+      },
+      "triangles": {
+        "count": 75,
+        "mean": 926563,
+        "p95": 926563,
+        "max": 926563
+      }
+    },
+    {
+      "crowd": false,
+      "shadows": false,
+      "render": {
+        "count": 75,
+        "mean": 16.360000002384187,
+        "p95": 21.899999976158142,
+        "max": 26.400000035762787
+      },
+      "shadow": {
+        "count": 75,
+        "mean": 0.0013333336512247722,
+        "p95": 0,
+        "max": 0.10000002384185791
+      },
+      "calls": {
+        "count": 75,
+        "mean": 618,
+        "p95": 618,
+        "max": 618
+      },
+      "triangles": {
+        "count": 75,
+        "mean": 134051,
+        "p95": 134051,
+        "max": 134051
+      }
+    }
+  ]
+}

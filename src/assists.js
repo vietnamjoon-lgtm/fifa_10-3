@@ -3,8 +3,8 @@ import {FIELD,clamp,distance,jogSpeed,sprintSpeed} from './config.js';
 import {gameplayValue} from './gameplay-settings.js';
 import {rollLaunchSpeed} from './physics.js';
 
-// Foot touches and initial targeting. Target-following pass velocity is handled
-// separately by guided-pass.js; shots retain their unassisted physical flight.
+// Foot touches and initial targeting. Passes and shots keep their physical flight
+// after release; guided-pass.js only tracks the intended recipient and expiry.
 export const ASSIST={touchRadius:1.12,releaseRadius:1.65,knockReleaseRadius:4,kickReach:3,pendingKick:1.5,kickStart:1.35,footReach:.22,footLane:.12,underfootReach:.45,stretchReach:.6,turnReach:.9,turnCarry:.2,laneLead:.1,dribbleGap:.7,turnKnock:.6,closeGap:.45,touchLead:.3,touchGap:.3,sprintTouchGap:.22,knockGap:1.2,knockStart:.25,knockPace:2,freshKnock:2.7,freshCatch:.55,sprintKnockSpeed:2.5,sprintKickStart:.2,kickBurst:1.15,kickLook:.25,poseLead:.05,trapPace:2.5,lunge:.2,footForward:.35,dribbleStride:.35,startTouch:2.5,receiveRadius:1.04,contactRadius:.49};
 
 export const footPosition=logicalFoot;
@@ -177,7 +177,11 @@ export function controlReach(p,relative){return (.5+.3*(p.control||.8))*clamp(1.
 export function cushionFirstTouch(match,p){
  const b=match.physics.ball,v=b.velocity;
  const relative=Math.hypot(v.x-p.vx,v.z-p.vz);
- const retained=relative>23?.48:clamp((.27-p.control*.20)/gameplayValue(match,'firstTouch'),.06,.21);
+ // A hard pass, a weaker first touch or a defender at the shoulder sometimes lets the ball run off the foot (a heavy
+ // touch); before, every ball but the very fastest died at the receiver's feet.
+ const marked=Math.min(9,...match.players.filter(q=>q.active&&q.team!==p.team).map(q=>distance(p,q))),heavyChance=clamp((relative-9)/14,0,1)*(1.15-(p.control??.8))*(marked<2.2?1.6:1)*.8;
+ const heavy=relative<=23&&match.random()<heavyChance;
+ const retained=relative>23?.48:clamp((.27-p.control*.20)/gameplayValue(match,'firstTouch'),.06,.21)*(heavy?2.1:1);
  const input=match.isHumanControlled(p)?match.inputForTeam(p.team):null,axis=input?.axis,n=Math.hypot(axis?.x||0,axis?.z||0),directed=n>.15&&relative<=23;
  const touchSpeed=clamp(Math.hypot(p.vx,p.vz)+.65,.9,3.4),targetX=directed?axis.x/n*touchSpeed:p.vx,targetZ=directed?axis.z/n*touchSpeed:p.vz;
  const vx=targetX+(v.x-targetX)*retained,vz=targetZ+(v.z-targetZ)*retained;
