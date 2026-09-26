@@ -61,14 +61,18 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
   else if(action.aerial){pose.state=(ball?.y||1.5)>1.2?'header':'volley';const u=clamp(t/.7,0,1),jump=Math.sin(u*Math.PI);pose.rootY=jump*.27;pose.torso[0]=-.22+smooth((u-.2)/.4)*.65;pose.head[0]=smooth((u-.25)/.35)*.22;pose.legs[0].lower[0]=.6*jump;pose.legs[1].lower[0]=.9*jump;pose.arms[0].upper=[-.3,0,.8];pose.arms[1].upper=[-.3,0,-.8];if(pose.state==='volley')pose.legs[1].upper[0]=-1.2*jump;}
   else if(['shoot','pass','through','lob'].includes(action.type)){
    pose.state=action.type;const contact=Math.max(.12,action.contactAt||.18),pre=clamp(t/contact,0,1),follow=action.hit?smooth((t-contact)/.28):0;
-   const strength=action.type==='shoot'?.7+(action.power||0)*.3:.55;
-   pose.hipY=(action.type==='shoot'?.825:.86)+follow*.025;pose.torso[0]=action.chip?-.08:.1;pose.torso[1]=lerp(-.2,.3,pre)*strength*(1-follow);pose.hips[1]=pose.torso[1]*.4;
-   const localZ=ball?((ball.x-p.x)*Math.sin(yaw)+(ball.z-p.z)*Math.cos(yaw)):.45;
-   const z=action.hit?lerp(.6,.08,follow):pre<.35?lerp(-.05,-.28,smooth(pre/.35)):lerp(-.28,clamp(localZ-.06,.12,.56),smooth((pre-.35)/.65));
-   const y=action.hit?lerp(.33*strength,.08,follow):.08+Math.sin(Math.min(pre/.7,1)*Math.PI)*.09;
+   // Passes used to stand upright with the arms down and the kicking leg barely drawn back (the heel rose 17 cm), so
+   // the ball seemed to leave a straight, locked leg. A pass now leans over the ball, draws the heel up behind, swings
+   // through with a follow-through, and throws the arm opposite the kicking leg out for balance.
+   const passing=action.type==='pass'||action.type==='through',strength=action.type==='shoot'?.7+(action.power||0)*.3:passing?.62:.55,over=Math.sin(clamp(t/(contact+.22),0,1)*Math.PI);
+   pose.hipY=(action.type==='shoot'?.825:passing?.845:.86)+follow*.025;pose.torso[0]=action.chip?-.08:passing?.12+.16*over:.1;pose.torso[1]=lerp(-.2,.3,pre)*strength*(1-follow);pose.hips[1]=pose.torso[1]*.4;
+   const localZ=ball?((ball.x-p.x)*Math.sin(yaw)+(ball.z-p.z)*Math.cos(yaw)):.45,back=passing?-.34:-.28;
+   const z=action.hit?lerp(passing?.5:.6,.08,follow):pre<.35?lerp(-.05,back,smooth(pre/.35)):lerp(back,clamp(localZ-.06,.12,.56),smooth((pre-.35)/.65));
+   const y=action.hit?lerp(.33*strength+(passing?.06:0),.08,follow):.08+Math.sin(Math.min(pre/.7,1)*Math.PI)*(passing?.24:.09);
    const kick=solveLeg(z,y,pose.hipY),plant=solveLeg(-.09,.065,pose.hipY);
-   pose.legs[1].upper=[kick[0],action.curve?.2:0,action.curve?-.12:0];pose.legs[1].lower[0]=kick[1];pose.legs[0].upper[0]=plant[0];pose.legs[0].lower[0]=plant[1];
-   pose.arms[0].upper=[-.45*strength,0,.55*(1-follow)];pose.arms[1].upper=[.5*strength,0,-.4*(1-follow)];
+   pose.legs[1].upper=[kick[0],action.curve?.2:0,action.curve?-.12:0];pose.legs[1].lower[0]=kick[1];pose.legs[0].upper[0]=plant[0];pose.legs[0].lower[0]=plant[1]+(passing?.12*over:0);
+   if(passing){pose.arms[0].upper=[-.3-.2*over,0,.55+.55*over*(1-follow*.5)];pose.arms[0].lower[0]=-.45;pose.arms[1].upper=[.35*over,0,-.35-.2*over];pose.arms[1].lower[0]=-.55;}
+   else{pose.arms[0].upper=[-.45*strength,0,.55*(1-follow)];pose.arms[1].upper=[.5*strength,0,-.4*(1-follow)];}
   }
  }
  if(p.dive>0){pose.state='dive';const u=clamp(1-p.dive/(p.diveDuration||KEEPER.diveDuration),0,1),weight=Math.sin(u*Math.PI),sign=p.diveDirection||1;pose.rootRoll=sign*weight*1.15;pose.hipY=.85-weight*.33;pose.rootY=weight*.15;pose.arms[0].upper=[-.6,0,2.25];pose.arms[1].upper=[-.6,0,-2.25];pose.legs[0].lower[0]=weight*.9;pose.legs[1].lower[0]=weight*.6;}
@@ -83,11 +87,11 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
    if(run>0)blendCapture(pose,sampleMocap('run',cycle*mocap.run.duration),weight*run);
    pose.clipId=speed<2?'walk':speed<4?'jog':'run';pose.torso[2]+=clamp(-(kinematics.turn||0)*.018,-.18,.18);
   }
-  else if(action&&!action.aerial&&(action.type==='shoot'||action.type==='lob')){
+  else if(action&&!action.aerial&&['shoot','lob','pass','through'].includes(action.type)){
    // Crosses and lofted passes use the captured instep kick too; the procedural swing alone barely lifted the leg.
    const at=Math.max(.12,action.contactAt||.24),elapsed=action.elapsed||0,after=Math.max(0,elapsed-at),recovery=action.type==='shoot'?.36:.28,clip=mocap.kick;
    const clipTime=action.hit?clip.contact+Math.min(1,after/recovery)*(clip.duration-clip.contact):Math.min(1,elapsed/at)*clip.contact;
-   const weight=smooth(elapsed/.065)*(1-smooth((after/recovery-.72)/.28))*(action.type==='shoot'?.96:.82);
+   const weight=smooth(elapsed/.065)*(1-smooth((after/recovery-.72)/.28))*(action.type==='shoot'?.96:action.type==='lob'?.82:.4);
    blendCapture(pose,sampleMocap('kick',clipTime),weight);
    const contactWeight=Math.max(0,1-Math.abs(elapsed-at)/.075)*.8;if(ball&&contactWeight>0){pose.hipY=lerp(pose.hipY,.815,contactWeight);const z=(ball.x-p.x)*Math.sin(yaw)+(ball.z-p.z)*Math.cos(yaw),leg=solveLeg(clamp(z-.055,.15,.56),.08,pose.hipY);pose.legs[1].upper[0]=lerp(pose.legs[1].upper[0],leg[0],contactWeight);pose.legs[1].lower[0]=lerp(pose.legs[1].lower[0],leg[1],contactWeight);}
   }
