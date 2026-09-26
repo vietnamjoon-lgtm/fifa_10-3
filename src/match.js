@@ -12,7 +12,7 @@ import {collectionMovement,activePass} from './ball-assistance.js';
 import {prepareReception} from './receive-control.js';
 import {keeperContact} from './keeper-balance.js';
 import {planKick,locomotionCadence,receivePlan} from './motion-planner.js';
-import {movementProfile,kickSkill,kickError,keeperProfile,seededRandom} from './attributes.js';
+import {movementProfile,kickSkill,kickError,keeperProfile,seededRandom,PASS_ERROR} from './attributes.js';
 import {chooseKickFoot,footSign,predictContact} from './contact-model.js';
 import {createPhysics,curveDrift,detectGoal} from './physics.js';
 import {resolveBodyContacts} from './contacts.js';
@@ -107,9 +107,9 @@ export class Match{
  if(a.type==='lob'&&!a.groundCross){solved=crossFlight(a,b);speed=solved.speed;lift=solved.lift;curve=solved.curve;}if(a.groundCross){speed=groundPassSpeed(a.distance,'pass',this.gameplay.ballRoll);lift=.08;}
  const setFlight=a.type!=='shoot'?null:a.restartKind==='penalty'?penaltyFlight(a,p,b):setpieceFlight(a.flightStyle,p,a,b);if(setFlight){solved=setFlight;speed=setFlight.speed;lift=setFlight.lift;curve=setFlight.curve;}else if(a.type==='shoot'&&a.flair&&a.power>=.4&&!a.aerial){curve=-14*(a.foot==='left'?-1:1);}
  if(a.aerial){speed*=b.y>1.2?.72:.92;lift=a.low?-1:Math.min(lift,2);}
- const assistKey=a.type==='lob'?'crossAssist':a.type==='through'?'throughAssist':'passAssist',assisted=a.type!=='shoot'&&a.receiver&&(this.settings[assistKey]||'auto')!=='manual';const error=a.type!=='shoot'&&a.receiver&&followPassEnabled(this,p.team)?0:kickError(p,a,pressure)*(assisted?((this.settings[assistKey]||'auto')==='auto'?.48:.75):1);// Start curled kicks outside the target so the Magnus bend brings them back.
+ const assistKey=a.type==='lob'?'crossAssist':a.type==='through'?'throughAssist':'passAssist',assisted=a.type!=='shoot'&&a.receiver&&(this.settings[assistKey]||'auto')!=='manual';const error=a.type!=='shoot'&&a.receiver&&followPassEnabled(this,p.team)?0:kickError(p,a,pressure)*(assisted?((this.settings[assistKey]||'auto')==='auto'?.75:.9):1);// Start curled kicks outside the target so the Magnus bend brings them back.
  let aim=a.aim;if(solved){const c=Math.cos(solved.aimOffset),s=Math.sin(solved.aimOffset);aim={x:aim.x*c-aim.z*s,z:aim.x*s+aim.z*c};}if(!solved&&curve&&a.flightStyle!=='knuckle'&&lift>1&&a.distance>1){const n=Math.hypot(aim.x,aim.z)||1,x=aim.x/n,z=aim.z/n,k=Math.sign(curve)*curveDrift(speed,curve,a.distance)/a.distance;aim={x:x-k*z,z:z+k*x};}
- const angle=(this.random()-.5)*error;const dx=aim.x*Math.cos(angle)-aim.z*Math.sin(angle),dz=aim.x*Math.sin(angle)+aim.z*Math.cos(angle);
+ const angle=(this.random()-.5)*error;/* A pass is also a little under- or over-hit, in proportion to its direction error. */if(a.type!=='shoot')speed*=1+(this.random()-.5)*error*PASS_ERROR.pace;const dx=aim.x*Math.cos(angle)-aim.z*Math.sin(angle),dz=aim.x*Math.sin(angle)+aim.z*Math.cos(angle);
  const restart=this.setPiece?.taker===p?this.setPiece.kind:null;
  if(restart==='penalty'&&dx*this.direction(p.team)<=0){this.beginRestart({kind:'indirect',team:1-p.team,x:b.x,z:b.z,label:'페널티킥은 전방으로 · 간접 프리킥'});return;}
  for(const id of this.setPiece?.wall||[])this.players[id].wallHoldUntil=this.time+.4;

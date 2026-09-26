@@ -35,13 +35,15 @@
         "src/football-boots.js",
         "tools/build-human.mjs",
         "tools/human-skin-check.mjs",
-        "tools/human-fixture.mjs"
+        "tools/human-fixture.mjs",
+        "src/clubs.js"
       ],
       "tests": [
         "tests/body-customization.test.mjs",
         "tests/faces.test.mjs",
         "tests/identity-and-keeper-v2.test.mjs",
-        "tests/human-rebuild.test.mjs"
+        "tests/human-rebuild.test.mjs",
+        "tests/clubs.test.mjs"
       ]
     },
     {
