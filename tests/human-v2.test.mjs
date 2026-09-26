@@ -36,3 +36,10 @@ test('humans.json: 3-day scope, CC0 skins and hair that exist in the asset pack'
  assert.deepEqual(c.hair.short,['short01','afro01']);for(const h of c.hair.short)assert.ok(hair.has(h),h);
  assert.deepEqual(Object.keys(c.kits),['field_short']);assert.deepEqual(c.lod.player,{maxTriangles:8000,bones:22});
 });
+test('rest skeleton: 22 body bones, 1.83 m, left leg on +x in glTF axes',()=>{
+ const r=read('assets/human/rest-skeleton.json');
+ assert.deepEqual(Object.keys(r.bones).sort(),[...BODY22].sort());
+ assert.equal(r.bones.Hips.parent,null);assert.equal(r.bones.LeftLeg.parent,'LeftUpLeg');
+ assert.ok(r.bones.LeftUpLeg.head[0]>0&&r.bones.RightUpLeg.head[0]<0);
+ assert.ok(r.bones.Head.head[1]>1.5&&r.bones.Head.head[1]<1.75);
+});

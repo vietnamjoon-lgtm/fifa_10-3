@@ -6,6 +6,11 @@ from PIL import Image, ImageDraw, ImageFont
 spec = json.load(open(sys.argv[1]))
 w, h = spec['size']
 tiles = spec['tiles']
+# Few items: one row per item with the four views across. Many items: one column per item.
+if max(t['col'] for t in tiles) + 1 <= 4:
+    for t in tiles:
+        t['row'], t['col'] = t['col'], t['row']
+        t['label'], t['view'] = t['view'], t['label']
 rows = max(t['row'] for t in tiles) + 1
 cols = max(t['col'] for t in tiles) + 1
 top, left = 40, 110
