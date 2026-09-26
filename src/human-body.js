@@ -69,13 +69,14 @@ export function loadHumanBodies(renderer){
   const tex=async(file,srgb=true)=>{if(!file)return null;const t=await textures.loadAsync(BASE+file);t.flipY=false;t.colorSpace=srgb?THREE.SRGBColorSpace:THREE.NoColorSpace;t.anisotropy=anisotropy;t.wrapS=THREE.RepeatWrapping;return t;};
   // Part ids must not blend across seams: sample the mask without filtering.
   const mask=await tex('kit-mask.png',false);mask.generateMipmaps=false;mask.minFilter=mask.magFilter=THREE.NearestFilter;mask.anisotropy=1;
+  const maskSmooth=mask.clone();maskSmooth.minFilter=THREE.LinearMipmapLinearFilter;maskSmooth.magFilter=THREE.LinearFilter;maskSmooth.generateMipmaps=true;maskSmooth.anisotropy=anisotropy;
   const avatars={};
   for(const [id,a] of Object.entries(layout.avatars)){
    const [gltf,body,head,bodyNormal,headNormal,hair,hairMask]=await Promise.all([loader.loadAsync(BASE+a.model),tex(a.body),tex(a.head),tex(a.bodyNormal,false),tex(a.headNormal,false),tex(a.hair),tex(a.hairMask,false)]);
    addBindPositions(gltf.scene);
    avatars[id]={...a,gltf,body,head,bodyNormal,headNormal,hair,hairMask,bind:bindData(gltf.scene),skinColor:new THREE.Color(a.skin)};
   }
-  assets={layout,mask,avatars};return true;
+  assets={layout,mask,maskSmooth,avatars};return true;
  };
  assetsPromise=load().catch(error=>{console.warn('New player model unavailable, keeping the old one:',error);return false;});
  return assetsPromise;
@@ -186,7 +187,7 @@ function attach(rig){
  const decalCanvas=document.createElement('canvas');decalCanvas.width=decalCanvas.height=512;
  const decals=new THREE.CanvasTexture(decalCanvas);decals.flipY=false;decals.colorSpace=THREE.SRGBColorSpace;decals.anisotropy=4;
  const materials={
-  body:kitMaterial({map:a.body,normalMap:a.bodyNormal,mask:assets.mask,layout:assets.layout},coloursFor(look),decals,tint),
+  body:kitMaterial({map:a.body,normalMap:a.bodyNormal,mask:assets.mask,maskSmooth:assets.maskSmooth,layout:assets.layout},coloursFor(look),decals,tint),
   head:headMaterial({map:a.head,normalMap:a.headNormal,eyes:assets.layout.eyes,hairMask:a.hairMask},tint,hairTint),
   hair:a.hair&&new THREE.MeshStandardMaterial({map:a.hair,color:hairTint,alphaTest:.5,side:THREE.DoubleSide,roughness:.8})};
  for(const mesh of meshes){mesh.material=materials[mesh.material.name]||materials.body;mesh.frustumCulled=false;mesh.castShadow=true;mesh.receiveShadow=true;}

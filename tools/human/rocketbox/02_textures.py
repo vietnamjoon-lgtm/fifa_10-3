@@ -227,16 +227,50 @@ for avatar in AVATARS:
     name = avatar.lower().replace('sports_', '')
     Image.fromarray((out * 255).astype(np.uint8)).save(os.path.join(OUT, f'{name}-body.jpg'), quality=88)
     head = tex(avatar, 'head_color')
+    # Dark brown irises (most of the league's players); the painted iris keeps its brightness pattern.
+    ha = np.asarray(head).astype(float) / 255
+    box = ha[880:1010, 190:370]
+    bl = box @ [0.2126, 0.7152, 0.0722]
+    sclera = bl > 0.55
+    ys, xs = np.nonzero(sclera)
+    if len(ys):
+        cy, cx = ys.mean(), xs.mean()
+        yy, xx = np.mgrid[0:box.shape[0], 0:box.shape[1]]
+        near = np.hypot(yy - cy, xx - cx) < 26
+        iris = near & (bl < 0.5)
+        iy, ix = np.nonzero(iris)
+        r = np.sqrt(iris.sum() / np.pi) * 0.98
+        mean_iris = max(bl[iris].mean(), 0.05)
+        cy, cx = iy.mean(), ix.mean()
+        disk = np.clip((r + 1 - np.hypot(yy - cy, xx - cx)) / 2, 0, 1) * np.clip((0.62 - bl) / 0.14, 0, 1)  # never the white
+        brown = np.array([0.30, 0.19, 0.11])  # mean colour of the new iris
+        recol = (bl[..., None] / mean_iris) * brown
+        box[:] = box * (1 - disk[..., None]) + np.clip(recol, 0, 1) * disk[..., None]
+        head = Image.fromarray((np.clip(ha, 0, 1) * 255).astype(np.uint8))
     head.save(os.path.join(OUT, f'{name}-head.jpg'), quality=90)
     # Hair on the scalp texture (tinted by the profile hair colour); the eye and mouth corner stays out.
     hrgb = np.asarray(head).astype(float) / 255
     hh, hs, hv = hsv(hrgb)
-    hair = ((hv < 0.36) | ((hh > 12) & (hh < 50) & (hs > 0.42) & (hv < 0.5))) & (hv > 0.02)
+    # Relative to this head's own skin (cheeks), so dark skin and its shadows are not read as hair.
+    cheek = np.median(hv[int(N * .30):int(N * .40), int(N * .40):int(N * .60)])
+    hair = (hv < 0.55 * cheek) & (hv > 0.02)
     ey = np.arange(N)[:, None]
-    hair &= (ey < N * 0.56)
+    hair &= (ey < N * 0.47)
+    hair[int(N * .31):, int(N * .34):int(N * .66)] = False  # mouth, chin and throat shadows
     hair[int(EYES[1]):, :int(EYES[2])] = False
     hair = blur(hair.astype(float), 1.5) > 0.5
-    Image.fromarray((blur(hair.astype(float), 1.0) * 255).astype(np.uint8)).save(os.path.join(OUT, f'{name}-hairmask.png'), optimize=True)
+    # G: eyes, gums, teeth and tongue keep their colours (no skin tint): the non-skin texels of that corner.
+    hh2, hs2, hv2 = hsv(np.asarray(head).astype(float) / 255)
+    skinlike = (hh2 < 45) & (hs2 > 0.15) & (hs2 < 0.62) & (hv2 > 0.3)
+    keep = np.zeros((N, N), bool)
+    keep[int(EYES[1]):, :int(EYES[2])] = True
+    keep &= ~(blur(skinlike.astype(float), 2) > 0.6)
+    keep[int(N * .82):, int(N * .18):int(EYES[2])] = True  # the eyeball itself (whites read as skin-like)
+    corner = np.zeros((N, N), bool)
+    corner[int(EYES[1]) + 20:, :int(EYES[2])] = True
+    keep |= corner & (hv2 > 0.5) & (hs2 < 0.38)  # teeth
+    mask2 = np.stack([blur(hair.astype(float), 1.0), blur(keep.astype(float), 1.0), np.zeros((N, N))], -1)
+    Image.fromarray((mask2 * 255).astype(np.uint8)).save(os.path.join(OUT, f'{name}-hairmask.png'), optimize=True)
     for kind in ('body', 'head'):
         nm = tex(avatar, kind + '_normal')
         if nm:

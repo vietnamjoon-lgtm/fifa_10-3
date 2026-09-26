@@ -45,42 +45,44 @@ export function kitColours(team,{keeper=false,boots='#dce7f0'}={}){
 const vertexHead='#include <common>\nattribute vec3 kitBind;\nvarying vec3 vKitBind;';
 const fragmentHead=`#include <common>
 varying vec3 vKitBind;
-uniform sampler2D kitMask,kitDecals;
+uniform sampler2D kitMask,kitMaskSmooth,kitDecals;
 uniform vec3 kitShirt,kitSecond,kitSleeve,kitTrim,kitShorts,kitSocks,kitBoots,kitGloves,skinTint;
 uniform float kitPattern,kitKeeper;
 uniform vec4 decalRect[${DECALS.length}],decalCell[${DECALS.length}];
 uniform float decalFlip[${DECALS.length}];
+// Antialiased 50% bands (stripes, hoops): 1 where fract(t) is in [.5, 1), edges blurred over one screen pixel.
+float band(float t){float w=fwidth(t)*1.5+1e-4;return smoothstep(.5-w,.5+w,abs(fract(t+.25)*2.0-1.0));}
 vec3 shirtColour(){
  float y=vKitBind.y,x=vKitBind.x;
  // 1 vertical stripes, 2 gradient from the second colour at the hem to the shirt colour at the chest, 3 hoops, 4 diamond weave.
- if(kitPattern>.5&&kitPattern<1.5)return mix(kitShirt,kitSecond,step(.5,fract(x*11.0+.25)));
+ if(kitPattern>.5&&kitPattern<1.5)return mix(kitShirt,kitSecond,band(x*11.0+.25));
  if(kitPattern>1.5&&kitPattern<2.5)return mix(kitSecond,kitShirt,smoothstep(.98,1.34,y));
- if(kitPattern>2.5&&kitPattern<3.5)return mix(kitShirt,kitSecond,step(.5,fract(y*9.0)));
- if(kitPattern>3.5)return mix(kitShirt,kitSecond,1.0-step(.22,abs(fract(x*9.0)-.5)+abs(fract(y*9.0)-.5)));
+ if(kitPattern>2.5&&kitPattern<3.5)return mix(kitShirt,kitSecond,band(y*9.0));
+ if(kitPattern>3.5){float d=abs(fract(x*9.0)-.5)+abs(fract(y*9.0)-.5),w=fwidth(d)*.75+1e-4;return mix(kitShirt,kitSecond,1.0-smoothstep(.22-w,.22+w,d));}
  return kitShirt;
 }`;
 const fragmentKit=`#include <map_fragment>
-vec4 kitM=texture2D(kitMask,vMapUv);
+vec4 kitM=texture2D(kitMask,vMapUv),kitS=texture2D(kitMaskSmooth,vMapUv); // part ids unfiltered; trim, skin, shine filtered
 float kitPart=floor(kitM.r*255.0/40.0+.5);
-float kitRough=mix(.78,.42,kitM.a);
+float kitRough=mix(.78,.42,kitS.a);
 if(kitPart>.5&&kitPart<5.5){
  float shade=diffuseColor.r/${NEUTRAL};
  vec3 c=kitPart<1.5?shirtColour():kitPart<2.5?kitSleeve:kitPart<3.5?kitShorts:kitPart<4.5?kitSocks:kitBoots;
- if(kitM.g>.5&&kitPart<4.5)c=kitTrim;
+ if(kitPart<4.5)c=mix(c,kitTrim,smoothstep(.3,.7,kitS.g));
  for(int i=0;i<${DECALS.length};i++){
   vec4 r=decalRect[i];vec2 d=(vMapUv-r.xy)/(r.zw-r.xy);
   if(d.x>0.0&&d.x<1.0&&d.y>0.0&&d.y<1.0){if(decalFlip[i]>.5)d=1.0-d;vec4 t=texture2D(kitDecals,decalCell[i].xy+clamp(d,.02,.98)*decalCell[i].zw);c=mix(c,t.rgb,t.a);}
  }
  diffuseColor.rgb=c*shade;
- kitRough=kitPart>4.5?.36:mix(.86,.5,kitM.a);
+ kitRough=kitPart>4.5?.36:mix(.86,.5,kitS.a);
 }else if(kitPart>5.5&&kitKeeper>.5){
  diffuseColor.rgb=kitGloves*clamp(dot(diffuseColor.rgb,vec3(.2126,.7152,.0722))*2.2,.35,1.3);kitRough=.62;
-}else if(kitM.b>.5)diffuseColor.rgb*=skinTint;`;
+}else diffuseColor.rgb*=mix(vec3(1.0),skinTint,smoothstep(.2,.8,kitS.b));`;
 
 /** Body material: shared textures, per-player uniforms. */
-export function kitMaterial({map,normalMap,mask,layout},colours,decals,tint){
+export function kitMaterial({map,normalMap,mask,maskSmooth,layout},colours,decals,tint){
  const m=new THREE.MeshStandardMaterial({map,normalMap,roughness:.7,metalness:0});
- const u=m.userData.kit={kitMask:{value:mask},kitDecals:{value:decals},skinTint:{value:tint.clone()},kitPattern:{value:0},kitKeeper:{value:0},
+ const u=m.userData.kit={kitMask:{value:mask},kitMaskSmooth:{value:maskSmooth||mask},kitDecals:{value:decals},skinTint:{value:tint.clone()},kitPattern:{value:0},kitKeeper:{value:0},
   decalRect:{value:DECALS.map(k=>new THREE.Vector4(...layout.decals[k]))},decalCell:{value:DECALS.map(k=>{const [x,y,w,h]=CELLS[k];return new THREE.Vector4(x/512,y/512,w/512,h/512);})},
   decalFlip:{value:DECALS.map(k=>layout.flipped.includes(k)?1:0)}};
  for(const key of ['Shirt','Second','Sleeve','Trim','Shorts','Socks','Boots','Gloves'])u['kit'+key]={value:new THREE.Color()};
@@ -88,7 +90,7 @@ export function kitMaterial({map,normalMap,mask,layout},colours,decals,tint){
  m.onBeforeCompile=shader=>{Object.assign(shader.uniforms,u);
   shader.vertexShader=shader.vertexShader.replace('#include <common>',vertexHead).replace('#include <begin_vertex>','#include <begin_vertex>\nvKitBind=kitBind;');
   shader.fragmentShader=shader.fragmentShader.replace('#include <common>',fragmentHead).replace('#include <map_fragment>',fragmentKit).replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=kitRough;');};
- m.customProgramCacheKey=()=> 'rocketbox-kit-v1';
+ m.customProgramCacheKey=()=> 'rocketbox-kit-v2';
  return m;
 }
 export function setKitColours(m,c){
@@ -96,15 +98,15 @@ export function setKitColours(m,c){
  u.kitShorts.value.set(c.shorts);u.kitSocks.value.set(c.socks);u.kitBoots.value.set(c.boots);u.kitGloves.value.set(c.gloves||'#ffffff');u.kitPattern.value=c.pattern;u.kitKeeper.value=c.gloves?1:0;
 }
 
-/** Head material: skin tint on the face and neck, hair tint on the painted hair (and beard); the eyes and
- * teeth corner keep their colours. */
+/** Head material: skin tint on the face and neck, hair tint on the painted hair; eyes, gums and teeth (mask G)
+ * keep their colours. */
 export function headMaterial({map,normalMap,eyes,hairMask},tint,hairTint){
  const m=new THREE.MeshStandardMaterial({map,normalMap,roughness:.58,metalness:0});
  const u={skinTint:{value:tint.clone()},hairTint:{value:(hairTint||tint).clone()},eyesRect:{value:new THREE.Vector4(...eyes)},hairMask:{value:hairMask}};m.userData.kit=u;
  m.onBeforeCompile=shader=>{Object.assign(shader.uniforms,u);
   shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 skinTint,hairTint;uniform vec4 eyesRect;uniform sampler2D hairMask;')
-   .replace('#include <map_fragment>','#include <map_fragment>\nif(!(vMapUv.x>eyesRect.x&&vMapUv.x<eyesRect.z&&vMapUv.y>eyesRect.y&&vMapUv.y<eyesRect.w))diffuseColor.rgb*=mix(skinTint,hairTint,texture2D(hairMask,vMapUv).r);');};
- m.customProgramCacheKey=()=> 'rocketbox-head-v2';
+   .replace('#include <map_fragment>','#include <map_fragment>\nvec4 headM=texture2D(hairMask,vMapUv);diffuseColor.rgb*=mix(mix(skinTint,hairTint,headM.r),vec3(1.0),headM.g);');};
+ m.customProgramCacheKey=()=> 'rocketbox-head-v3';
  return m;
 }
 
