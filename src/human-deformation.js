@@ -1,7 +1,9 @@
 import * as THREE from '../vendor/three.module.js';
 import {anatomy} from './anatomy-data.js';
 import {bodyPoint} from './body-shape.js';
-export const FOOT_SIDES=Object.freeze([{index:0,anatomical:'R',legacy:'left',sign:-1},{index:1,anatomical:'L',legacy:'right',sign:1}]);
+// Index 0 is the player's right. The game's foot names used to be mirrored ('left' on index 0);
+// since the left/right fix they match the anatomical side.
+export const FOOT_SIDES=Object.freeze([{index:0,anatomical:'R',legacy:'right',sign:-1},{index:1,anatomical:'L',legacy:'left',sign:1}]);
 export const controlBones=rig=>[rig.hips,rig.torso,rig.head,...rig.arms.flatMap(a=>[a.upper,a.lower]),...rig.legs.flatMap(l=>[l.upper,l.lower,l.foot])];
 const pos=new THREE.Vector3(),scale=new THREE.Vector3(),rot=new THREE.Quaternion(),local=new THREE.Matrix4(),goal=new THREE.Matrix4(),inverse=new THREE.Matrix4();
 const twistAxis=new THREE.Vector3(0,1,0),twistRotation=new THREE.Quaternion();

@@ -1,6 +1,8 @@
 import {clamp,distance} from './config.js';
 
-export const footSign=foot=>foot==='left'?-1:1;
+// +1 = the player's left: facing (sin yaw, cos yaw), left is (cos yaw, -sin yaw). This used to be
+// mirrored ('left' at the player's right), matching an animation that drew 'left' on legs[0].
+export const footSign=foot=>foot==='left'?1:-1;
 export function logicalFoot(p,foot=p.action?.foot||p.foot||'right',yaw=p.yaw){
  const scale=clamp((p.height||1.81)/1.81,.9,1.1),side=footSign(foot)*.11*(p.build||1),forward=.54*scale;
  return {x:p.x+Math.sin(yaw)*forward+Math.cos(yaw)*side,y:.11,z:p.z+Math.cos(yaw)*forward-Math.sin(yaw)*side};

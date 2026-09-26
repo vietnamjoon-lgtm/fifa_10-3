@@ -1,4 +1,4 @@
-import {logicalFoot} from './contact-model.js';
+import {logicalFoot,footSign} from './contact-model.js';
 import {FIELD,clamp,distance,jogSpeed,sprintSpeed} from './config.js';
 import {gameplayValue} from './gameplay-settings.js';
 import {rollLaunchSpeed} from './physics.js';
@@ -108,7 +108,7 @@ export function dribbleTouch(match,p,preparing=false){
  // Sideways part: a quarter of the player's own sideways momentum (the body carries on through a cut) plus a small
  // correction toward the touching foot's side of the stick's line, so the ball goes where the stick points.
  // The line is taken through where the player's momentum carries the body over the next touch, not where it is now.
- const lead=ASSIST.laneLead,across=(b.x-p.x-p.vx*lead)*f.z-(b.z-p.z-p.vz*lead)*f.x,lane=(foot==='left'?-1:1)*ASSIST.footLane,side=(p.vx*f.z-p.vz*f.x)*ASSIST.turnCarry+clamp((lane-across)/.35,-1.5,1.5);
+ const lead=ASSIST.laneLead,across=(b.x-p.x-p.vx*lead)*f.z-(b.z-p.z-p.vz*lead)*f.x,lane=footSign(foot)*ASSIST.footLane,side=(p.vx*f.z-p.vz*f.x)*ASSIST.turnCarry+clamp((lane-across)/.35,-1.5,1.5);
  const vx=trap?0:f.x*forward+f.z*side,vz=trap?0:f.z*forward-f.x*side;
  match.physics.kick({x:vx,z:vz},Math.hypot(vx,vz),.015);match.lastTouch=p;match.lastTouchTeam=p.team;
 

@@ -1,3 +1,4 @@
+import {sideIndex} from './sides.js';
 import * as THREE from '../vendor/three.module.js';
 import {decayOffset} from './inertial-motion.js';
 import {locomotionCadence,stanceFraction} from './motion-planner.js';
@@ -38,7 +39,7 @@ export function stabilizeFeet(rig,p,pose,dt){
   const leg=rig.legs[i],cycle=((rig.phase/(Math.PI*2)+i*.5)%1+1)%1;
   if(ground&&pose.gaitTargets){const g=pose.gaitTargets[i],target=rig.root.localToWorld(new THREE.Vector3(g.x,g.y,g.z));solveFoot(rig,i,target);}
   const current=leg.foot.getWorldPosition(new THREE.Vector3());
-  const kickIndex=action?.foot==='left'?0:1,kicking=action&&['shoot','pass','through','lob'].includes(action.type),fromContact=kicking?action.elapsed-action.contactAt:0;
+  const kickIndex=sideIndex(action?.foot),kicking=action&&['shoot','pass','through','lob'].includes(action.type),fromContact=kicking?action.elapsed-action.contactAt:0;
   // Raise the ball-contact IK over 0.125 s before the contact window and lower it over
   // 0.18 s after, instead of switching the kicking leg onto the ball in one render step.
   const reach=!kicking||i!==kickIndex?0:fromContact<-.055?smooth(clamp((fromContact+.18)/.125,0,1)):fromContact>.055?1-smooth(clamp((fromContact-.055)/.18,0,1)):1,impact=reach>0;
@@ -51,8 +52,8 @@ export function stabilizeFeet(rig,p,pose,dt){
    else if(state.kickLocal?.id===action.id)target.copy(rig.root.localToWorld(state.kickLocal.point.clone()));
    const solved=solveFoot(rig,i,reach<1?current.clone().lerp(target,reach):target);if(Math.abs(fromContact)<.055){rig.impactError=solved.error;rig.impactClamped=solved.clamped;}continue;
   }
-  const receiving=pose.state.startsWith('receive'),receive=p.receivePrep||p.receive,receiveIndex=receive?.foot==='left'?0:1;
-  if(receiving&&p.receive?.target&&i===(p.receive.foot==='left'?0:1)){
+  const receiving=pose.state.startsWith('receive'),receive=p.receivePrep||p.receive,receiveIndex=sideIndex(receive?.foot);
+  if(receiving&&p.receive?.target&&i===(sideIndex(p.receive.foot))){
    const r=p.receive,age=(p.sampleTime??r.contactTime??0)-(r.contactTime??0),b=r.target;
    if(b.y<=.65&&age>=-.1&&age<.16){const target=new THREE.Vector3(b.x,b.y-.025,b.z),f=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(q));target.addScaledVector(f,-.06*size);target.y=Math.max(sole,target.y);const hip=leg.upper.getWorldPosition(new THREE.Vector3());const inReach=clamp((.74*size-hip.distanceTo(target))/(.06*size),0,1);if(inReach>0){const upper=leg.upper.quaternion.clone(),lower=leg.lower.quaternion.clone(),foot=leg.foot.quaternion.clone(),weight=.72*inReach*(age<0?smooth((age+.1)/.1):1-age/.16);solveFoot(rig,i,target);leg.upper.quaternion.slerp(upper,1-weight);leg.lower.quaternion.slerp(lower,1-weight);leg.foot.quaternion.slerp(foot,1-weight);state.feet[i]=null;continue;}}
   }
@@ -140,7 +141,7 @@ export function inertializeFeet(rig,p,pose,dt){
  const state=rig.footOutput||(rig.footOutput={key:null,root:null,feet:[null,null]}),action=p.action;
  const key=(action?.id!==undefined?'action-'+action.id:pose.state)+'|'+(rig.plantState?.mode||'free');
  const root=rig.root.getWorldPosition(new THREE.Vector3()),teleport=!state.root||state.root.distanceTo(root)>1.2,switched=key!==state.key;state.root=root;state.key=key;
-  const sole=.075*rig.root.scale.y,kicking=['shoot','pass','through','lob'].includes(action?.type),kickIndex=action?.foot==='left'?0:1;
+  const sole=.075*rig.root.scale.y,kicking=['shoot','pass','through','lob'].includes(action?.type),kickIndex=sideIndex(action?.foot);
  for(let i=0;i<2;i++){
   const raw=rig.legs[i].foot.getWorldPosition(rawFoot).clone(),f=state.feet[i];
   // No exemption for the kick: the contact IK is already raised on a curve before impact, and
