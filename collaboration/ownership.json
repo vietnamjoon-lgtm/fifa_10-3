@@ -190,14 +190,16 @@
         "src/human-review.js",
         "src/adaptive-quality.js",
         "src/match-audit.js",
-        "tools/audit-server.mjs"
+        "tools/audit-server.mjs",
+        "tools/normalize-audit.mjs"
       ],
       "tests": [
         "tests/online-room.test.mjs",
         "tests/online.test.mjs",
         "tests/research-and-squads.test.mjs",
         "tests/presentation-quality.test.mjs",
-        "tests/player-render-performance.test.mjs"
+        "tests/player-render-performance.test.mjs",
+        "tests/normalize-audit.test.mjs"
       ]
     }
   ]

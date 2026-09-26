@@ -1,0 +1,347 @@
+{
+  "version": 1,
+  "method": {
+    "window": "The last exactly 300000 ms of the recorded raw frame-interval sequence, ending at the final recorded frame. This is an interval-relative window: absolute RAF timestamps were not exported.",
+    "clipping": "Remove whole leading intervals outside the window, then clip only the first retained interval. Keep every other interval and every retained frame cost unchanged, including real stalls.",
+    "statistics": "FPS is retained frame count / 300 seconds; interval mean/P95/max use the clipped boundary interval. CPU/draw/triangle statistics use retained whole-frame samples, without prorating the boundary frame. P95 uses floor((count - 1) * 0.95), matching the recorder.",
+    "gpu": "Raw GPU query samples/timestamps were not exported, so the original aggregate is retained separately as gpuOriginalReferenceOnly, not recalculated or claimed as this exact 300-second window.",
+    "validity": "Reject hidden frames, a source explicitly marked invalid, wall time outside [310,330) seconds, missing/invalid frame intervals, less than 300 recorded seconds, or a render call of 10000 ms or more.",
+    "caveat": "Normalization corrects a warmup-boundary bookkeeping error; it cannot make different gameplay sequences/cameras/teams identical or remove genuine performance regressions."
+  },
+  "runs": [
+    {
+      "rawSource": "reports/match-polish/touchline-upstream-e40fa61-match.json",
+      "label": "upstream-e40fa61",
+      "valid": true,
+      "method": {
+        "window": "The last exactly 300000 ms of the recorded raw frame-interval sequence, ending at the final recorded frame. This is an interval-relative window: absolute RAF timestamps were not exported.",
+        "clipping": "Remove whole leading intervals outside the window, then clip only the first retained interval. Keep every other interval and every retained frame cost unchanged, including real stalls.",
+        "statistics": "FPS is retained frame count / 300 seconds; interval mean/P95/max use the clipped boundary interval. CPU/draw/triangle statistics use retained whole-frame samples, without prorating the boundary frame. P95 uses floor((count - 1) * 0.95), matching the recorder.",
+        "gpu": "Raw GPU query samples/timestamps were not exported, so the original aggregate is retained separately as gpuOriginalReferenceOnly, not recalculated or claimed as this exact 300-second window.",
+        "validity": "Reject hidden frames, a source explicitly marked invalid, wall time outside [310,330) seconds, missing/invalid frame intervals, less than 300 recorded seconds, or a render call of 10000 ms or more.",
+        "caveat": "Normalization corrects a warmup-boundary bookkeeping error; it cannot make different gameplay sequences/cameras/teams identical or remove genuine performance regressions."
+      },
+      "environment": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+        "hardwareConcurrency": 8,
+        "deviceMemoryGiB": 8,
+        "webglVendor": "Google Inc. (Intel)",
+        "webglRenderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "viewport": [
+          1292,
+          918
+        ],
+        "drawingBuffer": [
+          1292,
+          918
+        ],
+        "devicePixelRatio": 1,
+        "settings": {
+          "passFollow": true,
+          "looseBallAssist": true,
+          "receiveAssist": true,
+          "autoSwitch": "aerial",
+          "switchCarry": "none",
+          "passAssist": "auto",
+          "crossAssist": "semi",
+          "throughAssist": "auto",
+          "analogSprint": false,
+          "defenceAssist": true,
+          "runType": 3,
+          "gameplay": {
+            "acceleration": 100,
+            "braking": 100,
+            "turnResponse": 100,
+            "ballRoll": 100,
+            "ballBounce": 100,
+            "firstTouch": 100,
+            "referee": "standard"
+          },
+          "quality": "high",
+          "camera": 0,
+          "volume": 0.5,
+          "sound": false,
+          "halfSeconds": 600,
+          "difficulty": "normal",
+          "userTeam": 0,
+          "deadzone": 0.15,
+          "sensitivity": 1,
+          "shadows": true,
+          "crowd": true,
+          "scale": 1,
+          "helpers": true,
+          "controls": "online",
+          "defence": "basic"
+        },
+        "gpuTimerSupported": true
+      },
+      "original": {
+        "wallSeconds": 310.18339999997613,
+        "measuredSeconds": 300.07739999999995,
+        "recordedIntervalMs": 300077.39999999997,
+        "frameCount": 6171,
+        "firstIntervalMs": 66.60000000000218,
+        "valid": null
+      },
+      "window": {
+        "measuredSeconds": 300,
+        "firstRawFrameIndex": 1,
+        "lastRawFrameIndex": 6170,
+        "retainedFrameCount": 6170,
+        "discardedFrameCount": 1,
+        "discardedMs": 66.60000000000218,
+        "clippedMs": 10.799999999999272,
+        "totalRemovedMs": 77.40000000000146,
+        "firstRetainedOriginalIntervalMs": 66.89999999999782,
+        "firstRetainedIntervalMs": 56.099999999998545
+      },
+      "averageFps": 20.566666666666666,
+      "frameMs": {
+        "count": 6170,
+        "mean": 48.62236628849271,
+        "p95": 66.70000000001164,
+        "max": 133.10000000000582
+      },
+      "stalls": {
+        "over100ms": 9,
+        "over200ms": 0,
+        "over1000ms": 0
+      },
+      "cpu": {
+        "simulation": {
+          "count": 6170,
+          "mean": 2.175996758041351,
+          "p95": 5.199999988079071,
+          "max": 20.000000059604645
+        },
+        "physics": {
+          "count": 6170,
+          "mean": 0.23105348441357357,
+          "p95": 0.6999999284744263,
+          "max": 9.900000035762787
+        },
+        "animation": {
+          "count": 6170,
+          "mean": 6.794294975536182,
+          "p95": 11.800000011920929,
+          "max": 21.599999964237213
+        },
+        "skinning": {
+          "count": 6170,
+          "mean": 0.6651539699281633,
+          "p95": 1.7999999523162842,
+          "max": 6.599999904632568
+        },
+        "shadowCpu": {
+          "count": 6170,
+          "mean": 9.52504051853231,
+          "p95": 17.900000035762787,
+          "max": 37.5
+        },
+        "render": {
+          "count": 6170,
+          "mean": 29.70215559194115,
+          "p95": 41.59999996423721,
+          "max": 77.59999996423721
+        }
+      },
+      "drawCalls": {
+        "count": 6170,
+        "mean": 466.87633711507294,
+        "p95": 624,
+        "max": 685
+      },
+      "triangles": {
+        "count": 6170,
+        "mean": 924893.2591572123,
+        "p95": 964015,
+        "max": 1181494
+      },
+      "gpuOriginalReferenceOnly": {
+        "count": 308,
+        "mean": 33.799040746753235,
+        "p95": 37.883175,
+        "max": 44.948333
+      },
+      "notes": [
+        "Physics is included in simulation; skinning and shadow CPU are included in render. Do not add these nested values.",
+        "The boundary CPU sample is retained in full because no within-frame timestamps exist. All reported frame stalls inside the chosen window remain."
+      ],
+      "rawSha256": "610a0108c7600f6cfb130163068cb92c46a15fe7ec1b95fab66c6d3a8c844483"
+    },
+    {
+      "rawSource": "reports/match-polish/touchline-final-e4c9240-match.json",
+      "label": "final-e4c9240",
+      "valid": true,
+      "method": {
+        "window": "The last exactly 300000 ms of the recorded raw frame-interval sequence, ending at the final recorded frame. This is an interval-relative window: absolute RAF timestamps were not exported.",
+        "clipping": "Remove whole leading intervals outside the window, then clip only the first retained interval. Keep every other interval and every retained frame cost unchanged, including real stalls.",
+        "statistics": "FPS is retained frame count / 300 seconds; interval mean/P95/max use the clipped boundary interval. CPU/draw/triangle statistics use retained whole-frame samples, without prorating the boundary frame. P95 uses floor((count - 1) * 0.95), matching the recorder.",
+        "gpu": "Raw GPU query samples/timestamps were not exported, so the original aggregate is retained separately as gpuOriginalReferenceOnly, not recalculated or claimed as this exact 300-second window.",
+        "validity": "Reject hidden frames, a source explicitly marked invalid, wall time outside [310,330) seconds, missing/invalid frame intervals, less than 300 recorded seconds, or a render call of 10000 ms or more.",
+        "caveat": "Normalization corrects a warmup-boundary bookkeeping error; it cannot make different gameplay sequences/cameras/teams identical or remove genuine performance regressions."
+      },
+      "environment": {
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+        "hardwareConcurrency": 8,
+        "deviceMemoryGiB": 8,
+        "webglVendor": "Google Inc. (Intel)",
+        "webglRenderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x00009A49) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "viewport": [
+          1292,
+          918
+        ],
+        "drawingBuffer": [
+          1292,
+          918
+        ],
+        "devicePixelRatio": 1,
+        "settings": {
+          "passFollow": true,
+          "looseBallAssist": true,
+          "receiveAssist": true,
+          "autoSwitch": "aerial",
+          "switchCarry": "none",
+          "passAssist": "auto",
+          "crossAssist": "semi",
+          "throughAssist": "auto",
+          "analogSprint": false,
+          "defenceAssist": true,
+          "runType": 3,
+          "gameplay": {
+            "acceleration": 100,
+            "braking": 100,
+            "turnResponse": 100,
+            "ballRoll": 100,
+            "ballBounce": 100,
+            "firstTouch": 100,
+            "referee": "standard"
+          },
+          "quality": "high",
+          "adaptiveQuality": true,
+          "camera": 0,
+          "volume": 0.5,
+          "sound": false,
+          "halfSeconds": 600,
+          "difficulty": "normal",
+          "userTeam": 0,
+          "deadzone": 0.15,
+          "sensitivity": 1,
+          "shadows": true,
+          "crowd": true,
+          "scale": 1,
+          "helpers": true,
+          "controls": "online",
+          "defence": "basic",
+          "homeClub": "bucheon",
+          "awayClub": "seoul"
+        },
+        "gpuTimerSupported": true
+      },
+      "original": {
+        "wallSeconds": 310.12460000002386,
+        "measuredSeconds": 310.2726,
+        "recordedIntervalMs": 310272.60000000003,
+        "frameCount": 5971,
+        "firstIntervalMs": 11794.700000000004,
+        "valid": true
+      },
+      "window": {
+        "measuredSeconds": 300,
+        "firstRawFrameIndex": 0,
+        "lastRawFrameIndex": 5970,
+        "retainedFrameCount": 5971,
+        "discardedFrameCount": 0,
+        "discardedMs": 0,
+        "clippedMs": 10272.599999999991,
+        "totalRemovedMs": 10272.599999999991,
+        "firstRetainedOriginalIntervalMs": 11794.700000000004,
+        "firstRetainedIntervalMs": 1522.100000000013
+      },
+      "averageFps": 19.903333333333332,
+      "frameMs": {
+        "count": 5971,
+        "mean": 50.242840395243675,
+        "p95": 116.5,
+        "max": 1522.100000000013
+      },
+      "stalls": {
+        "over100ms": 507,
+        "over200ms": 4,
+        "over1000ms": 2
+      },
+      "cpu": {
+        "simulation": {
+          "count": 5971,
+          "mean": 2.7996817958892,
+          "p95": 10.899999976158142,
+          "max": 47.09999996423721
+        },
+        "physics": {
+          "count": 5971,
+          "mean": 0.28449171036856197,
+          "p95": 1.0000000596046448,
+          "max": 24.69999998807907
+        },
+        "animation": {
+          "count": 5971,
+          "mean": 7.8521855635532,
+          "p95": 21.30000001192093,
+          "max": 55.90000003576279
+        },
+        "skinning": {
+          "count": 5971,
+          "mean": 0.9756489696564177,
+          "p95": 3.4999999403953552,
+          "max": 31.899999976158142
+        },
+        "shadowCpu": {
+          "count": 5971,
+          "mean": 12.110751968455503,
+          "p95": 31.5,
+          "max": 949.5999999642372
+        },
+        "render": {
+          "count": 5971,
+          "mean": 28.535119745683836,
+          "p95": 64.5,
+          "max": 1005.3999999761581
+        }
+      },
+      "drawCalls": {
+        "count": 5971,
+        "mean": 153.99614804890302,
+        "p95": 215,
+        "max": 291
+      },
+      "triangles": {
+        "count": 5971,
+        "mean": 339977.2198961648,
+        "p95": 433092,
+        "max": 501072
+      },
+      "gpuOriginalReferenceOnly": {
+        "count": 298,
+        "mean": 21.604436929530202,
+        "p95": 34.097758,
+        "max": 68.109686
+      },
+      "notes": [
+        "Physics is included in simulation; skinning and shadow CPU are included in render. Do not add these nested values.",
+        "The boundary CPU sample is retained in full because no within-frame timestamps exist. All reported frame stalls inside the chosen window remain."
+      ],
+      "rawSha256": "e9215c064041924d63a6d82cafed5e8d58877b2b6ac477105adff452aeaffe39"
+    }
+  ],
+  "rejected": [
+    {
+      "rawSource": "reports/match-polish/touchline-final-integrated-match.json",
+      "rawSha256": "18cdc01d9e737302f5410cdbb6bdd482ff2d7f576e34da90616d7cd7fe5d5e36",
+      "label": "final-integrated",
+      "wallSeconds": 7676.381399999977,
+      "measuredSeconds": 213.9234,
+      "renderMaxMs": 7452089.199999988,
+      "reason": "reports/match-polish/touchline-final-integrated-match.json: Wall duration outside [310,330) seconds; Invalid render cost or render interruption >=10000 ms; Less than 300 seconds of recorded intervals"
+    }
+  ]
+}
