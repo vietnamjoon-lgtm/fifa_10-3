@@ -21,6 +21,7 @@ def skin_material(tone):
     nt.links.new(img.outputs['Color'], bsdf.inputs['Base Color'])
     bsdf.inputs['Roughness'].default_value = 0.55
     bsdf.inputs['Specular IOR Level'].default_value = 0.35
+    mat.use_fake_user = True  # keep unused tones in the saved .blend
     return mat
 
 
