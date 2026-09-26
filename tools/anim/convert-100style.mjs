@@ -152,7 +152,9 @@ function turnCandidates(){const take=takes.TR1,info=infos.TR1,h=headings(info.hi
  out.sort((x,y)=>x.score-y.score);const distinct=[];for(const c of out)if(distinct.every(d=>Math.abs(d.a-c.a)>60))distinct.push(c);return distinct;}
 // Stop: forward running or walking that settles to a stand; motion.js reads the last 0.7 s as speed 8 -> 0 m/s.
 function stopCandidates(){const out=[];for(const type of ['FR','FW']){const take=takes[type],info=infos[type],n=info.n,s=[];for(let i=0;i<n;i++){const a=info.root[Math.max(0,i-6)],b=info.root[Math.min(n-1,i+6)];s.push(Math.hypot(b.x-a.x,b.z-a.z)*FPS/12);}
- for(let e=90;e<n-30;e++){if(s[e]>.25||s[e-1]<=.25)continue;let a=e;while(a>0&&s[a-1]>s[a]-.02&&e-a<150)a--;const peak=s[a];if(peak<Number(process.env.STOP_MIN||2))continue;const hold=Math.max(...s.slice(e,e+30));if(hold>.35)continue;
+ for(let e=90;e<n-30;e++){if(s[e]>.25||s[e-1]<=.25)continue;let a=e;while(a>0&&s[a-1]>s[a]-.02&&e-a<150)a--;
+  // The walk back also crosses steady running at the entry speed; start where the deceleration starts.
+  const top=Math.max(...s.slice(a,e));while(a<e-1&&s[a+1]>=top*.97)a++;const peak=s[a];if(peak<Number(process.env.STOP_MIN||2))continue;const hold=Math.max(...s.slice(e,e+30));if(hold>.35)continue;
   out.push({type,start:a+take.start,end:e+18+take.start,a,b:Math.min(n-1,e+18),seconds:+((e+18-a)/FPS).toFixed(3),entrySpeed:+peak.toFixed(2),decelSeconds:+((e-a)/FPS).toFixed(3),score:+(Math.abs(peak-4)/2+Math.abs((e-a)/FPS-1.1)+(type==='FW'?1:0)).toFixed(3)});}}
  return out.sort((x,y)=>x.score-y.score);}
 const turns=turnCandidates(),stops=stopCandidates();
