@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {clamp} from './config.js';
 export class MatchCamera{
  constructor(camera){this.camera=camera;this.target=new THREE.Vector3();this.position=new THREE.Vector3();this.look=new THREE.Vector3();this.lead=new THREE.Vector2();this.initial=false;}
- update(match,mode,dt,time){const c=this.camera;if(match.state==='menu'){this.position.set(3.4+Math.sin(time*.12)*.18,2.15,30.2);this.look.set(-1.55,1.08,24.7);c.position.lerp(this.position,1-Math.exp(-dt*3));this.target.lerp(this.look,1-Math.exp(-dt*3));c.lookAt(this.target);return;}
+ update(match,mode,dt,time){const c=this.camera;if(match.state==='menu'){this.position.set(3.4+Math.sin(time*.12)*.18,2.15,30.2);this.look.set(-2.75,1.12,24.7);c.position.lerp(this.position,1-Math.exp(-dt*3));this.target.lerp(this.look,1-Math.exp(-dt*3));c.lookAt(this.target);return;}
  const b=match.physics.ball.position,p=match.controlled,dx=b.x-p.x,dz=b.z-p.z,spread=Math.hypot(dx,dz),v=match.physics.ball.velocity;
  // Smooth and bound velocity look-ahead so a kick or rebound cannot throw the view.
  const leadAlpha=1-Math.exp(-Math.min(dt,.1)*2.8);

@@ -71,3 +71,19 @@ test('the existing online action snapshot carries the exact released contact tar
   assert.deepEqual(action.contactTarget,released.ball);assert.ok(action.hit);
  }
 });
+
+test('weak-foot long passes cannot reverse their launch velocity when the new weight error under-hits',()=>{
+ for(const team of [0,1])for(const mode of ['auto','manual'])for(const weightRandom of [0,1-Number.EPSILON]){
+  const {m,p,d}=match(team);Object.assign(p,{x:-40*d,z:0,yaw:d*Math.PI/2,passing:.2,longPass:.2,balance:.2,weakFoot:.2,stamina:.12,foot:'right'});
+  const receiver=m.players[team*11+6],defender=m.players[(1-team)*11+6];
+  Object.assign(receiver,{active:true,x:40*d,z:0,vx:0,vz:0});Object.assign(defender,{active:true,x:p.x+.3*d,z:0});
+  m.settings.passAssist=mode;m.physics.reset(p.x+d*.54,d*.11);
+  const a=p.action={id:1,type:'pass',foot:'left',power:.6,aim:{x:d,z:0},target:{x:40*d,z:0},distance:80,receiver:mode==='auto'?receiver:null};
+  let randomCalls=0;m.random=()=>randomCalls++===0?.5:weightRandom;
+  const kick=m.physics.kick;let launch;
+  m.physics.kick=(direction,speed,...rest)=>{launch={direction:{...direction},speed};return kick(direction,speed,...rest);};
+  m.contactKick(p,a);assert.ok(launch);assert.ok(Number.isFinite(launch.speed));
+  assert.ok(launch.speed>=0,`${team} ${mode}: negative launch speed ${launch.speed}`);
+  assert.ok(m.physics.ball.velocity.x*launch.direction.x+m.physics.ball.velocity.z*launch.direction.z>=-1e-10);
+ }
+});

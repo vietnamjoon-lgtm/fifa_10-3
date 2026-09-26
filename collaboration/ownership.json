@@ -36,14 +36,16 @@
         "tools/build-human.mjs",
         "tools/human-skin-check.mjs",
         "tools/human-fixture.mjs",
-        "src/uniform-labels.js"
+        "src/uniform-labels.js",
+        "src/clubs.js"
       ],
       "tests": [
         "tests/body-customization.test.mjs",
         "tests/faces.test.mjs",
         "tests/identity-and-keeper-v2.test.mjs",
         "tests/human-rebuild.test.mjs",
-        "tests/player-surface-quality.test.mjs"
+        "tests/player-surface-quality.test.mjs",
+        "tests/clubs.test.mjs"
       ]
     },
     {
@@ -79,7 +81,8 @@
       ],
       "tests": [
         "tests/human-motion-and-defence.test.mjs",
-        "tests/contact-blending.test.mjs"
+        "tests/contact-blending.test.mjs",
+        "tests/foot-solver-performance.test.mjs"
       ]
     },
     {

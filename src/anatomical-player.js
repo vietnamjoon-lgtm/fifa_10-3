@@ -11,6 +11,19 @@ import {uniformLabelProjector} from './uniform-labels.js';
 const shoulderCloth=(x,y)=>Math.exp(-Math.pow((Math.abs(x)-.19)/.09,2)-Math.pow((y-1.425)/.10,2));
 // Use the closer of the clavicle/yoke and lateral-shoulder cloth fits, so
 // overlapping improvements do not stack into an excessively thin shirt.
+// The source weights let the side of the chest follow the upper arm down to about 1.20 m (up to half its weight), so a
+// raised arm dragged the flank up with it into a web joining arm and body. Below the armpit crease that influence now
+// fades out and goes to the vertex's own spine bone; the shoulder cap above it keeps the original blend.
+const ARM_WEB={bones:new Set([8,9,10,15,16,17]),spine:new Set([1,2,3,4,5]),from:1.3,to:1.46};
+let safeWeights=null;
+export function torsoSafeWeights(){
+ if(safeWeights)return safeWeights;const P=anatomy.body.positions,BI=anatomy.body.skinIndices,BW=anatomy.body.skinWeights,I=anatomy.detail.skinIndices,out=Float32Array.from(anatomy.detail.skinWeights);
+ for(let v=0;v<P.length/3;v++){let arm=0;for(let k=0;k<4;k++)if(BI[v*4+k]>=3&&BI[v*4+k]<=6)arm+=BW[v*4+k];if(arm>.5)continue;
+  const keep=THREE.MathUtils.smoothstep(P[v*3+1],ARM_WEB.from,ARM_WEB.to);if(keep>=1)continue;let moved=0,spine=-1;
+  for(let k=0;k<4;k++){const b=I[v*4+k];if(ARM_WEB.bones.has(b)){moved+=out[v*4+k]*(1-keep);out[v*4+k]*=keep;}else if(ARM_WEB.spine.has(b)&&(spine<0||out[v*4+k]>out[v*4+spine]))spine=k;}
+  if(moved>0){if(spine>=0)out[v*4+spine]+=moved;else{const sum=out[v*4]+out[v*4+1]+out[v*4+2]+out[v*4+3]||1;for(let k=0;k<4;k++)out[v*4+k]/=sum;}}}
+ return safeWeights=out;
+}
 // Retargeted CC0 anatomy: actual shoulder, elbow, knee and hand topology.
 export function createAnatomicalBody(rig,colors){
  const bones=[rig.hips,rig.torso,rig.head,...rig.arms.flatMap(a=>[a.upper,a.lower]),...rig.legs.flatMap(l=>[l.upper,l.lower,l.foot])];
@@ -19,10 +32,10 @@ export function createAnatomicalBody(rig,colors){
  const wardrobePositions=positions.slice(),metrics=rig.bodyMetrics||bodyMetrics();
  for(let i=0;i<positions.length/3;i++){let arm=0;for(let k=0;k<4;k++){const b=anatomy.body.skinIndices[i*4+k];if(b>=3&&b<=6)arm+=anatomy.body.skinWeights[i*4+k];}armWeights.push(arm);const x=positions[i*3],y=positions[i*3+1],neck=1.42+.13*Math.min(1,Math.abs(x)/.15),top=neck*(1-arm)+1.23*arm,shirt=(1-arm)*THREE.MathUtils.smoothstep(y,.95,.97)*(1-THREE.MathUtils.smoothstep(y,neck-.012,neck))+arm*THREE.MathUtils.smoothstep(y,1.225,1.235),shorts=THREE.MathUtils.smoothstep(y,.70,.72)*(1-THREE.MathUtils.smoothstep(y,.96,.975))*(1-arm),yoke=Math.exp(-Math.pow((y-1.40)/.07,2)),thickness=shirt*Math.min(.012*(1-.75*shoulderCloth(x,y)),.012-.007*yoke)+shorts*.014;positions[i*3]+=normals.getX(i)*thickness;positions[i*3+1]+=normals.getY(i)*thickness*.35;positions[i*3+2]+=normals.getZ(i)*thickness;}
  for(let i=0;i<positions.length/3;i++){const source=positions.slice(i*3,i*3+3),out=[0,0,0];for(let k=0;k<4;k++){const w=anatomy.body.skinWeights[i*4+k];if(!w)continue;const p=bodyPoint(...source,anatomy.body.skinIndices[i*4+k],metrics);for(let j=0;j<3;j++)out[j]+=p[j]*w;}positions.set(out,i*3);}
- g.setAttribute('wardrobePosition',new THREE.BufferAttribute(wardrobePositions,3));g.setAttribute('wardrobeArm',new THREE.Float32BufferAttribute(armWeights,1));g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(anatomy.detail.skinIndices,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(anatomy.detail.skinWeights,4));g.computeVertexNormals();
+ g.setAttribute('wardrobePosition',new THREE.BufferAttribute(wardrobePositions,3));g.setAttribute('wardrobeArm',new THREE.Float32BufferAttribute(armWeights,1));g.setAttribute('skinIndex',new THREE.Uint16BufferAttribute(anatomy.detail.skinIndices,4));g.setAttribute('skinWeight',new THREE.Float32BufferAttribute(torsoSafeWeights(),4));g.computeVertexNormals();
  const mat=new THREE.MeshStandardMaterial({roughness:.79});
  // Evaluate garment borders per pixel; interpolated per-vertex colours made torn, triangular necklines.
- mat.onBeforeCompile=shader=>{for(const key of ['skin','kit','shorts','sock'])shader.uniforms['uniform'+key]={value:colors[key]};shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nattribute vec3 wardrobePosition; attribute float wardrobeArm; varying vec3 vWardrobe; varying float vArm;').replace('#include <begin_vertex>','#include <begin_vertex>\nvWardrobe=wardrobePosition; vArm=wardrobeArm;');shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vWardrobe; varying float vArm; uniform vec3 uniformskin,uniformkit,uniformshorts,uniformsock;').replace('#include <color_fragment>',`#include <color_fragment>
+ mat.onBeforeCompile=shader=>{for(const key of ['skin','kit','shorts','sock'])shader.uniforms['uniform'+key]={value:colors[key]};shader.uniforms.uniformkit2={value:colors.kit2||colors.kit};shader.uniforms.uniformsleeve={value:colors.sleeve||colors.kit};shader.uniforms.uniformpattern=colors.pattern||{value:0};shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nattribute vec3 wardrobePosition; attribute float wardrobeArm; varying vec3 vWardrobe; varying float vArm;').replace('#include <begin_vertex>','#include <begin_vertex>\nvWardrobe=wardrobePosition; vArm=wardrobeArm;');shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vWardrobe; varying float vArm; uniform vec3 uniformskin,uniformkit,uniformshorts,uniformsock,uniformkit2,uniformsleeve; uniform float uniformpattern;').replace('#include <color_fragment>',`#include <color_fragment>
  float y=vWardrobe.y;
  float neckline=1.42+.13*min(1.0,abs(vWardrobe.x)/.15);
  float top=neckline;
@@ -32,7 +45,15 @@ export function createAnatomicalBody(rig,colors){
  float sock=(1.0-smoothstep(.418,.422,y))*(1.0-vArm);
  vec3 clothing=mix(uniformskin,uniformsock,sock);
  clothing=mix(clothing,uniformshorts,shorts);
- clothing=mix(clothing,uniformkit,shirt);
+ // Club kit patterns: 1 vertical stripes, 2 gradient from the second colour at the hem to the shirt colour at the chest,
+ // 3 hoops, 4 a faint diamond weave; sleeves take the club's sleeve colour.
+ vec3 kitColour=uniformkit;
+ if(uniformpattern>.5&&uniformpattern<1.5)kitColour=mix(uniformkit,uniformkit2,step(.5,fract(vWardrobe.x*11.0+.25)));
+ else if(uniformpattern>1.5&&uniformpattern<2.5)kitColour=mix(uniformkit2,uniformkit,smoothstep(1.0,1.34,y));
+ else if(uniformpattern>2.5&&uniformpattern<3.5)kitColour=mix(uniformkit,uniformkit2,step(.5,fract(y*9.0)));
+ else if(uniformpattern>3.5)kitColour=mix(uniformkit,uniformkit2,1.0-step(.22,abs(fract(vWardrobe.x*9.0)-.5)+abs(fract(y*9.0)-.5)));
+ kitColour=mix(kitColour,uniformsleeve,vArm);
+ clothing=mix(clothing,kitColour,shirt);
  float collar=torsoShirt*smoothstep(top-.014,top-.01,y)*(1.0-vArm);
  diffuseColor.rgb*=mix(clothing,uniformshorts,collar*.7);
  `).replace('#include <roughnessmap_fragment>',`#include <roughnessmap_fragment>
