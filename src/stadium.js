@@ -55,8 +55,15 @@ export function buildStadium(scene){
   // Upper fascia and illuminated architectural ribbon.
   box(stadium,0,11.4,s*54.5,128,1,.15,dark);box(stadium,0,11.05,s*54.35,128,.09,.08,new THREE.MeshBasicMaterial({color:0x789fa7}));
  }
- const bodies=new THREE.InstancedMesh(new THREE.SphereGeometry(1,7,5),mat(0xffffff),positions.length),heads=new THREE.InstancedMesh(new THREE.SphereGeometry(.11,7,5),mat(0xc29375),positions.length),dummy=new THREE.Object3D(),color=new THREE.Color();
- positions.forEach(([x,y,z,angle],i)=>{dummy.position.set(x,y,z);dummy.rotation.set(0,angle,0);dummy.scale.set(.2,.31,.13);dummy.updateMatrix();bodies.setMatrixAt(i,dummy.matrix);color.set([0x374859,0x567472,0x8c9382,0x8e4638,0xb3c89a,0x263b4c,0x647476][(i*13)%7]);bodies.setColorAt(i,color);dummy.position.y=y+.37;dummy.scale.setScalar(1);dummy.updateMatrix();heads.setMatrixAt(i,dummy.matrix);});crowdGroup.add(bodies,heads);
+ // At match distance each spectator spans only a few pixels. Keep every seat,
+ // but use compact silhouettes and one cullable batch per stand.
+ const bodyGeo=new THREE.SphereGeometry(1,4,3),headGeo=new THREE.SphereGeometry(.11,4,3),dummy=new THREE.Object3D(),color=new THREE.Color();
+ const stands=Array.from({length:4},()=>[]);for(const p of positions)stands[Math.abs(p[0])>61?(p[0]<0?0:1):(p[2]<0?2:3)].push(p);
+ let seat=0;for(const stand of stands){
+  const bodies=new THREE.InstancedMesh(bodyGeo,mat(0xffffff),stand.length),heads=new THREE.InstancedMesh(headGeo,mat(0xc29375),stand.length);
+  stand.forEach(([x,y,z,angle],i)=>{dummy.position.set(x,y,z);dummy.rotation.set(0,angle,0);dummy.scale.set(.2,.31,.13);dummy.updateMatrix();bodies.setMatrixAt(i,dummy.matrix);color.set([0x374859,0x567472,0x8c9382,0x8e4638,0xb3c89a,0x263b4c,0x647476][(seat++*13)%7]);bodies.setColorAt(i,color);dummy.position.y=y+.37;dummy.scale.setScalar(1);dummy.updateMatrix();heads.setMatrixAt(i,dummy.matrix);});
+  bodies.computeBoundingSphere();heads.computeBoundingSphere();crowdGroup.add(bodies,heads);
+ }
  // Four real light gantries, emissive light housings and restrained glow sprites.
  const glowTexture=canvasTexture(64,64,(c)=>{const g=c.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'#e6f6ff');g.addColorStop(.15,'#a6dbff88');g.addColorStop(1,'#9ccaff00');c.fillStyle=g;c.fillRect(0,0,64,64)});
  const lampMaterial=new THREE.MeshBasicMaterial({color:0xe3f0ff});

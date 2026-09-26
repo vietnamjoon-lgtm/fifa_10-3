@@ -1,0 +1,26 @@
+{
+  "localOrigin": "http://127.0.0.1:4191",
+  "editor": {
+    "fixture": "QA ORIGINAL, cloned fictional player, not assigned to starting eleven",
+    "heightCm": 192.3,
+    "weightKg": 92.4,
+    "bodyType": "sturdy",
+    "jawRatio": 1.04,
+    "saveReloadVerified": true,
+    "realUserPhotosUsed": false
+  },
+  "scenes": [
+    "Free kick: four-man wall; D release launches ball and returns to broadcast play",
+    "Penalty: central low-power D release saved; play continues",
+    "Corner: A delivery enters the penalty area; dedicated camera repositioned infield after observing floodlight occlusion",
+    "Isolated assisted pass: browser QA reports successful reception and first touch"
+  ],
+  "adaptiveQuality": {
+    "url": "http://127.0.0.1:4191/?qa=1",
+    "mode": "full 11v11 AI game, HIGH, adaptive enabled",
+    "cssViewport": [1292, 918],
+    "observedCanvasBuffer": [904, 642],
+    "effectiveScale": 0.7,
+    "fpsClaim": "No paired FPS comparison; confirms scale changes in a real browser only"
+  }
+}

@@ -32,11 +32,17 @@ export function stabilizeFeet(rig,p,pose,dt){
   const leg=rig.legs[i],cycle=((rig.phase/(Math.PI*2)+i*.5)%1+1)%1;
   if(ground&&pose.gaitTargets){const g=pose.gaitTargets[i],target=rig.root.localToWorld(new THREE.Vector3(g.x,g.y,g.z));solveFoot(rig,i,target);}
   const current=leg.foot.getWorldPosition(new THREE.Vector3());
-  const kickIndex=action?.foot==='left'?0:1,kicking=action&&['shoot','pass','through','lob'].includes(action.type),impact=kicking&&i===kickIndex&&Math.abs(action.elapsed-action.contactAt)<.055;
+  const kickIndex=action?.foot==='left'?0:1,kicking=action&&['shoot','pass','through','lob'].includes(action.type),age=action? action.elapsed-action.contactAt:0,impact=kicking&&i===kickIndex&&age>-.13&&age<.16;
   if(impact&&action.contactTarget){
-   state.feet[i]=null;const b=action.contactTarget,f=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(q));
+   state.feet[i]=null;if(state.release)state.release[i]=null;const b=action.contactTarget,f=new THREE.Vector3(0,0,1).applyQuaternion(rig.root.getWorldQuaternion(q));
    const target=new THREE.Vector3(b.x,b.y,b.z).addScaledVector(f,-.06*size);target.y=Math.max(sole,b.y-.025*size);
-   const solved=solveFoot(rig,i,target);rig.impactError=solved.error;rig.impactClamped=solved.clamped;continue;
+   // Ease into exact contact and out into follow-through. The old narrow on/off
+   // window replaced the whole joint pose abruptly on its first and last frame.
+   const before=[leg.upper.quaternion.clone(),leg.lower.quaternion.clone(),leg.foot.quaternion.clone()];
+   const u=clamp(age<0?(age+.13)/.13:1-age/.16,0,1),weight=u*u*(3-2*u);
+   const solved=solveFoot(rig,i,target);
+   for(const [index,bone]of [leg.upper,leg.lower,leg.foot].entries())bone.quaternion.slerp(before[index],1-weight);
+   rig.impactError=leg.foot.getWorldPosition(v).distanceTo(target);rig.impactClamped=solved.clamped;continue;
   }
   const receiving=pose.state.startsWith('receive'),receive=p.receivePrep||p.receive,receiveIndex=receive?.foot==='left'?0:1;
   if(receiving&&p.receive?.target&&i===(p.receive.foot==='left'?0:1)){

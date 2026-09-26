@@ -35,13 +35,15 @@
         "src/football-boots.js",
         "tools/build-human.mjs",
         "tools/human-skin-check.mjs",
-        "tools/human-fixture.mjs"
+        "tools/human-fixture.mjs",
+        "src/uniform-labels.js"
       ],
       "tests": [
         "tests/body-customization.test.mjs",
         "tests/faces.test.mjs",
         "tests/identity-and-keeper-v2.test.mjs",
-        "tests/human-rebuild.test.mjs"
+        "tests/human-rebuild.test.mjs",
+        "tests/player-surface-quality.test.mjs"
       ]
     },
     {
@@ -76,7 +78,8 @@
         "assets-source/16_35.amc"
       ],
       "tests": [
-        "tests/human-motion-and-defence.test.mjs"
+        "tests/human-motion-and-defence.test.mjs",
+        "tests/contact-blending.test.mjs"
       ]
     },
     {
@@ -106,7 +109,8 @@
         "tests/assists.test.mjs",
         "tests/balance-and-ratings.test.mjs",
         "tests/control-assist.test.mjs",
-        "tests/guided-pass.test.mjs"
+        "tests/guided-pass.test.mjs",
+        "tests/reception-and-contact.test.mjs"
       ]
     },
     {
@@ -180,12 +184,17 @@
         "collaboration/**",
         ".nojekyll",
         "src/human-review.html",
-        "src/human-review.js"
+        "src/human-review.js",
+        "src/adaptive-quality.js",
+        "src/match-audit.js",
+        "tools/audit-server.mjs"
       ],
       "tests": [
         "tests/online-room.test.mjs",
         "tests/online.test.mjs",
-        "tests/research-and-squads.test.mjs"
+        "tests/research-and-squads.test.mjs",
+        "tests/presentation-quality.test.mjs",
+        "tests/player-render-performance.test.mjs"
       ]
     }
   ]
