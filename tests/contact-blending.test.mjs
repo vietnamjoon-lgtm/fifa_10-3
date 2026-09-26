@@ -47,3 +47,15 @@ test('contact diagnostics measure the final blended ankle rather than the unblen
   const {rig,ankle,target}=contact(age,{foot});assert.ok(Math.abs(rig.impactError-ankle.distanceTo(target))<1e-8);
  }
 });
+
+test('a kick without an action id never follows through toward an earlier kick\'s contact point',()=>{
+ const run=(first)=>{
+  const rig=fixture({height:1.81}),m=rig.bodyMetrics;rig.root.position.set(0,0,0);rig.hips.position.y=.80+m.hipOffset;
+  for(const leg of rig.legs){leg.upper.rotation.x=-.25;leg.lower.rotation.x=.65;}rig.root.updateMatrixWorld(true);
+  const kick=(x,age)=>{const ball=rig.root.localToWorld(new THREE.Vector3(x,.12,.32));const p={x:0,z:0,yaw:0,vx:0,vz:0,action:{type:'pass',foot:'right',contactAt:.18,elapsed:.18+age,contactTarget:{x:ball.x,y:ball.y,z:ball.z}}};stabilizeFeet(rig,p,{state:'pass',contacts:[0,0]},1/120);};
+  if(first)kick(-m.hipX-.12,0);
+  for(const leg of rig.legs){leg.upper.rotation.set(-.25,0,0);leg.lower.rotation.set(.65,0,0);leg.foot.rotation.set(0,0,0);}rig.root.updateMatrixWorld(true);
+  kick(-m.hipX,.08);rig.root.updateMatrixWorld(true);return rig.legs[sideIndex('right')].foot.getWorldPosition(new THREE.Vector3());
+ };
+ assert.ok(run(true).distanceTo(run(false))<1e-9);
+});

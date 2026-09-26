@@ -57,7 +57,7 @@ export function stabilizeFeet(rig,p,pose,dt){
    // After contact the boot eases out from where it met the ball relative to the body; a
    // world-fixed target left the leg trailing behind a player who kept running.
    if(age<=.055)state.kickLocal={id:action.id,point:rig.root.worldToLocal(target.clone())};
-   else if(state.kickLocal&&state.kickLocal.id===action.id)target.copy(rig.root.localToWorld(state.kickLocal.point.clone()));
+   else if(state.kickLocal&&action.id!==undefined&&state.kickLocal.id===action.id)target.copy(rig.root.localToWorld(state.kickLocal.point.clone()));
    const solved=solveFoot(rig,i,target);
    for(const [index,bone]of [leg.upper,leg.lower,leg.foot].entries())bone.quaternion.slerp(before[index],1-weight);
    rig.impactError=leg.foot.getWorldPosition(v).distanceTo(target);rig.impactClamped=solved.clamped;continue;

@@ -1,9 +1,10 @@
 import {gaitTargets} from './gait.js';
-// Same legacy-side contract on browser and server. Pure animation target, no scene.
+import {RIGHT,LEFT,sideIndex} from './sides.js';
+// Same side contract on browser and server (src/sides.js): 'right', 'R' and 0 are legs[0]. Pure animation target, no scene.
 const surfaces={instep:[0,.016,.085],inside:[.061,-.015,.071],outside:[-.061,-.015,.071],sole:[0,-.075,.073],toe:[0,-.036,.185]};
 export function predictFoot(p,phase,foot='left'){
- const i=foot==='left'||foot==='R'||foot===0?0:1,gait=gaitTargets(p,phase),g=gait.feet[i],m=gait.metrics,yaw=p.yaw||0,c=Math.cos(yaw),s=Math.sin(yaw),world=([x,y,z])=>({x:(p.x||0)+(x*c+z*s)*m.scale,y:y*m.scale,z:(p.z||0)+(z*c-x*s)*m.scale});
- const position=world([g.x,g.y,g.z]);return {...position,anatomical:i===0?'R':'L',swing:!gait.contacts[i],surfaces:Object.fromEntries(Object.entries(surfaces).map(([name,v])=>[name,world([g.x+v[0]*(i===0?1:-1)*m.foot,g.y+v[1],g.z+v[2]*m.foot])]))};
+ const i=foot==='R'||foot===RIGHT?RIGHT:foot==='L'||foot===LEFT?LEFT:sideIndex(foot),gait=gaitTargets(p,phase),g=gait.feet[i],m=gait.metrics,yaw=p.yaw||0,c=Math.cos(yaw),s=Math.sin(yaw),world=([x,y,z])=>({x:(p.x||0)+(x*c+z*s)*m.scale,y:y*m.scale,z:(p.z||0)+(z*c-x*s)*m.scale});
+ const position=world([g.x,g.y,g.z]);return {...position,anatomical:i===RIGHT?'R':'L',swing:!gait.contacts[i],surfaces:Object.fromEntries(Object.entries(surfaces).map(([name,v])=>[name,world([g.x+v[0]*(i===RIGHT?1:-1)*m.foot,g.y+v[1],g.z+v[2]*m.foot])]))};
 }
 // Swing/twist decomposition, evaluated before any limit enforcement. Diagnostic
 // failures stay visible instead of silently clamping impossible source poses.
