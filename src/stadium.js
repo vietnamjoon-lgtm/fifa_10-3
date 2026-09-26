@@ -168,9 +168,9 @@ const DAY_SUN=new THREE.Vector3(-38,74,52).normalize();
 export const FLOODLIGHTS=[[-48,29,43],[48,29,43],[-48,29,-43],[48,29,-43]];
 export const LIGHTING={
  day:{background:0x9cc3e2,fog:[0xb5cfdf,.0019],hemi:[0xd8e8f6,0x4c6b35,1.35],key:{color:0xfff1dc,intensity:3.4,direction:DAY_SUN},
-  rim:[0xcfe2ff,.55,[30,40,-35]],fill:[0xffffff,0],exposure:.92,environment:.55,lamps:0x9aa4a8,glow:false,grass:0x3a7034,stripes:1,towerShadows:0},
+  rim:[0xcfe2ff,.55,[30,40,-35]],fill:[0xffffff,0],exposure:.92,environment:.55,lamps:0x9aa4a8,glow:false,grass:0x45724a,stripes:1,towerShadows:0},
  night:{background:0x08121b,fog:[0x0e2127,.0026],hemi:[0xa9bfd2,0x22401f,1.25],key:{color:0xf4f7ff,intensity:4.4,direction:new THREE.Vector3(-48,29,43).normalize()},
-  rim:[0xa8d0ff,1.1,[48,29,-43]],fill:[0xf0f4ff,1.6,[48,29,43]],exposure:1.12,environment:.6,lamps:0xe3f0ff,glow:true,grass:0x336a34,stripes:1.1,towerShadows:.32}
+  rim:[0xa8d0ff,1.1,[48,29,-43]],fill:[0xf0f4ff,1.6,[48,29,43]],exposure:1.12,environment:.6,lamps:0xe3f0ff,glow:true,grass:0x3d6c44,stripes:1.1,towerShadows:.32}
 };
 export function applyLighting(scene,stadium,renderer,preset='night',quality='high'){
  const L=LIGHTING[preset]||LIGHTING.night;
