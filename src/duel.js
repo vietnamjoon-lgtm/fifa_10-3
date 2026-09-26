@@ -16,7 +16,16 @@ export function cleanInput(raw={}){
  const axis={x:number(raw.axis?.x),z:number(raw.axis?.z)},n=Math.hypot(axis.x,axis.z);if(n>1){axis.x/=n;axis.z/=n;}
  const out={axis,sprintAmount:typeof raw.sprintAmount==='number'&&Number.isFinite(raw.sprintAmount)?clamp(raw.sprintAmount,0,1):raw.sprint===true?1:0,teamPressCount:raw.teamPressCount===2?2:1};for(const key of inputFlags)out[key]=raw[key]===true;return out;
 }
-export function cleanOptions(raw={}){const out={};if(Object.hasOwn(SKILLS,raw.skill))out.skill=raw.skill;if(Object.hasOwn(SETPIECE_STYLES,raw.style))out.style=raw.style;for(const key of optionFlags)if(typeof raw[key]==='boolean')out[key]=raw[key];return out;}
+// Skill-move inputs from a remote seat: arrow directions are -1/0/1, times are clamped seconds, at most 32 events,
+// and only known specials and modifier flags pass.
+const SKILL_SPECIALS=new Set(['z-tap','z-hold','backquote','q-tap']),unit=v=>Math.sign(Number(v)||0),seconds=v=>Math.min(5,Math.max(0,Number(v)||0));
+function cleanSkillInput(raw,out){
+ if(Array.isArray(raw.gesture?.events))out.gesture={events:raw.gesture.events.slice(0,32).map(e=>({x:unit(e?.x),z:unit(e?.z),t:seconds(e?.t)})),end:seconds(raw.gesture.end)};
+ if(SKILL_SPECIALS.has(raw.special))out.special=raw.special;
+ if(raw.plain&&typeof raw.plain==='object')out.plain={x:unit(raw.plain.x),z:unit(raw.plain.z)};
+ if(raw.mods&&typeof raw.mods==='object')out.mods=Object.fromEntries(['q','c','z','e'].filter(k=>raw.mods[k]===true).map(k=>[k,true]));
+}
+export function cleanOptions(raw={}){const out={};if(Object.hasOwn(SKILLS,raw.skill))out.skill=raw.skill;cleanSkillInput(raw,out);if(Object.hasOwn(SETPIECE_STYLES,raw.style))out.style=raw.style;for(const key of optionFlags)if(typeof raw[key]==='boolean')out[key]=raw[key];return out;}
 
 // Both human seats share one ball, referee and fixed-step simulation.
 // Seat context is synchronous: commands and movement never borrow the other team's input.
