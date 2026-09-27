@@ -81,7 +81,8 @@ if(kitPart>.5&&kitPart<5.5){
 
 /** Body material: shared textures, per-player uniforms. */
 export function kitMaterial({map,normalMap,mask,maskSmooth,layout},colours,decals,tint){
- const m=new THREE.MeshStandardMaterial({map,normalMap,roughness:.7,metalness:0});
+ // Rocketbox normal maps are DirectX style (green = down): lower lip, nose and chin undersides read >0.5.
+ const m=new THREE.MeshStandardMaterial({map,normalMap,normalScale:new THREE.Vector2(1,-1),roughness:.7,metalness:0});
  const u=m.userData.kit={kitMask:{value:mask},kitMaskSmooth:{value:maskSmooth||mask},kitDecals:{value:decals},skinTint:{value:tint.clone()},kitPattern:{value:0},kitKeeper:{value:0},
   decalRect:{value:DECALS.map(k=>new THREE.Vector4(...layout.decals[k]))},decalCell:{value:DECALS.map(k=>{const [x,y,w,h]=CELLS[k];return new THREE.Vector4(x/512,y/512,w/512,h/512);})},
   decalFlip:{value:DECALS.map(k=>layout.flipped.includes(k)?1:0)}};
@@ -112,7 +113,7 @@ diffuseColor.rgb=mix(col,base,headM.g);`;
 /** Head material: skin tint on the face and neck, hair tint (or scalp for crop/bald) on the painted hair, an
  * optional stubble or beard; eyes, gums and teeth (mask G) keep their colours. */
 export function headMaterial({map,normalMap,hairMask,scalp,hairRef},tint,hairTint,{hairStyle=0,beard=0,hair='#211a15'}={}){
- const m=new THREE.MeshStandardMaterial({map,normalMap,roughness:.58,metalness:0});
+ const m=new THREE.MeshStandardMaterial({map,normalMap,normalScale:new THREE.Vector2(1,-1),roughness:.58,metalness:0}); // DirectX-style normal map
  const u={skinTint:{value:tint.clone()},hairTint:{value:(hairTint||tint).clone()},hairMask:{value:hairMask},hairStyle:{value:hairStyle},beard:{value:beard},
   hairColor:{value:new THREE.Color(hair)},scalpColor:{value:new THREE.Color(scalp||'#c18a6f')},hairRef:{value:new THREE.Color(hairRef||'#372619')}};m.userData.kit=u;
  m.onBeforeCompile=shader=>{Object.assign(shader.uniforms,u);
