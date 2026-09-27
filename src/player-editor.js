@@ -6,7 +6,7 @@ import {FaceStudio} from './face-studio.js';
 import {cleanFace,networkFace} from './face-settings.js';
 import {getFaceAsset,putFaceAssets,cleanFaceAsset} from './face-assets.js';
 import {PlayerPortrait} from './player-portrait.js';
-import {STAT_FIELDS,cleanLibrary,cleanProfile,loadSquads,saveSquads,lineupProfiles} from './squads.js';
+import {STAT_FIELDS,cleanLibrary,cleanProfile,loadSquads,saveSquads,lineupProfiles,fitSquadBudget} from './squads.js';
 const $=id=>document.getElementById(id);
 const el=(tag,text,className)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;};
 export class PlayerEditor{
@@ -70,5 +70,6 @@ export class PlayerEditor{
  remove(){if(this.data.lineups.some(l=>l.includes(this.selected))){this.status('팀에 배치된 선수입니다. 다른 선수로 교체한 뒤 삭제해 주세요.');return;}this.snapshot();this.data.players=this.data.players.filter(p=>p.uid!==this.selected);this.selected=this.data.players[0].uid;this.persist();this.render();this.status('선수를 삭제했습니다. 되돌리기로 복원할 수 있습니다.');}
  lineups(){return [0,1].map(team=>lineupProfiles(this.data,team).map(p=>{const asset=this.assets.get(p.face.assetId);return {...p,faceTexture:p.face.enabled?asset?.atlas||null:null,faceUV:p.face.enabled?asset?.faceUV||null:null};}));}
  onlineSquads(squads,team){return squads?.map((lineup,t)=>lineup.map(p=>{if(t!==team)return p;const local=this.data.players.find(q=>q.uid===p.uid),asset=local&&this.assets.get(local.face.assetId);return local?{...p,skin:local.skin,face:local.face,faceTexture:local.face.enabled?asset?.atlas||null:null,faceUV:local.face.enabled?asset?.faceUV||null:null}:p;}));}
- networkLineup(team,share=false){return lineupProfiles(this.data,team).map(p=>{const asset=this.assets.get(p.face.assetId);return networkFace(p,asset?.online,share,asset?.faceUVOnline);});}
+ networkLineup(team,share=false){const lineup=lineupProfiles(this.data,team).map(p=>{const asset=this.assets.get(p.face.assetId);return networkFace(p,asset?.online,share,asset?.faceUVOnline);});
+  return fitSquadBudget(lineup);}
 }

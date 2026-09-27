@@ -33,3 +33,8 @@ export function saveSquads(data,storage=globalThis.localStorage){const clean=cle
 export function lineupProfiles(data,team){return data.lineups[team].map(uid=>({...data.players.find(p=>p.uid===uid)}));}
 export function cleanLineup(raw,team=0,network=false){const defaults=roster(team);const result=defaults.map((base,i)=>({...base,...cleanProfile(Array.isArray(raw)&&raw.length===11?raw[i]:base,base),role:i===0?'GK':(raw?.[i]?.role==='GK'?base.role:cleanProfile(raw?.[i]||base,base).role)}));if(network)for(const p of result){p.face.assetId=null;p.faceTexture=validFaceTexture(p.faceTexture,32000);p.faceUV=validFaceTexture(p.faceUV,28000);}return result;}
 export function applyLineups(match,lineups){for(let team=0;team<2;team++)for(const profile of cleanLineup(lineups?.[team],team))Object.assign(match.players[profile.id],profile);}
+// The room server refuses requests over 400,000 characters (server/worker.js). Eleven shared faces with both
+// photo textures could pass that, so the landmark-warp textures (faceUV) are dropped from the last players
+// first; those faces still show through the older atlas mapping (faceTexture).
+export const NETWORK_SQUAD_BUDGET=385000;
+export function fitSquadBudget(lineup,budget=NETWORK_SQUAD_BUDGET){for(let i=lineup.length-1;i>=0&&JSON.stringify(lineup).length>budget;i--)if(lineup[i].faceUV)lineup[i].faceUV=null;return lineup;}

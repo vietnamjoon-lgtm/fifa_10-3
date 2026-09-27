@@ -63,3 +63,14 @@ test('most canonical-to-head-UV triangles stay under the magnification cap; only
   assert.ok(skipped<60,`${avatar}: ${skipped}/${canonicalFace.triangles.length} triangles skipped`);
  }
 });
+
+test('an online squad with many shared photo faces stays under the room server request limit',async()=>{
+ const {fitSquadBudget,NETWORK_SQUAD_BUDGET}=await import('../src/squads.js');
+ const jpeg=n=>'data:image/jpeg;base64,/9j/'+'A'.repeat(n);
+ const lineup=Array.from({length:11},(_,i)=>({uid:'p'+i,faceTexture:jpeg(31000),faceUV:jpeg(27000)}));
+ fitSquadBudget(lineup);
+ assert.ok(JSON.stringify(lineup).length<=NETWORK_SQUAD_BUDGET);
+ assert.ok(lineup.every(p=>p.faceTexture),'every legacy face texture is kept');
+ assert.ok(lineup[0].faceUV&&!lineup[10].faceUV,'warp textures are dropped from the end first');
+ const small=[{uid:'a',faceTexture:null,faceUV:jpeg(27000)}];assert.ok(fitSquadBudget(small)[0].faceUV,'small squads keep everything');
+});
