@@ -87,10 +87,16 @@ if(kitPart>.5&&kitPart<5.5){
  diffuseColor.rgb=kitGloves*clamp(dot(diffuseColor.rgb,vec3(.2126,.7152,.0722))*2.2,.35,1.3);kitRough=.62;
 }else diffuseColor.rgb*=mix(vec3(1.0),skinTint,smoothstep(.2,.8,kitS.b));`;
 
+// Sheen tinted by the fabric (shirt and shorts more, socks less), clear coat only on boot uppers, none on skin.
+const kitPhysical=`#include <lights_physical_fragment>
+float kitFabric=kitPart>.5&&kitPart<4.5?(kitPart>3.5?.35:1.0):0.0;
+material.sheenColor*=kitFabric*(.1+.5*diffuseColor.rgb);
+material.clearcoat*=kitPart>4.5&&kitPart<5.5?1.0:0.0;`;
 /** Body material: shared textures, per-player uniforms. */
 export function kitMaterial({map,normalMap,mask,maskSmooth,layout},colours,decals,tint){
  // Rocketbox normal maps are DirectX style (green = down): lower lip, nose and chin undersides read >0.5.
- const m=new THREE.MeshStandardMaterial({map,normalMap,normalScale:new THREE.Vector2(1,-1),roughness:.7,metalness:0});
+ // Physical: fabric sheen on the kit and a clear coat on the boot uppers, both masked per part in the shader.
+ const m=new THREE.MeshPhysicalMaterial({map,normalMap,normalScale:new THREE.Vector2(1,-1),roughness:.7,metalness:0,sheen:1,sheenRoughness:.55,sheenColor:0xffffff,clearcoat:1,clearcoatRoughness:.28});
  const u=m.userData.kit={kitMask:{value:mask},kitMaskSmooth:{value:maskSmooth||mask},kitDecals:{value:decals},skinTint:{value:tint.clone()},kitPattern:{value:0},kitKeeper:{value:0},
   decalRect:{value:DECALS.map(k=>new THREE.Vector4(...layout.decals[k]))},decalCell:{value:DECALS.map(k=>{const [x,y,w,h]=CELLS[k];return new THREE.Vector4(x/512,y/512,w/512,h/512);})},
   decalFlip:{value:DECALS.map(k=>layout.flipped.includes(k)?1:0)}};
@@ -98,8 +104,8 @@ export function kitMaterial({map,normalMap,mask,maskSmooth,layout},colours,decal
  setKitColours(m,colours);
  m.onBeforeCompile=shader=>{Object.assign(shader.uniforms,u);
   shader.vertexShader=shader.vertexShader.replace('#include <common>',vertexHead).replace('#include <begin_vertex>','#include <begin_vertex>\nvKitBind=kitBind;');
-  shader.fragmentShader=shader.fragmentShader.replace('#include <common>',fragmentHead).replace('#include <map_fragment>',fragmentKit).replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=kitRough;');};
- m.customProgramCacheKey=()=> 'rocketbox-kit-v2';
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>',fragmentHead).replace('#include <map_fragment>',fragmentKit).replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=kitRough;').replace('#include <lights_physical_fragment>',kitPhysical);};
+ m.customProgramCacheKey=()=> 'rocketbox-kit-v3';
  return m;
 }
 export function setKitColours(m,c){
