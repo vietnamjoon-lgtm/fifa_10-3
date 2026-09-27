@@ -10,6 +10,7 @@ import {TEAMS} from './config.js';
 import {kitHooks} from './player.js';
 import {kitColours,kitMaterial,setKitColours,headMaterial,drawDecals,composePhotoHead,HAIR_STYLES,BEARDS} from './human-kit.js';
 import {cleanFace,FACE_SHAPE} from './face-settings.js';
+import {celebrationHands} from './celebrations.js';
 
 // Old joint -> new bones, from tools/human/maps/game13.json (index 0 is the player's right side).
 // Each bone takes the cumulative share of the old joint's local rotation. `align` turns the new limb's
@@ -47,7 +48,31 @@ export function bindData(scene){
  let height=0;scene.traverse(o=>{const a=o.geometry?.attributes.kitBind;if(a)for(let i=1;i<a.array.length;i+=3)height=Math.max(height,a.array[i]);});
  // Order: every bone after its parent.
  const order=[];const visit=n=>{order.push(n);for(const c of bones[n].children)if(c.isBone)visit(c.name);};visit('Hips');
- return {local,model,parent,correction,legTop,ankle,headY,height:height||1.82,hips:bones.Hips.position.clone(),order};
+ // Eye centre in the head bone's frame (Rocketbox eyes: 9.9 cm above and 8.6 cm in front of the head joint).
+ const eye=new THREE.Vector3(0,.099,.086).applyQuaternion(model.Head.clone().invert());
+ return {local,model,parent,correction,legTop,ankle,headY,height:height||1.82,hips:bones.Hips.position.clone(),order,eye,hands:handBind(bones,model,scenePosition)};
+}
+export const FINGERS=['Thumb','Index','Middle','Ring','Pinky'];
+/**
+ * Finger rest data per hand, in the model's rest space: F wrist -> middle knuckle, P palm normal, curl axes in
+ * each segment's own frame (turning the finger towards the palm) and the thumb swing that opens an L between
+ * thumb and index finger. Null when the model has no finger bones.
+ */
+function handBind(bones,model,at){
+ if(!bones.RightHandIndex1)return null;const out={};
+ for(const side of ['Right','Left']){
+  const hand=at(bones[side+'Hand']),knuckle=n=>at(bones[side+'Hand'+n+'1']);
+  const F=knuckle('Middle').sub(hand).normalize(),A=knuckle('Pinky').sub(knuckle('Index')).normalize(),P=new THREE.Vector3().crossVectors(F,A).normalize();
+  if(P.dot(new THREE.Vector3(-hand.x,0,0))<0)P.negate(); // arms hang at rest: palms face the thighs
+  const toLocal=(name,v)=>v.clone().applyQuaternion(model[name].clone().invert()).normalize();
+  const axes=FINGERS.map(f=>[1,2,3].map(s=>{const name=side+'Hand'+f+s,next=bones[side+'Hand'+f+(s+1)],prev=bones[side+'Hand'+f+(s-1)];
+   const dir=next?at(next).sub(at(bones[name])):at(bones[name]).sub(at(prev));return toLocal(name,new THREE.Vector3().crossVectors(dir.normalize(),P));}));
+  // L shape: the thumb turns out to the side of the index finger, square to it, in the palm plane.
+  const thumb=at(bones[side+'HandThumb2']).sub(at(bones[side+'HandThumb1'])).normalize(),lTarget=A.clone().negate().addScaledVector(F,.2).addScaledVector(P,-.15).normalize();
+  const swing=new THREE.Quaternion().setFromUnitVectors(thumb,lTarget),m=model[side+'HandThumb1'];
+  out[side]={F,P,index:knuckle('Index').sub(hand),axes,thumbL:m.clone().invert().multiply(swing).multiply(m)};
+ }
+ return out;
 }
 
 /** Rest-pose position of every vertex in metres (`kitBind`), for kit patterns. The file's positions are quantized
@@ -194,9 +219,72 @@ export function reachAnkles(rig,root,bones,m,bind,worldScale){
   low.getWorldQuaternion(ik.qp);foot.quaternion.copy(ik.qp.invert().multiply(ik.foot));foot.updateMatrixWorld(true);
  });
 }
+// Hands. Finger poses are curl amounts per finger (thumb ... little finger, 0 straight, 1 closed) plus `l`,
+// the thumb opened square to the index finger. Segment angles (radians) at curl 1:
+const CURL=[[.45,.6,.8],[1.35,1.55,1.05],[1.4,1.6,1.1],[1.4,1.6,1.1],[1.35,1.55,1.05]];
+/** Finger pose for one hand from the player's state. Pure, so it can be tested. */
+export function handPose({speed=0,keeper=false,state='',camera=null,side='Right'}={}){
+ const run=clamp((speed-2)/6,0,1);
+ // Relaxed hands curl more towards the little finger; sprinting closes them a little, keepers keep them open.
+ let curl=keeper?[.1,.08,.1,.12,.16]:state==='celebrate'?[.15,.12,.16,.2,.25]:[.22,.2,.28,.34,.4].map((c,i)=>c+run*(i?.3:.15)),l=0;
+ if(camera?.weight){const w=camera.weight,click=side==='Right'?camera.click:0,frame=[0,click*.55,1,1,1];curl=curl.map((c,i)=>c+(frame[i]-c)*w);l=w;}
+ return {curl,l};
+}
+const hq={q:new THREE.Quaternion(),a:new THREE.Quaternion()};
+function setFingers(bones,side,bind,pose){
+ bind.axes.forEach((axes,f)=>axes.forEach((axis,s)=>{const b=bones[side+'Hand'+FINGERS[f]+(s+1)],angle=CURL[f][s]*pose.curl[f];
+  b.quaternion.multiply(hq.q.setFromAxisAngle(axis,angle));
+  if(f===0&&s===0&&pose.l)b.quaternion.multiply(hq.a.identity().slerp(bind.thumbL,pose.l));}));
+}
+// The camera frame, in the head's rest frame (x the player's left, y up, z forward; metres from the eye centre):
+// a rectangle 17 cm in front of the eyes. The right hand holds the upper-right corner (index finger along the
+// top edge, thumb down, palm forward), the left hand the lower-left corner (index finger along the bottom
+// edge, thumb up, palm to the face).
+export const CAMERA_FRAME={distance:.17,centre:[-.018,.012],half:[.05,.027],
+ Right:{finger:[1,0,0],palm:[0,0,1],pole:[-1,-.9,-.2]},Left:{finger:[-1,0,0],palm:[0,0,-1],pole:[1,-1,-.2]}};
+const cam={eye:new THREE.Vector3(),head:new THREE.Quaternion(),scene:new THREE.Quaternion(),rot:new THREE.Quaternion(),hand:new THREE.Quaternion(),parent:new THREE.Quaternion(),
+ m1:new THREE.Matrix4(),m2:new THREE.Matrix4(),f:new THREE.Vector3(),p:new THREE.Vector3(),n:new THREE.Vector3(),goal:new THREE.Vector3(),wrist:new THREE.Vector3(),pole:new THREE.Vector3(),
+ s:new THREE.Vector3(),e:new THREE.Vector3(),w:new THREE.Vector3(),keep:[new THREE.Quaternion(),new THREE.Quaternion(),new THREE.Quaternion()]};
+const basis=(m,f,p)=>{cam.n.crossVectors(f,p).normalize();return m.makeBasis(f,p,cam.n);};
+/** Both hands to the camera frame by two-bone arm IK, blended over the retargeted arms by `weight`. */
+function reachCameraFrame(root,bones,bind,weight,click){
+ root.updateMatrixWorld(true);const headBone=bones.Head;
+ headBone.getWorldQuaternion(cam.head).multiply(cam.rot.copy(bind.model.Head).invert()); // rest head frame -> world
+ cam.eye.copy(bind.eye).applyMatrix4(headBone.matrixWorld);root.getWorldQuaternion(cam.scene);
+ const F=CAMERA_FRAME,scale=root.getWorldScale(cam.w).x;
+ for(const side of ['Right','Left']){
+  const h=bind.hands[side],c=F[side],sx=side==='Right'?-1:1,sy=side==='Right'?1:-1;
+  const arm=bones[side+'Arm'],fore=bones[side+'ForeArm'],hand=bones[side+'Hand'];
+  [arm,fore,hand].forEach((b,i)=>cam.keep[i].copy(b.quaternion));
+  // Hand rotation: rest (F, P) in world -> frame (finger, palm) in world.
+  cam.f.copy(h.F).applyQuaternion(cam.scene);cam.p.copy(h.P).applyQuaternion(cam.scene);basis(cam.m1,cam.f,cam.p);
+  cam.f.set(...c.finger).applyQuaternion(cam.head);cam.p.set(...c.palm).applyQuaternion(cam.head);basis(cam.m2,cam.f,cam.p);
+  cam.rot.setFromRotationMatrix(cam.m2.multiply(cam.m1.transpose()));
+  cam.hand.copy(cam.rot).multiply(cam.scene).multiply(bind.model[side+'Hand']);
+  // Index knuckle on the corner; the wrist sits behind it by the rest offset turned the same way.
+  cam.goal.set(F.centre[0]+sx*F.half[0],F.centre[1]+sy*F.half[1]-(side==='Right'?click*.012:0),F.distance).applyQuaternion(cam.head).add(cam.eye);
+  cam.wrist.copy(h.index).applyQuaternion(cam.scene).applyQuaternion(cam.rot).multiplyScalar(scale);cam.wrist.subVectors(cam.goal,cam.wrist);
+  // Two-bone IK, elbow towards the pole (out and down).
+  arm.getWorldPosition(cam.s);fore.getWorldPosition(cam.e);hand.getWorldPosition(cam.w);
+  const a=cam.s.distanceTo(cam.e),b=cam.e.distanceTo(cam.w);ik.dir.subVectors(cam.wrist,cam.s);const d=clamp(ik.dir.length(),Math.abs(a-b)+1e-4,a+b-1e-4);ik.dir.normalize();
+  cam.pole.set(...c.pole).applyQuaternion(cam.head);cam.pole.addScaledVector(ik.dir,-cam.pole.dot(ik.dir)).normalize();
+  const x=(a*a-b*b+d*d)/(2*d),y=Math.sqrt(Math.max(a*a-x*x,0));ik.k.copy(cam.s).addScaledVector(ik.dir,x).addScaledVector(cam.pole,y);
+  const elbow=ik.k.clone(),wrist=cam.s.clone().addScaledVector(ik.dir,d); // aim() reuses ik.dir
+  aim(arm,cam.e.clone(),elbow);hand.getWorldPosition(cam.w);aim(fore,cam.w.clone(),wrist);
+  fore.getWorldQuaternion(cam.parent);hand.quaternion.copy(cam.parent.invert().multiply(cam.hand));
+  if(weight<1)[arm,fore,hand].forEach((b,i)=>b.quaternion.copy(cam.keep[i].clone().slerp(b.quaternion,weight)));
+  [arm,fore,hand].forEach(b=>b.updateMatrixWorld(true));
+ }
+}
+/** Fingers for every player; for the camera celebration also both arms (after retarget and ankle IK). */
+export function poseHands(root,bones,bind,{speed=0,keeper=false,state='',camera=null}={}){
+ if(!bind.hands)return;
+ for(const side of ['Right','Left'])setFingers(bones,side,bind.hands[side],handPose({speed,keeper,state,camera,side}));
+ if(camera?.weight)reachCameraFrame(root,bones,bind,camera.weight,camera.click);
+}
 // Expressions (Rocketbox ARKit shapes, tools/human/rocketbox/01_convert.py): blinking, eyes on the ball,
-// running effort, strike effort, celebration shouts and the camera celebration's wink and smile.
-export const EXPRESSIONS=['expr_blinkL','expr_blinkR','expr_squint','expr_wide','expr_jawOpen','expr_funnel','expr_smile','expr_stretch','expr_browUp','expr_browDown','expr_cheekPuff','expr_press','expr_eyesLeft','expr_eyesRight','expr_eyesUp','expr_eyesDown'];
+// running effort, strike effort, celebration shouts and the camera celebration's grin (eyes crinkled).
+export const EXPRESSIONS=['expr_blinkL','expr_blinkR','expr_squint','expr_wide','expr_jawOpen','expr_funnel','expr_smile','expr_stretch','expr_browUp','expr_browDown','expr_cheekPuff','expr_press','expr_eyesLeft','expr_eyesRight','expr_eyesUp','expr_eyesDown','expr_grin'];
 /**
  * Target expression weights for one frame. `look` is the ball direction in the head frame (yaw, pitch in
  * radians, positive = to the player's left / up) or null. Pure, so it can be tested.
@@ -210,7 +298,7 @@ export function expressionTargets({time=0,seed=0,speed=0,action=null,state='',ce
  e.expr_squint=.5*run;e.expr_stretch=.2*run;e.expr_jawOpen=run*(.18+.08*Math.sin(time*7+seed));e.expr_cheekPuff=.18*run*Math.max(0,Math.sin(time*3.5+seed));e.expr_browDown=.25*run;
  if(action&&Math.abs((action.elapsed??0)-(action.contactAt??0))<.28){e.expr_press=.85;e.expr_squint=Math.max(e.expr_squint,.6);e.expr_browDown=.55;e.expr_jawOpen=0;}
  if(state==='celebrate'){
-  if(celebration==='camera'){e.expr_blinkL=1;e.expr_blinkR=0;e.expr_smile=.75;e.expr_squint=.35;e.expr_jawOpen=.05;e.expr_browDown=0;}
+  if(celebration==='camera'){e.expr_grin=1;e.expr_smile=.35;e.expr_jawOpen=.1;e.expr_squint=.45;e.expr_blinkL=.25;e.expr_blinkR=.12;e.expr_browUp=.2;e.expr_browDown=0;}
   else{const shout=.9+.1*Math.sin(time*9+seed);e.expr_jawOpen=shout;e.expr_browUp=.8;e.expr_stretch=.6;e.expr_wide=.45;e.expr_squint=0;e.expr_blinkL=e.expr_blinkR=0;}
  }else if(speed<.3&&!action)e.expr_smile=.12+.1*Math.max(0,Math.sin(time*.45+seed));
  if(look&&state!=='celebrate'){e.expr_eyesLeft=clamp(look[0]/.55,0,1);e.expr_eyesRight=clamp(-look[0]/.55,0,1);e.expr_eyesUp=clamp(look[1]/.35,0,1);e.expr_eyesDown=clamp(-look[1]/.35,0,1);}
@@ -254,6 +342,8 @@ function attach(rig){
   }
   bones.Hips.position.set(bind.hips.x+rig.hips.position.x*toModel,bind.hips.y+hipsLift+(rig.hips.position.y-m.hipY)*toModel,bind.hips.z+rig.hips.position.z*toModel);
   reachAnkles(rig,root,bones,m,bind,worldScale);
+  const p=rig.animationPlayer||{};
+  poseHands(root,bones,bind,{speed:rig.animationSpeed||0,keeper:look.keeper,state:rig.motionState,camera:rig.motionState==='celebrate'?celebrationHands(p,rig.animationTime||0):null});
  },dispose(){live.delete(rig);root.removeFromParent();for(const mat of Object.values(materials))mat?.dispose();decals.dispose();rig.human.photoTexture?.dispose();for(const s of skeletons)s.dispose();}};
  decalsFor(rig);live.add(rig);rig.human.sync();
  // A saved photo face replaces the painted face (the texture is per player).

@@ -9,6 +9,7 @@ const {JOINT_BONES,bindData,retarget,humanLook,bodyShape,reachAnkles,faceShape,A
 const {bodyMetrics,BODY_PRESETS}=await import('../src/body-shape.js');
 const {kitColours,shirtName,DECALS,headToAtlas,photoWeight}=await import('../src/human-kit.js');
 const MODELS=['male_02','male_03'];
+const hands=await import('../src/human-body.js'),{celebrationHands}=await import('../src/celebrations.js');
 
 // The 22-bone skeleton straight from a model's node table (no meshes needed).
 function glbSkeleton(model='male_02'){
@@ -121,14 +122,14 @@ test('face shapes follow the sliders and default faces differ per player',()=>{
  for(const v of Object.values(a))assert.ok(Math.abs(v)<=.7);
 });
 
-test('expressions: blinks, running effort, strike effort, shouting and the camera wink',()=>{
+test('expressions: blinks, running effort, strike effort, shouting and the camera grin',()=>{
  const within=(e)=>{for(const [k,v] of Object.entries(e))assert.ok(v>=0&&v<=1,`${k} ${v}`);};
  // Blinks come and go (0.16 s every 2.5-5 s).
  let closed=0;for(let t=0;t<10;t+=.01){const e=expressionTargets({time:t,seed:5});within(e);if(e.expr_blinkL>.5)closed++;}assert.ok(closed>2&&closed<60,`${closed}`);
  const run=expressionTargets({time:1,seed:5,speed:8}),stand=expressionTargets({time:1,seed:5,speed:0});assert.ok(run.expr_squint>stand.expr_squint&&run.expr_jawOpen>stand.expr_jawOpen);
  const kick=expressionTargets({time:1,seed:5,speed:5,action:{elapsed:.3,contactAt:.32}});assert.ok(kick.expr_press>.5&&kick.expr_jawOpen===0);
  const shout=expressionTargets({time:1,seed:5,state:'celebrate'});assert.ok(shout.expr_jawOpen>.7&&shout.expr_browUp>.5);
- const camera=expressionTargets({time:1,seed:5,state:'celebrate',celebration:'camera'});assert.ok(camera.expr_blinkL===1&&camera.expr_blinkR===0&&camera.expr_smile>.5);
+ const camera=expressionTargets({time:1,seed:5,state:'celebrate',celebration:'camera'});assert.ok(camera.expr_grin===1&&camera.expr_jawOpen>0&&camera.expr_blinkL<.5&&camera.expr_blinkR<.5);
  const left=expressionTargets({look:[.4,-.2]});assert.ok(left.expr_eyesLeft>.5&&left.expr_eyesRight===0&&left.expr_eyesDown>.3);
  // Every expression the game drives exists in both models.
  for(const model of MODELS){const b=fs.readFileSync(new URL(`../assets/human/rocketbox/${model}.glb`,import.meta.url)),j=JSON.parse(b.subarray(20,20+b.readUInt32LE(12)).toString());for(const k of EXPRESSIONS)assert.ok(j.meshes[0].extras.targetNames.includes(k),`${model} ${k}`);}
@@ -139,4 +140,40 @@ test('hair style and beard come from the profile, with a stable beard for player
  assert.equal(humanLook({beard:'beard'},3).beard,2);assert.equal(humanLook({beard:'none'},3).beard,0);
  assert.equal(humanLook({uid:'x1'},4).beard,humanLook({uid:'x1'},4).beard);
  const counts=[0,0,0];for(let i=0;i<200;i++)counts[humanLook({uid:'p'+i},i).beard]++;assert.ok(counts.every(c=>c>20),JSON.stringify(counts));
+});
+
+test('fingers: every finger bone exists, relaxed hands curl towards the palm, sprinting closes them more',()=>{
+ const {FINGERS,handPose,poseHands}=hands;
+ for(const model of MODELS){const {scene,bones}=glbSkeleton(model),data=bindData(scene);assert.ok(data.hands,model);
+  for(const side of ['Left','Right'])for(const f of FINGERS)for(const s of [1,2,3])assert.ok(bones[side+'Hand'+f+s],`${model} ${side}${f}${s}`);
+  // Fingertip (third segment joint) moves along the palm normal when the hand closes.
+  const tip=()=>bones.RightHandIndex3.getWorldPosition(new THREE.Vector3()),hand=()=>bones.RightHand.getWorldPosition(new THREE.Vector3());
+  scene.updateMatrixWorld(true);const straight=tip().sub(hand()).dot(data.hands.Right.P);
+  poseHands(scene,bones,data,{speed:0});scene.updateMatrixWorld(true);const relaxed=tip().sub(hand()).dot(data.hands.Right.P);
+  for(const n of data.order)bones[n].quaternion.copy(data.local[n]);poseHands(scene,bones,data,{speed:8});scene.updateMatrixWorld(true);const sprint=tip().sub(hand()).dot(data.hands.Right.P);
+  assert.ok(relaxed>straight+.005&&sprint>relaxed,`${model} ${straight} ${relaxed} ${sprint}`);
+ }
+ const keeper=handPose({keeper:true}),field=handPose({});assert.ok(keeper.curl.every((c,i)=>c<field.curl[i]));
+});
+
+test('camera celebration: hands come up after the run-in, the right index finger clicks twice',()=>{
+ const at=t=>celebrationHands({celebration:'camera',celebrationStart:0},t);
+ assert.equal(at(1).weight,0);assert.equal(at(2.2).weight,1);assert.equal(at(6).weight,1);assert.equal(celebrationHands({celebration:'c12-1'},3),null);
+ let clicks=0,was=false;for(let t=0;t<6;t+=.01){const on=at(t).click>.5;if(on&&!was)clicks++;was=on;}assert.equal(clicks,2);
+ const pose=hands.handPose({camera:{weight:1,click:0},side:'Left'});assert.deepEqual(pose.curl.slice(0,2),[0,0]);assert.ok(pose.curl.slice(2).every(c=>c===1)&&pose.l===1);
+});
+
+test('camera frame: index knuckles on the frame corners in front of the eyes, fingers along the edges, thumbs square',()=>{
+ const {CAMERA_FRAME:F,poseHands}=hands;
+ for(const model of MODELS){const {scene,bones}=glbSkeleton(model),rig=fixture({}),data=bindData(scene),m=rig.bodyMetrics;scene.scale.setScalar(1.81/1.82/m.scale);rig.root.add(scene);
+  for(const yaw of [0,2.4]){rig.root.rotation.y=yaw;rig.root.updateMatrixWorld(true);retarget(rig,bones,data);poseHands(scene,bones,data,{state:'celebrate',camera:{weight:1,click:0}});scene.updateMatrixWorld(true);
+   const head=bones.Head.getWorldQuaternion(new THREE.Quaternion()).multiply(data.model.Head.clone().invert()),eye=data.eye.clone().applyMatrix4(bones.Head.matrixWorld);
+   for(const [side,sx,sy] of [['Right',-1,1],['Left',1,-1]]){
+    const want=new THREE.Vector3(F.centre[0]+sx*F.half[0],F.centre[1]+sy*F.half[1],F.distance).applyQuaternion(head).add(eye),at=n=>bones[side+n].getWorldPosition(new THREE.Vector3());
+    assert.ok(at('HandIndex1').distanceTo(want)<.015,`${model} ${side} ${at('HandIndex1').distanceTo(want)}`);
+    const index=at('HandIndex3').sub(at('HandIndex1')).normalize(),thumb=at('HandThumb3').sub(at('HandThumb2')).normalize();
+    assert.ok(index.dot(new THREE.Vector3(...F[side].finger).applyQuaternion(head))>.85,`${model} ${side} index`);
+    assert.ok(thumb.dot(new THREE.Vector3(0,-sy,0).applyQuaternion(head))>.6,`${model} ${side} thumb ${thumb.dot(new THREE.Vector3(0,-sy,0).applyQuaternion(head))}`);
+   }}
+ }
 });

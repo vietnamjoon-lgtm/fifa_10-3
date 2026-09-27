@@ -1,5 +1,5 @@
-# Rocketbox football player -> game GLB. Keeps the 20 body bones (face, eye and finger weights go to Head /
-# Hand), renames them to the Mixamo names the game map uses, puts the model in metres facing -Y (glTF +Z),
+# Rocketbox football player -> game GLB. Keeps the 22 body bones and the 30 finger bones (face and eye
+# weights go to Head), renames them to the Mixamo names the game map uses, puts the model in metres facing -Y (glTF +Z),
 # and writes a UV/region table for the kit mask (02_textures.py).
 # python -m bpy is not needed: run with a Python that has the `bpy` module (pip bpy==5.0.1) or Blender:
 #   python tools/human/rocketbox/01_convert.py <Rocketbox checkout> <avatar id, e.g. Sports_Male_02>
@@ -29,6 +29,10 @@ EXPRESSIONS = {
  # Eyes: 'left'/'right' are the player's own left and right.
  'expr_eyesLeft': ['AK_15_EyeLookOutLeft', 'AK_14_EyeLookInRight'], 'expr_eyesRight': ['AK_16_EyeLookOutRight', 'AK_13_EyeLookInLeft'],
  'expr_eyesUp': ['AK_17_EyeLookUpLeft', 'AK_18_EyeLookUpRight'], 'expr_eyesDown': ['AK_11_EyeLookDownLeft', 'AK_12_EyeLookDownRight'],
+ # A full grin (camera celebration): smile with raised cheeks, upper lip lifted off the teeth, dimples.
+ 'expr_grin': ['AK_44_MouthSmileLeft', 'AK_45_MouthSmileRight', 'AK_07_CheekSquintLeft', 'AK_08_CheekSquintRight', ('AK_48_MouthUpperUpLeft', .6),
+               ('AK_49_MouthUpperUpRight', .6), ('AK_34_MouthLowerDownLeft', .45), ('AK_35_MouthLowerDownRight', .45), ('AK_28_MouthDimpleLeft', .5),
+               ('AK_29_MouthDimpleRight', .5)],
 }
 
 KEEP = {
@@ -39,6 +43,12 @@ KEEP = {
  'Bip01 L Thigh': 'LeftUpLeg', 'Bip01 L Calf': 'LeftLeg', 'Bip01 L Foot': 'LeftFoot', 'Bip01 L Toe0': 'LeftToeBase',
  'Bip01 R Thigh': 'RightUpLeg', 'Bip01 R Calf': 'RightLeg', 'Bip01 R Foot': 'RightFoot', 'Bip01 R Toe0': 'RightToeBase',
 }
+# Fingers (Biped Finger0 = thumb ... Finger4 = little finger, three segments each): the game poses them
+# (relaxed, fists, the camera frame), src/human-body.js poseHands.
+for side, S in (('L', 'Left'), ('R', 'Right')):
+    for f, finger in enumerate(('Thumb', 'Index', 'Middle', 'Ring', 'Pinky')):
+        for seg in range(3):
+            KEEP[f'Bip01 {side} Finger{f}{seg or ""}'] = f'{S}Hand{finger}{seg + 1}'
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.fbx(filepath=fbx, automatic_bone_orientation=True)
@@ -142,11 +152,12 @@ if source:
     base = [d.co.copy() for d in basis.data]
     deltas = {}
     for key, parts in EXPRESSIONS.items():
-        missing = [p for p in parts if p not in source]
+        parts = [p if isinstance(p, tuple) else (p, 1.0) for p in parts]  # (shape, amount)
+        missing = [p for p, _ in parts if p not in source]
         if missing:
             print('MISSING', key, missing)
             continue
-        deltas[key] = [sum((source[p].data[i].co - base[i] for p in parts), Vector()) for i in range(len(base))]
+        deltas[key] = [sum(((source[p].data[i].co - base[i]) * f for p, f in parts), Vector()) for i in range(len(base))]
     for k in list(me0.shape_keys.key_blocks)[1:]:
         mesh.shape_key_remove(k)
     for key, d in deltas.items():
@@ -223,7 +234,10 @@ print('WRAPPED', wrapped)
 names = {g.index: g.name for g in mesh.vertex_groups}
 def strongest(vi):
     gs = me.vertices[vi].groups
-    return names[max(gs, key=lambda g: g.weight).group] if len(gs) else 'Hips'
+    if not len(gs):
+        return 'Hips'
+    n = names[max(gs, key=lambda g: g.weight).group]
+    return n[:n.index('Hand') + 4] if 'Hand' in n else n  # fingers count as the hand for the kit mask
 body_index = [i for i, m in enumerate(me.materials) if m.name == 'body'][0]
 tris = []
 me.calc_loop_triangles()
