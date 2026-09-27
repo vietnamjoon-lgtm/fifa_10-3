@@ -43,11 +43,11 @@ export function bindData(scene){
   const child=align&&bones[name].children.find(c=>c.isBone);
   correction[name]=child?new THREE.Quaternion().setFromUnitVectors(scenePosition(child).sub(scenePosition(bones[name])).normalize(),DOWN):identity.clone();
  }
- const legTop=(scenePosition(bones.LeftUpLeg).y+scenePosition(bones.RightUpLeg).y)/2,ankle=(scenePosition(bones.LeftFoot).y+scenePosition(bones.RightFoot).y)/2;
+ const legTop=(scenePosition(bones.LeftUpLeg).y+scenePosition(bones.RightUpLeg).y)/2,ankle=(scenePosition(bones.LeftFoot).y+scenePosition(bones.RightFoot).y)/2,headY=scenePosition(bones.Head).y;
  let height=0;scene.traverse(o=>{const a=o.geometry?.attributes.kitBind;if(a)for(let i=1;i<a.array.length;i+=3)height=Math.max(height,a.array[i]);});
  // Order: every bone after its parent.
  const order=[];const visit=n=>{order.push(n);for(const c of bones[n].children)if(c.isBone)visit(c.name);};visit('Hips');
- return {local,model,parent,correction,legTop,ankle,height:height||1.82,hips:bones.Hips.position.clone(),order};
+ return {local,model,parent,correction,legTop,ankle,headY,height:height||1.82,hips:bones.Hips.position.clone(),order};
 }
 
 /** Rest-pose position of every vertex in metres (`kitBind`), for kit patterns. The file's positions are quantized
@@ -127,11 +127,21 @@ export function retarget(rig,bones,data){
 }
 const clamp=THREE.MathUtils.clamp;
 /** Morph weights and joint lengths from the saved body sliders (src/body-shape.js bodyMetrics). */
+/**
+ * Footballer proportions on top of the Rocketbox body (measured at 1.82 m: hip joint 49% of height, head 1/7.4
+ * of it, shoulder joints 78.5%). A footballer is closer to hips 52%, head 1/8, shoulders 81%, with a narrower
+ * waist and fuller thighs and calves, so the legs are lengthened, the head scaled down and the shoulders
+ * widened before the whole body is scaled to the profile height.
+ */
+export const ATHLETE={leg:1.075,head:.92,shoulders:1.04,morphs:{body_muscle:.2,body_chest:.15,body_waist:-.25,body_thigh:.25,body_calf:.15}};
 export function bodyShape(m){
- const b=m.body,pct=(v,range)=>clamp((v-100)/range,-1,1.5);
- return {morphs:{body_heavy:clamp((m.width-1)/.22+m.soft*.35,-1,1.5),body_muscle:clamp(m.muscle,-1,1),body_chest:pct(b.chest,25),body_waist:pct(b.waist,30),
-  body_thigh:pct(b.thigh,30),body_calf:pct(b.calf,30),body_arms:pct((b.upperArm+b.forearm)/2,30)},leg:b.legLength/100,arm:b.armLength/100,shoulders:b.shoulders/100};
+ const b=m.body,pct=(v,range)=>(v-100)/range,base=ATHLETE.morphs,out=(k,v)=>clamp((base[k]||0)+v,-1,1.5);
+ return {morphs:{body_heavy:out('body_heavy',(m.width-1)/.22+m.soft*.35),body_muscle:out('body_muscle',m.muscle),body_chest:out('body_chest',pct(b.chest,25)),body_waist:out('body_waist',pct(b.waist,30)),
+  body_thigh:out('body_thigh',pct(b.thigh,30)),body_calf:out('body_calf',pct(b.calf,30)),body_arms:out('body_arms',pct((b.upperArm+b.forearm)/2,30))},
+  leg:ATHLETE.leg*b.legLength/100,arm:b.armLength/100,shoulders:ATHLETE.shoulders*b.shoulders/100,head:ATHLETE.head};
 }
+/** Standing height of the model (model units) after the proportion changes, head top to sole. */
+export function shapedHeight(bind,shape){return bind.height+(shape.leg-1)*(bind.legTop-bind.ankle)-(1-shape.head)*(bind.height-bind.headY);}
 const seeded=text=>{let h=2166136261;for(const c of String(text))h=Math.imul(h^c.charCodeAt(0),16777619);return ()=>((h=Math.imul(h^h>>>15,2246822507)^Math.imul(h^h>>>13,3266489909))>>>0)/4294967296;};
 /** Face-shape morph weights from the saved face sliders; players who never sculpted a face get their own
  * stable variation (from uid or number) so a squad does not share one face. */
@@ -143,14 +153,15 @@ export function faceShape(profile={},number=10){
  return out;
 }
 /** Sets morphs and bone lengths on one model; returns how much the hips rise for longer legs (model units). */
-function applyBodyShape(bones,meshes,m,bind,face={}){
- const shape=bodyShape(m),morphs={...shape.morphs,...face};
+function applyBodyShape(bones,meshes,shape,bind,face={}){
+ const morphs={...shape.morphs,...face};
  for(const mesh of meshes){const d=mesh.morphTargetDictionary;if(!d)continue;for(const [k,v] of Object.entries(morphs))if(k in d)mesh.morphTargetInfluences[d[k]]=v;}
  for(const side of ['Left','Right']){
   for(const n of ['Leg','Foot'])bones[side+n].position.multiplyScalar(shape.leg);
   for(const n of ['ForeArm','Hand'])bones[side+n].position.multiplyScalar(shape.arm);
   bones[side+'Arm'].position.multiplyScalar(shape.shoulders);
  }
+ bones.Head.scale.setScalar(shape.head);
  return (shape.leg-1)*(bind.legTop-bind.ankle);
 }
 const ik={a:new THREE.Vector3(),b:new THREE.Vector3(),c:new THREE.Vector3(),t:new THREE.Vector3(),k:new THREE.Vector3(),pole:new THREE.Vector3(),dir:new THREE.Vector3(),
@@ -192,8 +203,8 @@ function attach(rig){
   hair:a.hair&&new THREE.MeshStandardMaterial({map:a.hair,color:hairTint,alphaTest:.5,side:THREE.DoubleSide,roughness:.8})};
  for(const mesh of meshes){mesh.material=materials[mesh.material.name]||materials.body;mesh.frustumCulled=false;mesh.castShadow=true;mesh.receiveShadow=true;}
  // Profile height, limb lengths and girth; the feet then reach the old rig's ankles by IK every frame.
- const worldScale=m.height/bind.height,toModel=m.scale/worldScale;root.scale.setScalar(1/toModel);
- const hipsLift=applyBodyShape(bones,meshes,m,bind,faceShape(look.profile,look.number));
+ const shape=bodyShape(m),worldScale=m.height/shapedHeight(bind,shape),toModel=m.scale/worldScale;root.scale.setScalar(1/toModel);
+ const hipsLift=applyBodyShape(bones,meshes,shape,bind,faceShape(look.profile,look.number));
  // Hide the old body (its bones keep updating) but keep the blob shadow.
  rig.hips.visible=false;for(const c of rig.root.children)if(c.isMesh&&c.geometry?.type!=='CircleGeometry')c.visible=false;
  rig.details=[];rig.lod=[];rig.root.add(root);

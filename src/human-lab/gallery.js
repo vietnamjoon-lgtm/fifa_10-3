@@ -42,7 +42,8 @@ function place(){
  $('info').textContent=`${view==='front'?'앞':view==='back'?'뒤':'옆'} · ${running?'달리기':'서 있기'} · 구단 유니폼과 체형(키 1.66~1.94 m, 마름·근육·통통, 다리 길이)`;}
 for(const v of ['front','back','side'])$(v).onclick=()=>{view=v;place();};$('face').onclick=()=>{focus=view==='face'?(focus+1)%players.length:0;view='face';place();};$('run').onclick=()=>{running=!running;place();};
 function step(dt){time+=dt;for(const {rig,profile} of players){const speed=running?5:0;animatePlayer(rig,speed,dt,time,false,{...profile,x:rig.root.position.x,z:0,vx:0,vz:speed,yaw:0,id:profile.number});}}
-let last=performance.now();function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;step(dt);renderer.render(scene,camera);}
+let last=performance.now();function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,Math.max(0,(now-last)/1000));/* the first rAF time can precede last */last=now;step(dt);renderer.render(scene,camera);}
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 window.setView=(v,r=running,i=focus)=>{view=v;running=r;focus=i;step(1/60);place();renderer.render(scene,camera);};
+window.galleryPlayers=players; // for checks from the browser console
 place();requestAnimationFrame(loop);

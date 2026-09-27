@@ -5,7 +5,7 @@ import {register} from 'node:module';
 import * as THREE from '../vendor/three.module.js';
 import {fixture} from '../tools/human-fixture.mjs';
 register('../tools/three-loader.mjs',import.meta.url);
-const {JOINT_BONES,bindData,retarget,humanLook,bodyShape,reachAnkles,faceShape}=await import('../src/human-body.js');
+const {JOINT_BONES,bindData,retarget,humanLook,bodyShape,reachAnkles,faceShape,ATHLETE,shapedHeight}=await import('../src/human-body.js');
 const {bodyMetrics,BODY_PRESETS}=await import('../src/body-shape.js');
 const {kitColours,shirtName,DECALS,headToAtlas,photoWeight}=await import('../src/human-kit.js');
 const MODELS=['male_02','male_03'];
@@ -77,12 +77,20 @@ test('decal rectangles sit inside the texture and the kit mask marks every part'
  for(const [id,a] of Object.entries(layout.avatars))for(const f of [a.model,a.body,a.head,a.bodyNormal,a.headNormal,a.hair].filter(Boolean))assert.ok(fs.existsSync(new URL(`../assets/human/rocketbox/${f}`,import.meta.url)),`${id} ${f}`);
 });
 
-test('body sliders drive the shape morphs in the right direction and default to neutral',()=>{
- const base=bodyShape(bodyMetrics({}));for(const [k,v] of Object.entries(base.morphs))assert.ok(Math.abs(v)<.2,`${k} ${v}`);assert.equal(base.leg,1);
+test('body sliders move the shape morphs away from the footballer base in the right direction',()=>{
+ const base=bodyShape(bodyMetrics({}));for(const [k,v] of Object.entries(base.morphs))assert.ok(Math.abs(v-(ATHLETE.morphs[k]||0))<.2,`${k} ${v}`);
+ assert.equal(base.leg,ATHLETE.leg);assert.equal(base.head,ATHLETE.head);
  const sturdy=bodyShape(bodyMetrics({body:BODY_PRESETS.sturdy.values})),slim=bodyShape(bodyMetrics({body:BODY_PRESETS.slim.values,weight:62}));
- assert.ok(sturdy.morphs.body_muscle>.4&&sturdy.morphs.body_chest>0&&sturdy.morphs.body_thigh>0);
- assert.ok(slim.morphs.body_heavy<0&&slim.morphs.body_waist<0&&slim.morphs.body_muscle<0);
- assert.ok(bodyShape(bodyMetrics({body:{legLength:108}})).leg>1);
+ assert.ok(sturdy.morphs.body_muscle>base.morphs.body_muscle+.4&&sturdy.morphs.body_chest>base.morphs.body_chest&&sturdy.morphs.body_thigh>base.morphs.body_thigh);
+ assert.ok(slim.morphs.body_heavy<0&&slim.morphs.body_waist<base.morphs.body_waist&&slim.morphs.body_muscle<base.morphs.body_muscle);
+ assert.ok(bodyShape(bodyMetrics({body:{legLength:108}})).leg>base.leg);
+});
+
+test('footballer proportions: hips above half the height, head about an eighth',()=>{
+ for(const model of MODELS){const {scene}=glbSkeleton(model),bind=bindData(scene),shape=bodyShape(bodyMetrics({}));
+  // Rocketbox top of head (kitBind is not available here): Head joint + 0.218 m.
+  bind.height=bind.headY+.218;const h=shapedHeight(bind,shape),hip=bind.legTop+(shape.leg-1)*(bind.legTop-bind.ankle),head=(bind.height-bind.headY+.03)*shape.head;
+  assert.ok(hip/h>.51&&hip/h<.54,`${model} hips ${hip/h}`);assert.ok(h/head>7.6&&h/head<8.6,`${model} heads ${h/head}`);}
 });
 
 test('ankle IK puts the model ankles on the old rig ankles',()=>{
