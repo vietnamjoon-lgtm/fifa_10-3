@@ -1,12 +1,38 @@
-import {identityFromLandmarks} from './face-identity.js';
-import {cleanFace} from './face-settings.js';
-// Fit shape proportions only. A single image cannot determine the hidden skull surface.
+import {FACE_ANCHORS,identityFromLandmarks} from './face-identity.js';
+import {cleanFace,FACE_SHAPE} from './face-settings.js';
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+// A slider ratio of 1 is this same proportion measured on FACE_ANCHORS itself (the game's neutral head, also
+// used by identityWarp) -- so a photo shaped like the neutral head measures as neutral, and the photo's own
+// ratio divided by this reference is clamped into FACE_SHAPE's [min,max] for a matching deviation. Only
+// proportions a single frontal photo can read off the image plane are estimated (width, jaw width,
+// lower-face/nose length, nose and mouth width, eye spacing); depth, cheek fullness, lip thickness and brow
+// height need a profile or shading cues a flat photo does not give reliably, so they stay at 1
+// (identityFromLandmarks separately warps the legacy sculpted head's actual geometry).
+const REFERENCE=(()=>{const p=id=>({x:FACE_ANCHORS[id][0],y:FACE_ANCHORS[id][1]}),dist=(a,b)=>Math.hypot(p(a).x-p(b).x,p(a).y-p(b).y),avg=(a,b,k)=>(p(a)[k]+p(b)[k])/2;
+ const fw=dist(234,454),fh=dist(10,152),eyes=Math.hypot(avg(33,133,'x')-avg(362,263,'x'),avg(33,133,'y')-avg(362,263,'y')),lowerFace=Math.hypot(p(152).x-avg(13,14,'x'),p(152).y-avg(13,14,'y'));
+ return {widthToHeight:fw/fh,jawToWidth:dist(172,397)/fw,lowerFaceToHeight:lowerFace/fh,noseLenToHeight:dist(6,2)/fh,noseWidthToEyes:dist(129,358)/eyes,mouthToEyes:dist(61,291)/eyes,eyesToWidth:eyes/fw};
+})();
+function estimateShape(points,width,height,fw,fh){
+ const p=i=>({x:points[i].x*width,y:points[i].y*height}),dist=(a,b)=>Math.hypot(p(a).x-p(b).x,p(a).y-p(b).y),avg=(a,b,k)=>(p(a)[k]+p(b)[k])/2;
+ const eyes=Math.hypot(avg(33,133,'x')-avg(362,263,'x'),avg(33,133,'y')-avg(362,263,'y'));
+ const lowerFace=Math.hypot(p(152).x-avg(13,14,'x'),p(152).y-avg(13,14,'y')),noseLen=dist(6,2),jaw=dist(172,397),noseWidth=dist(129,358),mouth=dist(61,291);
+ const shape=cleanFace().shape;
+ const set=(key,measured,reference)=>{const [,min,max]=FACE_SHAPE[key],ratio=measured/reference;shape[key]=Number.isFinite(ratio)?clamp(ratio,min,max):1;};
+ set('width',fw/fh,REFERENCE.widthToHeight);set('jaw',jaw/fw,REFERENCE.jawToWidth);set('chin',lowerFace/fh,REFERENCE.lowerFaceToHeight);
+ set('nose',noseLen/fh,REFERENCE.noseLenToHeight);set('noseWidth',noseWidth/eyes,REFERENCE.noseWidthToEyes);
+ set('mouth',mouth/eyes,REFERENCE.mouthToEyes);set('eyes',eyes/fw,REFERENCE.eyesToWidth);
+ return shape;
+}
+// Fit shape proportions. A single image cannot determine the hidden skull surface (depth, cheek fullness,
+// lip thickness, brow height stay neutral), but face width, jaw width, lower-face/nose length, nose and
+// mouth width and eye spacing are read off the image plane and drive both the legacy sculpted head's shape
+// sliders and, through them, the Rocketbox model's face_* morphs (src/human-body.js faceShape()).
 export function proportionsFromLandmarks(points,width,height){if(!Array.isArray(points)||points.length<468)throw Error('얼굴 윤곽을 찾지 못했습니다. 정면 사진을 사용해 주세요.');if(points.some(p=>![p.x,p.y,p.z].every(Number.isFinite)))throw Error('얼굴 위치를 읽지 못했습니다.');
  const p=i=>({x:points[i].x*width,y:points[i].y*height,z:points[i].z*width}),dist=(a,b)=>Math.hypot(p(a).x-p(b).x,p(a).y-p(b).y),avg=(a,b,k)=>(p(a)[k]+p(b)[k])/2;
  const fw=dist(234,454),fh=dist(10,152);if(fw<40||fh<55)throw Error('사진에서 얼굴이 너무 작습니다. 얼굴을 더 크게 잘라 주세요.');
  const eyeL={x:avg(33,133,'x'),y:avg(33,133,'y')},eyeR={x:avg(362,263,'x'),y:avg(362,263,'y')};
  if(Math.abs(p(1).x-(eyeL.x+eyeR.x)/2)>fw*.22)throw Error('앞모습은 카메라를 정면으로 보는 사진을 사용해 주세요.');
- const shape=cleanFace().shape,identity=identityFromLandmarks(points,width,height);
+ const shape=estimateShape(points,width,height,fw,fh),identity=identityFromLandmarks(points,width,height);
  if(!identity)throw Error('얼굴 비율을 안정적으로 읽지 못했습니다. 정면 사진을 사용해 주세요.');
  return {shape,identity,anchors:{cheeks:[p(205),p(425)],forehead:p(151)},landmarkCount:points.length};
 }

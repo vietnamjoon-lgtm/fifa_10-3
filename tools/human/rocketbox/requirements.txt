@@ -1,0 +1,4 @@
+# For detect_landmarks.py only (one-time face-landmark calibration). Not used by the shipped game.
+# Pinned to 0.10.14: the legacy mediapipe.solutions.face_mesh API this script uses was dropped in 1.0.
+mediapipe==0.10.14
+opencv-python==4.10.0.84

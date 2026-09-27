@@ -7,7 +7,7 @@ import {fixture} from '../tools/human-fixture.mjs';
 register('../tools/three-loader.mjs',import.meta.url);
 const {JOINT_BONES,bindData,retarget,humanLook,bodyShape,reachAnkles,faceShape,ATHLETE,shapedHeight,expressionTargets,EXPRESSIONS}=await import('../src/human-body.js');
 const {bodyMetrics,BODY_PRESETS}=await import('../src/body-shape.js');
-const {kitColours,shirtName,DECALS,headToAtlas,photoWeight}=await import('../src/human-kit.js');
+const {kitColours,shirtName,DECALS,headToAtlas,photoWeight,composePhotoHead,FACE_OVAL}=await import('../src/human-kit.js');
 const MODELS=['male_02','male_03'];
 const hands=await import('../src/human-body.js'),{celebrationHands}=await import('../src/celebrations.js');
 
@@ -191,4 +191,13 @@ test('photo mouth and nostrils are pulled onto the model mouth and nose, continu
  // No jumps across the edges of the warped areas.
  for(const v of [.32,.345,.37,.40,.44,.47])for(let d=0;d<.2;d+=.002)assert.ok(Math.abs(headToAtlas(.5+d+.002,v)[0]-headToAtlas(.5+d,v)[0])<.005,`${v} ${d}`);
  for(let v=.25;v<.5;v+=.002)assert.ok(Math.abs(headToAtlas(.53,v+.002)[0]-headToAtlas(.53,v)[0])<.005,`v ${v}`);
+});
+
+test('the triangle-warp face oval is a real, closed MediaPipe landmark loop and composePhotoHead still accepts the legacy 2-argument call',()=>{
+ assert.equal(FACE_OVAL.length,36);
+ for(const i of FACE_OVAL)assert.ok(Number.isInteger(i)&&i>=0&&i<468,i);
+ assert.equal(new Set(FACE_OVAL).size,FACE_OVAL.length,'no repeated landmark in the loop');
+ // Only the DOM-free part is checked here (no faceUV/calibration/canonical -> legacy path); the actual pixel
+ // output needs a canvas (browser, see reports/human-v2 before/after screenshots).
+ assert.equal(composePhotoHead.length,2);
 });

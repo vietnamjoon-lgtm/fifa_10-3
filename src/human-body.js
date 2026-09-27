@@ -88,7 +88,13 @@ function addBindPositions(scene){
 export function loadHumanBodies(renderer){
  if(assetsPromise)return assetsPromise;
  const load=async()=>{
-  const layout=await fetch(BASE+'rocketbox.json').then(r=>r.json()),loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder),textures=new THREE.TextureLoader();
+  // Landmark-triangle photo warp calibration (src/human-kit.js composePhotoHead): optional, a missing or
+  // unfetchable file just keeps every photo face on the legacy row/column mapping.
+  const [layout,faceLandmarksUV,canonicalFace]=await Promise.all([
+   fetch(BASE+'rocketbox.json').then(r=>r.json()),
+   fetch(BASE+'face-landmarks-uv.json').then(r=>r.json()).catch(()=>({})),
+   fetch('./assets/human/canonical-face.json').then(r=>r.json()).catch(()=>null),
+  ]),loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder),textures=new THREE.TextureLoader();
   const anisotropy=Math.min(8,renderer?.capabilities?.getMaxAnisotropy?.()||1);
   // Repeat wrapping: the waist seam continues past u = 1 (tools/human/rocketbox/01_convert.py).
   const tex=async(file,srgb=true)=>{if(!file)return null;const t=await textures.loadAsync(BASE+file);t.flipY=false;t.colorSpace=srgb?THREE.SRGBColorSpace:THREE.NoColorSpace;t.anisotropy=anisotropy;t.wrapS=THREE.RepeatWrapping;return t;};
@@ -101,7 +107,7 @@ export function loadHumanBodies(renderer){
    addBindPositions(gltf.scene);
    avatars[id]={...a,gltf,body,head,bodyNormal,headNormal,hair,hairMask,bind:bindData(gltf.scene),skinColor:new THREE.Color(a.skin)};
   }
-  assets={layout,mask,maskSmooth,avatars};return true;
+  assets={layout,mask,maskSmooth,avatars,faceLandmarksUV,canonicalFace};return true;
  };
  assetsPromise=load().catch(error=>{console.warn('New player model unavailable, keeping the old one:',error);return false;});
  return assetsPromise;
@@ -172,10 +178,12 @@ export function bodyShape(m){
 export function shapedHeight(bind,shape){return bind.height+(shape.leg-1)*(bind.legTop-bind.ankle)-(1-shape.head)*(bind.height-bind.headY);}
 const seeded=text=>{let h=2166136261;for(const c of String(text))h=Math.imul(h^c.charCodeAt(0),16777619);return ()=>((h=Math.imul(h^h>>>15,2246822507)^Math.imul(h^h>>>13,3266489909))>>>0)/4294967296;};
 /** Face-shape morph weights from the saved face sliders; players who never sculpted a face get their own
- * stable variation (from uid or number) so a squad does not share one face. A photo face keeps neutral
- * morphs instead: a single photo can't tell us the real skull shape (src/face-fit.js leaves shape at
- * default), and randomly warping the head would misalign the baked photo texture (src/face-assets.js
- * bakeFaceAsset, src/human-kit.js composePhotoHead), which is baked flat and does not follow morph targets. */
+ * stable variation (from uid or number) so a squad does not share one face. A photo face's sliders come from
+ * src/face-fit.js proportionsFromLandmarks (face width, jaw width, lower-face/nose length, nose and mouth
+ * width, eye spacing measured off the 468 landmarks; depth, cheek, lips and brow stay neutral, a single
+ * photo can't read those reliably) instead of a random per-player pick. The photo texture stays aligned
+ * because morph targets only move vertex positions, not the head mesh's UV, which src/human-kit.js
+ * composePhotoHead's calibration (assets/human/rocketbox/face-landmarks-uv.json) targets directly. */
 export function faceShape(profile={},number=10){
  const face=cleanFace(profile.face),f=face.shape,infl=(key,v=f[key])=>{const [,min,max]=FACE_SHAPE[key];return v>=1?(v-1)/(max-1):-(1-v)/(1-min);};
  const out={face_width:infl('width'),face_jaw:infl('jaw'),face_chin:clamp(infl('chin')+.6*infl('length'),-1,1),face_cheek:infl('cheek'),face_nose:infl('nose'),
@@ -355,6 +363,10 @@ function attach(rig){
  // A saved photo face replaces the painted face (the texture is per player).
  const face=cleanFace(look.profile.face);
  if(face.enabled&&look.profile.faceTexture){const image=new Image();image.onload=()=>{if(rig.disposed||!rig.human)return;
-  const t=new THREE.CanvasTexture(composePhotoHead(a.head.image,image));t.flipY=false;t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;t.wrapS=THREE.RepeatWrapping;
-  materials.head.map=t;materials.head.needsUpdate=true;rig.human.photoTexture=t;};image.src=look.profile.faceTexture;}
+  const calibration=assets.faceLandmarksUV?.[id],canonical=assets.canonicalFace,
+   finish=faceUVImage=>{const t=new THREE.CanvasTexture(composePhotoHead(a.head.image,image,faceUVImage,calibration,canonical));t.flipY=false;t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;t.wrapS=THREE.RepeatWrapping;
+    materials.head.map=t;materials.head.needsUpdate=true;rig.human.photoTexture=t;};
+  if(look.profile.faceUV&&calibration&&canonical){const uv=new Image();uv.onload=()=>finish(uv);uv.onerror=()=>finish(null);uv.src=look.profile.faceUV;}
+  else finish(null);
+ };image.src=look.profile.faceTexture;}
 }

@@ -6,6 +6,7 @@
 - Face Landmarker model: https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
 - Official model documentation: https://developers.google.com/edge/mediapipe/solutions/vision/face_landmarker/web_js
 - MediaPipe model and runtime are served locally by this game. Photos are analyzed locally using the CPU delegate. No third-party photo analysis endpoint is used.
+- `vendor/mediapipe/canonical_face_model.obj`: MediaPipe's canonical face mesh (468 vertices, same order as FaceLandmarker's landmarks, with its UV unwrap), Apache-2.0. Source: https://github.com/google-ai-edge/mediapipe/blob/master/mediapipe/modules/face_geometry/data/canonical_face_model.obj . Full license: MEDIAPIPE-APACHE-2.txt. `tools/human/rocketbox/build-canonical-face.mjs` derives `assets/human/canonical-face.json` (per-landmark UV and the face triangulation) from it; the game never parses the .obj at runtime.
 - CMU locomotion/kick data attribution remains in the existing motion license files. Seven skill moves and 42 celebration sequences are authored approximations, not extracted Nexon/EA animation assets.
 
 ## Player model v2 (assets/human/, ROADMAP stage 10, branch work/01-human-v2)

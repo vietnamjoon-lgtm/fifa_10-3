@@ -1,11 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import {cleanFace,cleanCrop,projectionSample,validFaceTexture} from '../src/face-settings.js';
 import {humanHeadGeometry} from '../src/human-head.js';
 import {cleanFaceAsset,warpFaceV} from '../src/face-assets.js';
+import {triangleTransform,MAX_MAGNIFY} from '../src/face-uv.js';
 import {cleanLibrary,defaultSquads,cleanLineup,applyLineups} from '../src/squads.js';
 import {Room} from '../server/room.js';
 const jpeg='data:image/jpeg;base64,/9j/'+ 'A'.repeat(200) + '/9k=';
+const canonicalFace=JSON.parse(fs.readFileSync(new URL('../assets/human/canonical-face.json',import.meta.url)));
+const faceLandmarksUV=JSON.parse(fs.readFileSync(new URL('../assets/human/rocketbox/face-landmarks-uv.json',import.meta.url)));
 test('face shape and crop controls sanitize legacy, null and extreme values',()=>{assert.equal(cleanFace(null).shape.width,1);assert.equal(cleanCrop(null).zoom,1);const f=cleanFace({assetId:'../../private',shape:{width:Infinity,jaw:100,depth:0},photoHair:'true'});assert.equal(f.assetId,null);assert.equal(f.shape.width,1);assert.equal(f.shape.jaw,1.3);assert.equal(f.shape.depth,.8);assert.equal(f.photoHair,false);const c=cleanCrop({zoom:99,x:99,eyes:.8,nose:0,mouth:0});assert.equal(c.zoom,8);assert.ok(c.eyes<c.nose&&c.nose<c.mouth);});
 test('multiview projection has correct front side back and continuous seam weights',()=>{assert.equal(projectionSample(.5,.5).front.weight,1);assert.ok(projectionSample(.75,.5).side.weight>.99999);assert.equal(projectionSample(0,.5).back.weight,1);for(let u=0;u<=1;u+=.01){const sample=projectionSample(u,.4);assert.ok(Math.abs(Object.values(sample).reduce((a,p)=>a+p.weight,0)-1)<1e-12);}for(const view of ['front','side','back'])assert.ok(Math.abs(projectionSample(0,.5)[view].u-projectionSample(1,.5)[view].u)<1e-12);assert.ok(projectionSample(.625,.5).front.weight>.9);});
 test('landmark warping preserves endpoints and aligns eyes nose mouth monotonically',()=>{const c={eyes:.51,nose:.69,mouth:.805};for(const [a,b]of [[0,0],[.444,.51],[.603,.69],[.797,.805],[1,1]])assert.ok(Math.abs(warpFaceV(a,c)-b)<1e-10);let prev=0;for(let v=0;v<=1;v+=.001){const y=warpFaceV(v,c);assert.ok(y>=prev);prev=y;}});
@@ -16,3 +20,46 @@ test('face textures accept only bounded inline JPEG and reject remote, script an
 test('face asset import retains all three views and independent crop alignment',()=>{const asset=cleanFaceAsset({id:'face-123',atlas:jpeg,online:jpeg,sources:{front:jpeg,side:jpeg,back:jpeg},crops:{side:{flip:true,zoom:2.5},back:{x:.2}},skin:'#998877'});assert.equal(Object.keys(asset.sources).length,3);assert.equal(asset.crops.side.flip,true);assert.equal(asset.crops.back.x,.2);assert.equal(asset.skin,'#998877');assert.throws(()=>cleanFaceAsset({...asset,id:'bad/path'}));});
 test('online roster strips device asset IDs and rejects oversized photos while preserving shape',()=>{const d=defaultSquads().players.slice(0,11);d[9].face={enabled:true,assetId:'local-private',shape:{nose:1.4}};d[9].faceTexture=jpeg;const out=cleanLineup(d,1,true);assert.equal(out[9].face.assetId,null);assert.equal(out[9].faceTexture,jpeg);assert.equal(out[9].face.shape.nose,1.4);d[9].faceTexture='data:image/jpeg;base64,'+'A'.repeat(33000);assert.equal(cleanLineup(d,1,true)[9].faceTexture,null);});
 test('online welcome and start share the same small texture once without putting photos into snapshots',()=>{const raw=defaultSquads().players.slice(0,11);raw[9].face={enabled:true,assetId:'local-photo'};raw[9].faceTexture=jpeg;const room=new Room({code:'FACE1234'}),a=room.reserve('a',true,raw),b=room.reserve('b',false),messages=[];room.connect(a.token,m=>messages.push(m));room.connect(b.token,()=>{});room.message(0,{type:'ready',ready:true});room.message(1,{type:'ready',ready:true});room.message(0,{type:'start'});assert.equal(messages.find(m=>m.type==='welcome').squads[0][9].faceTexture,jpeg);assert.equal(room.match.players[9].faceTexture,jpeg);room.tick();assert.ok(messages.filter(m=>m.type==='snapshot').every(m=>!JSON.stringify(m).includes('data:image')));});
+
+test('canonical MediaPipe face UV has 468 landmarks and a triangulation that only refers to them',()=>{
+ assert.equal(canonicalFace.uv.length,468);
+ for(const [u,v] of canonicalFace.uv){assert.ok(u>=0&&u<=1);assert.ok(v>=0&&v<=1);}
+ assert.ok(canonicalFace.triangles.length>800&&canonicalFace.triangles.length<1000);
+ for(const t of canonicalFace.triangles){assert.equal(t.length,3);for(const i of t)assert.ok(Number.isInteger(i)&&i>=0&&i<468);}
+});
+test('the Rocketbox head UV calibration covers both avatars with 468 in-range points each',()=>{
+ for(const avatar of ['male_02','male_03']){const uv=faceLandmarksUV[avatar];assert.equal(uv.length,468,avatar);for(const [u,v] of uv){assert.ok(u>=0&&u<=1,avatar);assert.ok(v>=0&&v<=1,avatar);}}
+});
+test('triangleTransform maps a source triangle exactly onto its destination triangle',()=>{
+ const m=triangleTransform([0,0],[1,0],[0,1],[0,0],[1,0],[0,1]);assert.deepEqual(m,{a:1,b:0,c:0,d:1,e:0,f:0});
+ const scaled=triangleTransform([0,0],[1,0],[0,1],[5,7],[7,7],[5,9]);const at=(p)=>[scaled.a*p[0]+scaled.c*p[1]+scaled.e,scaled.b*p[0]+scaled.d*p[1]+scaled.f];
+ for(const [s,d] of [[[0,0],[5,7]],[[1,0],[7,7]],[[0,1],[5,9]],[[2,3],[9,13]]]){const [x,y]=at(s);assert.ok(Math.abs(x-d[0])<1e-9&&Math.abs(y-d[1])<1e-9);}
+ assert.throws(()=>triangleTransform([0,0],[1,0],[2,0],[0,0],[1,0],[0,1]),'collinear source triangle is degenerate');
+});
+test('face asset import accepts a triangle-warp faceUV bake and keeps older assets without one valid',()=>{
+ const withUV=cleanFaceAsset({id:'face-uv',atlas:jpeg,online:jpeg,faceUV:jpeg,faceUVOnline:jpeg,skin:'#c89572'});
+ assert.equal(withUV.faceUV,jpeg);assert.equal(withUV.faceUVOnline,jpeg);
+ const legacy=cleanFaceAsset({id:'face-legacy',atlas:jpeg,online:jpeg,skin:'#c89572'});
+ assert.equal(legacy.faceUV,null);assert.equal(legacy.faceUVOnline,null);
+ assert.equal(cleanFaceAsset({id:'face-oversized',atlas:jpeg,online:jpeg,faceUV:'data:image/jpeg;base64,'+'A'.repeat(200000)}).faceUV,null);
+});
+test('network face sharing carries the small faceUV variant, not the full-size one',()=>{const d=defaultSquads().players.slice(0,11);d[9].face={enabled:true,assetId:'local-uv'};d[9].faceTexture=jpeg;d[9].faceUV=jpeg;const shared=cleanLineup(d,1,true)[9];assert.equal(shared.faceUV,jpeg);d[9].faceUV='data:image/jpeg;base64,'+'A'.repeat(29000);assert.equal(cleanLineup(d,1,true)[9].faceUV,null);});
+
+test('most canonical-to-head-UV triangles stay under the magnification cap; only a known few near-closed features are skipped',()=>{
+ // A closed mouth/eye collapses those landmarks' source triangles near to a point while the head's own UV
+ // keeps real separation there, so those specific triangles legitimately exceed MAX_MAGNIFY and get skipped
+ // by src/face-uv.js warpTriangles (this is what produced the torn-streak bug that fix caught). Guards against
+ // a future calibration regeneration silently making this much worse across the whole face. Scaled the same
+ // way as the real bake (src/face-assets.js bakeFaceUV: canonical UV * 512) and compose
+ // (src/human-kit.js composePhotoHead: head UV * 1024), so the ratio matches production exactly.
+ const FACE_UV_SIZE=512,HEAD_SIZE=1024;
+ for(const avatar of ['male_02','male_03']){
+  const src=canonicalFace.uv.map(([u,v])=>[u*FACE_UV_SIZE,v*FACE_UV_SIZE]),dst=faceLandmarksUV[avatar].map(([u,v])=>[u*HEAD_SIZE,v*HEAD_SIZE]);
+  let skipped=0;
+  for(const [i,j,k] of canonicalFace.triangles){
+   let m;try{m=triangleTransform(src[i],src[j],src[k],dst[i],dst[j],dst[k]);}catch{skipped++;continue;}
+   if(Math.abs(m.a*m.d-m.b*m.c)>MAX_MAGNIFY)skipped++;
+  }
+  assert.ok(skipped<60,`${avatar}: ${skipped}/${canonicalFace.triangles.length} triangles skipped`);
+ }
+});
