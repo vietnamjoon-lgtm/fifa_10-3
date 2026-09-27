@@ -56,7 +56,7 @@ function pose(p,t){
 function step(t,dt){for(const p of players){if(!animate)continue;if(p.kind==='new')pose(p,t);else animatePlayer(p.rig,3,dt,t,false,{x:p.x??0,z:p.z??0,vx:Math.sin(p.yaw??0)*3,vz:Math.cos(p.yaw??0)*3,yaw:p.yaw??0,id:p.phase});}}
 
 let last=performance.now(),time=0;
-function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,(now-last)/1000);last=now;time+=dt;step(time,dt);renderer.render(scene,camera);}
+function loop(now){requestAnimationFrame(loop);const dt=Math.min(.05,Math.max(0,(now-last)/1000));last=now;time+=dt;step(time,dt);renderer.render(scene,camera);}
 requestAnimationFrame(loop);
 
 /** Frame time without relying on rAF (works in a hidden tab): n frames of update + render + GPU finish. */
