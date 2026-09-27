@@ -9,11 +9,19 @@ const CELLS={backNumber:[0,256,200,256],backName:[0,0,512,128],sponsor:[0,128,25
 export const DECALS=Object.keys(CELLS);
 const NEUTRAL=.21586; // sRGB 128 in linear light
 
-function fitText(g,text,[x,y,w,h],weight,color){
+const SPORT_FONT='"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif';
+const luminance=hex=>{const n=parseInt(String(hex).replace('#','').padEnd(6,'0').slice(0,6),16);return (.2126*(n>>16&255)+.7152*(n>>8&255)+.0722*(n&255))/255;};
+/**
+ * Shirt lettering: bold condensed figures with a thin contrasting outline, names spaced out like printed
+ * kit names. `condense` narrows the glyphs, `spacing` adds letter spacing (em).
+ */
+function fitText(g,text,[x,y,w,h],weight,color,{condense=.86,spacing=0,outline=true}={}){
  x+=6;y+=6;w-=12;h-=12; // keep clear of the neighbouring cells
- g.save();g.fillStyle=color;g.textAlign='center';g.textBaseline='middle';let size=h*.86;g.font=`${weight} ${size}px Arial`;
- const width=g.measureText(text).width;if(width>w*.94){size*=w*.94/width;g.font=`${weight} ${size}px Arial`;}
- g.fillText(text,x+w/2,y+h*.53);g.restore();
+ g.save();g.textAlign='center';g.textBaseline='middle';let size=h*.9;const font=()=>{g.font=`${weight} ${size}px ${SPORT_FONT}`;if('letterSpacing' in g)g.letterSpacing=`${spacing*size}px`;};font();
+ const width=g.measureText(text).width*condense;if(width>w*.94){size*=w*.94/width;font();}
+ g.translate(x+w/2,y+h*.53);g.scale(condense,1);
+ if(outline){g.lineJoin='round';g.lineWidth=Math.max(2,size*.07);g.strokeStyle=luminance(color)>.5?'rgba(10,12,16,.55)':'rgba(255,255,255,.55)';g.strokeText(text,0,0);}
+ g.fillStyle=color;g.fillText(text,0,0);g.restore();
 }
 function drawCrest(g,crest,[x,y,w,h]){
  const c=crest||{shape:'shield',a:'#c6ff5d',b:'#183b27',glyph:'A'},s=Math.min(w,h)/128;g.save();g.translate(x+(w-128*s)/2,y+(h-128*s)/2);g.scale(s,s);g.beginPath();
@@ -27,8 +35,8 @@ export const shirtName=name=>String(name||'').trim().split(/[\s.]+/).filter(Bool
 /** Numbers, name, sponsor and crest for one player. */
 export function drawDecals(canvas,{number,name,text,chest,crest}){
  const g=canvas.getContext('2d');g.clearRect(0,0,canvas.width,canvas.height);
- fitText(g,String(number),CELLS.backNumber,'900',text);fitText(g,shirtName(name),CELLS.backName,'800',text);
- fitText(g,chest||'',CELLS.sponsor,'900',text);drawCrest(g,crest,CELLS.crest);fitText(g,String(number),CELLS.shortsNumber,'900',text);
+ fitText(g,String(number),CELLS.backNumber,'900',text,{condense:.8});fitText(g,shirtName(name),CELLS.backName,'700',text,{condense:.92,spacing:.12,outline:false});
+ fitText(g,chest||'',CELLS.sponsor,'900',text,{condense:.9,spacing:.04,outline:false});drawCrest(g,crest,CELLS.crest);fitText(g,String(number),CELLS.shortsNumber,'900',text,{condense:.8});
 }
 
 /**

@@ -216,10 +216,11 @@ for avatar in AVATARS:
     flat = np.zeros((N, N))
     for x0, y0, x1, y1 in RECTS.values():
         flat[y0:y1, x0:x1] = 1
-    flat = np.clip(blur(flat, 5) * 1.6, 0, 1)
+    flat = np.clip(blur(flat, 7) * 1.6, 0, 1)
     around = valid & (flat < 0.05)
-    smooth = blur(np.where(around, shade, 0), 12) / np.maximum(blur(around.astype(float), 12), 1e-4)
-    shade = shade * (1 - flat) + np.clip(smooth, 0.85, 1.15) * flat
+    # The fill follows the surrounding fabric's light level (large-scale), so no lighter box shows.
+    smooth = blur(fill(np.where(around, shade, 1.0), around, sigmas=(4, 12, 30, 60)), 10)
+    shade = shade * (1 - flat) + np.clip(smooth, 0.8, 1.2) * flat
     shade = np.clip(shade, 0.6, 1.35)
     grey = np.clip(shade * 0.5, 0, 1)
     out = np.where(kit[..., None], grey[..., None].repeat(3, -1), rgb)
