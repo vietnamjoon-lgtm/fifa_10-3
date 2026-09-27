@@ -43,6 +43,8 @@
         "human-lab.html",
         "src/human-lab/",
         "src/human-body.js",
+        "src/human-kit.js",
+        "player-gallery.html",
         "vendor/three-addons/",
         "reports/human-v2/",
         "docs/ROADMAP-motion.md"
