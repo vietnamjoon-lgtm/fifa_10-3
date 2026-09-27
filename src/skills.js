@@ -57,7 +57,21 @@ function tablePose(pose,a){const u=Math.min(1,a.elapsed/a.duration),w=Math.sin(u
  }
 }
 
-export function applySkillPose(pose,a){if(a.move){tablePose(pose,a);return;}const config=SKILLS[a.skill];if(!config)return;const u=Math.min(1,a.elapsed/config.duration),w=Math.sin(u*Math.PI),arc=Math.sin(u*Math.PI*2),i=sideIndex(a.foot),sign=i?1:-1,leg=pose.legs[i];pose.state='feint';pose.hipY-=.035*w;pose.torso[2]=-sign*arc*.16;pose.arms[0].upper[2]=-.4;pose.arms[1].upper[2]=.4;pose.contacts[i]=0;
+// A table move is layered on the pose it starts from (the running legs): its offsets fade in over the first
+// 15% and out over the last 20%, so the body never snaps into or out of the move.
+const JOINTS=['hips','torso','head'];
+function blendMovePose(pose,a,apply=tablePose,side=a.side>0?'right':'left'){const u=Math.min(1,a.elapsed/(a.duration||SKILLS[a.skill]?.duration||.42)),env=smooth(u/.15)*(1-smooth((u-.8)/.2));
+ const base={hipY:pose.hipY,hips:[...pose.hips],torso:[...pose.torso],head:[...pose.head],legs:pose.legs.map(l=>({upper:[...l.upper],lower:[...l.lower]})),arms:pose.arms.map(l=>({upper:[...l.upper],lower:[...l.lower]})),feet:pose.feet.map(f=>[...f])};
+ // The leg that does not work the ball is the planted support leg (slightly bent) rather than a running stride, whose
+ // targets fall out of reach when the move slows the body and snapped the knee straight for a frame.
+ const support=pose.legs[1-sideIndex(side)];support.upper=[-.1,support.upper[1]*.3,support.upper[2]*.5];support.lower=[.32,0,0];
+ apply(pose,a);const mix=(from,to)=>to.map((v,k)=>from[k]+(v-from[k])*env);
+ pose.hipY=base.hipY+(pose.hipY-base.hipY)*env;for(const k of JOINTS)pose[k]=mix(base[k],pose[k]);
+ for(const key of ['legs','arms'])pose[key].forEach((l,i)=>{l.upper=mix(base[key][i].upper,l.upper);l.lower=mix(base[key][i].lower,l.lower);});
+ pose.feet=pose.feet.map((f,i)=>mix(base.feet[i],f));}
+// Numbered skills (Shift + 1~7) are layered the same way, on the side of their foot.
+export function applySkillPose(pose,a){if(a.move){blendMovePose(pose,a);return;}if(SKILLS[a.skill])blendMovePose(pose,a,legacyPose,a.foot=='left'?'left':'right');}
+function legacyPose(pose,a){const config=SKILLS[a.skill];if(!config)return;const u=Math.min(1,a.elapsed/config.duration),w=Math.sin(u*Math.PI),arc=Math.sin(u*Math.PI*2),i=sideIndex(a.foot),sign=i?1:-1,leg=pose.legs[i];pose.state='feint';pose.hipY-=.035*w;pose.torso[2]=-sign*arc*.16;pose.arms[0].upper[2]=-.4;pose.arms[1].upper[2]=.4;pose.contacts[i]=0;
  if(a.skill==='elastico'){leg.upper[0]=-.28*w;leg.upper[2]=sign*arc*.3;leg.lower[0]=.4*w;pose.feet[i][1]=sign*arc*.5;}
  if(a.skill==='drag-back'||a.skill==='drag-to-heel'){leg.upper[0]=-.45*w+Math.max(0,u-.5)*.8;leg.lower[0]=.45*w;pose.feet[i][0]=-.25*w;pose.torso[0]=-.08*w;}
  if(a.skill==='ball-roll'){leg.upper[0]=-.28*w;leg.upper[2]=sign*(.2-u*.45);leg.lower[0]=.25;pose.feet[i][1]=sign*.55;}
