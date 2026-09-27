@@ -172,12 +172,16 @@ export function bodyShape(m){
 export function shapedHeight(bind,shape){return bind.height+(shape.leg-1)*(bind.legTop-bind.ankle)-(1-shape.head)*(bind.height-bind.headY);}
 const seeded=text=>{let h=2166136261;for(const c of String(text))h=Math.imul(h^c.charCodeAt(0),16777619);return ()=>((h=Math.imul(h^h>>>15,2246822507)^Math.imul(h^h>>>13,3266489909))>>>0)/4294967296;};
 /** Face-shape morph weights from the saved face sliders; players who never sculpted a face get their own
- * stable variation (from uid or number) so a squad does not share one face. */
+ * stable variation (from uid or number) so a squad does not share one face. A photo face keeps neutral
+ * morphs instead: a single photo can't tell us the real skull shape (src/face-fit.js leaves shape at
+ * default), and randomly warping the head would misalign the baked photo texture (src/face-assets.js
+ * bakeFaceAsset, src/human-kit.js composePhotoHead), which is baked flat and does not follow morph targets. */
 export function faceShape(profile={},number=10){
- const f=cleanFace(profile.face).shape,infl=(key,v=f[key])=>{const [,min,max]=FACE_SHAPE[key];return v>=1?(v-1)/(max-1):-(1-v)/(1-min);};
+ const face=cleanFace(profile.face),f=face.shape,infl=(key,v=f[key])=>{const [,min,max]=FACE_SHAPE[key];return v>=1?(v-1)/(max-1):-(1-v)/(1-min);};
  const out={face_width:infl('width'),face_jaw:infl('jaw'),face_chin:clamp(infl('chin')+.6*infl('length'),-1,1),face_cheek:infl('cheek'),face_nose:infl('nose'),
   face_noseWidth:infl('noseWidth'),face_mouth:infl('mouth'),face_lips:infl('lips'),face_brow:infl('brow'),face_depth:infl('depth')};
- if(Object.values(f).every(v=>v===1)){const r=seeded(profile.uid??profile.name??number);for(const k of Object.keys(out))out[k]=(r()*2-1)*.7;}
+ const hasPhoto=face.enabled&&!!profile.faceTexture;
+ if(!hasPhoto&&Object.values(f).every(v=>v===1)){const r=seeded(profile.uid??profile.name??number);for(const k of Object.keys(out))out[k]=(r()*2-1)*.7;}
  return out;
 }
 /** Sets morphs and bone lengths on one model; returns how much the hips rise for longer legs (model units). */

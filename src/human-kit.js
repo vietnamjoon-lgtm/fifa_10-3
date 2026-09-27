@@ -170,11 +170,16 @@ export function composePhotoHead(headImage,atlasImage){
  const N=headImage.width||1024,c=document.createElement('canvas');c.width=c.height=N;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(headImage,0,0,N,N);
  const a=document.createElement('canvas');a.width=1024;a.height=512;const ga=a.getContext('2d',{willReadFrequently:true});ga.drawImage(atlasImage,0,0,1024,512);
  const src=ga.getImageData(0,0,1024,512).data,x0=Math.floor(N*.32),x1=Math.ceil(N*.68),y0=Math.floor(N*.14),y1=Math.ceil(N*.52),img=g.getImageData(x0,y0,x1-x0,y1-y0),d=img.data;
- const sample=(u,v)=>{const [au,av]=headToAtlas(u,v);return (Math.min(511,Math.max(0,Math.round(av*511)))*1024+Math.min(1023,Math.max(0,Math.round(au*1023))))*4;};
+ // Bilinear atlas lookup: near the septum headToAtlas's nose/mouth pull warps u quickly (see band() above), so a
+ // nearest-texel read can fold one dark nostril pixel across a wide strip of the face; blending neighbours avoids that.
+ const sample=(u,v)=>{const [au,av]=headToAtlas(u,v),fx=Math.min(1023,Math.max(0,au*1023)),fy=Math.min(511,Math.max(0,av*511)),
+  x0i=Math.floor(fx),x1i=Math.min(1023,x0i+1),y0i=Math.floor(fy),y1i=Math.min(511,y0i+1),tx=fx-x0i,ty=fy-y0i,
+  j00=(y0i*1024+x0i)*4,j10=(y0i*1024+x1i)*4,j01=(y1i*1024+x0i)*4,j11=(y1i*1024+x1i)*4;
+  return [0,1,2].map(k=>(src[j00+k]*(1-tx)+src[j10+k]*tx)*(1-ty)+(src[j01+k]*(1-tx)+src[j11+k]*tx)*ty);};
  const base=[0,0,0],photo=[0,0,0];
- for(let y=0;y<img.height;y+=2)for(let x=0;x<img.width;x+=2){const u=(x0+x+.5)/N,v=(y0+y+.5)/N,w=photoWeight(u,v);if(w<.03||w>.4)continue;const i=(y*img.width+x)*4,j=sample(u,v);for(let k=0;k<3;k++){base[k]+=d[i+k];photo[k]+=src[j+k];}}
+ for(let y=0;y<img.height;y+=2)for(let x=0;x<img.width;x+=2){const u=(x0+x+.5)/N,v=(y0+y+.5)/N,w=photoWeight(u,v);if(w<.03||w>.4)continue;const i=(y*img.width+x)*4,p=sample(u,v);for(let k=0;k<3;k++){base[k]+=d[i+k];photo[k]+=p[k];}}
  const gain=base.map((b,k)=>photo[k]>0?Math.min(1.6,Math.max(.6,b/photo[k])):1);
- for(let y=0;y<img.height;y++)for(let x=0;x<img.width;x++){const u=(x0+x+.5)/N,v=(y0+y+.5)/N,w=photoWeight(u,v);if(w<=0)continue;const i=(y*img.width+x)*4,j=sample(u,v);
-  for(let k=0;k<3;k++)d[i+k]=d[i+k]*(1-w)+Math.min(255,src[j+k]*gain[k])*w;}
+ for(let y=0;y<img.height;y++)for(let x=0;x<img.width;x++){const u=(x0+x+.5)/N,v=(y0+y+.5)/N,w=photoWeight(u,v);if(w<=0)continue;const i=(y*img.width+x)*4,p=sample(u,v);
+  for(let k=0;k<3;k++)d[i+k]=d[i+k]*(1-w)+Math.min(255,p[k]*gain[k])*w;}
  g.putImageData(img,x0,y0);return c;
 }
