@@ -12,7 +12,24 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 CACHE = os.path.join(HERE, '.cache')
 os.makedirs(CACHE, exist_ok=True)
-fbx = os.path.join(SRC, 'Assets', 'Avatars', 'Professions', AVATAR, 'Export', AVATAR + '.fbx')
+# The '_facial' export is the same mesh with ARKit/FACS blendshapes; the plain export is the fallback.
+fbx = os.path.join(SRC, 'Assets', 'Avatars', 'Professions', AVATAR, 'Export', AVATAR + '_facial.fbx')
+if not os.path.exists(fbx):
+    fbx = fbx.replace('_facial.fbx', '.fbx')
+
+# Expression morphs kept for the game (sums of the source ARKit shapes; pairs merged where the game never
+# needs the sides apart).
+EXPRESSIONS = {
+ 'expr_blinkL': ['AK_09_EyeBlinkLeft'], 'expr_blinkR': ['AK_10_EyeBlinkRight'],
+ 'expr_squint': ['AK_19_EyeSquintLeft', 'AK_20_EyeSquintRight'], 'expr_wide': ['AK_21_EyeWideLeft', 'AK_22_EyeWideRight'],
+ 'expr_jawOpen': ['AK_25_JawOpen'], 'expr_funnel': ['AK_32_MouthFunnel'],
+ 'expr_smile': ['AK_44_MouthSmileLeft', 'AK_45_MouthSmileRight'], 'expr_stretch': ['AK_46_MouthStretchLeft', 'AK_47_MouthStretchRight'],
+ 'expr_browUp': ['AK_03_BrowInnerUp'], 'expr_browDown': ['AK_01_BrowDownLeft', 'AK_02_BrowDownRight'],
+ 'expr_cheekPuff': ['AK_06_CheekPuff'], 'expr_press': ['AK_36_MouthPressLeft', 'AK_37_MouthPressRight'],
+ # Eyes: 'left'/'right' are the player's own left and right.
+ 'expr_eyesLeft': ['AK_15_EyeLookOutLeft', 'AK_14_EyeLookInRight'], 'expr_eyesRight': ['AK_16_EyeLookOutRight', 'AK_13_EyeLookInLeft'],
+ 'expr_eyesUp': ['AK_17_EyeLookUpLeft', 'AK_18_EyeLookUpRight'], 'expr_eyesDown': ['AK_11_EyeLookDownLeft', 'AK_12_EyeLookDownRight'],
+}
 
 KEEP = {
  'Bip01 Pelvis': 'Hips', 'Bip01 Spine': 'Spine', 'Bip01 Spine1': 'Spine1', 'Bip01 Spine2': 'Spine2',
@@ -118,7 +135,27 @@ MORPHS = {
 }
 names_by_index = {g.index: KEEP.get(g.name, g.name) for g in mesh.vertex_groups}
 me0 = mesh.data
-basis = mesh.shape_key_add(name='Basis', from_mix=False)
+# Expressions first: sums of source shapes relative to the basis; every other source shape is dropped.
+source = {k.name: k for k in me0.shape_keys.key_blocks} if me0.shape_keys else {}
+if source:
+    basis = me0.shape_keys.key_blocks[0]
+    base = [d.co.copy() for d in basis.data]
+    deltas = {}
+    for key, parts in EXPRESSIONS.items():
+        missing = [p for p in parts if p not in source]
+        if missing:
+            print('MISSING', key, missing)
+            continue
+        deltas[key] = [sum((source[p].data[i].co - base[i] for p in parts), Vector()) for i in range(len(base))]
+    for k in list(me0.shape_keys.key_blocks)[1:]:
+        mesh.shape_key_remove(k)
+    for key, d in deltas.items():
+        sk = mesh.shape_key_add(name=key, from_mix=False)
+        for i, v in enumerate(d):
+            sk.data[i].co = base[i] + v
+    print('EXPRESSIONS', len(deltas))
+else:
+    basis = mesh.shape_key_add(name='Basis', from_mix=False)
 for key, amounts in MORPHS.items():
     sk = mesh.shape_key_add(name=key, from_mix=False)
     for v in me0.vertices:

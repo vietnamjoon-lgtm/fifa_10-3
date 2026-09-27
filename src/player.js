@@ -89,7 +89,7 @@ export function animatePlayer(rig,speed,dt,time,celebrate=false,player=null,ball
  rotation(rig.hips,pose.hips);rotation(rig.torso,pose.torso);rotation(rig.head,pose.head);
  for(let i=0;i<2;i++){rotation(rig.legs[i].upper,pose.legs[i].upper);rotation(rig.legs[i].lower,pose.legs[i].lower);rotation(rig.legs[i].foot,pose.feet[i]);rotation(rig.arms[i].upper,pose.arms[i].upper);rotation(rig.arms[i].lower,pose.arms[i].lower);}
  stabilizeFeet(rig,{...p,sampleTime:time},pose,dt);inertializeFeet(rig,p,pose,dt);stabilizeHands(rig,p,time);
- rig.animationPlayer=p;rig.animationTime=time;updateBoots(rig,pose,speed);
+ rig.animationPlayer=p;rig.animationTime=time;rig.animationBall=ball;rig.animationSpeed=speed;updateBoots(rig,pose,speed);
  // The new player model (human-body.js) copies the finished old-rig pose.
  rig.human?.sync();
  rig.centerOfMass=bodyCenterOfMass(rig);rig.jointWarnings=jointViolations(rig);rig.jointViolationCount=(rig.jointViolationCount||0)+rig.jointWarnings.length;

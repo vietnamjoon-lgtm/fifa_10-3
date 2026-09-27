@@ -5,7 +5,7 @@ import {register} from 'node:module';
 import * as THREE from '../vendor/three.module.js';
 import {fixture} from '../tools/human-fixture.mjs';
 register('../tools/three-loader.mjs',import.meta.url);
-const {JOINT_BONES,bindData,retarget,humanLook,bodyShape,reachAnkles,faceShape,ATHLETE,shapedHeight}=await import('../src/human-body.js');
+const {JOINT_BONES,bindData,retarget,humanLook,bodyShape,reachAnkles,faceShape,ATHLETE,shapedHeight,expressionTargets,EXPRESSIONS}=await import('../src/human-body.js');
 const {bodyMetrics,BODY_PRESETS}=await import('../src/body-shape.js');
 const {kitColours,shirtName,DECALS,headToAtlas,photoWeight}=await import('../src/human-kit.js');
 const MODELS=['male_02','male_03'];
@@ -119,4 +119,17 @@ test('face shapes follow the sliders and default faces differ per player',()=>{
  const f=faceShape({face:{shape:{width:1.2,nose:.6}}},3);assert.ok(Math.abs(f.face_width-1)<1e-9&&Math.abs(f.face_nose+1)<1e-9&&f.face_jaw===0);
  const a=faceShape({uid:'a'},1),b=faceShape({uid:'b'},1);assert.notDeepEqual(a,b);assert.deepEqual(a,faceShape({uid:'a'},1));
  for(const v of Object.values(a))assert.ok(Math.abs(v)<=.7);
+});
+
+test('expressions: blinks, running effort, strike effort, shouting and the camera wink',()=>{
+ const within=(e)=>{for(const [k,v] of Object.entries(e))assert.ok(v>=0&&v<=1,`${k} ${v}`);};
+ // Blinks come and go (0.16 s every 2.5-5 s).
+ let closed=0;for(let t=0;t<10;t+=.01){const e=expressionTargets({time:t,seed:5});within(e);if(e.expr_blinkL>.5)closed++;}assert.ok(closed>2&&closed<60,`${closed}`);
+ const run=expressionTargets({time:1,seed:5,speed:8}),stand=expressionTargets({time:1,seed:5,speed:0});assert.ok(run.expr_squint>stand.expr_squint&&run.expr_jawOpen>stand.expr_jawOpen);
+ const kick=expressionTargets({time:1,seed:5,speed:5,action:{elapsed:.3,contactAt:.32}});assert.ok(kick.expr_press>.5&&kick.expr_jawOpen===0);
+ const shout=expressionTargets({time:1,seed:5,state:'celebrate'});assert.ok(shout.expr_jawOpen>.7&&shout.expr_browUp>.5);
+ const camera=expressionTargets({time:1,seed:5,state:'celebrate',celebration:'camera'});assert.ok(camera.expr_blinkL===1&&camera.expr_blinkR===0&&camera.expr_smile>.5);
+ const left=expressionTargets({look:[.4,-.2]});assert.ok(left.expr_eyesLeft>.5&&left.expr_eyesRight===0&&left.expr_eyesDown>.3);
+ // Every expression the game drives exists in both models.
+ for(const model of MODELS){const b=fs.readFileSync(new URL(`../assets/human/rocketbox/${model}.glb`,import.meta.url)),j=JSON.parse(b.subarray(20,20+b.readUInt32LE(12)).toString());for(const k of EXPRESSIONS)assert.ok(j.meshes[0].extras.targetNames.includes(k),`${model} ${k}`);}
 });
