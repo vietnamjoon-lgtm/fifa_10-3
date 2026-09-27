@@ -6,7 +6,7 @@ import {PlayerPortrait} from './player-portrait.js';
 const $=id=>document.getElementById(id),labels={front:'앞모습',side:'옆모습',back:'뒷모습'};
 export class FaceStudio{
  constructor(apply){this.apply=apply;this.token=0;this.shapeFields={};for(const [key,[label,min,max]]of Object.entries(FACE_SHAPE)){const wrap=document.createElement('label');wrap.textContent=label;const slider=document.createElement('input');slider.type='range';slider.min=min;slider.max=max;slider.step=.01;slider.value=1;slider.id='face-shape-'+key;slider.setAttribute('aria-label',label);slider.oninput=()=>{this.face.shape[key]=Number(slider.value);this.drawPlayer();};wrap.append(slider);$('face-shapes').append(wrap);this.shapeFields[key]=slider;}
-  for(const view of Object.keys(labels)){$('face-upload-'+view).onchange=e=>this.upload(view,e.target);$('face-select-'+view).onclick=()=>this.select(view);$('face-remove-'+view).onclick=()=>{delete this.sources[view];delete this.images[view];this.baked=null;this.select(view);this.drawPlayer();};}
+  for(const view of Object.keys(labels)){$('face-upload-'+view).onchange=e=>this.upload(view,e.target);$('face-shoot-'+view).onclick=()=>this.shoot(view);$('face-select-'+view).onclick=()=>this.select(view);$('face-remove-'+view).onclick=()=>{delete this.sources[view];delete this.images[view];this.baked=null;this.select(view);this.drawPlayer();};}
   for(const field of ['zoom','x','y','rotation','eyes','nose','mouth'])$('face-'+field).oninput=()=>{this.crops[this.view][field]=Number($('face-'+field).value);this.baked=null;this.drawCrop();};$('face-flip').onchange=e=>{this.crops[this.view].flip=e.target.checked;this.baked=null;this.drawCrop();};$('face-photo-hair').onchange=e=>{this.face.photoHair=e.target.checked;this.drawPlayer();};$('face-bake').onclick=()=>this.bake();$('face-apply').onclick=()=>this.save();$('face-close').onclick=()=>this.close();$('face-reset-crop').onclick=()=>{this.crops[this.view]=cleanCrop();this.baked=null;this.select(this.view);};
   const canvas=$('face-crop');canvas.onpointerdown=e=>{if(this.busy||!this.images[this.view])return;canvas.setPointerCapture(e.pointerId);this.drag={x:e.clientX,y:e.clientY,crop:{...this.crops[this.view]}};};canvas.onpointermove=e=>{if(!this.drag)return;const rect=canvas.getBoundingClientRect();this.crops[this.view].x=Math.max(-1,Math.min(1,this.drag.crop.x+(e.clientX-this.drag.x)/rect.width));this.crops[this.view].y=Math.max(-1,Math.min(1,this.drag.crop.y+(e.clientY-this.drag.y)/rect.height));this.baked=null;this.select(this.view);};canvas.onpointerup=canvas.onpointercancel=()=>this.drag=null;
   $('face-example').onclick=async()=>{if(this.busy)return;this.setBusy(true);try{const data=await defaultFacePhotos();this.sources={...data.sources};this.crops=structuredClone(data.crops);for(const view of Object.keys(labels))this.images[view]=await loadImage(this.sources[view]);this.baked=null;this.face.fitted=false;this.face.identity=null;this.face.photoHair=true;$('face-photo-hair').checked=true;this.select('front');this.status('가상 선수의 예시 사진입니다. 사진에서 3D 얼굴 만들기를 누르세요.');}catch(e){this.status(e.message);}finally{this.setBusy(false);}};
@@ -21,7 +21,32 @@ export class FaceStudio{
  drawCrop(){drawCrop($('face-crop'),this.images[this.view],this.crops[this.view],true);}
  drawPlayer(){this.portrait.update(facePreviewProfile(this.profile,this.face,this.baked,this.compare),this.team);}
  async fit(){if(this.busy)return;if(!this.images.front){this.status('앞모습 사진을 먼저 넣어 주세요.');return;}this.setBusy(true);this.status('기기 안에서 얼굴 비율을 분석하는 중… 첫 실행은 모델을 준비하는 데 시간이 걸립니다.');try{const result=await fitPhoto(this.images.front);this.compare=false;$('face-compare').textContent='분석 전 얼굴과 비교';this.face={...this.face,mode:'sculpt',enabled:true,fitted:true,identity:result.identity,shape:result.shape};this.profile.skin=result.skin;if(this.baked)this.baked={...this.baked,skin:result.skin};for(const [key,input]of Object.entries(this.shapeFields))input.value=this.face.shape[key];$('face-mode').value='sculpt';this.drawPlayer();this.status('사진의 눈매·눈썹·코·입·턱선 위치를 입체 얼굴에 적용했습니다. 사진과 미리보기를 비교한 뒤 이 선수에 적용을 누르세요. 코 깊이와 머리 모양은 직접 다듬을 수 있습니다.');}catch(e){this.status(e.message);}finally{this.setBusy(false);}}
- async upload(view,input){if(!input.files[0]||this.busy)return;const token=this.token;let loaded=false;this.setBusy(true);try{this.status('사진을 읽는 중…');const source=await readFacePhoto(input.files[0]);if(token!==this.token)return;const image=await loadImage(source);if(token!==this.token)return;if(view==='front'){this.face.fitted=false;this.face.identity=null;}this.sources[view]=source;this.images[view]=image;loaded=true;this.crops[view]=cleanCrop();this.baked=null;this.select(view);this.status('입체 얼굴은 사진에서 3D 얼굴 만들기를 누르세요. 정렬 도구는 이전 사진 표면 방식에 사용합니다.');}catch(e){this.status(e.message);}finally{input.value='';if(token===this.token)this.setBusy(false);}if(loaded&&view==='front'&&token===this.token)await this.fit();}
+ /**
+  * Takes the photo with the device camera (a friend in front of the phone or laptop). The frame stays in this
+  * browser like a chosen file; nothing is uploaded anywhere.
+  */
+ async shoot(view){
+  if(this.busy)return;if(!navigator.mediaDevices?.getUserMedia){this.status('이 브라우저에서는 카메라를 쓸 수 없습니다. 사진 선택으로 넣어 주세요.');return;}
+  const box=$('face-cam'),video=$('face-cam-video'),hint={front:'정면을 보고 얼굴을 타원에 맞추세요.',side:'고개를 옆으로 돌려 옆얼굴을 보여 주세요. 방향은 정렬의 좌우 반전으로 맞출 수 있습니다.',back:'뒤돌아 뒷머리를 보여 주세요.'}[view];
+  let stream;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:view==='back'?'environment':'user',width:{ideal:1280},height:{ideal:1280}},audio:false});}
+  catch(e){this.status(e.name==='NotAllowedError'?'카메라 권한이 거부됐습니다. 브라우저 주소창에서 카메라를 허용해 주세요.':'카메라를 열지 못했습니다: '+e.message);return;}
+  video.srcObject=stream;$('face-cam-hint').textContent=hint;box.classList.remove('hidden');await video.play().catch(()=>{});
+  const mirror=view!=='back';video.classList.toggle('mirror',mirror);
+  const close=()=>{for(const t of stream.getTracks())t.stop();video.srcObject=null;box.classList.add('hidden');};
+  const file=await new Promise(resolve=>{
+   $('face-cam-cancel').onclick=()=>resolve(null);
+   $('face-cam-take').onclick=async()=>{let n=3;const count=$('face-cam-count');
+    while(n>0){count.textContent=n--;await new Promise(r=>setTimeout(r,700));}count.textContent='';
+    const w=video.videoWidth,h=video.videoHeight;if(!w||!h){resolve(null);return;}
+    const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');
+    // The preview is mirrored like a mirror; the saved photo is the camera's true (unmirrored) view.
+    ctx.drawImage(video,0,0,w,h);
+    canvas.toBlob(b=>resolve(b&&new File([b],`camera-${view}.jpg`,{type:'image/jpeg'})),'image/jpeg',.92);};
+  });
+  close();if(file)await this.uploadFile(view,file);
+ }
+ async upload(view,input){const file=input.files[0];input.value='';if(file)await this.uploadFile(view,file);}
+ async uploadFile(view,file){if(this.busy)return;const token=this.token;let loaded=false;this.setBusy(true);try{this.status('사진을 읽는 중…');const source=await readFacePhoto(file);if(token!==this.token)return;const image=await loadImage(source);if(token!==this.token)return;if(view==='front'){this.face.fitted=false;this.face.identity=null;}this.sources[view]=source;this.images[view]=image;loaded=true;this.crops[view]=cleanCrop();this.baked=null;this.select(view);this.status('입체 얼굴은 사진에서 3D 얼굴 만들기를 누르세요. 정렬 도구는 이전 사진 표면 방식에 사용합니다.');}catch(e){this.status(e.message);}finally{if(token===this.token)this.setBusy(false);}if(loaded&&view==='front'&&token===this.token)await this.fit();}
  async bake(){if(this.busy)return null;this.setBusy(true);this.status('사진과 얼굴 설정을 저장할 준비 중…');try{await new Promise(requestAnimationFrame);this.baked=await bakeFaceAsset(this.sources,this.crops,this.profile.skin);if(this.face.mode==='sculpt'&&this.face.fitted)this.baked.skin=this.profile.skin;this.drawPlayer();this.status('3D에 적용했습니다. 돌려서 확인한 뒤 선수에 적용을 누르세요.');return this.baked;}catch(e){this.status(e.message);return null;}finally{this.setBusy(false);}}
  async save(){if(this.busy)return;if(!this.sources.front&&Object.keys(this.sources).length){this.status('앞모습 사진을 먼저 넣어 주세요.');return;}if(!this.baked&&this.sources.front&&!await this.bake())return;this.setBusy(true);try{if(this.baked)await putFaceAssets([this.baked]);this.apply({...this.face,assetId:this.baked?.id||null,enabled:true},this.baked);this.setBusy(false);this.close();}catch(e){this.status(e.message);}finally{this.setBusy(false);}}
 }
