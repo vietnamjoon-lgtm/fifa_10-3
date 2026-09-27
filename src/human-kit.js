@@ -3,6 +3,7 @@
 // belongs to. Club colours, pattern, trims, numbers, name, sponsor and crest are applied in the shader, so every
 // club and player shares the same textures and one shader program.
 import * as THREE from 'three';
+import {warpTriangles,boxBlur1ch} from './face-uv.js';
 
 // Where each decal is drawn in the per-player canvas (x, y, w, h in pixels of a 512 x 512 canvas).
 const CELLS={backNumber:[0,256,200,256],backName:[0,0,512,128],sponsor:[0,128,256,128],crest:[256,128,128,128],shortsNumber:[384,128,128,128]};
@@ -161,12 +162,7 @@ export function photoWeight(u,v){
  const eye=Math.min(...[.435,.571].map(x=>((u-x)/.034)**2+((v-.283)/.016)**2));
  return edge*edge*(3-2*edge)*(eye<1?.55+.45*eye:1);
 }
-/**
- * One player's head texture with their photo face. The photo is colour-matched per channel to the painted
- * skin on the edge of the oval, so the skin tint the shader applies afterwards treats both alike and the
- * seam disappears; inside the oval the photo keeps its own detail.
- */
-export function composePhotoHead(headImage,atlasImage){
+function composePhotoHeadLegacy(headImage,atlasImage){
  const N=headImage.width||1024,c=document.createElement('canvas');c.width=c.height=N;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(headImage,0,0,N,N);
  const a=document.createElement('canvas');a.width=1024;a.height=512;const ga=a.getContext('2d',{willReadFrequently:true});ga.drawImage(atlasImage,0,0,1024,512);
  const src=ga.getImageData(0,0,1024,512).data,x0=Math.floor(N*.32),x1=Math.ceil(N*.68),y0=Math.floor(N*.14),y1=Math.ceil(N*.52),img=g.getImageData(x0,y0,x1-x0,y1-y0),d=img.data;
@@ -182,4 +178,66 @@ export function composePhotoHead(headImage,atlasImage){
  for(let y=0;y<img.height;y++)for(let x=0;x<img.width;x++){const u=(x0+x+.5)/N,v=(y0+y+.5)/N,w=photoWeight(u,v);if(w<=0)continue;const i=(y*img.width+x)*4,p=sample(u,v);
   for(let k=0;k<3;k++)d[i+k]=d[i+k]*(1-w)+Math.min(255,p[k]*gain[k])*w;}
  g.putImageData(img,x0,y0);return c;
+}
+// MediaPipe's FACEMESH_FACE_OVAL, in boundary order (forehead, temples, cheeks, jaw, chin): the outer edge of
+// the triangulated warp's blend mask. Its topmost points sit at the hairline, which a real photo usually
+// shows as hair, not forehead skin -- buildFaceMask below pulls that part down to mid-forehead instead.
+export const FACE_OVAL=[10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
+const FEATHER_PX=36,INSET_PX=30; // 1024-texture pixels; the transition band lands mostly inside the oval, not past its edge.
+/**
+ * The blend weight for every pixel of the triangle-warped patch (a plain `Float32Array`, 0-255, one value
+ * per pixel): FACE_OVAL with its hairline arc lowered to mid-forehead (so scalp/fringe pixels in the photo
+ * never land on painted forehead skin), inset by INSET_PX and blurred by FEATHER_PX (boxBlur1ch) so the
+ * transition happens inside the oval rather than bleeding past its true edge (visible as a hard ring from
+ * the side otherwise). `dst` is FACE_OVAL's landmarks already in head-texture pixel space.
+ */
+function buildFaceMask(N,dst){
+ const browY=(dst[105][1]+dst[334][1])/2,eyeY=(dst[33][1]+dst[133][1]+dst[362][1]+dst[263][1])/4;
+ const foreheadTop=browY-(eyeY-browY)*1.6;
+ const oval=FACE_OVAL.map(idx=>{const [x,y]=dst[idx];return [x,Math.max(y,foreheadTop)];});
+ const cx=oval.reduce((s,p)=>s+p[0],0)/oval.length,cy=oval.reduce((s,p)=>s+p[1],0)/oval.length;
+ const inset=oval.map(([x,y])=>{const dx=x-cx,dy=y-cy,len=Math.hypot(dx,dy);return len>INSET_PX?[x-dx/len*INSET_PX,y-dy/len*INSET_PX]:[cx,cy];});
+ const sharp=document.createElement('canvas');sharp.width=sharp.height=N;const sg=sharp.getContext('2d');
+ sg.fillStyle='#fff';sg.beginPath();inset.forEach(([x,y],i)=>i?sg.lineTo(x,y):sg.moveTo(x,y));sg.closePath();sg.fill();
+ const alpha=sg.getImageData(0,0,N,N).data,mask=new Float32Array(N*N);
+ for(let p=0;p<mask.length;p++)mask[p]=alpha[p*4];
+ return boxBlur1ch(mask,N,FEATHER_PX/2);
+}
+/**
+ * Triangle-warped photo face (src/face-uv.js): the front photo's faceUV bake (canonical MediaPipe UV space,
+ * src/face-assets.js bakeFaceUV) is warped triangle by triangle onto this avatar's calibrated head UV
+ * positions (assets/human/rocketbox/face-landmarks-uv.json, tools/human/rocketbox/04_raycast_uv.py), over a
+ * background already built the legacy way (composePhotoHeadLegacy) so any gap at a skipped triangle or a
+ * clip seam shows a nearby photo-informed pixel instead of raw painted skin. Blended over the painted head
+ * inside buildFaceMask's oval with the same per-channel skin colour match as the legacy atlas path (compared
+ * against the head's own original pixels, not the legacy composite, so the match target is the same either
+ * way). Every landmark keeps its own place regardless of the photo's face proportions, unlike headToAtlas's
+ * row/column bands.
+ */
+function composePhotoHeadTriangulated(headImage,atlasImage,faceUVImage,calibrationUV,canonical){
+ const N=headImage.width||1024;
+ const c=document.createElement('canvas');c.width=c.height=N;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(headImage,0,0,N,N);
+ const original=g.getImageData(0,0,N,N).data.slice();
+ const dst=calibrationUV.map(([u,v])=>[u*N,v*N]);
+ const warpCanvas=document.createElement('canvas');warpCanvas.width=warpCanvas.height=N;const wg=warpCanvas.getContext('2d',{willReadFrequently:true});
+ wg.drawImage(composePhotoHeadLegacy(headImage,atlasImage),0,0,N,N); // already photo-informed, so any gap reads close instead of raw painted skin
+ const uvN=faceUVImage.width||512,src=canonical.uv.map(([u,v])=>[u*uvN,v*uvN]);
+ warpTriangles(wg,faceUVImage,src,dst,canonical.triangles,N*.12); // drops the face-to-eyeball-swatch slivers (src/face-uv.js)
+ const warped=wg.getImageData(0,0,N,N).data;
+ const mask=buildFaceMask(N,dst);
+ const img=g.getImageData(0,0,N,N),d=img.data,base=[0,0,0],photo=[0,0,0];let counted=0;
+ for(let y=0;y<N;y+=2)for(let x=0;x<N;x+=2){const p=y*N+x,i=p*4,w=mask[p]/255;if(w<.15||w>.5)continue;for(let k=0;k<3;k++){base[k]+=original[i+k];photo[k]+=warped[i+k];}counted++;}
+ const gain=counted?base.map((b,k)=>photo[k]>0?Math.min(1.6,Math.max(.6,b/photo[k])):1):[1,1,1];
+ for(let p=0;p<mask.length;p++){const w=mask[p]/255;if(w<=0)continue;const i=p*4;for(let k=0;k<3;k++)d[i+k]=original[i+k]*(1-w)+Math.min(255,warped[i+k]*gain[k])*w;}
+ g.putImageData(img,0,0);return c;
+}
+/**
+ * One player's head texture with their photo face. `faceUVImage`/`calibrationUV`/`canonical` (all three, or
+ * none) select the triangle-warped path (composePhotoHeadTriangulated); without them (older saved faces, or
+ * an avatar the calibration table doesn't cover yet) this falls back to the original row/column mapping
+ * (composePhotoHeadLegacy, headToAtlas/photoWeight), so existing saved players keep rendering the same way.
+ */
+export function composePhotoHead(headImage,atlasImage,faceUVImage=null,calibrationUV=null,canonical=null){
+ if(faceUVImage&&calibrationUV&&canonical)return composePhotoHeadTriangulated(headImage,atlasImage,faceUVImage,calibrationUV,canonical);
+ return composePhotoHeadLegacy(headImage,atlasImage);
 }

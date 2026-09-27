@@ -16,13 +16,13 @@ export function cleanProfile(raw={},fallback=roster(0)[9]){raw=raw&&typeof raw==
  p.skillMoves=Math.round(numeric(raw.skillMoves,fallback.skillMoves??defaultSkillMoves(p),1,5));
  p.weight=cleanWeight(raw.weight,p);p.body=cleanBody(raw.body);p.bodyType=cleanBodyType(raw.bodyType,raw.body);
  p.celebration=Object.hasOwn(celebrationOptions,raw.celebration)?raw.celebration:'auto';
- p.face=cleanFace(variedFace(raw.face,p.uid||p.name));p.faceTexture=p.face.enabled?validFaceTexture(raw.faceTexture):null;
+ p.face=cleanFace(variedFace(raw.face,p.uid||p.name));p.faceTexture=p.face.enabled?validFaceTexture(raw.faceTexture):null;p.faceUV=p.face.enabled?validFaceTexture(raw.faceUV):null;
  return p;
 }
 export function defaultSquads(){const players=[...roster(0),...roster(1)].map(p=>cleanProfile({...p,uid:`default-${p.id}`,skin:['#bf8561','#976143','#deb18a','#74482f','#c89572','#e1ad88'][p.number%6],hairStyle:p.number%3===0?'crest':'short'}));return {version:1,players,lineups:[players.slice(0,11).map(p=>p.uid),players.slice(11).map(p=>p.uid)]};}
 export function cleanLibrary(data){
  if(data?.version!==1||!Array.isArray(data.players)||data.players.length<11||data.players.length>200||!Array.isArray(data.lineups)||data.lineups.length!==2)throw Error('선수 파일 형식을 확인해 주세요.');
- const players=data.players.map(p=>{const clean=cleanProfile(p);delete clean.faceTexture;return clean;}),ids=new Set(players.map(p=>p.uid));if(ids.size!==players.length)throw Error('선수 식별자가 중복됐습니다.');
+ const players=data.players.map(p=>{const clean=cleanProfile(p);delete clean.faceTexture;delete clean.faceUV;return clean;}),ids=new Set(players.map(p=>p.uid));if(ids.size!==players.length)throw Error('선수 식별자가 중복됐습니다.');
  const lineups=data.lineups.map(list=>{if(!Array.isArray(list)||list.length!==11||new Set(list).size!==11||list.some(id=>!ids.has(id)))throw Error('각 팀에는 서로 다른 선수 11명이 필요합니다.');return [...list];});
  for(const list of lineups)if(players.find(p=>p.uid===list[0]).role!=='GK'||list.slice(1).some(id=>players.find(p=>p.uid===id).role==='GK'))throw Error('첫 번째 자리는 골키퍼, 나머지는 필드 선수로 구성해 주세요.');
  return {version:1,players,lineups};
@@ -31,5 +31,10 @@ export const SQUAD_KEY='touchline-player-library-v1';
 export function loadSquads(storage=globalThis.localStorage){try{return cleanLibrary(JSON.parse(storage.getItem(SQUAD_KEY)));}catch{return defaultSquads();}}
 export function saveSquads(data,storage=globalThis.localStorage){const clean=cleanLibrary(data);storage.setItem(SQUAD_KEY,JSON.stringify(clean));return clean;}
 export function lineupProfiles(data,team){return data.lineups[team].map(uid=>({...data.players.find(p=>p.uid===uid)}));}
-export function cleanLineup(raw,team=0,network=false){const defaults=roster(team);const result=defaults.map((base,i)=>({...base,...cleanProfile(Array.isArray(raw)&&raw.length===11?raw[i]:base,base),role:i===0?'GK':(raw?.[i]?.role==='GK'?base.role:cleanProfile(raw?.[i]||base,base).role)}));if(network)for(const p of result){p.face.assetId=null;p.faceTexture=validFaceTexture(p.faceTexture,32000);}return result;}
+export function cleanLineup(raw,team=0,network=false){const defaults=roster(team);const result=defaults.map((base,i)=>({...base,...cleanProfile(Array.isArray(raw)&&raw.length===11?raw[i]:base,base),role:i===0?'GK':(raw?.[i]?.role==='GK'?base.role:cleanProfile(raw?.[i]||base,base).role)}));if(network)for(const p of result){p.face.assetId=null;p.faceTexture=validFaceTexture(p.faceTexture,32000);p.faceUV=validFaceTexture(p.faceUV,28000);}return result;}
 export function applyLineups(match,lineups){for(let team=0;team<2;team++)for(const profile of cleanLineup(lineups?.[team],team))Object.assign(match.players[profile.id],profile);}
+// The room server refuses requests over 400,000 characters (server/worker.js). Eleven shared faces with both
+// photo textures could pass that, so the landmark-warp textures (faceUV) are dropped from the last players
+// first; those faces still show through the older atlas mapping (faceTexture).
+export const NETWORK_SQUAD_BUDGET=385000;
+export function fitSquadBudget(lineup,budget=NETWORK_SQUAD_BUDGET){for(let i=lineup.length-1;i>=0&&JSON.stringify(lineup).length>budget;i--)if(lineup[i].faceUV)lineup[i].faceUV=null;return lineup;}
