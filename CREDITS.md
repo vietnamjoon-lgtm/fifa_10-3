@@ -35,7 +35,7 @@ BVH files are not included in this repository.
 ## Player model in the game (`assets/human/rocketbox/`)
 
 - Microsoft Rocketbox Avatar Library, avatars `Sports_Male_02` and `Sports_Male_03` (football kit, socks and studded
-  boots modelled over the body). MIT License, Copyright (c) 2020 Microsoft (`licenses/ROCKETBOX-MIT.txt`).
+  boots modelled over the body), from their `_facial` exports (16 of the ARKit/FACS blendshapes kept as expressions). MIT License, Copyright (c) 2020 Microsoft (`licenses/ROCKETBOX-MIT.txt`).
   https://github.com/microsoft/Microsoft-Rocketbox (commit `0943055db6ec`).
 - **Changes made:** converted from FBX with `tools/human/rocketbox/01_convert.py` (Blender `bpy`): face, eye and finger
   bones merged into the head and hands (22 bones kept, renamed to the Mixamo names the game uses), metres, facing +Z.

@@ -9,11 +9,19 @@ const CELLS={backNumber:[0,256,200,256],backName:[0,0,512,128],sponsor:[0,128,25
 export const DECALS=Object.keys(CELLS);
 const NEUTRAL=.21586; // sRGB 128 in linear light
 
-function fitText(g,text,[x,y,w,h],weight,color){
+const SPORT_FONT='"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif';
+const luminance=hex=>{const n=parseInt(String(hex).replace('#','').padEnd(6,'0').slice(0,6),16);return (.2126*(n>>16&255)+.7152*(n>>8&255)+.0722*(n&255))/255;};
+/**
+ * Shirt lettering: bold condensed figures with a thin contrasting outline, names spaced out like printed
+ * kit names. `condense` narrows the glyphs, `spacing` adds letter spacing (em).
+ */
+function fitText(g,text,[x,y,w,h],weight,color,{condense=.86,spacing=0,outline=true}={}){
  x+=6;y+=6;w-=12;h-=12; // keep clear of the neighbouring cells
- g.save();g.fillStyle=color;g.textAlign='center';g.textBaseline='middle';let size=h*.86;g.font=`${weight} ${size}px Arial`;
- const width=g.measureText(text).width;if(width>w*.94){size*=w*.94/width;g.font=`${weight} ${size}px Arial`;}
- g.fillText(text,x+w/2,y+h*.53);g.restore();
+ g.save();g.textAlign='center';g.textBaseline='middle';let size=h*.9;const font=()=>{g.font=`${weight} ${size}px ${SPORT_FONT}`;if('letterSpacing' in g)g.letterSpacing=`${spacing*size}px`;};font();
+ const width=g.measureText(text).width*condense;if(width>w*.94){size*=w*.94/width;font();}
+ g.translate(x+w/2,y+h*.53);g.scale(condense,1);
+ if(outline){g.lineJoin='round';g.lineWidth=Math.max(2,size*.07);g.strokeStyle=luminance(color)>.5?'rgba(10,12,16,.55)':'rgba(255,255,255,.55)';g.strokeText(text,0,0);}
+ g.fillStyle=color;g.fillText(text,0,0);g.restore();
 }
 function drawCrest(g,crest,[x,y,w,h]){
  const c=crest||{shape:'shield',a:'#c6ff5d',b:'#183b27',glyph:'A'},s=Math.min(w,h)/128;g.save();g.translate(x+(w-128*s)/2,y+(h-128*s)/2);g.scale(s,s);g.beginPath();
@@ -27,8 +35,8 @@ export const shirtName=name=>String(name||'').trim().split(/[\s.]+/).filter(Bool
 /** Numbers, name, sponsor and crest for one player. */
 export function drawDecals(canvas,{number,name,text,chest,crest}){
  const g=canvas.getContext('2d');g.clearRect(0,0,canvas.width,canvas.height);
- fitText(g,String(number),CELLS.backNumber,'900',text);fitText(g,shirtName(name),CELLS.backName,'800',text);
- fitText(g,chest||'',CELLS.sponsor,'900',text);drawCrest(g,crest,CELLS.crest);fitText(g,String(number),CELLS.shortsNumber,'900',text);
+ fitText(g,String(number),CELLS.backNumber,'900',text,{condense:.8});fitText(g,shirtName(name),CELLS.backName,'700',text,{condense:.92,spacing:.12,outline:false});
+ fitText(g,chest||'',CELLS.sponsor,'900',text,{condense:.9,spacing:.04,outline:false});drawCrest(g,crest,CELLS.crest);fitText(g,String(number),CELLS.shortsNumber,'900',text,{condense:.8});
 }
 
 /**
@@ -79,9 +87,16 @@ if(kitPart>.5&&kitPart<5.5){
  diffuseColor.rgb=kitGloves*clamp(dot(diffuseColor.rgb,vec3(.2126,.7152,.0722))*2.2,.35,1.3);kitRough=.62;
 }else diffuseColor.rgb*=mix(vec3(1.0),skinTint,smoothstep(.2,.8,kitS.b));`;
 
+// Sheen tinted by the fabric (shirt and shorts more, socks less), clear coat only on boot uppers, none on skin.
+const kitPhysical=`#include <lights_physical_fragment>
+float kitFabric=kitPart>.5&&kitPart<4.5?(kitPart>3.5?.35:1.0):0.0;
+material.sheenColor*=kitFabric*(.1+.5*diffuseColor.rgb);
+material.clearcoat*=kitPart>4.5&&kitPart<5.5?1.0:0.0;`;
 /** Body material: shared textures, per-player uniforms. */
 export function kitMaterial({map,normalMap,mask,maskSmooth,layout},colours,decals,tint){
- const m=new THREE.MeshStandardMaterial({map,normalMap,roughness:.7,metalness:0});
+ // Rocketbox normal maps are DirectX style (green = down): lower lip, nose and chin undersides read >0.5.
+ // Physical: fabric sheen on the kit and a clear coat on the boot uppers, both masked per part in the shader.
+ const m=new THREE.MeshPhysicalMaterial({map,normalMap,normalScale:new THREE.Vector2(1,-1),roughness:.7,metalness:0,sheen:1,sheenRoughness:.55,sheenColor:0xffffff,clearcoat:1,clearcoatRoughness:.28});
  const u=m.userData.kit={kitMask:{value:mask},kitMaskSmooth:{value:maskSmooth||mask},kitDecals:{value:decals},skinTint:{value:tint.clone()},kitPattern:{value:0},kitKeeper:{value:0},
   decalRect:{value:DECALS.map(k=>new THREE.Vector4(...layout.decals[k]))},decalCell:{value:DECALS.map(k=>{const [x,y,w,h]=CELLS[k];return new THREE.Vector4(x/512,y/512,w/512,h/512);})},
   decalFlip:{value:DECALS.map(k=>layout.flipped.includes(k)?1:0)}};
@@ -89,8 +104,8 @@ export function kitMaterial({map,normalMap,mask,maskSmooth,layout},colours,decal
  setKitColours(m,colours);
  m.onBeforeCompile=shader=>{Object.assign(shader.uniforms,u);
   shader.vertexShader=shader.vertexShader.replace('#include <common>',vertexHead).replace('#include <begin_vertex>','#include <begin_vertex>\nvKitBind=kitBind;');
-  shader.fragmentShader=shader.fragmentShader.replace('#include <common>',fragmentHead).replace('#include <map_fragment>',fragmentKit).replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=kitRough;');};
- m.customProgramCacheKey=()=> 'rocketbox-kit-v2';
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>',fragmentHead).replace('#include <map_fragment>',fragmentKit).replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=kitRough;').replace('#include <lights_physical_fragment>',kitPhysical);};
+ m.customProgramCacheKey=()=> 'rocketbox-kit-v3';
  return m;
 }
 export function setKitColours(m,c){
@@ -98,15 +113,27 @@ export function setKitColours(m,c){
  u.kitShorts.value.set(c.shorts);u.kitSocks.value.set(c.socks);u.kitBoots.value.set(c.boots);u.kitGloves.value.set(c.gloves||'#ffffff');u.kitPattern.value=c.pattern;u.kitKeeper.value=c.gloves?1:0;
 }
 
-/** Head material: skin tint on the face and neck, hair tint on the painted hair; eyes, gums and teeth (mask G)
- * keep their colours. */
-export function headMaterial({map,normalMap,eyes,hairMask},tint,hairTint){
- const m=new THREE.MeshStandardMaterial({map,normalMap,roughness:.58,metalness:0});
- const u={skinTint:{value:tint.clone()},hairTint:{value:(hairTint||tint).clone()},eyesRect:{value:new THREE.Vector4(...eyes)},hairMask:{value:hairMask}};m.userData.kit=u;
+export const HAIR_STYLES={short:0,crest:0,crop:1,bald:2},BEARDS={none:0,stubble:1,beard:2};
+const headFragment=`#include <map_fragment>
+vec4 headM=texture2D(hairMask,vMapUv);vec3 base=diffuseColor.rgb;
+float grain=fract(sin(dot(floor(vMapUv*1400.0),vec2(12.9898,78.233)))*43758.5453);
+vec3 hairC=base*hairTint;
+// Crop and bald: the painted hair becomes scalp (with fine stubble for a crop).
+if(hairStyle>.5){float shape=clamp(dot(base,vec3(.2126,.7152,.0722))/max(dot(hairRef,vec3(.2126,.7152,.0722)),.005),.55,1.4);vec3 scalp=scalpColor*skinTint*(.84+.08*grain)*mix(1.0,shape,.22);hairC=mix(scalp,hairColor*.55,hairStyle<1.5?.45+.3*grain:.04);}
+vec3 col=mix(base*skinTint,hairC,headM.r);
+// Stubble or a beard on the jaw, chin and upper lip.
+if(beard>.5){float w=headM.b*(beard<1.5?(.25+.35*grain):(.5+.32*grain));col=mix(col,hairColor*(.5+.2*grain),w);}
+diffuseColor.rgb=mix(col,base,headM.g);`;
+/** Head material: skin tint on the face and neck, hair tint (or scalp for crop/bald) on the painted hair, an
+ * optional stubble or beard; eyes, gums and teeth (mask G) keep their colours. */
+export function headMaterial({map,normalMap,hairMask,scalp,hairRef},tint,hairTint,{hairStyle=0,beard=0,hair='#211a15'}={}){
+ const m=new THREE.MeshStandardMaterial({map,normalMap,normalScale:new THREE.Vector2(1,-1),roughness:.58,metalness:0}); // DirectX-style normal map
+ const u={skinTint:{value:tint.clone()},hairTint:{value:(hairTint||tint).clone()},hairMask:{value:hairMask},hairStyle:{value:hairStyle},beard:{value:beard},
+  hairColor:{value:new THREE.Color(hair)},scalpColor:{value:new THREE.Color(scalp||'#c18a6f')},hairRef:{value:new THREE.Color(hairRef||'#372619')}};m.userData.kit=u;
  m.onBeforeCompile=shader=>{Object.assign(shader.uniforms,u);
-  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 skinTint,hairTint;uniform vec4 eyesRect;uniform sampler2D hairMask;')
-   .replace('#include <map_fragment>','#include <map_fragment>\nvec4 headM=texture2D(hairMask,vMapUv);diffuseColor.rgb*=mix(mix(skinTint,hairTint,headM.r),vec3(1.0),headM.g);');};
- m.customProgramCacheKey=()=> 'rocketbox-head-v3';
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 skinTint,hairTint,hairColor,scalpColor,hairRef;uniform float hairStyle,beard;uniform sampler2D hairMask;')
+   .replace('#include <map_fragment>',headFragment);};
+ m.customProgramCacheKey=()=> 'rocketbox-head-v5';
  return m;
 }
 

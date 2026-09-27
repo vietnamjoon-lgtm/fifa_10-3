@@ -8,7 +8,7 @@ import {MeshoptDecoder} from '../vendor/three-addons/libs/meshopt_decoder.module
 import {clone} from '../vendor/three-addons/utils/SkeletonUtils.js';
 import {TEAMS} from './config.js';
 import {kitHooks} from './player.js';
-import {kitColours,kitMaterial,setKitColours,headMaterial,drawDecals,composePhotoHead} from './human-kit.js';
+import {kitColours,kitMaterial,setKitColours,headMaterial,drawDecals,composePhotoHead,HAIR_STYLES,BEARDS} from './human-kit.js';
 import {cleanFace,FACE_SHAPE} from './face-settings.js';
 
 // Old joint -> new bones, from tools/human/maps/game13.json (index 0 is the player's right side).
@@ -95,7 +95,10 @@ export function humanLook(profile={},number=10,avatars={male_02:{skin:'#c18a6f',
  const ratio=(want,have)=>{const l=(lum(want)/Math.max(lum(have),.005))**.6;return new THREE.Color(...['r','g','b'].map(k=>clamp(l*(1+((want[k]/Math.max(have[k],.005))/(lum(want)/Math.max(lum(have),.005))-1)*.45),.25,1.8)));};
  const tint=ratio(target,new THREE.Color(avatars[id].skin));
  const hairTint=ratio(new THREE.Color(profile.hair||'#211a15'),new THREE.Color(avatars[id].hairColor||'#2a1d14'));
- return {avatar:id,tint,hairTint};
+ // Beard: the profile's choice if it has one, otherwise a stable pick per player (about 40% none).
+ const seed=[...String(profile.uid??profile.name??number)].reduce((h,c)=>(h*31+c.charCodeAt(0))%9973,number*13),pick=seed%20;
+ const beard=BEARDS[profile.beard]??(pick<8?0:pick<15?1:2);
+ return {avatar:id,tint,hairTint,hairStyle:HAIR_STYLES[profile.hairStyle]??0,beard};
 }
 const bootColors=['#d3ff47','#f18e54','#dce7f0'];
 function coloursFor(look){return kitColours(TEAMS[look.team],{keeper:look.keeper,boots:look.profile.boots||bootColors[look.number%3]});}
@@ -191,26 +194,64 @@ export function reachAnkles(rig,root,bones,m,bind,worldScale){
   low.getWorldQuaternion(ik.qp);foot.quaternion.copy(ik.qp.invert().multiply(ik.foot));foot.updateMatrixWorld(true);
  });
 }
+// Expressions (Rocketbox ARKit shapes, tools/human/rocketbox/01_convert.py): blinking, eyes on the ball,
+// running effort, strike effort, celebration shouts and the camera celebration's wink and smile.
+export const EXPRESSIONS=['expr_blinkL','expr_blinkR','expr_squint','expr_wide','expr_jawOpen','expr_funnel','expr_smile','expr_stretch','expr_browUp','expr_browDown','expr_cheekPuff','expr_press','expr_eyesLeft','expr_eyesRight','expr_eyesUp','expr_eyesDown'];
+/**
+ * Target expression weights for one frame. `look` is the ball direction in the head frame (yaw, pitch in
+ * radians, positive = to the player's left / up) or null. Pure, so it can be tested.
+ */
+export function expressionTargets({time=0,seed=0,speed=0,action=null,state='',celebration=null,look=null}={}){
+ const e=Object.fromEntries(EXPRESSIONS.map(k=>[k,0]));
+ // Blinks every 2.5-5 s (per player), 0.16 s long, sometimes twice.
+ const period=2.5+(seed%100)/40,local=(time+seed*.37)%period,blink=t=>Math.max(0,1-Math.abs(t-.08)/.08),w=Math.max(blink(local),seed%3===0?blink(local-.3):0);
+ e.expr_blinkL=e.expr_blinkR=w;
+ const run=clamp((speed-3)/5,0,1);
+ e.expr_squint=.5*run;e.expr_stretch=.2*run;e.expr_jawOpen=run*(.18+.08*Math.sin(time*7+seed));e.expr_cheekPuff=.18*run*Math.max(0,Math.sin(time*3.5+seed));e.expr_browDown=.25*run;
+ if(action&&Math.abs((action.elapsed??0)-(action.contactAt??0))<.28){e.expr_press=.85;e.expr_squint=Math.max(e.expr_squint,.6);e.expr_browDown=.55;e.expr_jawOpen=0;}
+ if(state==='celebrate'){
+  if(celebration==='camera'){e.expr_blinkL=1;e.expr_blinkR=0;e.expr_smile=.75;e.expr_squint=.35;e.expr_jawOpen=.05;e.expr_browDown=0;}
+  else{const shout=.9+.1*Math.sin(time*9+seed);e.expr_jawOpen=shout;e.expr_browUp=.8;e.expr_stretch=.6;e.expr_wide=.45;e.expr_squint=0;e.expr_blinkL=e.expr_blinkR=0;}
+ }else if(speed<.3&&!action)e.expr_smile=.12+.1*Math.max(0,Math.sin(time*.45+seed));
+ if(look&&state!=='celebrate'){e.expr_eyesLeft=clamp(look[0]/.55,0,1);e.expr_eyesRight=clamp(-look[0]/.55,0,1);e.expr_eyesUp=clamp(look[1]/.35,0,1);e.expr_eyesDown=clamp(-look[1]/.35,0,1);}
+ return e;
+}
+const face={q:new THREE.Quaternion(),bind:new THREE.Quaternion(),f:new THREE.Vector3(),u:new THREE.Vector3(),l:new THREE.Vector3(),v:new THREE.Vector3(),h:new THREE.Vector3()};
+/** Ball direction in the head frame: [yaw to the player's left, pitch up], or null when far or behind. */
+function lookAtBall(head,bindHead,ball){
+ if(!ball)return null;head.getWorldQuaternion(face.q).multiply(face.bind.copy(bindHead).invert());head.getWorldPosition(face.h);
+ face.v.set(ball.x,ball.y,ball.z).sub(face.h);const d=face.v.length();if(d>35||d<.2)return null;
+ face.f.set(0,0,1).applyQuaternion(face.q);face.u.set(0,1,0).applyQuaternion(face.q);face.l.set(1,0,0).applyQuaternion(face.q);
+ const fwd=face.v.dot(face.f);if(fwd<=0)return null;return [Math.atan2(face.v.dot(face.l),fwd),Math.atan2(face.v.dot(face.u),fwd)];
+}
 function attach(rig){
  if(rig.human||rig.disposed)return;const look=rig.look||(rig.look={team:0,number:10,keeper:false,profile:{}}),m=rig.bodyMetrics;
- const {avatar:id,tint,hairTint}=humanLook(look.profile,look.number,assets.avatars),a=assets.avatars[id],bind=a.bind;
+ const {avatar:id,tint,hairTint,hairStyle,beard}=humanLook(look.profile,look.number,assets.avatars),a=assets.avatars[id],bind=a.bind;
  const root=clone(a.gltf.scene),bones={},meshes=[];root.traverse(o=>{if(o.isBone)bones[o.name]=o;if(o.isSkinnedMesh)meshes.push(o);});
  const decalCanvas=document.createElement('canvas');decalCanvas.width=decalCanvas.height=512;
  const decals=new THREE.CanvasTexture(decalCanvas);decals.flipY=false;decals.colorSpace=THREE.SRGBColorSpace;decals.anisotropy=4;
  const materials={
   body:kitMaterial({map:a.body,normalMap:a.bodyNormal,mask:assets.mask,maskSmooth:assets.maskSmooth,layout:assets.layout},coloursFor(look),decals,tint),
-  head:headMaterial({map:a.head,normalMap:a.headNormal,eyes:assets.layout.eyes,hairMask:a.hairMask},tint,hairTint),
+  head:headMaterial({map:a.head,normalMap:a.headNormal,hairMask:a.hairMask,scalp:a.skin,hairRef:a.hairColor},tint,hairTint,{hairStyle,beard,hair:look.profile.hair||'#211a15'}),
   hair:a.hair&&new THREE.MeshStandardMaterial({map:a.hair,color:hairTint,alphaTest:.5,side:THREE.DoubleSide,roughness:.8})};
- for(const mesh of meshes){mesh.material=materials[mesh.material.name]||materials.body;mesh.frustumCulled=false;mesh.castShadow=true;mesh.receiveShadow=true;}
+ for(const mesh of meshes){mesh.material=materials[mesh.material.name]||materials.body;mesh.frustumCulled=false;mesh.castShadow=true;mesh.receiveShadow=true;
+  // Only a full head of hair keeps the modelled locks; crop and bald show the scalp.
+  if(mesh.material===materials.hair&&hairStyle>0)mesh.visible=false;}
  // Profile height, limb lengths and girth; the feet then reach the old rig's ankles by IK every frame.
  const shape=bodyShape(m),worldScale=m.height/shapedHeight(bind,shape),toModel=m.scale/worldScale;root.scale.setScalar(1/toModel);
  const hipsLift=applyBodyShape(bones,meshes,shape,bind,faceShape(look.profile,look.number));
  // Hide the old body (its bones keep updating) but keep the blob shadow.
  rig.hips.visible=false;for(const c of rig.root.children)if(c.isMesh&&c.geometry?.type!=='CircleGeometry')c.visible=false;
  rig.details=[];rig.lod=[];rig.root.add(root);
- const skeletons=new Set(meshes.map(mesh=>mesh.skeleton));
+ const skeletons=new Set(meshes.map(mesh=>mesh.skeleton)),expr={values:{}},seed=[...String(look.profile.uid??look.profile.name??look.number)].reduce((h,c)=>(h*31+c.charCodeAt(0))%9973,look.number*7);
  rig.human={root,bones,meshes,materials,decals,decalCanvas,avatar:id,sync(){
   retarget(rig,bones,bind);
+  // Faces only when the player is big enough on screen to read one.
+  if(!rig.distant){const p=rig.animationPlayer||{},t=rig.animationTime||0;
+   const target=expressionTargets({time:t,seed:seed,speed:rig.animationSpeed||0,action:p.action,state:rig.motionState,celebration:p.celebration,look:lookAtBall(bones.Head,bind.model.Head,rig.animationBall)});
+   const k=1-Math.exp(-Math.min(.1,Math.max(0,t-(expr.time??t)))*18);expr.time=t;
+   for(const [name,v] of Object.entries(target)){const now=expr.values[name]??0,next=name.startsWith('expr_blink')?v:now+(v-now)*(k||1);expr.values[name]=next;for(const mesh of meshes){const i=mesh.morphTargetDictionary?.[name];if(i!==undefined)mesh.morphTargetInfluences[i]=next;}}
+  }
   bones.Hips.position.set(bind.hips.x+rig.hips.position.x*toModel,bind.hips.y+hipsLift+(rig.hips.position.y-m.hipY)*toModel,bind.hips.z+rig.hips.position.z*toModel);
   reachAnkles(rig,root,bones,m,bind,worldScale);
  },dispose(){live.delete(rig);root.removeFromParent();for(const mat of Object.values(materials))mat?.dispose();decals.dispose();rig.human.photoTexture?.dispose();for(const s of skeletons)s.dispose();}};

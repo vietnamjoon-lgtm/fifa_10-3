@@ -216,10 +216,11 @@ for avatar in AVATARS:
     flat = np.zeros((N, N))
     for x0, y0, x1, y1 in RECTS.values():
         flat[y0:y1, x0:x1] = 1
-    flat = np.clip(blur(flat, 5) * 1.6, 0, 1)
+    flat = np.clip(blur(flat, 7) * 1.6, 0, 1)
     around = valid & (flat < 0.05)
-    smooth = blur(np.where(around, shade, 0), 12) / np.maximum(blur(around.astype(float), 12), 1e-4)
-    shade = shade * (1 - flat) + np.clip(smooth, 0.85, 1.15) * flat
+    # The fill follows the surrounding fabric's light level (large-scale), so no lighter box shows.
+    smooth = blur(fill(np.where(around, shade, 1.0), around, sigmas=(4, 12, 30, 60)), 10)
+    shade = shade * (1 - flat) + np.clip(smooth, 0.8, 1.2) * flat
     shade = np.clip(shade, 0.6, 1.35)
     grey = np.clip(shade * 0.5, 0, 1)
     out = np.where(kit[..., None], grey[..., None].repeat(3, -1), rgb)
@@ -269,7 +270,18 @@ for avatar in AVATARS:
     corner = np.zeros((N, N), bool)
     corner[int(EYES[1]) + 20:, :int(EYES[2])] = True
     keep |= corner & (hv2 > 0.5) & (hs2 < 0.38)  # teeth
-    mask2 = np.stack([blur(hair.astype(float), 1.0), blur(keep.astype(float), 1.0), np.zeros((N, N))], -1)
+    # B: where a beard grows (jaw, chin, upper lip, under the chin), soft-edged; lips stay clear.
+    bimg = Image.new('L', (N, N), 0)
+    bd = ImageDraw.Draw(bimg)
+    P = lambda u, v: (u * N, v * N)
+    bd.ellipse([P(.33, .38), P(.67, .52)], fill=255)                 # jaw and chin
+    bd.rectangle([P(.31, .40), P(.36, .46)], fill=200)                # sideburn to jaw corners
+    bd.rectangle([P(.64, .40), P(.69, .46)], fill=200)
+    bd.ellipse([P(.445, .368), P(.555, .392)], fill=255)              # moustache
+    bd.rectangle([P(.30, .30), P(.70, .368)], fill=0)                 # nothing above the upper lip
+    bd.ellipse([P(.462, .388), P(.538, .418)], fill=0)                # lips
+    beard = blur(np.asarray(bimg).astype(float) / 255, 9) * (~keep)
+    mask2 = np.stack([blur(hair.astype(float), 1.0), blur(keep.astype(float), 1.0), np.clip(beard, 0, 1)], -1)
     Image.fromarray((mask2 * 255).astype(np.uint8)).save(os.path.join(OUT, f'{name}-hairmask.png'), optimize=True)
     for kind in ('body', 'head'):
         nm = tex(avatar, kind + '_normal')
