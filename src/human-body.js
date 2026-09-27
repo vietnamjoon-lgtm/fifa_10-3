@@ -8,7 +8,7 @@ import {MeshoptDecoder} from '../vendor/three-addons/libs/meshopt_decoder.module
 import {clone} from '../vendor/three-addons/utils/SkeletonUtils.js';
 import {TEAMS} from './config.js';
 import {kitHooks} from './player.js';
-import {kitColours,kitMaterial,setKitColours,headMaterial,drawDecals,composePhotoHead} from './human-kit.js';
+import {kitColours,kitMaterial,setKitColours,headMaterial,drawDecals,composePhotoHead,HAIR_STYLES,BEARDS} from './human-kit.js';
 import {cleanFace,FACE_SHAPE} from './face-settings.js';
 
 // Old joint -> new bones, from tools/human/maps/game13.json (index 0 is the player's right side).
@@ -95,7 +95,10 @@ export function humanLook(profile={},number=10,avatars={male_02:{skin:'#c18a6f',
  const ratio=(want,have)=>{const l=(lum(want)/Math.max(lum(have),.005))**.6;return new THREE.Color(...['r','g','b'].map(k=>clamp(l*(1+((want[k]/Math.max(have[k],.005))/(lum(want)/Math.max(lum(have),.005))-1)*.45),.25,1.8)));};
  const tint=ratio(target,new THREE.Color(avatars[id].skin));
  const hairTint=ratio(new THREE.Color(profile.hair||'#211a15'),new THREE.Color(avatars[id].hairColor||'#2a1d14'));
- return {avatar:id,tint,hairTint};
+ // Beard: the profile's choice if it has one, otherwise a stable pick per player (about 40% none).
+ const seed=[...String(profile.uid??profile.name??number)].reduce((h,c)=>(h*31+c.charCodeAt(0))%9973,number*13),pick=seed%20;
+ const beard=BEARDS[profile.beard]??(pick<8?0:pick<15?1:2);
+ return {avatar:id,tint,hairTint,hairStyle:HAIR_STYLES[profile.hairStyle]??0,beard};
 }
 const bootColors=['#d3ff47','#f18e54','#dce7f0'];
 function coloursFor(look){return kitColours(TEAMS[look.team],{keeper:look.keeper,boots:look.profile.boots||bootColors[look.number%3]});}
@@ -223,15 +226,17 @@ function lookAtBall(head,bindHead,ball){
 }
 function attach(rig){
  if(rig.human||rig.disposed)return;const look=rig.look||(rig.look={team:0,number:10,keeper:false,profile:{}}),m=rig.bodyMetrics;
- const {avatar:id,tint,hairTint}=humanLook(look.profile,look.number,assets.avatars),a=assets.avatars[id],bind=a.bind;
+ const {avatar:id,tint,hairTint,hairStyle,beard}=humanLook(look.profile,look.number,assets.avatars),a=assets.avatars[id],bind=a.bind;
  const root=clone(a.gltf.scene),bones={},meshes=[];root.traverse(o=>{if(o.isBone)bones[o.name]=o;if(o.isSkinnedMesh)meshes.push(o);});
  const decalCanvas=document.createElement('canvas');decalCanvas.width=decalCanvas.height=512;
  const decals=new THREE.CanvasTexture(decalCanvas);decals.flipY=false;decals.colorSpace=THREE.SRGBColorSpace;decals.anisotropy=4;
  const materials={
   body:kitMaterial({map:a.body,normalMap:a.bodyNormal,mask:assets.mask,maskSmooth:assets.maskSmooth,layout:assets.layout},coloursFor(look),decals,tint),
-  head:headMaterial({map:a.head,normalMap:a.headNormal,eyes:assets.layout.eyes,hairMask:a.hairMask},tint,hairTint),
+  head:headMaterial({map:a.head,normalMap:a.headNormal,hairMask:a.hairMask,scalp:a.skin,hairRef:a.hairColor},tint,hairTint,{hairStyle,beard,hair:look.profile.hair||'#211a15'}),
   hair:a.hair&&new THREE.MeshStandardMaterial({map:a.hair,color:hairTint,alphaTest:.5,side:THREE.DoubleSide,roughness:.8})};
- for(const mesh of meshes){mesh.material=materials[mesh.material.name]||materials.body;mesh.frustumCulled=false;mesh.castShadow=true;mesh.receiveShadow=true;}
+ for(const mesh of meshes){mesh.material=materials[mesh.material.name]||materials.body;mesh.frustumCulled=false;mesh.castShadow=true;mesh.receiveShadow=true;
+  // Only a full head of hair keeps the modelled locks; crop and bald show the scalp.
+  if(mesh.material===materials.hair&&hairStyle>0)mesh.visible=false;}
  // Profile height, limb lengths and girth; the feet then reach the old rig's ankles by IK every frame.
  const shape=bodyShape(m),worldScale=m.height/shapedHeight(bind,shape),toModel=m.scale/worldScale;root.scale.setScalar(1/toModel);
  const hipsLift=applyBodyShape(bones,meshes,shape,bind,faceShape(look.profile,look.number));

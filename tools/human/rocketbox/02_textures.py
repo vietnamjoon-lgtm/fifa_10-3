@@ -269,7 +269,18 @@ for avatar in AVATARS:
     corner = np.zeros((N, N), bool)
     corner[int(EYES[1]) + 20:, :int(EYES[2])] = True
     keep |= corner & (hv2 > 0.5) & (hs2 < 0.38)  # teeth
-    mask2 = np.stack([blur(hair.astype(float), 1.0), blur(keep.astype(float), 1.0), np.zeros((N, N))], -1)
+    # B: where a beard grows (jaw, chin, upper lip, under the chin), soft-edged; lips stay clear.
+    bimg = Image.new('L', (N, N), 0)
+    bd = ImageDraw.Draw(bimg)
+    P = lambda u, v: (u * N, v * N)
+    bd.ellipse([P(.33, .38), P(.67, .52)], fill=255)                 # jaw and chin
+    bd.rectangle([P(.31, .40), P(.36, .46)], fill=200)                # sideburn to jaw corners
+    bd.rectangle([P(.64, .40), P(.69, .46)], fill=200)
+    bd.ellipse([P(.445, .368), P(.555, .392)], fill=255)              # moustache
+    bd.rectangle([P(.30, .30), P(.70, .368)], fill=0)                 # nothing above the upper lip
+    bd.ellipse([P(.462, .388), P(.538, .418)], fill=0)                # lips
+    beard = blur(np.asarray(bimg).astype(float) / 255, 9) * (~keep)
+    mask2 = np.stack([blur(hair.astype(float), 1.0), blur(keep.astype(float), 1.0), np.clip(beard, 0, 1)], -1)
     Image.fromarray((mask2 * 255).astype(np.uint8)).save(os.path.join(OUT, f'{name}-hairmask.png'), optimize=True)
     for kind in ('body', 'head'):
         nm = tex(avatar, kind + '_normal')

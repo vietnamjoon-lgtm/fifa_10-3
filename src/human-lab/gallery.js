@@ -21,11 +21,11 @@ const pitch=new THREE.Mesh(new THREE.PlaneGeometry(60,30),new THREE.MeshStandard
 await loadHumanBodies(renderer);
 // [home club, away club, team index, keeper, profile]
 const LINE=[
- ['bucheon','seoul',0,false,{name:'J. KANG',number:10,skin:'#c89572',hairStyle:'short',height:1.81}],
+ ['bucheon','seoul',0,false,{name:'J. KANG',number:10,skin:'#c89572',hairStyle:'short',beard:'stubble',height:1.81}],
  ['bucheon','seoul',1,false,{name:'M. PARK',number:7,skin:'#976143',hairStyle:'crest',height:1.92,weight:84,body:{legLength:106}}],
- ['daejeon','pohang',0,false,{name:'S. LEE',number:9,skin:'#deb18a',hairStyle:'short',height:1.70,weight:63,body:{muscle:30,softness:15,shoulders:94,chest:92,waist:88,upperArm:88,thigh:90}}],
+ ['daejeon','pohang',0,false,{name:'S. LEE',number:9,skin:'#deb18a',hairStyle:'short',beard:'none',height:1.70,weight:63,body:{muscle:30,softness:15,shoulders:94,chest:92,waist:88,upperArm:88,thigh:90}}],
  ['daejeon','pohang',1,false,{name:'H. KIM',number:4,skin:'#74482f',hairStyle:'crest',height:1.86,weight:88,body:{muscle:90,softness:25,shoulders:112,chest:110,upperArm:118,thigh:115,calf:110}}],
- ['ulsan','seoul',0,false,{name:'D. CHOI',number:23,skin:'#e1ad88',hairStyle:'short',height:1.78,weight:92,body:{muscle:45,softness:80,waist:125,chest:106,thigh:112}}],
+ ['ulsan','seoul',0,false,{name:'D. CHOI',number:23,skin:'#e1ad88',hairStyle:'bald',beard:'beard',height:1.78,weight:92,body:{muscle:45,softness:80,waist:125,chest:106,thigh:112}}],
  ['seoul','bucheon',1,false,{name:'Y. JUNG',number:11,skin:'#bf8561',hairStyle:'crop',height:1.66,weight:60,body:{legLength:94,armLength:95}}],
  ['bucheon','seoul',0,true,{name:'K. HAN',number:1,skin:'#c89572',hairStyle:'short',height:1.94,weight:88,body:{armLength:108}}],
  // Photo face from the bundled fictional reference athlete (src/assets/default-face.jpg).

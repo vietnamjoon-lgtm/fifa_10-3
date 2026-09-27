@@ -133,3 +133,10 @@ test('expressions: blinks, running effort, strike effort, shouting and the camer
  // Every expression the game drives exists in both models.
  for(const model of MODELS){const b=fs.readFileSync(new URL(`../assets/human/rocketbox/${model}.glb`,import.meta.url)),j=JSON.parse(b.subarray(20,20+b.readUInt32LE(12)).toString());for(const k of EXPRESSIONS)assert.ok(j.meshes[0].extras.targetNames.includes(k),`${model} ${k}`);}
 });
+
+test('hair style and beard come from the profile, with a stable beard for players who never chose one',()=>{
+ assert.equal(humanLook({hairStyle:'bald'},3).hairStyle,2);assert.equal(humanLook({hairStyle:'crop'},3).hairStyle,1);assert.equal(humanLook({hairStyle:'short'},3).hairStyle,0);
+ assert.equal(humanLook({beard:'beard'},3).beard,2);assert.equal(humanLook({beard:'none'},3).beard,0);
+ assert.equal(humanLook({uid:'x1'},4).beard,humanLook({uid:'x1'},4).beard);
+ const counts=[0,0,0];for(let i=0;i<200;i++)counts[humanLook({uid:'p'+i},i).beard]++;assert.ok(counts.every(c=>c>20),JSON.stringify(counts));
+});

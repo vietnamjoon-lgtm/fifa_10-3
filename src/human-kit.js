@@ -98,15 +98,27 @@ export function setKitColours(m,c){
  u.kitShorts.value.set(c.shorts);u.kitSocks.value.set(c.socks);u.kitBoots.value.set(c.boots);u.kitGloves.value.set(c.gloves||'#ffffff');u.kitPattern.value=c.pattern;u.kitKeeper.value=c.gloves?1:0;
 }
 
-/** Head material: skin tint on the face and neck, hair tint on the painted hair; eyes, gums and teeth (mask G)
- * keep their colours. */
-export function headMaterial({map,normalMap,eyes,hairMask},tint,hairTint){
+export const HAIR_STYLES={short:0,crest:0,crop:1,bald:2},BEARDS={none:0,stubble:1,beard:2};
+const headFragment=`#include <map_fragment>
+vec4 headM=texture2D(hairMask,vMapUv);vec3 base=diffuseColor.rgb;
+float grain=fract(sin(dot(floor(vMapUv*1400.0),vec2(12.9898,78.233)))*43758.5453);
+vec3 hairC=base*hairTint;
+// Crop and bald: the painted hair becomes scalp (with fine stubble for a crop).
+if(hairStyle>.5){float shape=clamp(dot(base,vec3(.2126,.7152,.0722))/max(dot(hairRef,vec3(.2126,.7152,.0722)),.005),.55,1.4);vec3 scalp=scalpColor*skinTint*(.84+.08*grain)*mix(1.0,shape,.22);hairC=mix(scalp,hairColor*.55,hairStyle<1.5?.45+.3*grain:.04);}
+vec3 col=mix(base*skinTint,hairC,headM.r);
+// Stubble or a beard on the jaw, chin and upper lip.
+if(beard>.5){float w=headM.b*(beard<1.5?(.25+.35*grain):(.5+.32*grain));col=mix(col,hairColor*(.5+.2*grain),w);}
+diffuseColor.rgb=mix(col,base,headM.g);`;
+/** Head material: skin tint on the face and neck, hair tint (or scalp for crop/bald) on the painted hair, an
+ * optional stubble or beard; eyes, gums and teeth (mask G) keep their colours. */
+export function headMaterial({map,normalMap,hairMask,scalp,hairRef},tint,hairTint,{hairStyle=0,beard=0,hair='#211a15'}={}){
  const m=new THREE.MeshStandardMaterial({map,normalMap,roughness:.58,metalness:0});
- const u={skinTint:{value:tint.clone()},hairTint:{value:(hairTint||tint).clone()},eyesRect:{value:new THREE.Vector4(...eyes)},hairMask:{value:hairMask}};m.userData.kit=u;
+ const u={skinTint:{value:tint.clone()},hairTint:{value:(hairTint||tint).clone()},hairMask:{value:hairMask},hairStyle:{value:hairStyle},beard:{value:beard},
+  hairColor:{value:new THREE.Color(hair)},scalpColor:{value:new THREE.Color(scalp||'#c18a6f')},hairRef:{value:new THREE.Color(hairRef||'#372619')}};m.userData.kit=u;
  m.onBeforeCompile=shader=>{Object.assign(shader.uniforms,u);
-  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 skinTint,hairTint;uniform vec4 eyesRect;uniform sampler2D hairMask;')
-   .replace('#include <map_fragment>','#include <map_fragment>\nvec4 headM=texture2D(hairMask,vMapUv);diffuseColor.rgb*=mix(mix(skinTint,hairTint,headM.r),vec3(1.0),headM.g);');};
- m.customProgramCacheKey=()=> 'rocketbox-head-v3';
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 skinTint,hairTint,hairColor,scalpColor,hairRef;uniform float hairStyle,beard;uniform sampler2D hairMask;')
+   .replace('#include <map_fragment>',headFragment);};
+ m.customProgramCacheKey=()=> 'rocketbox-head-v5';
  return m;
 }
 
