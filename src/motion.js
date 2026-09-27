@@ -132,19 +132,21 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  if(action?.type==='pass'||action?.type==='through'){const w=Math.sin(clamp((action.elapsed||0)/((action.contactAt||.18)+.25),0,1)*Math.PI),i=sideIndex(action.foot);pose.legs[i].upper[1]+=(i===0?-.5:.5)*w;pose.feet[i][1]+=(i===0?-.4:.4)*w;}
  if(!action&&p.dribblePose&&time<p.dribblePose.start+p.dribblePose.duration){const r=p.dribblePose,w=Math.sin(clamp((time-r.start)/r.duration,0,1)*Math.PI),i=sideIndex(r.foot);pose.legs[i].upper[0]-=.10*w;pose.feet[i][1]+=(i===0?-.12:.12)*w;}
  if(action?.type==='shoot'&&(action.flair||String(action.flightStyle).toLowerCase().includes('outside'))){const i=sideIndex(action.foot),w=Math.sin(clamp(action.elapsed/((action.contactAt||.24)+.25),0,1)*Math.PI);pose.feet[i][1]+=(i===0?.45:-.45)*w;pose.legs[i].upper[1]+=(i===0?.3:-.3)*w;}
- if(action?.type==='feint')applySkillPose(pose,action);
  if(celebrate&&!p.down&&!action)applyCelebration(pose,p,time);
- if(!action&&!p.down&&!p.dive&&!celebrate&&!pose.state.startsWith('receive')&&!(p.interaction&&time<p.interaction.until)){
+ // A table skill move (skill-moves.js) keeps the running legs as its base and is layered on after them,
+ // so starting or ending a move no longer snaps the legs to a separate pose.
+ if((!action||action.type==='feint')&&!p.down&&!p.dive&&!celebrate&&!pose.state.startsWith('receive')&&!(p.interaction&&time<p.interaction.until)){
   const gait=gaitTargets(p,phase),m=gait.metrics;pose.hipY=Math.min(pose.hipY,gait.hipY);pose.contacts=gait.contacts;pose.gaitTargets=gait.feet;
   for(let i=0;i<2;i++){const target=gait.feet[i],leg=solveLeg(target.z,target.y,pose.hipY+m.hipOffset,m.upperLeg,m.lowerLeg);pose.legs[i].upper[0]=leg[0];pose.legs[i].lower[0]=leg[1];pose.legs[i].upper[2]=-Math.atan2(target.x-(i===0?-1:1)*m.hipX,Math.max(.3,pose.hipY+m.hipOffset-.075-target.y));pose.feet[i]=[-pose.hips[0]-leg[0]-leg[1],0,-pose.legs[i].upper[2]];}
  }
+ if(action?.type==='feint')applySkillPose(pose,action);
  if(!action&&!p.down&&!p.dive&&!celebrate){
   if(p.turnPlan&&time<p.turnPlan.start+p.turnPlan.duration){const u=clamp((time-p.turnPlan.start)/p.turnPlan.duration,0,1);blendUpperCapture(pose,'turn',u*mocap.turn.duration,.22*Math.sin(u*Math.PI)**2,p.turnPlan.angle<0);}
   else if((kinematics.acceleration||0)<-2)blendUpperCapture(pose,'stop',mocap.stop.duration-clamp(speed/8,0,1)*.7,.20*smooth((-(kinematics.acceleration||0)-2)/6));
  }
  // Carrying the ball: chest and eyes over the ball and the arms a little wider for balance, as a dribbler runs,
  // instead of the upright jogging posture the ball carrier used to share with everyone else.
- if(ball&&!action&&!p.down&&!p.dive&&!celebrate&&speed>.4&&(ball.y??0)<.5){const d=Math.hypot(ball.x-p.x,ball.z-p.z),w=clamp((1.4-d)/.6,0,1)*clamp(speed/2,0,1);if(w>0){pose.torso[0]+=.1*w;pose.head[0]+=.12*w;for(let i=0;i<2;i++){pose.arms[i].upper[2]+=(i===0?-1:1)*.16*w;pose.arms[i].lower[0]-=.12*w;}}}
+ if(ball&&(!action||action.type==='feint')&&!p.down&&!p.dive&&!celebrate&&speed>.4&&(ball.y??0)<.5){const d=Math.hypot(ball.x-p.x,ball.z-p.z),w=clamp((1.4-d)/.6,0,1)*clamp(speed/2,0,1);if(w>0){pose.torso[0]+=.1*w;pose.head[0]+=.12*w;for(let i=0;i<2;i++){pose.arms[i].upper[2]+=(i===0?-1:1)*.16*w;pose.arms[i].lower[0]-=.12*w;}}}
  // Keep daylight between the upper arms and the ribs. With less than about 11 degrees of abduction the sleeve pressed into
  // the flank and arm and body read as one piece; poses that already hold the arms wider are left alone.
  for(let i=0;i<2;i++){const out=i===0?-1:1,upper=pose.arms[i].upper;if(upper[2]*out<ARM_CLEARANCE)upper[2]=out*ARM_CLEARANCE;}
