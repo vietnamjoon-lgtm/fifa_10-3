@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import {cleanFace,cleanCrop,projectionSample,validFaceTexture} from '../src/face-settings.js';
 import {humanHeadGeometry} from '../src/human-head.js';
 import {cleanFaceAsset,warpFaceV} from '../src/face-assets.js';
-import {triangleTransform,MAX_MAGNIFY} from '../src/face-uv.js';
+import {triangleTransform,MAX_MAGNIFY,boxBlur1ch} from '../src/face-uv.js';
 import {cleanLibrary,defaultSquads,cleanLineup,applyLineups} from '../src/squads.js';
 import {Room} from '../server/room.js';
 const jpeg='data:image/jpeg;base64,/9j/'+ 'A'.repeat(200) + '/9k=';
@@ -36,6 +36,17 @@ test('triangleTransform maps a source triangle exactly onto its destination tria
  for(const [s,d] of [[[0,0],[5,7]],[[1,0],[7,7]],[[0,1],[5,9]],[[2,3],[9,13]]]){const [x,y]=at(s);assert.ok(Math.abs(x-d[0])<1e-9&&Math.abs(y-d[1])<1e-9);}
  assert.throws(()=>triangleTransform([0,0],[1,0],[2,0],[0,0],[1,0],[0,1]),'collinear source triangle is degenerate');
 });
+test('boxBlur1ch turns a hard step into a real gradient (regression: ctx.filter blur silently no-opped in production, leaving a hard-edged face mask)',()=>{
+ const N=64,a=new Float32Array(N*N);
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++)a[y*N+x]=x<N/2?255:0;
+ const blurred=boxBlur1ch(a,N,8);
+ const row=16,distinct=new Set();
+ for(let x=0;x<N;x++)distinct.add(Math.round(blurred[row*N+x]));
+ assert.ok(distinct.size>10,`expected a real gradient, got ${distinct.size} distinct values`);
+ assert.ok(Math.abs(blurred[row*N+2]-255)<5,'far from the edge stays at the fill value');
+ assert.ok(blurred[row*N+N-3]<5,'far on the other side stays at 0');
+ let prev=blurred[row*N];for(let x=1;x<N;x++){assert.ok(blurred[row*N+x]<=prev+1e-6,`not monotonically non-increasing at x=${x}`);prev=blurred[row*N+x];}
+});
 test('face asset import accepts a triangle-warp faceUV bake and keeps older assets without one valid',()=>{
  const withUV=cleanFaceAsset({id:'face-uv',atlas:jpeg,online:jpeg,faceUV:jpeg,faceUVOnline:jpeg,skin:'#c89572'});
  assert.equal(withUV.faceUV,jpeg);assert.equal(withUV.faceUVOnline,jpeg);
@@ -45,22 +56,28 @@ test('face asset import accepts a triangle-warp faceUV bake and keeps older asse
 });
 test('network face sharing carries the small faceUV variant, not the full-size one',()=>{const d=defaultSquads().players.slice(0,11);d[9].face={enabled:true,assetId:'local-uv'};d[9].faceTexture=jpeg;d[9].faceUV=jpeg;const shared=cleanLineup(d,1,true)[9];assert.equal(shared.faceUV,jpeg);d[9].faceUV='data:image/jpeg;base64,'+'A'.repeat(29000);assert.equal(cleanLineup(d,1,true)[9].faceUV,null);});
 
-test('most canonical-to-head-UV triangles stay under the magnification cap; only a known few near-closed features are skipped',()=>{
- // A closed mouth/eye collapses those landmarks' source triangles near to a point while the head's own UV
- // keeps real separation there, so those specific triangles legitimately exceed MAX_MAGNIFY and get skipped
- // by src/face-uv.js warpTriangles (this is what produced the torn-streak bug that fix caught). Guards against
- // a future calibration regeneration silently making this much worse across the whole face. Scaled the same
- // way as the real bake (src/face-assets.js bakeFaceUV: canonical UV * 512) and compose
- // (src/human-kit.js composePhotoHead: head UV * 1024), so the ratio matches production exactly.
- const FACE_UV_SIZE=512,HEAD_SIZE=1024;
+test('most canonical-to-head-UV triangles stay under the magnification cap or edge-length cap; only known outliers are skipped',()=>{
+ // Two independent reasons a triangle is dropped, both real calibration characteristics rather than bugs:
+ // (1) a closed mouth/eye collapses those landmarks' source triangles near to a point while the head's own
+ // UV keeps real separation there (MAX_MAGNIFY, the torn-streak bug that first fix caught); (2) some eyelid
+ // landmarks' matching eye-interior landmark raycasts onto the model's separate eyeball texture swatch, far
+ // from the face -- a real, moderate-area sliver reaching hundreds of pixels away that MAX_MAGNIFY alone
+ // doesn't catch (the black-seam-to-the-chin bug the maxEdge argument to warpTriangles catches instead).
+ // Guards against a future calibration regeneration silently making either much worse across the whole face.
+ // Scaled the same way as the real bake (src/face-assets.js bakeFaceUV: canonical UV * 512) and compose
+ // (src/human-kit.js composePhotoHead: head UV * 1024, maxEdge = 1024 * .12), so both ratios match production.
+ const FACE_UV_SIZE=512,HEAD_SIZE=1024,MAX_EDGE=HEAD_SIZE*.12;
  for(const avatar of ['male_02','male_03']){
   const src=canonicalFace.uv.map(([u,v])=>[u*FACE_UV_SIZE,v*FACE_UV_SIZE]),dst=faceLandmarksUV[avatar].map(([u,v])=>[u*HEAD_SIZE,v*HEAD_SIZE]);
-  let skipped=0;
+  let skippedMagnify=0,skippedEdge=0;
   for(const [i,j,k] of canonicalFace.triangles){
-   let m;try{m=triangleTransform(src[i],src[j],src[k],dst[i],dst[j],dst[k]);}catch{skipped++;continue;}
-   if(Math.abs(m.a*m.d-m.b*m.c)>MAX_MAGNIFY)skipped++;
+   const edge=Math.max(Math.hypot(dst[i][0]-dst[j][0],dst[i][1]-dst[j][1]),Math.hypot(dst[j][0]-dst[k][0],dst[j][1]-dst[k][1]),Math.hypot(dst[k][0]-dst[i][0],dst[k][1]-dst[i][1]));
+   if(edge>MAX_EDGE){skippedEdge++;continue;}
+   let m;try{m=triangleTransform(src[i],src[j],src[k],dst[i],dst[j],dst[k]);}catch{skippedMagnify++;continue;}
+   if(Math.abs(m.a*m.d-m.b*m.c)>MAX_MAGNIFY)skippedMagnify++;
   }
-  assert.ok(skipped<60,`${avatar}: ${skipped}/${canonicalFace.triangles.length} triangles skipped`);
+  assert.ok(skippedEdge>0&&skippedEdge<150,`${avatar}: ${skippedEdge} triangles skipped by edge length`);
+  assert.ok(skippedMagnify<60,`${avatar}: ${skippedMagnify}/${canonicalFace.triangles.length} triangles skipped by magnification`);
  }
 });
 
