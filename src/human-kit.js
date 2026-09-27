@@ -140,11 +140,20 @@ export function headMaterial({map,normalMap,hairMask,scalp,hairRef},tint,hairTin
 // Photo faces: the editor's atlas (src/face-assets.js bakeFaceAsset, 1024 x 512, front at u = .5) and the
 // Rocketbox head texture are both unwrapped by angle around the head. Landmarks (eyes, nose, mouth, chin,
 // ears) are matched with piecewise-linear maps, and only the face oval is blended over the painted head.
-const ATLAS_V=[0,.205,.44,.59,.775,.92,1],HEAD_V=[.06,.17,.283,.342,.40,.483,.53];
+// Real mouths are wider and fuller than the Rocketbox mouth (photo corners at +-.056 of the atlas against +-.045
+// of the head, the lower lip twice as deep), so the rows around the mouth pull the photo's lips onto the model's.
+const ATLAS_V=[0,.205,.44,.59,.775,.835,.92,1],HEAD_V=[.06,.17,.283,.342,.40,.42,.483,.53];
+const MOUTH_HEAD=[0,.045,.095],MOUTH_ATLAS=[0,.056,.077];
+// The same for the nostrils: a photo nose spreads wider than the Rocketbox nose (alae at +-.041 of the head).
+const NOSE_HEAD=[0,.031,.08],NOSE_ATLAS=[0,.030,.0586];
+const band=(v,a,b,soft)=>{const t=x=>Math.min(1,Math.max(0,x)),k=t((v-a+soft)/soft)*t((b+soft-v)/soft);return k*k*(3-2*k);};
 const ATLAS_U=[0,.052,.155,.305,.5],HEAD_U=[0,.071,.17,.246,.5]; // distance from the face centre line
 const lerpMap=(x,from,to)=>{if(x<=from[0])return to[0];for(let i=1;i<from.length;i++)if(x<=from[i])return to[i-1]+(to[i]-to[i-1])*(x-from[i-1])/(from[i]-from[i-1]);return to.at(-1);};
 /** Head texture position -> atlas position (the inverse of the landmark maps). */
-export function headToAtlas(u,v){const d=Math.abs(u-.5),s=u<.5?-1:1;return [.5+s*lerpMap(d,HEAD_U,ATLAS_U),lerpMap(v,HEAD_V,ATLAS_V)];}
+export function headToAtlas(u,v){
+ const d=Math.abs(u-.5),s=u<.5?-1:1,face=lerpMap(d,HEAD_U,ATLAS_U),m=d<.095?band(v,.375,.43,.03):0,n=d<.08?band(v,.322,.352,.015):0;
+ return [.5+s*(face+(lerpMap(d,MOUTH_HEAD,MOUTH_ATLAS)-face)*m+(lerpMap(d,NOSE_HEAD,NOSE_ATLAS)-face)*n),lerpMap(v,HEAD_V,ATLAS_V)];
+}
 /** Blend weight of the photo at a head texture position: the face oval, softened at the edge and around the eyes. */
 export function photoWeight(u,v){
  // Oval from under the photo's fringe (v ~.21) to the chin, cheek to cheek.

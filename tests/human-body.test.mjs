@@ -177,3 +177,18 @@ test('camera frame: index knuckles on the frame corners in front of the eyes, fi
    }}
  }
 });
+
+test('beard choice is saved, and legacy or unknown values fall back to the per-player pick',async()=>{
+ const {cleanProfile}=await import('../src/squads.js');
+ assert.equal(cleanProfile({beard:'stubble'}).beard,'stubble');assert.equal(cleanProfile({}).beard,'auto');assert.equal(cleanProfile({beard:'<b>'}).beard,'auto');
+ assert.equal(humanLook({beard:'none'},3).beard,0);assert.equal(humanLook({beard:'beard'},3).beard,2);
+ assert.equal(humanLook({beard:'auto',uid:'x'},3).beard,humanLook({uid:'x'},3).beard);
+});
+
+test('photo mouth and nostrils are pulled onto the model mouth and nose, continuously',()=>{
+ const near=(a,b,e=1e-3)=>assert.ok(Math.abs(a-b)<e,`${a} vs ${b}`);
+ near(headToAtlas(.545,.40)[0],.556);near(headToAtlas(.455,.40)[0],.444);near(headToAtlas(.531,.335)[0],.53);
+ // No jumps across the edges of the warped areas.
+ for(const v of [.32,.345,.37,.40,.44,.47])for(let d=0;d<.2;d+=.002)assert.ok(Math.abs(headToAtlas(.5+d+.002,v)[0]-headToAtlas(.5+d,v)[0])<.005,`${v} ${d}`);
+ for(let v=.25;v<.5;v+=.002)assert.ok(Math.abs(headToAtlas(.53,v+.002)[0]-headToAtlas(.53,v)[0])<.005,`v ${v}`);
+});

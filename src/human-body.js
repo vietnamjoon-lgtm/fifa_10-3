@@ -332,7 +332,9 @@ function attach(rig){
  rig.hips.visible=false;for(const c of rig.root.children)if(c.isMesh&&c.geometry?.type!=='CircleGeometry')c.visible=false;
  rig.details=[];rig.lod=[];rig.root.add(root);
  const skeletons=new Set(meshes.map(mesh=>mesh.skeleton)),expr={values:{}},seed=[...String(look.profile.uid??look.profile.name??look.number)].reduce((h,c)=>(h*31+c.charCodeAt(0))%9973,look.number*7);
- rig.human={root,bones,meshes,materials,decals,decalCanvas,avatar:id,sync(){
+ rig.human={root,bones,meshes,materials,decals,decalCanvas,avatar:id,
+  /** Eye centre in world space (portrait cameras). */
+  eye(target){root.updateMatrixWorld(true);return target.copy(bind.eye).applyMatrix4(bones.Head.matrixWorld);},sync(){
   retarget(rig,bones,bind);
   // Faces only when the player is big enough on screen to read one.
   if(!rig.distant){const p=rig.animationPlayer||{},t=rig.animationTime||0;
