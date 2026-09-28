@@ -38,9 +38,14 @@ export class Input{
   this.press=!this.legacy&&!attack&&has(this.tactical?'KeyS':'KeyD');this.autoDefend=!this.legacy&&!attack&&has('KeyD');
   this.keeperRush=!this.legacy&&!attack&&has('KeyW');this.knock=!this.legacy&&has('ControlLeft','ControlRight');
  }
- modifiers(){return {curve:this.curve,chip:this.chip,low:this.low,flair:!this.legacy&&this.keys.has('KeyC')};}
- startShot(){if(this.now()-this.lastShot<310){this.emit('lowShot');this.lastShot=-1e6;return;}this.charging=true;this.shotOptions=this.modifiers();this.emit('charge',this.shotOptions);}
+ // Power shot as in FC Online: F held when D goes down (keyboard "FD"), or LB+RB on a pad.
+ modifiers(){const powerShot=!this.legacy&&(this.keys.has('KeyF')||this.padPower);return {curve:this.curve&&!powerShot,chip:this.chip&&!powerShot,low:this.low,flair:!this.legacy&&this.keys.has('KeyC')&&!powerShot,powerShot};}
+ startShot(){const mods=this.modifiers();if(!mods.powerShot&&this.now()-this.lastShot<310){this.emit('lowShot');this.lastShot=-1e6;return;}this.charging=true;this.shotOptions=mods;
+  // FD belongs to the shot, not to a skill move: drop the F gesture so releasing F does not fire one.
+  if(mods.powerShot){this.gesture=null;this.gestureKeys=null;this.shiftAxis=null;}
+  this.emit('charge',this.shotOptions);}
  passCommand(){
+  if(this.charging&&this.shotOptions.powerShot){this.charging=false;this.shotOptions={};this.emit('cancel');return;}
   if(this.charging||this.now()-this.lastShot<310||this.now()-this.lastLob<310){this.charging=false;this.lastShot=this.lastLob=-1e6;this.emit('fake',{mods:{c:this.keys.has('KeyC')}});return;}
   this.emit('pass',{driven:this.keys.has('KeyZ'),oneTwo:this.keys.has('KeyQ'),flair:this.keys.has('KeyC')});
  }
@@ -58,6 +63,8 @@ export class Input{
    if(context.setPiece==='free'&&/^Digit[1-7]$/.test(code)&&!this.keys.has('ShiftLeft')&&!this.keys.has('ShiftRight')){this.emit('setpieceStyle',{style:Object.keys(SETPIECE_STYLES)[Number(code.slice(5))-1]});return;}
    // Numbered skills: 1~7 alone in open play (the digits pick a free-kick style at a free kick), or Shift + 1~7.
    if(/^Digit[1-7]$/.test(code)){this.emit('skill',{skill:Object.keys(SKILLS)[Number(code.slice(5))-1]});return;}
+   // "DZ": Z added after D while the shot charges curls it higher, faster and harder than "ZD" (Z first).
+   if(code==='KeyZ'&&this.charging&&!this.shotOptions.curve&&!this.shotOptions.powerShot&&!this.keys.has('KeyC')&&!this.keys.has('KeyQ')){this.shotOptions={...this.shotOptions,curve:true,curveLate:true};return;}
    if(code==='KeyD')this.startShot();if(code==='KeyS')this.passCommand();if(code==='KeyA')this.lobCommand();
    if(code==='KeyW')this.emit('through',{lob:this.keys.has('KeyQ'),driven:this.keys.has('KeyZ')});
    this.skillKeyDown(code);
@@ -115,13 +122,13 @@ export class Input{
    const x=pad.axes[0]||0,z=pad.axes[1]||0,mag=Math.hypot(x,z),dead=this.settings.deadzone;
    if(mag>dead){const value=clamp((mag-dead)/(1-dead)*this.settings.sensitivity,0,1);this.axis={x:x/mag*value,z:z/mag*value};}
    const trigger=pad.buttons[7]?.value||0;this.sprint||=trigger>.3;this.sprintAmount=Math.max(this.sprintAmount,this.settings.analogSprint?trigger:trigger>.3?1:0);this.defend||=(pad.buttons[6]?.value||0)>.3;this.shield=attack&&this.defend;
-   this.curve||=button(5);this.chip||=button(4);this.closeControl||=attack&&button(5);
+   this.padPower=attack&&button(4)&&button(5);this.curve||=button(5);this.chip||=button(4);this.closeControl||=attack&&button(5);
    this.teamPress||=!attack&&button(5);this.press||=!attack&&button(0);this.autoDefend||=!attack&&button(1);this.keeperRush||=!attack&&button(3);
    pad.buttons.forEach((b,i)=>{
     if(b.pressed&&!this.gamepadButtons[i]&&(this.enabled||i===9)){
      if(i===9)this.emit('pause');else if(i===8)this.emit('camera');
      else if(context.keeperHolding){if(i===0)this.emit('keeperPass');if(i===1||i===2)this.emit('keeperKick');if(i===3)this.emit('keeperDrop');}
-     else if(attack){if(i===1)this.startShot();if(i===0){if(this.charging){this.charging=false;this.emit('fake');}else this.emit('pass',{oneTwo:button(4),driven:button(5)});}if(i===2)this.emit('lob',{early:button(4),bounce:button(5)});if(i===3)this.emit('through',{lob:button(4),driven:button(5)});if(i===4)this.emit('run');}
+     else if(attack){if(i===1)this.startShot();if(i===0){if(this.charging){this.charging=false;this.emit(this.shotOptions.powerShot?'cancel':'fake');}else this.emit('pass',{oneTwo:button(4),driven:button(5)});}if(i===2)this.emit('lob',{early:button(4),bounce:button(5)});if(i===3)this.emit('through',{lob:button(4),driven:button(5)});if(i===4)this.emit('run');}
      else {if(i===4)this.emit('switch');if(i===1||(!this.tactical&&i===0))this.emit('tackle',{automatic:true});if(i===2)this.emit('slide');}
     }
     if(!b.pressed&&this.gamepadButtons[i]&&i===1&&this.charging){this.charging=false;this.lastShot=this.now();if(this.enabled)this.emit('shoot',this.shotOptions);}

@@ -1,3 +1,4 @@
+import {SHOT_STYLE,finesseFlight,powerShotFlight,powerShotTarget} from './shot-styles.js';
 import {chooseCross,crossFlight} from './crossing.js';
 import {arrangeSetPiece,updateSetPiece,restartShotTarget,penaltyFlight,secondTouch,RESTART_DISTANCE} from './setpieces.js';
 import {followPassEnabled,createPassFlight,guidePass} from './guided-pass.js';
@@ -55,7 +56,7 @@ export class Match{
  if(!aim){
   const axis=this.input.axis||{x:0,z:0},hasInput=Math.hypot(axis.x,axis.z)>.2;
   if(type==='shoot'){
-   target=restartShotTarget(this,p)||shotTarget(this,p,axis);
+   target=restartShotTarget(this,p)||(options.powerShot?powerShotTarget(this,p,axis):shotTarget(this,p,axis));
    aim=target?{x:target.x-ball.x,z:target.z-ball.z}:{x:axis.x,z:axis.z};
   }else{
    const mode=p===this.controlled?(this.settings[type==='lob'?'crossAssist':type==='through'?'throughAssist':'passAssist']||'auto'):'auto';
@@ -69,7 +70,9 @@ export class Match{
  p.action={id:++this.actionId,foot:chooseKickFoot(p,ball,aim),inputTime:this.time,acceptedTime:this.time,animationStart:this.time,type,elapsed:0,contactAt:type==='shoot'?.24:.18,hit:false,power:clamp(power,0,1),aim:{x:aim.x/length,z:aim.z/length},distance:length,target,receiver,assistOffset,...options,curve:(options.curve??source.curve)?18:0,low:options.low??source.low,chip:options.chip??source.chip,aerial:ball.y>.65};
  // A knocked-on ball is planned at touching range: the windup closes the gap before contact.
  const gap=distance(p,ball),near=ASSIST.touchRadius*.98,planBall=gap>near?{x:p.x+(ball.x-p.x)*near/gap,y:ball.y,z:p.z+(ball.z-p.z)*near/gap}:ball;
- const plan=planKick(p,p.action,planBall,this.time);if(!plan){p.action=null;return false;}Object.assign(p.action,plan);p.action.contactTarget={x:ball.x,y:ball.y,z:ball.z};
+ const plan=planKick(p,p.action,planBall,this.time);if(!plan){p.action=null;return false;}Object.assign(p.action,plan);
+ // Power shot: a longer wind-up (the kick clip is time-warped within its 1.4x limit), so it can be closed down.
+ if(p.action.powerShot&&type==='shoot'){const k=SHOT_STYLE.power.windup,a=p.action;a.contactAt*=k;a.commitAt=Math.max(.04,a.contactAt-.055);a.plannedContact=this.time+a.contactAt;a.nextActionAllowed=a.plannedContact+(a.recovery||.36);if(a.events)a.events=a.events.map(e=>e.id==='ball-contact'?{...e,at:a.contactAt}:e);}p.action.contactTarget={x:ball.x,y:ball.y,z:ball.z};
  p.action.restartKind=this.setPiece?.taker===p?this.setPiece.kind:null;
  if(this.setPiece?.kind==='free'&&type==='shoot')p.action.flightStyle=this.setPiece.style||'inside';
  if(this.setPiece?.kind==='free'&&p.action.chip){p.action.chip=false;p.action.flightStyle='chip';}
@@ -107,16 +110,20 @@ export class Match{
  else {const lob=a.type==='lob'||a.lob;speed=lob?clamp(9+a.distance*.46,11,30):groundPassSpeed(a.distance,a.type,this.gameplay.ballRoll);lift=lob?clamp(a.distance*.23,5,11):a.type==='through'?.25:.08;if(a.driven)speed=Math.min(38,speed*1.3);if(a.groundCross)lift=.1;if(a.lowCross)lift=2;if(a.bounce)lift=3.3;if(a.early){speed*=1.1;lift*=1.05;}speed*=.96+.04*kickSkill(p,a);this.stats.passes[p.team]++;}
  if(a.type==='lob'&&!a.groundCross){solved=crossFlight(a,b);speed=solved.speed;lift=solved.lift;curve=solved.curve;}if(a.groundCross){speed=groundPassSpeed(a.distance,'pass',this.gameplay.ballRoll);lift=.08;}
  const setFlight=a.type!=='shoot'?null:a.restartKind==='penalty'?penaltyFlight(a,p,b):setpieceFlight(a.flightStyle,p,a,b);if(setFlight){solved=setFlight;speed=setFlight.speed;lift=setFlight.lift;curve=setFlight.curve;}else if(a.type==='shoot'&&a.flair&&a.power>=.4&&!a.aerial){curve=-14*(a.foot==='left'?-1:1);}
+ // FD power shot and ZD/DZ finesse shot (src/shot-styles.js); set pieces keep their own flights.
+ let errorScale=1,flightStyle=a.flightStyle;
+ if(a.type==='shoot'&&!setFlight&&!a.aerial&&!a.chip&&!a.low){const style=a.powerShot?powerShotFlight(p,a,speed,lift,b.y):a.curve&&!a.flair?finesseFlight(p,a,speed,lift,b.y):null;
+  if(style){speed=style.speed;lift=style.lift;curve=style.curve;errorScale=style.error;if(style.knuckle)flightStyle='knuckle';}}
  // Player traits (src/trait-play.js): a power header is struck harder and truer, a finesse far-post shot bends more and misses less.
  const traitKick=setFlight?null:kickTraits(this,p,a,b);if(traitKick){speed*=traitKick.speed;curve*=traitKick.curve;}
  if(a.aerial){speed*=b.y>1.2?.72:.92;lift=a.low?-1:Math.min(lift,2);}
- const assistKey=a.type==='lob'?'crossAssist':a.type==='through'?'throughAssist':'passAssist',assisted=a.type!=='shoot'&&a.receiver&&(this.settings[assistKey]||'auto')!=='manual';const error=a.type!=='shoot'&&a.receiver&&followPassEnabled(this,p.team)?0:kickError(p,a,pressure)*(assisted?((this.settings[assistKey]||'auto')==='auto'?.75:.9):1)*(traitKick?traitKick.error:1);// Start curled kicks outside the target so the Magnus bend brings them back.
- let aim=a.aim;if(solved){const c=Math.cos(solved.aimOffset),s=Math.sin(solved.aimOffset);aim={x:aim.x*c-aim.z*s,z:aim.x*s+aim.z*c};}if(!solved&&curve&&a.flightStyle!=='knuckle'&&lift>1&&a.distance>1){const n=Math.hypot(aim.x,aim.z)||1,x=aim.x/n,z=aim.z/n,k=Math.sign(curve)*curveDrift(speed,curve,a.distance)/a.distance;aim={x:x-k*z,z:z+k*x};}
+ const assistKey=a.type==='lob'?'crossAssist':a.type==='through'?'throughAssist':'passAssist',assisted=a.type!=='shoot'&&a.receiver&&(this.settings[assistKey]||'auto')!=='manual';const error=a.type!=='shoot'&&a.receiver&&followPassEnabled(this,p.team)?0:kickError(p,a,pressure)*errorScale*(assisted?((this.settings[assistKey]||'auto')==='auto'?.75:.9):1)*(traitKick?traitKick.error:1);// Start curled kicks outside the target so the Magnus bend brings them back.
+ let aim=a.aim;if(solved){const c=Math.cos(solved.aimOffset),s=Math.sin(solved.aimOffset);aim={x:aim.x*c-aim.z*s,z:aim.x*s+aim.z*c};}if(!solved&&curve&&flightStyle!=='knuckle'&&lift>1&&a.distance>1){const n=Math.hypot(aim.x,aim.z)||1,x=aim.x/n,z=aim.z/n,k=Math.sign(curve)*curveDrift(speed,curve,a.distance)/a.distance;aim={x:x-k*z,z:z+k*x};}
  const angle=(this.random()-.5)*error;/* A pass may be under-hit, but a negative speed must never reverse its launch direction. */if(a.type!=='shoot')speed*=Math.max(0,1+(this.random()-.5)*error*PASS_ERROR.pace);const dx=aim.x*Math.cos(angle)-aim.z*Math.sin(angle),dz=aim.x*Math.sin(angle)+aim.z*Math.cos(angle);
  const restart=this.setPiece?.taker===p?this.setPiece.kind:null;
  if(restart==='penalty'&&dx*this.direction(p.team)<=0){this.beginRestart({kind:'indirect',team:1-p.team,x:b.x,z:b.z,label:'페널티킥은 전방으로 · 간접 프리킥'});return;}
  for(const id of this.setPiece?.wall||[])this.players[id].wallHoldUntil=this.time+.4;
- this.physics.kick({x:dx,z:dz},speed,lift,curve,a.flightStyle);this.owner=null;this.lastTouch=p;this.lastTouchTeam=p.team;this.lastTouchKind=a.aerial?'aerial':'kick';this.lastKickTime=this.time;this.lastKickType=a.type;this.passFlight=createPassFlight(this,p,a);this.lock=.07;this.offside=['corner','goalkick','throw'].includes(restart)?new Set():offsideSnapshot(this,p);this.restartOrigin=restart?{kind:restart,player:p.id,team:p.team}:null;this.setPiece=null;p.touchCooldown=.38;
+ this.physics.kick({x:dx,z:dz},speed,lift,curve,flightStyle);this.owner=null;this.lastTouch=p;this.lastTouchTeam=p.team;this.lastTouchKind=a.aerial?'aerial':'kick';this.lastKickTime=this.time;this.lastKickType=a.type;this.passFlight=createPassFlight(this,p,a);this.lock=.07;this.offside=['corner','goalkick','throw'].includes(restart)?new Set():offsideSnapshot(this,p);this.restartOrigin=restart?{kind:restart,player:p.id,team:p.team}:null;this.setPiece=null;p.touchCooldown=.38;
  if(a.oneTwo){p.runUntil=this.time+3;p.runTarget=runTarget(this,p);p.target={...p.runTarget};}
  const contact={id:a.id,player:p.id,foot:a.foot,inputTime:a.inputTime,acceptedTime:a.acceptedTime,animationStart:a.animationStart,motionStart:a.motionStart,commitTime:a.commitTime,plannedContact:a.plannedContact,actualContact:this.time,ballRelease:this.time,nextActionAllowed:a.nextActionAllowed,clipId:a.clipId,clipTime:a.elapsed,selectedFoot:a.foot,warpAmount:a.actualTarget?distance(a.committedTarget||a.contactTarget,a.actualTarget):0,plantError:p.rig?.plantError??null,contactError:distance(foot,b),contactTime:this.time,ballReleaseTime:this.time,logicalError:distance(foot,b),target:{...a.contactTarget}};this.contacts.push(contact);if(this.contacts.length>80)this.contacts.shift();this.emit('kick',{player:p,type:a.type,power:a.power,contact});if(a.receiver&&p===this.controlled){this.selectControlled(a.receiver,'pass');this.receiving={player:a.receiver,expires:this.passFlight.expires};}}
  updateAction(p,dt){const a=p.action;if(!a)return;a.elapsed+=dt;

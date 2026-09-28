@@ -140,6 +140,8 @@
         "tools/check-balance.mjs",
         "tools/check-keeper-v2.mjs",
         "src/crossing.js",
+        "src/shot-styles.js",
+        "tools/shot-lab.mjs",
         "src/trait-ai.js",
         "src/trait-keeper.js",
         "tools/trait-measure.mjs",
@@ -151,6 +153,7 @@
         "tests/control-assist.test.mjs",
         "tests/guided-pass.test.mjs",
         "tests/reception-and-contact.test.mjs",
+        "tests/shot-styles.test.mjs",
         "tests/player-traits.test.mjs"
       ]
     },
