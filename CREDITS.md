@@ -42,6 +42,17 @@ BVH files are not included in this repository.
   `tools/human/rocketbox/02_textures.py` resized the textures to 1024 px, replaced the painted kit with a neutral
   fabric shade so the game can colour any club, and removed the painted Rocketbox logo, sponsor, crest and numbers.
   Club colours, numbers, names, sponsor text and crests are drawn by the game (`src/human-kit.js`).
+- East Asian heads (`asian_01`, `asian_02`, loaded only when a player uses them): the heads of the Rocketbox avatars
+  `Business_Male_02` (`asian_01`) and `Male_Adult_10` (`asian_02`) — face, eyes, teeth, hair cards and their
+  `_facial` ARKit blendshapes — on the `Sports_Male_02` football body. Same library, license and copyright as above
+  (MIT, `licenses/ROCKETBOX-MIT.txt`), downloaded from the repository's `master` branch on 2026-09-28.
+  **Changes made:** `01_convert.py --head` removes the body avatar's head, pulls the donor's neck onto the body's
+  22-vertex neck loop (up to 3.8 cm, fading out 7 cm above it), welds the loop and keeps the donor's expressions;
+  `02_textures.py --transplant` takes the donor's head, head normal map and hair cards, shifts the body's arm and hand
+  skin by the donor's face colour over the body avatar's face colour, and recolours the irises dark brown like the
+  other heads. The body normal map is `male_02`'s file.
+- Face-landmark calibration for every head (`face-landmarks-uv.json`, `face-landmarks-3d.json`): MediaPipe Face Mesh
+  (Apache-2.0, `vendor/mediapipe`) run on renders of the heads (`tools/human/rocketbox/05_calibrate.mjs`).
 
 ## Player model v2 (`assets/human/`, MPFB, used by `human-lab.html` only)
 

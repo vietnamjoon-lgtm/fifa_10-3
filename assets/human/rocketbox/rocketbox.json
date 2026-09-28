@@ -73,6 +73,36 @@
    "hairColor": "#130e0a",
    "hair": "male_03-hair.png",
    "skin": "#a46a4a"
+  },
+  "asian_01": {
+   "body": "asian_01-body.jpg",
+   "head": "asian_01-head.jpg",
+   "bodyNormal": "male_02-body-normal.jpg",
+   "headNormal": "asian_01-head-normal.jpg",
+   "model": "asian_01.glb",
+   "hairMask": "asian_01-hairmask.png",
+   "hairColor": "#181411",
+   "hair": "asian_01-hair.png",
+   "skin": "#c39776",
+   "transplant": {
+    "body": "Sports_Male_02",
+    "head": "Business_Male_02"
+   }
+  },
+  "asian_02": {
+   "body": "asian_02-body.jpg",
+   "head": "asian_02-head.jpg",
+   "bodyNormal": "male_02-body-normal.jpg",
+   "headNormal": "asian_02-head-normal.jpg",
+   "model": "asian_02.glb",
+   "hairMask": "asian_02-hairmask.png",
+   "hairColor": "#140d04",
+   "hair": "asian_02-hair.png",
+   "skin": "#be8b5e",
+   "transplant": {
+    "body": "Sports_Male_02",
+    "head": "Male_Adult_10"
+   }
   }
  }
 }

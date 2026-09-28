@@ -57,6 +57,8 @@ export function autoCrop(points,iw,ih){
  return {zoom,x,y,rotation,eyes:clamp(at(mid(eyeA,eyeB)),.3,.59),nose:clamp(at(P(2)),.6,.76),mouth:clamp(at(mid(P(13),P(14))),.77,.91),flip:false};
 }
 let worker,sequence=0;const pending=new Map();
-export function fitPhoto(image){if(!worker){worker=new Worker(new URL('./face-fit-worker.js',import.meta.url),{type:'module'});worker.onmessage=({data})=>{const item=pending.get(data.id);if(!item)return;pending.delete(data.id);clearTimeout(item.timer);data.error?item.reject(Error(data.error)):item.resolve(data.result);};worker.onerror=()=>{for(const item of pending.values()){clearTimeout(item.timer);item.reject(Error('얼굴 분석을 시작하지 못했습니다. 사진 정렬과 윤곽 조절은 계속 사용할 수 있습니다.'));}pending.clear();worker.terminate();worker=null;};}
- return createImageBitmap(image).then(bitmap=>new Promise((resolve,reject)=>{const id=++sequence,timer=setTimeout(()=>{pending.delete(id);reject(Error('얼굴 분석 시간이 초과됐습니다. 다시 시도해 주세요.'));},60000);pending.set(id,{resolve,reject,timer});worker.postMessage({id,image:bitmap},[bitmap]);}));
+/** `pointsOnly`: just the 468+ landmarks ({landmarks}), without the frontal-photo checks (a profile photo for the
+ * 3D shape's depth, src/face-shape3d.js). */
+export function fitPhoto(image,pointsOnly=false){if(!worker){worker=new Worker(new URL('./face-fit-worker.js',import.meta.url),{type:'module'});worker.onmessage=({data})=>{const item=pending.get(data.id);if(!item)return;pending.delete(data.id);clearTimeout(item.timer);data.error?item.reject(Error(data.error)):item.resolve(data.result);};worker.onerror=()=>{for(const item of pending.values()){clearTimeout(item.timer);item.reject(Error('얼굴 분석을 시작하지 못했습니다. 사진 정렬과 윤곽 조절은 계속 사용할 수 있습니다.'));}pending.clear();worker.terminate();worker=null;};}
+ return createImageBitmap(image).then(bitmap=>new Promise((resolve,reject)=>{const id=++sequence,timer=setTimeout(()=>{pending.delete(id);reject(Error('얼굴 분석 시간이 초과됐습니다. 다시 시도해 주세요.'));},60000);pending.set(id,{resolve,reject,timer});worker.postMessage({id,image:bitmap,pointsOnly},[bitmap]);}));
 }

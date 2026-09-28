@@ -4,6 +4,9 @@
 # outer edge, occluded by the ear or outside the silhouette at this camera angle) are filled from their
 # nearest hit neighbour on the canonical face mesh (assets/human/canonical-face.json triangulation) so every
 # one of the 468 entries has a usable UV.
+# The hit positions are written too (`points`, metres, glTF axes: +Y up, the face looking along +Z, the same space as
+# the game's rest-pose `kitBind` positions in src/human-body.js); a miss stays null there, since a neighbour's
+# position would be a wrong 3D target. src/face-shape3d.js fits a photo's 468 points to them.
 #   /Applications/Blender.app/Contents/MacOS/Blender --background --python 04_raycast_uv.py -- <plain glb> <camera.json> <landmarks.json> <avatar> <out.json> <canonical-face.json>
 import bpy, sys, json, math
 from mathutils import Vector, Matrix
@@ -35,10 +38,18 @@ def hit_uv(x, y):
     ndc_x, ndc_y = (x - .5) * 2, (.5 - y) * 2
     dir_local = Vector((ndc_x * half_width, ndc_y * half_width, -1)).normalized()
     direction = (cam_matrix.to_3x3() @ dir_local).normalized()
-    ok, location, _normal, index, obj, _matrix = scene.ray_cast(depsgraph, origin, direction)
-    if not ok or obj.name != 'Player':
+    start = origin
+    # Hair cards (the 'hair' material) are see-through: the ray carries on to the skin behind them.
+    for _ in range(8):
+        ok, location, _normal, index, obj, _matrix = scene.ray_cast(depsgraph, start, direction)
+        if not ok or obj.name != 'Player':
+            return None
+        poly = mesh_obj.data.polygons[index]
+        if mesh_obj.data.materials[poly.material_index].name != 'hair':
+            break
+        start = location + direction * 1e-4
+    else:
         return None
-    poly = mesh_obj.data.polygons[index]
     if len(poly.vertices) != 3:
         return None
     verts = [mesh_obj.matrix_world @ mesh_obj.data.vertices[i].co for i in poly.vertices]
@@ -46,10 +57,13 @@ def hit_uv(x, y):
     hit = barycentric_transform(location, verts[0], verts[1], verts[2], Vector((*uvs[0], 0)), Vector((*uvs[1], 0)), Vector((*uvs[2], 0)))
     # Blender's re-imported UV is bottom-left origin; the shipped GLB (and this game's texture sampling,
     # src/human-body.js tex() flipY=false) is glTF's top-left origin, so v is flipped back here.
-    return [hit.x, 1 - hit.y]
+    # Blender's glTF importer turned glTF +Y up into +Z up (x, -z, y); the position goes back the same way.
+    return [hit.x, 1 - hit.y], [round(location.x, 5), round(location.z, 5), round(-location.y, 5)]
 
 
-raw = [hit_uv(p[0], p[1]) for p in landmarks]
+hits = [hit_uv(p[0], p[1]) for p in landmarks]
+raw = [h[0] if h else None for h in hits]
+points = [h[1] if h else None for h in hits]
 misses = sum(1 for u in raw if u is None)
 
 # Fill misses from the nearest hit landmark by 3D distance on MediaPipe's canonical face mesh (stable across
@@ -73,5 +87,5 @@ if misses:
         filled[i] = raw[nearest]
 
 with open(OUT, 'w') as f:
-    json.dump({'avatar': AVATAR, 'uv': filled, 'misses': misses}, f)
+    json.dump({'avatar': AVATAR, 'uv': filled, 'points': points, 'misses': misses}, f)
 print(json.dumps({'avatar': AVATAR, 'hits': 468 - misses, 'misses': misses, 'out': OUT}))

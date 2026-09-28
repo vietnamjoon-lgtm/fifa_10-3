@@ -17,6 +17,7 @@
         "src/face-assets.js",
         "src/face-fit-worker.js",
         "src/face-fit.js",
+        "src/face-shape3d.js",
         "src/face-identity.js",
         "src/face-settings.js",
         "src/face-studio.js",
@@ -57,6 +58,7 @@
       "tests": [
         "tests/body-customization.test.mjs",
         "tests/faces.test.mjs",
+        "tests/face-shape3d.test.mjs",
         "tests/identity-and-keeper-v2.test.mjs",
         "tests/human-rebuild.test.mjs",
         "tests/player-surface-quality.test.mjs",
