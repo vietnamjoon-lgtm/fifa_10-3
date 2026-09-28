@@ -32,3 +32,16 @@ export function repairCalibrationUV(uv,points,pairs){
  for(const i of bad){const j=pairs[i];if(j===i||bad.has(j)||!uv[j])continue;out[i]=[1-uv[j][0],uv[j][1]];repaired.push(i);}
  return {uv:out,repaired};
 }
+
+/**
+ * The triangles whose destination (head texture) keeps the winding of their source (the photo's canonical UV).
+ * Along the face outline a straight-on calibration render squeezes the side of the face, so the outermost ring
+ * of landmarks can land past the next ring in: those triangles fold over, and warping them paints a mirrored
+ * strip of the photo over their neighbours. Only the sides are filtered: folds closer than `side` (a fraction of
+ * the texture width, `size` pixels) to the centre line are the closed lips and nostrils, tiny and kept as before.
+ * Points are [x, y] pairs in pixels of a `size` wide texture.
+ */
+export function unfoldedTriangles(triangles,src,dst,size,side=.1){
+ const area=(p,[i,j,k])=>(p[j][0]-p[i][0])*(p[k][1]-p[i][1])-(p[j][1]-p[i][1])*(p[k][0]-p[i][0]);
+ return triangles.filter(t=>area(src,t)*area(dst,t)>0||Math.abs((dst[t[0]][0]+dst[t[1]][0]+dst[t[2]][0])/3/size-.5)<side);
+}

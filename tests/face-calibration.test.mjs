@@ -35,3 +35,17 @@ test('shipped male_02 and asian_02 tables had cheek points on the ear (the patch
   assert.ok(worst>60,`${id}: ${worst.toFixed(0)} texels`);
  }
 });
+
+test('folded warp triangles along the face outline are skipped; lips and nostrils keep theirs',async()=>{
+ const {unfoldedTriangles}=await import('../src/face-calibration.js');
+ const src=[[0,0],[10,0],[0,10],[500,0],[510,0],[500,10]],tris=[[0,1,2],[3,4,5]];
+ // Both mirrored in x: the one at the side (u ~ .1) is dropped, the one on the centre line (u ~ .5) kept.
+ const dst=[[110,0],[100,0],[110,10],[520,0],[510,0],[520,10]];
+ assert.deepEqual(unfoldedTriangles(tris,src,dst,1024),[[3,4,5]]);
+ assert.deepEqual(unfoldedTriangles(tris,src,src,1024),tris);
+ // On the repaired tables no folded triangle is left beside the cheeks' outline except the few kept at the centre.
+ const {repairCalibrationUV}=await import('../src/face-calibration.js');
+ const csrc=canonical.uv.map(([u,v])=>[u*512,v*512]);
+ for(const [id,table] of Object.entries(tables)){const dst=repairCalibrationUV(table,heads[id].points,pairs).uv.map(([u,v])=>[u*N,v*N]);
+  const kept=unfoldedTriangles(canonical.triangles,csrc,dst,N);assert.ok(kept.length>=canonical.triangles.length-60,`${id}: ${kept.length}`);}
+});
