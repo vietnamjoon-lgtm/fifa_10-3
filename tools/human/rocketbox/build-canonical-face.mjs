@@ -2,7 +2,8 @@
 // as FaceLandmarker's 468 landmarks, with a UV unwrap for a front-facing photo. Its face corners reference
 // vertex and texcoord indices independently (v/vt), so a vertex's UV must be read off the faces, not off
 // vt's own order. OBJ texcoords put v=0 at the bottom (chin); this game's texture convention (rocketbox.json,
-// src/human-kit.js) puts v=0 at the top, so v is flipped here.
+// src/human-kit.js) puts v=0 at the top, so v is flipped here. `vertices` are the model's 3D positions (centimetres,
+// +Y up, the face looking along +Z): the reference frame src/face-shape3d.js stores a photo's face shape in.
 // node tools/human/rocketbox/build-canonical-face.mjs
 import fs from 'node:fs';
 import path from 'node:path';
@@ -38,5 +39,6 @@ const triangles=f.map(face=>{
  return face.map(([vi])=>vi-1);
 });
 
-fs.writeFileSync(outPath,JSON.stringify({source:'MediaPipe canonical_face_model.obj (Apache-2.0)',uv,triangles}));
+const vertices=v.map(p=>p.map(c=>Math.round(c*1e4)/1e4));
+fs.writeFileSync(outPath,JSON.stringify({source:'MediaPipe canonical_face_model.obj (Apache-2.0)',uv,triangles,vertices}));
 console.log(JSON.stringify({landmarks:uv.length,triangles:triangles.length,out:path.relative(process.cwd(),outPath)}));

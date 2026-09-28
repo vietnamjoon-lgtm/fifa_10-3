@@ -3,19 +3,30 @@
 # and writes a UV/region table for the kit mask (02_textures.py).
 # python -m bpy is not needed: run with a Python that has the `bpy` module (pip bpy==5.0.1) or Blender:
 #   python tools/human/rocketbox/01_convert.py <Rocketbox checkout> <avatar id, e.g. Sports_Male_02>
-import bpy, bmesh, sys, os, json
+# Head transplant: another Rocketbox avatar's head (face, eyes, teeth, hair cards and its ARKit expressions) on
+# this avatar's football body, written as <name>.glb / <name>-uv.json:
+#   Blender --background --python 01_convert.py -- <checkout> Sports_Male_02 --head Business_Male_02 --name asian_01
+import bpy, bmesh, sys, os, json, glob, math
 from mathutils import Vector
 
-args = [a for a in sys.argv if not a.startswith('-')][-2:]
-SRC, AVATAR = args
+argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else sys.argv[1:]
+option = lambda flag: argv[argv.index(flag) + 1] if flag in argv else None
+HEAD_DONOR, OUT_NAME = option('--head'), option('--name')
+SRC, AVATAR = [a for i, a in enumerate(argv) if not a.startswith('-') and (i == 0 or argv[i - 1] not in ('--head', '--name'))][-2:]
+OUT_NAME = OUT_NAME or AVATAR
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 CACHE = os.path.join(HERE, '.cache')
 os.makedirs(CACHE, exist_ok=True)
-# The '_facial' export is the same mesh with ARKit/FACS blendshapes; the plain export is the fallback.
-fbx = os.path.join(SRC, 'Assets', 'Avatars', 'Professions', AVATAR, 'Export', AVATAR + '_facial.fbx')
-if not os.path.exists(fbx):
-    fbx = fbx.replace('_facial.fbx', '.fbx')
+def source_fbx(avatar):
+    # The '_facial' export is the same mesh with ARKit/FACS blendshapes; the plain export is the fallback.
+    # Football players are under Professions, most everyday adults under Adults.
+    found = glob.glob(os.path.join(SRC, 'Assets', 'Avatars', '*', avatar, 'Export', avatar + '_facial.fbx')) or \
+        glob.glob(os.path.join(SRC, 'Assets', 'Avatars', '*', avatar, 'Export', avatar + '.fbx'))
+    if not found:
+        raise SystemExit(f'{avatar} not found under {SRC}/Assets/Avatars')
+    return found[0]
+fbx = source_fbx(AVATAR)
 
 # Expression morphs kept for the game (sums of the source ARKit shapes; pairs merged where the game never
 # needs the sides apart).
@@ -51,36 +62,173 @@ for side, S in (('L', 'Left'), ('R', 'Right')):
             KEEP[f'Bip01 {side} Finger{f}{seg or ""}'] = f'{S}Hand{finger}{seg + 1}'
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
-bpy.ops.import_scene.fbx(filepath=fbx, automatic_bone_orientation=True)
-arm = next(o for o in bpy.data.objects if o.type == 'ARMATURE')
-mesh = next(o for o in bpy.data.objects if o.type == 'MESH')
-
-# Only the rig and the skinned mesh (the FBX also brings a 'Bip01 Footsteps' helper).
-for o in list(bpy.data.objects):
-    if o not in (arm, mesh):
-        bpy.data.objects.remove(o, do_unlink=True)
-# The FBX brings a one-frame action that would put the object transform back.
-for o in (arm, mesh):
-    o.animation_data_clear()
-    o.delta_location, o.delta_rotation_euler, o.delta_scale = (0, 0, 0), (0, 0, 0), (1, 1, 1)
-for pb in arm.pose.bones:
-    pb.matrix_basis.identity()
-# Metres, no object transform (the FBX armature carries 0.01 scale, a -90 degree turn and the pelvis height).
-bpy.ops.object.select_all(action='DESELECT')
-for o in (arm, mesh):
-    o.select_set(True)
-bpy.context.view_layer.objects.active = arm
-bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
-mesh.select_set(False)
-bpy.context.view_layer.objects.active = mesh
-mesh.select_set(True)
-bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
-bpy.context.view_layer.update()
 from mathutils import Matrix
-assert all(abs(a - b) < 1e-5 for r1, r2 in zip(arm.matrix_world, Matrix.Identity(4)) for a, b in zip(r1, r2)), arm.matrix_world
+
+
+def load(path):
+    """Imports one Rocketbox FBX: its rig and skinned mesh in metres with no object transform."""
+    before = set(bpy.data.objects)
+    bpy.ops.import_scene.fbx(filepath=path, automatic_bone_orientation=True)
+    new = [o for o in bpy.data.objects if o not in before]
+    arm = next(o for o in new if o.type == 'ARMATURE')
+    mesh = next(o for o in new if o.type == 'MESH')
+    # Only the rig and the skinned mesh (the FBX also brings a 'Bip01 Footsteps' helper).
+    for o in new:
+        if o not in (arm, mesh):
+            bpy.data.objects.remove(o, do_unlink=True)
+    # The FBX brings a one-frame action that would put the object transform back.
+    for o in (arm, mesh):
+        o.animation_data_clear()
+        o.delta_location, o.delta_rotation_euler, o.delta_scale = (0, 0, 0), (0, 0, 0), (1, 1, 1)
+    for pb in arm.pose.bones:
+        pb.matrix_basis.identity()
+    # Metres, no object transform (the FBX armature carries 0.01 scale, a -90 degree turn and the pelvis height).
+    bpy.ops.object.select_all(action='DESELECT')
+    for o in (arm, mesh):
+        o.select_set(True)
+    bpy.context.view_layer.objects.active = arm
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    mesh.select_set(False)
+    bpy.context.view_layer.objects.active = mesh
+    mesh.select_set(True)
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    bpy.context.view_layer.update()
+    assert all(abs(a - b) < 1e-5 for r1, r2 in zip(arm.matrix_world, Matrix.Identity(4)) for a, b in zip(r1, r2)), arm.matrix_world
+    return arm, mesh
+
+
+arm, mesh = load(fbx)
 arm.name = 'Rig'
 arm.data.name = 'Rig'
 mesh.name = 'Player'
+
+
+def material_kind(m):
+    return m.name.rsplit('_', 1)[-1]  # 'body', 'head' or 'opacity' (hair cards)
+
+
+def transplant(mesh, donor_path):
+    """
+    Replaces the body avatar's head with the donor's. Every Rocketbox adult shares the same 'Bip01' skeleton (same
+    bone rest positions, checked below), so the donor head is already in place on this body and its skin weights
+    carry over by bone name. Head and body meet at a 22-vertex neck loop in both meshes, but the football body's
+    neck is thicker and sits lower: the donor's neck is pulled onto the body's loop (the pull fades out 7 cm above
+    it), its loop vertices take the body's weights and expression offsets, and the two loops are welded so the seam
+    has no gap and one set of normals. The donor's ARKit shape keys come along (join keeps keys by name).
+    """
+    donor_arm, donor = load(donor_path)
+    for b in ('Bip01 Neck', 'Bip01 Head', 'Bip01 LEye', 'Bip01 REye', 'Bip01 MUpperLip'):
+        d = (donor_arm.data.bones[b].head_local - arm.data.bones[b].head_local).length
+        assert d < 1e-4, f'{b} differs by {d:.5f} m between the body and the head donor'
+
+    def kinds(obj):
+        out = {}
+        for p in obj.data.polygons:
+            for v in p.vertices:
+                out.setdefault(v, set()).add(material_kind(obj.data.materials[p.material_index]))
+        return out
+
+    def seam(obj):
+        k = kinds(obj)
+        return [v for v, s in k.items() if 'head' in s and 'body' in s]
+
+    def by_angle(obj, loop):
+        c = sum((obj.data.vertices[v].co for v in loop), Vector()) / len(loop)
+        return sorted(loop, key=lambda v: math.atan2(obj.data.vertices[v].co.x - c.x, obj.data.vertices[v].co.y - c.y)), c
+
+    body_loop, body_c = by_angle(mesh, seam(mesh))
+    donor_loop, donor_c = by_angle(donor, seam(donor))
+    assert len(body_loop) == len(donor_loop), (len(body_loop), len(donor_loop))
+    # Loops start at the same angle: rotate the donor list to the best alignment.
+    def cost(shift):
+        return sum((mesh.data.vertices[body_loop[i]].co - body_c).normalized().dot(
+            (donor.data.vertices[donor_loop[(i + shift) % len(donor_loop)]].co - donor_c).normalized()) for i in range(len(body_loop)))
+    shift = max(range(len(donor_loop)), key=cost)
+    donor_loop = donor_loop[shift:] + donor_loop[:shift]
+    pairs = list(zip(donor_loop, body_loop))
+    delta = [(mesh.data.vertices[b].co - donor.data.vertices[d].co) for d, b in pairs]
+    print('SEAM', len(pairs), 'max pull', round(max(v.length for v in delta), 4))
+
+    # Keep only the donor's head and hair; keep only the body avatar's body.
+    def drop(obj, kind):
+        bm = bmesh.new()
+        bm.from_mesh(obj.data)
+        faces = [f for f in bm.faces if material_kind(obj.data.materials[f.material_index]) in kind]
+        bmesh.ops.delete(bm, geom=faces, context='FACES_ONLY')
+        bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context='VERTS')
+        bm.to_mesh(obj.data)
+        bm.free()
+    # bmesh keeps shape keys; vertex indices change, so the loop is found again by position afterwards.
+    donor_loop_co = [donor.data.vertices[d].co.copy() for d, _ in pairs]
+    body_loop_co = [mesh.data.vertices[b].co.copy() for _, b in pairs]
+    drop(mesh, ('head', 'opacity'))
+    drop(donor, ('body',))
+
+    def find(obj, co):
+        return min(range(len(obj.data.vertices)), key=lambda i: (obj.data.vertices[i].co - co).length_squared)
+    donor_idx = [find(donor, c) for c in donor_loop_co]
+    body_idx = [find(mesh, c) for c in body_loop_co]
+
+    # Pull the donor's neck onto the body's loop: inverse-distance blend of the loop offsets, fading with the
+    # distance from the loop (smoothstep over 7 cm), applied to the basis and every shape key alike.
+    FADE = 0.07
+    keys = donor.data.shape_keys.key_blocks
+    offsets = []
+    for v in donor.data.vertices:
+        ds = [(v.co - c).length for c in donor_loop_co]
+        near = min(ds)
+        t = max(0.0, 1 - near / FADE)
+        w = [1 / max(d, 1e-5) ** 2 for d in ds]
+        off = sum((dv * wi for dv, wi in zip(delta, w)), Vector()) / sum(w)
+        offsets.append(off * (t * t * (3 - 2 * t)))
+    for kb in keys:
+        for i, off in enumerate(offsets):
+            kb.data[i].co = kb.data[i].co + off
+    for i, off in enumerate(offsets):
+        donor.data.vertices[i].co = donor.data.vertices[i].co + off
+    # Loop vertices: exactly the body's position, weights and expression offsets (both are welded next).
+    body_keys = mesh.data.shape_keys.key_blocks
+    body_base = body_keys[0]
+    for di, bi in zip(donor_idx, body_idx):
+        donor.data.vertices[di].co = mesh.data.vertices[bi].co.copy()
+        for kb in keys:
+            src = body_keys.get(kb.name)
+            kb.data[di].co = mesh.data.vertices[bi].co + ((src.data[bi].co - body_base.data[bi].co) if src else Vector())
+        for g in list(donor.data.vertices[di].groups):
+            donor.vertex_groups[g.group].remove([di])
+        for g in mesh.data.vertices[bi].groups:
+            name = mesh.vertex_groups[g.group].name
+            vg = donor.vertex_groups.get(name) or donor.vertex_groups.new(name=name)
+            vg.add([di], g.weight, 'REPLACE')
+
+    # One mesh on the body's rig.
+    bpy.ops.object.select_all(action='DESELECT')
+    donor.select_set(True)
+    mesh.select_set(True)
+    bpy.context.view_layer.objects.active = mesh
+    bpy.ops.object.join()
+    bpy.data.objects.remove(donor_arm, do_unlink=True)
+    bpy.ops.object.mode_set(mode='EDIT')
+    bm = bmesh.from_edit_mesh(mesh.data)
+    bm.verts.ensure_lookup_table()
+    loop = [v for v in bm.verts if any((v.co - c).length < 1e-6 for c in body_loop_co)]
+    welded = len(loop)
+    bmesh.ops.remove_doubles(bm, verts=loop, dist=1e-5)
+    bmesh.update_edit_mesh(mesh.data)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    print('WELD', welded, '->', welded - len([v for v in mesh.data.vertices if any((v.co - c).length < 1e-6 for c in body_loop_co)]), 'merged')
+    # Unused material slots (the body avatar's own head) go.
+    bpy.ops.object.material_slot_remove_unused()
+    print('MATERIALS', [m.name for m in mesh.data.materials])
+    # The donor's expressions must have come along with the join (checked on one key).
+    kb = mesh.data.shape_keys.key_blocks
+    moved = sum(1 for a, b in zip(kb['AK_25_JawOpen'].data, kb[0].data) if (a.co - b.co).length > 1e-4)
+    assert moved > 100, f'jaw-open shape key moves only {moved} vertices after the head transplant'
+    print('JAW OPEN moves', moved, 'vertices')
+
+
+if HEAD_DONOR:
+    transplant(mesh, source_fbx(HEAD_DONOR))
 
 # Face landmarks from the face bones (metres, before they are merged away).
 def bone_pos(name):
@@ -247,13 +395,13 @@ for t in me.loop_triangles:
     bones = [strongest(me.loops[l].vertex_index) for l in t.loops]
     z = sum(me.vertices[me.loops[l].vertex_index].co.z for l in t.loops) / 3
     tris.append({'uv': [list(uv[l].uv) for l in t.loops], 'bone': max(set(bones), key=bones.count), 'z': round(z, 4)})
-with open(os.path.join(CACHE, AVATAR + '-uv.json'), 'w') as f:
+with open(os.path.join(CACHE, OUT_NAME + '-uv.json'), 'w') as f:
     json.dump(tris, f)
 
 tri_count = sum(len(p.vertices) - 2 for p in me.polygons)
 height = max(v.co.z for v in me.vertices) - min(v.co.z for v in me.vertices)
-out = os.path.join(CACHE, AVATAR + '.glb')
+out = os.path.join(CACHE, OUT_NAME + '.glb')
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.export_scene.gltf(filepath=out, export_format='GLB', use_selection=True, export_skins=True, export_morph=True,
                           export_animations=False, export_yup=True, export_image_format='NONE', export_apply=False, export_extras=False)
-print(json.dumps({'avatar': AVATAR, 'glb': out, 'triangles': tri_count, 'bones': len(arm.data.bones), 'height': round(height, 3)}))
+print(json.dumps({'avatar': OUT_NAME, 'body': AVATAR, 'head': HEAD_DONOR or AVATAR, 'glb': out, 'triangles': tri_count, 'bones': len(arm.data.bones), 'height': round(height, 3)}))

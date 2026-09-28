@@ -114,27 +114,55 @@ export function setKitColours(m,c){
  u.kitShorts.value.set(c.shorts);u.kitSocks.value.set(c.socks);u.kitBoots.value.set(c.boots);u.kitGloves.value.set(c.gloves||'#ffffff');u.kitPattern.value=c.pattern;u.kitKeeper.value=c.gloves?1:0;
 }
 
-export const HAIR_STYLES={short:0,crest:0,crop:1,bald:2},BEARDS={none:0,stubble:1,beard:2};
+export const HAIR_STYLES={short:0,crest:0,crop:1,bald:2,twoblock:3,sidepart:4},BEARDS={none:0,stubble:1,beard:2};
+// Heights for the two Korean short cuts, in metres above the eye centre of the rest pose (the scene space of
+// the head's `kitBind` positions; eyes 1.686 m up and 9.4 cm in front of the neck on every Rocketbox head):
+// two-block: clipped sides and back up to about the top of the temples, the top left long;
+// side part: a parting 3.4 cm to the player's left from the front hairline back to the crown, tidy short sides.
+export const HAIR_CUT={twoBlock:.046,sideTaper:.022,part:{x:.034,from:.08,back:.12}};
 const headFragment=`#include <map_fragment>
 vec4 headM=texture2D(hairMask,vMapUv);vec3 base=diffuseColor.rgb;
 float grain=fract(sin(dot(floor(vMapUv*1400.0),vec2(12.9898,78.233)))*43758.5453);
 vec3 hairC=base*hairTint;
-// Crop and bald: the painted hair becomes scalp (with fine stubble for a crop).
-if(hairStyle>.5){float shape=clamp(dot(base,vec3(.2126,.7152,.0722))/max(dot(hairRef,vec3(.2126,.7152,.0722)),.005),.55,1.4);vec3 scalp=scalpColor*skinTint*(.84+.08*grain)*mix(1.0,shape,.22);hairC=mix(scalp,hairColor*.55,hairStyle<1.5?.45+.3*grain:.04);}
+// How much painted hair becomes clipped (crop: fine stubble over the scalp) or bare scalp: all of it for crop
+// and bald, below the block line for a two-block, the lower sides and the parting for a side part.
+vec3 h=vHeadBind-headEye;float cropW=0.0,bareW=0.0;
+if(hairStyle>.5&&hairStyle<1.5)cropW=1.0;
+else if(hairStyle>1.5&&hairStyle<2.5)bareW=1.0;
+else if(hairStyle>2.5&&hairStyle<3.5)cropW=1.0-smoothstep(${HAIR_CUT.twoBlock}-.003,${HAIR_CUT.twoBlock}+.003,h.y);
+else if(hairStyle>3.5){cropW=.55*(1.0-smoothstep(${HAIR_CUT.sideTaper}-.008,${HAIR_CUT.sideTaper}+.004,h.y));
+ bareW=.85*(1.0-smoothstep(.0012,.0028,abs(h.x-${HAIR_CUT.part.x})))*smoothstep(${HAIR_CUT.part.from}-.006,${HAIR_CUT.part.from}+.004,h.y)*step(-${HAIR_CUT.part.back},h.z);}
+if(cropW+bareW>0.0){float shape=clamp(dot(base,vec3(.2126,.7152,.0722))/max(dot(hairRef,vec3(.2126,.7152,.0722)),.005),.55,1.4);vec3 scalp=scalpColor*skinTint*(.84+.08*grain)*mix(1.0,shape,.22);
+ hairC=mix(mix(hairC,mix(scalp,hairColor*.55,.45+.3*grain),cropW),mix(scalp,hairColor*.55,.04),bareW);}
 vec3 col=mix(base*skinTint,hairC,headM.r);
 // Stubble or a beard on the jaw, chin and upper lip.
 if(beard>.5){float w=headM.b*(beard<1.5?(.25+.35*grain):(.5+.32*grain));col=mix(col,hairColor*(.5+.2*grain),w);}
 diffuseColor.rgb=mix(col,base,headM.g);`;
 /** Head material: skin tint on the face and neck, hair tint (or scalp for crop/bald) on the painted hair, an
- * optional stubble or beard; eyes, gums and teeth (mask G) keep their colours. */
-export function headMaterial({map,normalMap,hairMask,scalp,hairRef},tint,hairTint,{hairStyle=0,beard=0,hair='#211a15'}={}){
+ * optional stubble or beard; eyes, gums and teeth (mask G) keep their colours. `eye`: the rest-pose eye centre
+ * (metres, the space of the mesh's `kitBind` positions) that the two-block and side-part lines are measured from. */
+export function headMaterial({map,normalMap,hairMask,scalp,hairRef},tint,hairTint,{hairStyle=0,beard=0,hair='#211a15',eye=[0,1.686,.094]}={}){
  const m=new THREE.MeshStandardMaterial({map,normalMap,normalScale:new THREE.Vector2(1,-1),roughness:.58,metalness:0}); // DirectX-style normal map
  const u={skinTint:{value:tint.clone()},hairTint:{value:(hairTint||tint).clone()},hairMask:{value:hairMask},hairStyle:{value:hairStyle},beard:{value:beard},
-  hairColor:{value:new THREE.Color(hair)},scalpColor:{value:new THREE.Color(scalp||'#c18a6f')},hairRef:{value:new THREE.Color(hairRef||'#372619')}};m.userData.kit=u;
+  hairColor:{value:new THREE.Color(hair)},scalpColor:{value:new THREE.Color(scalp||'#c18a6f')},hairRef:{value:new THREE.Color(hairRef||'#372619')},headEye:{value:new THREE.Vector3(...eye)}};m.userData.kit=u;
  m.onBeforeCompile=shader=>{Object.assign(shader.uniforms,u);
-  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 skinTint,hairTint,hairColor,scalpColor,hairRef;uniform float hairStyle,beard;uniform sampler2D hairMask;')
+  shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nattribute vec3 kitBind;varying vec3 vHeadBind;').replace('#include <begin_vertex>','#include <begin_vertex>\nvHeadBind=kitBind;');
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 skinTint,hairTint,hairColor,scalpColor,hairRef,headEye;uniform float hairStyle,beard;uniform sampler2D hairMask;varying vec3 vHeadBind;')
    .replace('#include <map_fragment>',headFragment);};
- m.customProgramCacheKey=()=> 'rocketbox-head-v5';
+ m.customProgramCacheKey=()=> 'rocketbox-head-v6';
+ return m;
+}
+/**
+ * Modelled hair cards (the dreadlocks, the transplanted heads' hair): hidden for crop and bald (the caller
+ * hides the mesh), cut at the block line for a two-block and at the tapered sides for a side part.
+ */
+export function hairCardMaterial({map},hairTint,{hairStyle=0,eye=[0,1.686,.094]}={}){
+ const m=new THREE.MeshStandardMaterial({map,color:hairTint,alphaTest:.5,side:THREE.DoubleSide,roughness:.8});
+ const cut=hairStyle===3?HAIR_CUT.twoBlock:hairStyle===4?HAIR_CUT.sideTaper:-10,u={hairCut:{value:eye[1]+cut}};
+ m.onBeforeCompile=shader=>{Object.assign(shader.uniforms,u);
+  shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nattribute vec3 kitBind;varying float vCardY;').replace('#include <begin_vertex>','#include <begin_vertex>\nvCardY=kitBind.y;');
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nuniform float hairCut;varying float vCardY;').replace('void main() {','void main() {\nif(vCardY<hairCut)discard;');};
+ m.customProgramCacheKey=()=>'rocketbox-hair-cut-v1';
  return m;
 }
 

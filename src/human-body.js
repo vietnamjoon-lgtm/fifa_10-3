@@ -8,9 +8,10 @@ import {MeshoptDecoder} from '../vendor/three-addons/libs/meshopt_decoder.module
 import {clone} from '../vendor/three-addons/utils/SkeletonUtils.js';
 import {TEAMS} from './config.js';
 import {kitHooks} from './player.js';
-import {kitColours,kitMaterial,setKitColours,headMaterial,drawDecals,composePhotoHead,HAIR_STYLES,BEARDS} from './human-kit.js';
+import {kitColours,kitMaterial,setKitColours,headMaterial,hairCardMaterial,drawDecals,composePhotoHead,HAIR_STYLES,BEARDS} from './human-kit.js';
 import {cleanFace,FACE_SHAPE} from './face-settings.js';
 import {celebrationHands} from './celebrations.js';
+import {decodeFaceShape,faceShapeField,meshOffsets,validFaceShape} from './face-shape3d.js';
 
 // Old joint -> new bones, from tools/human/maps/game13.json (index 0 is the player's right side).
 // Each bone takes the cumulative share of the old joint's local rotation. `align` turns the new limb's
@@ -49,8 +50,8 @@ export function bindData(scene){
  // Order: every bone after its parent.
  const order=[];const visit=n=>{order.push(n);for(const c of bones[n].children)if(c.isBone)visit(c.name);};visit('Hips');
  // Eye centre in the head bone's frame (Rocketbox eyes: 9.9 cm above and 8.6 cm in front of the head joint).
- const eye=new THREE.Vector3(0,.099,.086).applyQuaternion(model.Head.clone().invert());
- return {local,model,parent,correction,legTop,ankle,headY,height:height||1.82,hips:bones.Hips.position.clone(),order,eye,hands:handBind(bones,model,scenePosition)};
+ const eye=new THREE.Vector3(0,.099,.086).applyQuaternion(model.Head.clone().invert()),eyeRest=scenePosition(bones.Head).add(new THREE.Vector3(0,.099,.086));
+ return {local,model,parent,correction,legTop,ankle,headY,height:height||1.82,hips:bones.Hips.position.clone(),order,eye,eyeRest:eyeRest.toArray(),hands:handBind(bones,model,scenePosition)};
 }
 export const FINGERS=['Thumb','Index','Middle','Ring','Pinky'];
 /**
@@ -84,16 +85,32 @@ function addBindPositions(scene){
   o.geometry.setAttribute('kitBind',new THREE.BufferAttribute(out,3));});
 }
 
-/** Loads the models and textures once. Resolves false (old model stays) when loading fails. */
+/**
+ * Rest-pose head vertices that sit on the body mesh (the neck seam, tools/human/rocketbox/01_convert.py): flat
+ * metres. A face-shape change must leave them where they are.
+ */
+function neckSeam(scene){
+ const key=(a,i)=>a.slice(i*3,i*3+3).map(v=>Math.round(v*1e4)).join(),body=new Set(),seam=[];
+ scene.traverse(o=>{if(o.isSkinnedMesh&&o.material.name==='body'){const a=o.geometry.attributes.kitBind.array;for(let i=0;i<a.length/3;i++)body.add(key(a,i));}});
+ scene.traverse(o=>{if(o.isSkinnedMesh&&o.material.name==='head'){const a=o.geometry.attributes.kitBind.array;for(let i=0;i<a.length/3;i++)if(body.has(key(a,i)))seam.push(a[i*3],a[i*3+1],a[i*3+2]);}});
+ return new Float32Array(seam);
+}
+
+/**
+ * Loads the models and textures once. Resolves false (old model stays) when loading fails. The football
+ * avatars load up front; the head transplants (rocketbox.json `transplant`) only when a player needs one
+ * (ensureAvatar), so a squad without them downloads nothing extra.
+ */
 export function loadHumanBodies(renderer){
  if(assetsPromise)return assetsPromise;
  const load=async()=>{
-  // Landmark-triangle photo warp calibration (src/human-kit.js composePhotoHead): optional, a missing or
-  // unfetchable file just keeps every photo face on the legacy row/column mapping.
-  const [layout,faceLandmarksUV,canonicalFace]=await Promise.all([
+  // Landmark-triangle photo warp calibration (src/human-kit.js composePhotoHead) and the heads' 3D landmarks
+  // (src/face-shape3d.js): optional, a missing or unfetchable file keeps photo faces on the older paths.
+  const [layout,faceLandmarksUV,canonicalFace,faceHeads]=await Promise.all([
    fetch(BASE+'rocketbox.json').then(r=>r.json()),
    fetch(BASE+'face-landmarks-uv.json').then(r=>r.json()).catch(()=>({})),
    fetch('./assets/human/canonical-face.json').then(r=>r.json()).catch(()=>null),
+   fetch(BASE+'face-landmarks-3d.json').then(r=>r.json()).catch(()=>({})),
   ]),loader=new GLTFLoader().setMeshoptDecoder(MeshoptDecoder),textures=new THREE.TextureLoader();
   const anisotropy=Math.min(8,renderer?.capabilities?.getMaxAnisotropy?.()||1);
   // Repeat wrapping: the waist seam continues past u = 1 (tools/human/rocketbox/01_convert.py).
@@ -101,13 +118,15 @@ export function loadHumanBodies(renderer){
   // Part ids must not blend across seams: sample the mask without filtering.
   const mask=await tex('kit-mask.png',false);mask.generateMipmaps=false;mask.minFilter=mask.magFilter=THREE.NearestFilter;mask.anisotropy=1;
   const maskSmooth=mask.clone();maskSmooth.minFilter=THREE.LinearMipmapLinearFilter;maskSmooth.magFilter=THREE.LinearFilter;maskSmooth.generateMipmaps=true;maskSmooth.anisotropy=anisotropy;
-  const avatars={};
-  for(const [id,a] of Object.entries(layout.avatars)){
+  const loadAvatar=async a=>{
    const [gltf,body,head,bodyNormal,headNormal,hair,hairMask]=await Promise.all([loader.loadAsync(BASE+a.model),tex(a.body),tex(a.head),tex(a.bodyNormal,false),tex(a.headNormal,false),tex(a.hair),tex(a.hairMask,false)]);
    addBindPositions(gltf.scene);
-   avatars[id]={...a,gltf,body,head,bodyNormal,headNormal,hair,hairMask,bind:bindData(gltf.scene),skinColor:new THREE.Color(a.skin)};
-  }
-  assets={layout,mask,maskSmooth,avatars,faceLandmarksUV,canonicalFace};return true;
+   return {...a,gltf,body,head,bodyNormal,headNormal,hair,hairMask,bind:bindData(gltf.scene),skinColor:new THREE.Color(a.skin),seam:neckSeam(gltf.scene)};
+  };
+  const avatars={},pending={};
+  for(const [id,a] of Object.entries(layout.avatars))if(!a.transplant)avatars[id]=await loadAvatar(a);
+  const ensure=id=>avatars[id]?Promise.resolve(true):layout.avatars[id]?pending[id]??=loadAvatar(layout.avatars[id]).then(a=>{avatars[id]=a;return true;},error=>{console.warn(`Player head ${id} unavailable:`,error);return false;}):Promise.resolve(false);
+  assets={layout,mask,maskSmooth,avatars,faceLandmarksUV,canonicalFace,faceHeads,ensure};return true;
  };
  assetsPromise=load().catch(error=>{console.warn('New player model unavailable, keeping the old one:',error);return false;});
  return assetsPromise;
@@ -116,11 +135,33 @@ export const humanBodiesDisabled=()=>typeof location!=='undefined'&&new URLSearc
 
 const lum=c=>.2126*c.r+.7152*c.g+.0722*c.b;
 const defaultSkins=['#bf8561','#976143','#deb18a','#74482f','#c89572','#e1ad88'];
-/** Which Rocketbox player and skin tint suit the saved profile (the profile itself is not changed). */
-export function humanLook(profile={},number=10,avatars={male_02:{skin:'#c18a6f',hairColor:'#372619'},male_03:{skin:'#a0674a',hairColor:'#16100c'}}){
- const target=new THREE.Color(profile.skin||defaultSkins[number%6]),ids=Object.keys(avatars);
- const dark=ids.find(id=>id.endsWith('03'))||ids.at(-1),light=ids.find(id=>id.endsWith('02'))||ids[0];
- const id=profile.hairStyle==='crest'||lum(target)<lum(new THREE.Color(avatars[dark].skin))*1.05?dark:light;
+const EAST_ASIAN_HEAD='asian_01';
+/**
+ * Whether a photo's sampled skin colour ('#rrggbb', sRGB) falls in the light-to-medium, yellow-leaning range
+ * this game treats as an East Asian skin tone: hue 10-45 degrees, saturation .12-.62, value at least .5. A
+ * colour sample cannot tell ancestry apart (many light European and Latin American skins fall in the same
+ * range), so this only picks a starting head for photo faces; the editor's 얼굴 바탕 overrides it.
+ */
+export function eastAsianTone(hex){
+ if(!/^#[\da-f]{6}$/i.test(hex||''))return false;
+ const [r,g,b]=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255),max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;
+ if(max!==r||d<=0)return false;
+ const hue=60*((g-b)/d),sat=d/max;
+ return hue>=10&&hue<=45&&sat>=.12&&sat<=.62&&max>=.5;
+}
+const DEFAULT_AVATARS={male_02:{skin:'#c18a6f',hairColor:'#372619'},male_03:{skin:'#a0674a',hairColor:'#16100c'},asian_01:{skin:'#c39776',hairColor:'#181411',transplant:{}},asian_02:{skin:'#be8b5e',hairColor:'#140d04',transplant:{}}};
+/**
+ * Which Rocketbox player and skin tint suit the saved profile (the profile itself is not changed). A head chosen
+ * in the editor (`faceBase`) wins; otherwise a photo face with an East Asian skin tone (eastAsianTone) gets the
+ * East Asian head, and every other player the football avatar whose skin is closest (the dreadlocks one for
+ * `crest` hair).
+ */
+export function humanLook(profile={},number=10,avatars=DEFAULT_AVATARS){
+ const target=new THREE.Color(profile.skin||defaultSkins[number%6]),ids=Object.keys(avatars),football=ids.filter(id=>!avatars[id].transplant);
+ const dark=football.find(id=>id.endsWith('03'))||football.at(-1),light=football.find(id=>id.endsWith('02'))||football[0];
+ const photo=cleanFace(profile.face).enabled&&!!profile.faceTexture;
+ const id=Object.hasOwn(avatars,profile.faceBase||'')?profile.faceBase:profile.hairStyle==='crest'?dark:photo&&avatars[EAST_ASIAN_HEAD]&&eastAsianTone(profile.skin)?EAST_ASIAN_HEAD:
+  lum(target)<lum(new THREE.Color(avatars[dark].skin))*1.05?dark:light;
  // Mostly a brightness change, half of the hue difference: per-channel ratios alone turn light skin grey-green.
  // The reference is a median that includes shadowed skin, so the change is softened (power .6).
  const ratio=(want,have)=>{const l=(lum(want)/Math.max(lum(have),.005))**.6;return new THREE.Color(...['r','g','b'].map(k=>clamp(l*(1+((want[k]/Math.max(have[k],.005))/(lum(want)/Math.max(lum(have),.005))-1)*.45),.25,1.8)));};
@@ -139,12 +180,80 @@ function decalsFor(rig){
 }
 function dress(rig){const h=rig.human;if(!h)return;setKitColours(h.materials.body,coloursFor(rig.look));decalsFor(rig);}
 
-/** Replaces the rig's visible body with the new model once it has loaded. */
+/**
+ * Replaces the rig's visible body with the new model once it has loaded (and, for a head transplant, once that
+ * head has loaded). Returns a promise that settles when the model is on (or will not be).
+ */
 export function attachHumanBody(rig){
- if(humanBodiesDisabled()||!assetsPromise)return;
- if(assets)return attach(rig);
- assetsPromise.then(ok=>{if(ok&&!rig.disposed)attach(rig);});
+ if(humanBodiesDisabled()||!assetsPromise)return Promise.resolve(false);
+ const go=()=>{if(rig.disposed)return false;const look=rig.look||{profile:{},number:10},id=humanLook(look.profile,look.number,assets.layout.avatars).avatar;
+  return assets.ensure(id).then(ok=>{if(!rig.disposed&&!rig.human)attach(rig,ok?id:null);return !!rig.human;});};
+ if(assets)return go();
+ return assetsPromise.then(ok=>ok&&go());
 }
+
+// --- Photo face shape (src/face-shape3d.js) on a per-player copy of the head geometry ------------------------
+const fieldCache=new Map();
+/** The deformation field for one head and one stored shape (shared by every rig of that player). */
+function faceField(id,value){
+ const key=id+value;if(fieldCache.has(key))return fieldCache.get(key);
+ const canonical=assets.canonicalFace,head=assets.faceHeads?.[id],photo=decodeFaceShape(value,canonical);
+ const field=head&&photo?faceShapeField(head,photo,canonical,{seam:assets.avatars[id].seam}):null;
+ if(fieldCache.size>24)fieldCache.delete(fieldCache.keys().next().value);
+ fieldCache.set(key,field);return field;
+}
+const restMaps=new WeakMap();
+/**
+ * The affine map from a geometry's stored positions to its rest positions in metres (`kitBind`): quantized
+ * glTF positions keep their scale in the skin's bind matrices, so it is fitted once by least squares (exact
+ * for a skinned mesh at rest; null if it is not).
+ */
+function restMap(geometry){
+ if(restMaps.has(geometry))return restMaps.get(geometry);
+ const pos=geometry.attributes.position,rest=geometry.attributes.kitBind.array,N=new Float64Array(16),B=new Float64Array(12);
+ for(let i=0;i<pos.count;i++){const p=[pos.getX(i),pos.getY(i),pos.getZ(i),1];for(let a=0;a<4;a++){for(let b=0;b<4;b++)N[a*4+b]+=p[a]*p[b];for(let k=0;k<3;k++)B[a*3+k]+=p[a]*rest[i*3+k];}}
+ const m=new THREE.Matrix4().set(...N).invert(),X=[0,1,2].map(k=>[0,1,2,3].map(a=>[0,1,2,3].reduce((s,b)=>s+m.elements[b*4+a]*B[b*3+k],0)));
+ const map=new THREE.Matrix4().set(...X[0],...X[1],...X[2],0,0,0,1);let error=0;const v=new THREE.Vector3();
+ for(let i=0;i<pos.count;i+=7){v.fromBufferAttribute(pos,i).applyMatrix4(map);error=Math.max(error,Math.hypot(v.x-rest[i*3],v.y-rest[i*3+1],v.z-rest[i*3+2]));}
+ const out=error<5e-4?{map,inverse:map.clone().invert()}:null;restMaps.set(geometry,out);return out;
+}
+/** Eyeball, teeth and tongue pieces of a head (islands textured only from the head texture's eye corner). */
+function rigidPieces(geometry,eyes){
+ const uv=geometry.attributes.uv,index=geometry.index,count=geometry.attributes.position.count,parent=Int32Array.from({length:count},(_,i)=>i);
+ const find=i=>{while(parent[i]!==i)i=parent[i]=parent[parent[i]];return i;};
+ if(index)for(let t=0;t<index.count;t+=3){const a=find(index.getX(t));for(const k of [1,2]){const b=find(index.getX(t+k));if(a!==b)parent[b]=a;}}
+ const groups=new Map(),inside=i=>{const u=uv.getX(i),v=uv.getY(i);return u>=eyes[0]&&u<=eyes[2]&&v>=eyes[1]&&v<=eyes[3];};
+ for(let i=0;i<count;i++){const r=find(i);if(!groups.has(r))groups.set(r,{all:true,list:[]});const g=groups.get(r);g.list.push(i);g.all&&=inside(i);}
+ return [...groups.values()].filter(g=>g.all).map(g=>g.list);
+}
+/**
+ * A copy of `mesh`'s geometry with the face moved by `field`; skin weights, UVs and the expression and body
+ * morphs stay shared (glTF morphs are relative, so they act on the moved face). Normals turn with the local
+ * change. Returns null when nothing would move.
+ */
+function shapedGeometry(mesh,field,eyes,isHead){
+ const g=mesh.geometry,map=g.attributes.kitBind&&restMap(g);if(!map)return null;
+ // Offsets depend only on the shared geometry and the field: every rig of the same player reuses them.
+ const cache=field.meshes??=new WeakMap();if(!cache.has(g))cache.set(g,meshOffsets(field,g.attributes.kitBind.array,isHead?rigidPieces(g,eyes):[]));
+ const {offsets,jacobians}=cache.get(g);
+ let largest=0;for(let i=0;i<offsets.length;i+=3)largest=Math.max(largest,Math.hypot(offsets[i],offsets[i+1],offsets[i+2]));
+ if(largest<1e-4)return null;
+ const out=new THREE.BufferGeometry(),pos=new THREE.BufferAttribute(new Float32Array(g.attributes.position.count*3),3),linear=new THREE.Matrix3().setFromMatrix4(map.inverse);
+ const toRest=new THREE.Matrix3().setFromMatrix4(map.map),normalIn=toRest.clone().invert().transpose(),normalOut=toRest.clone().transpose(),v=new THREE.Vector3(),n=new THREE.Vector3(),m=new THREE.Vector3();
+ const normal=g.attributes.normal&&new THREE.BufferAttribute(new Float32Array(g.attributes.normal.count*3),3);
+ for(let i=0;i<pos.count;i++){
+  v.fromBufferAttribute(g.attributes.position,i).add(n.set(offsets[i*3],offsets[i*3+1],offsets[i*3+2]).applyMatrix3(linear));pos.setXYZ(i,v.x,v.y,v.z);
+  if(normal){// rest-space normal n -> n - J^T n (first order of (I+J)^-T), back to geometry space
+   n.fromBufferAttribute(g.attributes.normal,i).applyMatrix3(normalIn).normalize();const J=jacobians.subarray(i*9,i*9+9);
+   m.set(n.x-(J[0]*n.x+J[3]*n.y+J[6]*n.z),n.y-(J[1]*n.x+J[4]*n.y+J[7]*n.z),n.z-(J[2]*n.x+J[5]*n.y+J[8]*n.z)).applyMatrix3(normalOut).normalize();normal.setXYZ(i,m.x,m.y,m.z);}
+ }
+ for(const [name,attribute] of Object.entries(g.attributes))out.setAttribute(name,attribute);
+ out.setAttribute('position',pos);if(normal)out.setAttribute('normal',normal);
+ out.setIndex(g.index);out.morphAttributes=g.morphAttributes;out.morphTargetsRelative=g.morphTargetsRelative;for(const group of g.groups)out.addGroup(group.start,group.count,group.materialIndex);
+ out.userData.faceShape={largest};out.userData.own=['position',...(normal?['normal']:[])];return out;
+}
+/** Frees only the attributes a shaped copy owns: the rest are shared with the model every rig clones. */
+function releaseShaped(g){for(const name of Object.keys(g.attributes))if(!g.userData.own.includes(name))g.deleteAttribute(name);g.setIndex(null);g.morphAttributes={};g.dispose();}
 
 /** Rotations for one frame: old joints in the rig root's space -> new bones' local rotations. */
 export function retarget(rig,bones,data){
@@ -183,11 +292,16 @@ const seeded=text=>{let h=2166136261;for(const c of String(text))h=Math.imul(h^c
  * width, eye spacing measured off the 468 landmarks; depth, cheek, lips and brow stay neutral, a single
  * photo can't read those reliably) instead of a random per-player pick. The photo texture stays aligned
  * because morph targets only move vertex positions, not the head mesh's UV, which src/human-kit.js
- * composePhotoHead's calibration (assets/human/rocketbox/face-landmarks-uv.json) targets directly. */
+ * composePhotoHead's calibration (assets/human/rocketbox/face-landmarks-uv.json) targets directly. The same
+ * holds for the 3D face shape's per-player geometry (attach). */
 export function faceShape(profile={},number=10){
- const face=cleanFace(profile.face),f=face.shape,infl=(key,v=f[key])=>{const [,min,max]=FACE_SHAPE[key];return v>=1?(v-1)/(max-1):-(1-v)/(1-min);};
- const out={face_width:infl('width'),face_jaw:infl('jaw'),face_chin:clamp(infl('chin')+.6*infl('length'),-1,1),face_cheek:infl('cheek'),face_nose:infl('nose'),
-  face_noseWidth:infl('noseWidth'),face_mouth:infl('mouth'),face_lips:infl('lips'),face_brow:infl('brow'),face_depth:infl('depth')};
+ const face=cleanFace(profile.face),infl=(key,v)=>{const [,min,max]=FACE_SHAPE[key];return v>=1?(v-1)/(max-1):-(1-v)/(1-min);};
+ // With a 3D face shape (src/face-shape3d.js) the head already has the photo's proportions: the sliders only add
+ // what the person changed after the analysis (their values over `fitShape`, the analysis's own values).
+ const shape3d=face.enabled&&!!validFaceShape(profile.faceShape3d),base=shape3d?face.fitShape||face.shape:null;
+ const f=base?Object.fromEntries(Object.keys(face.shape).map(k=>[k,face.shape[k]/base[k]])):face.shape,v=key=>infl(key,clamp(f[key],FACE_SHAPE[key][1],FACE_SHAPE[key][2]));
+ const out={face_width:v('width'),face_jaw:v('jaw'),face_chin:clamp(v('chin')+.6*v('length'),-1,1),face_cheek:v('cheek'),face_nose:v('nose'),
+  face_noseWidth:v('noseWidth'),face_mouth:v('mouth'),face_lips:v('lips'),face_brow:v('brow'),face_depth:v('depth')};
  const hasPhoto=face.enabled&&!!profile.faceTexture;
  if(!hasPhoto&&Object.values(f).every(v=>v===1)){const r=seeded(profile.uid??profile.name??number);for(const k of Object.keys(out))out[k]=(r()*2-1)*.7;}
  return out;
@@ -340,27 +454,31 @@ function lookAtBall(head,bindHead,ball){
  face.f.set(0,0,1).applyQuaternion(face.q);face.u.set(0,1,0).applyQuaternion(face.q);face.l.set(1,0,0).applyQuaternion(face.q);
  const fwd=face.v.dot(face.f);if(fwd<=0)return null;return [Math.atan2(face.v.dot(face.l),fwd),Math.atan2(face.v.dot(face.u),fwd)];
 }
-function attach(rig){
+function attach(rig,chosen=null){
  if(rig.human||rig.disposed)return;const look=rig.look||(rig.look={team:0,number:10,keeper:false,profile:{}}),m=rig.bodyMetrics;
- const {avatar:id,tint,hairTint,hairStyle,beard}=humanLook(look.profile,look.number,assets.avatars),a=assets.avatars[id],bind=a.bind;
+ // `chosen` is the loaded head humanLook picked; if a transplant head failed to load, the loaded ones decide.
+ const {avatar:id,tint,hairTint,hairStyle,beard}=humanLook(look.profile,look.number,chosen?assets.layout.avatars:assets.avatars),a=assets.avatars[id],bind=a.bind;
  const root=clone(a.gltf.scene),bones={},meshes=[];root.traverse(o=>{if(o.isBone)bones[o.name]=o;if(o.isSkinnedMesh)meshes.push(o);});
  const decalCanvas=document.createElement('canvas');decalCanvas.width=decalCanvas.height=512;
  const decals=new THREE.CanvasTexture(decalCanvas);decals.flipY=false;decals.colorSpace=THREE.SRGBColorSpace;decals.anisotropy=4;
  const materials={
   body:kitMaterial({map:a.body,normalMap:a.bodyNormal,mask:assets.mask,maskSmooth:assets.maskSmooth,layout:assets.layout},coloursFor(look),decals,tint),
-  head:headMaterial({map:a.head,normalMap:a.headNormal,hairMask:a.hairMask,scalp:a.skin,hairRef:a.hairColor},tint,hairTint,{hairStyle,beard,hair:look.profile.hair||'#211a15'}),
-  hair:a.hair&&new THREE.MeshStandardMaterial({map:a.hair,color:hairTint,alphaTest:.5,side:THREE.DoubleSide,roughness:.8})};
+  head:headMaterial({map:a.head,normalMap:a.headNormal,hairMask:a.hairMask,scalp:a.skin,hairRef:a.hairColor},tint,hairTint,{hairStyle,beard,hair:look.profile.hair||'#211a15',eye:bind.eyeRest}),
+  hair:a.hair&&hairCardMaterial({map:a.hair},hairTint,{hairStyle,eye:bind.eyeRest})};
  for(const mesh of meshes){mesh.material=materials[mesh.material.name]||materials.body;mesh.frustumCulled=false;mesh.castShadow=true;mesh.receiveShadow=true;
-  // Only a full head of hair keeps the modelled locks; crop and bald show the scalp.
-  if(mesh.material===materials.hair&&hairStyle>0)mesh.visible=false;}
+  // Crop and bald show the scalp, so the modelled locks go; a two-block or side part trims them (hairCardMaterial).
+  if(mesh.material===materials.hair&&(hairStyle===HAIR_STYLES.crop||hairStyle===HAIR_STYLES.bald))mesh.visible=false;}
  // Profile height, limb lengths and girth; the feet then reach the old rig's ankles by IK every frame.
  const shape=bodyShape(m),worldScale=m.height/shapedHeight(bind,shape),toModel=m.scale/worldScale;root.scale.setScalar(1/toModel);
  const hipsLift=applyBodyShape(bones,meshes,shape,bind,faceShape(look.profile,look.number));
+ // A photo's 3D face shape (src/face-shape3d.js) moves this player's own copy of the head and its hair cards.
+ const shape3d=cleanFace(look.profile.face).enabled&&validFaceShape(look.profile.faceShape3d),field=shape3d&&assets.canonicalFace?faceField(id,shape3d):null,shaped=[];
+ if(field)for(const mesh of meshes)if(mesh.material===materials.head||mesh.material===materials.hair){const g=shapedGeometry(mesh,field,assets.layout.eyes,mesh.material===materials.head);if(g){mesh.geometry=g;shaped.push(g);}}
  // Hide the old body (its bones keep updating) but keep the blob shadow.
  rig.hips.visible=false;for(const c of rig.root.children)if(c.isMesh&&c.geometry?.type!=='CircleGeometry')c.visible=false;
  rig.details=[];rig.lod=[];rig.root.add(root);
  const skeletons=new Set(meshes.map(mesh=>mesh.skeleton)),expr={values:{}},seed=[...String(look.profile.uid??look.profile.name??look.number)].reduce((h,c)=>(h*31+c.charCodeAt(0))%9973,look.number*7);
- rig.human={root,bones,meshes,materials,decals,decalCanvas,avatar:id,
+ rig.human={root,bones,meshes,materials,decals,decalCanvas,avatar:id,faceShape:field?{largest:field.largest,moved:shaped.length}:null,
   /** Eye centre in world space (portrait cameras). */
   eye(target){root.updateMatrixWorld(true);return target.copy(bind.eye).applyMatrix4(bones.Head.matrixWorld);},sync(){
   retarget(rig,bones,bind);
@@ -375,7 +493,7 @@ function attach(rig){
   const p=rig.animationPlayer||{};
   if(p.keeperMotion&&(rig.animationTime||0)<=p.keeperMotion.until)reachContactHands(rig,root,bones);
   poseHands(root,bones,bind,{speed:rig.animationSpeed||0,keeper:look.keeper,state:rig.motionState,camera:rig.motionState==='celebrate'?celebrationHands(p,rig.animationTime||0):null});
- },dispose(){live.delete(rig);root.removeFromParent();for(const mat of Object.values(materials))mat?.dispose();decals.dispose();rig.human.photoTexture?.dispose();for(const s of skeletons)s.dispose();}};
+ },dispose(){live.delete(rig);root.removeFromParent();for(const mat of Object.values(materials))mat?.dispose();decals.dispose();rig.human.photoTexture?.dispose();for(const s of skeletons)s.dispose();for(const g of shaped)releaseShaped(g);}};
  decalsFor(rig);live.add(rig);rig.human.sync();
  // A saved photo face replaces the painted face (the texture is per player).
  const face=cleanFace(look.profile.face);
