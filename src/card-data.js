@@ -1,5 +1,6 @@
 import {engineValue,overallRating} from './player-ratings.js';
 import {cleanProfile} from './squads.js';
+import {defaultTraits} from './traits.js';
 // 실제 선수 이름만 사용하고 능력치·등급명은 자체 제작입니다. FC 온라인의 비공개 수치나 고유 등급명은 쓰지 않습니다.
 export const TIERS={
  bronze:{id:'bronze',name:'브론즈',min:0,max:64,color:'#c9a35f',walkout:false},
@@ -113,6 +114,8 @@ export function cardProfile(card,uid){
  const look=cardLook(card);
  const raw={uid:uid||`card-${card.name}-${Date.now()}`,name:card.name,number:card.number,role:card.role,foot:card.foot,height:card.height,weight:card.weight,build:look.build,skin:look.skin,hair:look.hair,hairStyle:look.hairStyle,body:look.body};
  for(const [key,value] of Object.entries(statDisplay(card)))raw[key]=engineValue(key,value);
+ // 카드마다 포지션에 어울리는 특성 1~2개를 이름으로 고정해 줍니다(같은 카드는 늘 같은 특성).
+ raw.traits=defaultTraits(card.role,'card-'+card.name);
  return cleanProfile(raw);
 }
 export function cardOverall(card){return overallRating(cardProfile(card,'preview'));}
