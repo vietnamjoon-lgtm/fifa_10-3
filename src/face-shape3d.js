@@ -161,12 +161,30 @@ export function faceShapeField(head,photo,canonical,{seam=null,strength=1}={}){
  use.forEach((i,j)=>{const c=[0,1,2].map(k=>P[i*3+k]-reference[i*3+k]);let d=[0,1,2].map(r=>s*(R[r][0]*c[0]+R[r][1]*c[1]+R[r][2]*c[2])*strength);
   const len=Math.hypot(...d);if(len>MAX_OFFSET)d=d.map(v=>v*MAX_OFFSET/len);
   for(let k=0;k<3;k++){centres[j*3+k]=M[i*3+k];values[j*3+k]=d[k];}});
+ return buildField(model,use,centres,values,seam);
+}
+/**
+ * The same field from direct 3D targets instead of MediaPipe readings: `targets` are where each of the head's 468
+ * landmarks should go (metres, the head's rest space, null to leave one out), as the face-scan tool measures them
+ * on a scan already fitted to the head (tools/human/scan). `maxOffset` caps each landmark's move (cm).
+ */
+export function landmarkField(head,targets,canonical,{seam=null,maxOffset=3}={}){
+ if(!head?.points||!targets)return null;
+ const model=headLandmarks(head.points,mirrorPairs(canonical.vertices)),use=reliableLandmarks(model).filter(i=>targets[i]);
+ if(use.length<200)return null;
+ const n=use.length,centres=new Float64Array(n*3),values=new Float64Array(n*3);
+ use.forEach((i,j)=>{let d=[0,1,2].map(k=>(targets[i][k]-model[i][k])*100);const len=Math.hypot(...d);if(len>maxOffset)d=d.map(v=>v*maxOffset/len);
+  for(let k=0;k<3;k++){centres[j*3+k]=model[i][k]*100;values[j*3+k]=d[k];}});
+ return buildField(model,use,centres,values,seam);
+}
+function buildField(model,use,centres,values,seam){
+ const n=use.length,M={y:i=>model[i][1]*100,z:i=>model[i][2]*100};
  const A=new Float64Array(n*n);
  for(let a=0;a<n;a++)for(let b=a;b<n;b++){const r=Math.hypot(centres[a*3]-centres[b*3],centres[a*3+1]-centres[b*3+1],centres[a*3+2]-centres[b*3+2]),v=wendland(r)+(a===b?SMOOTHING:0);A[a*n+b]=A[b*n+a]=v;}
  const coef=solve(A,Float64Array.from(values),n,3);
  // Face mask from the head's own landmarks (cm): the chin, the top of the forehead, the depth of the face sides.
- const at=i=>model[i]?model[i].map(v=>v*100):null,chin=at(152)?.[1]??Math.min(...use.map(i=>M[i*3+1])),top=at(10)?.[1]??Math.max(...use.map(i=>M[i*3+1]));
- const back=Math.min(...use.map(i=>M[i*3+2]))-1;
+ const at=i=>model[i]?model[i].map(v=>v*100):null,chin=at(152)?.[1]??Math.min(...use.map(M.y)),top=at(10)?.[1]??Math.max(...use.map(M.y));
+ const back=Math.min(...use.map(M.z))-1;
  const seamPts=seam?Array.from(seam,v=>v*100):[];
  const mask=(x,y,z)=>{
   let w=smooth((z-back)/2.5)*smooth((top+1-y)/2)*smooth((y-(chin-4))/2.5);

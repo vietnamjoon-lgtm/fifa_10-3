@@ -12,6 +12,7 @@ import {kitColours,kitMaterial,setKitColours,headMaterial,hairCardMaterial,drawD
 import {cleanFace,FACE_SHAPE} from './face-settings.js';
 import {celebrationHands} from './celebrations.js';
 import {decodeFaceShape,faceShapeField,meshOffsets,validFaceShape} from './face-shape3d.js';
+import {cleanFaceScan,decodeOffsets} from './face-scan.js';
 
 // Old joint -> new bones, from tools/human/maps/game13.json (index 0 is the player's right side).
 // Each bone takes the cumulative share of the old joint's local rotation. `align` turns the new limb's
@@ -78,7 +79,7 @@ function handBind(bones,model,at){
 
 /** Rest-pose position of every vertex in metres (`kitBind`), for kit patterns. The file's positions are quantized
  * and, for skinned meshes, the dequantization lives in the inverse bind matrices, so it is computed once here. */
-function addBindPositions(scene){
+export function addBindPositions(scene){
  scene.updateMatrixWorld(true);const v=new THREE.Vector3();
  scene.traverse(o=>{if(!o.isSkinnedMesh||o.geometry.attributes.kitBind)return;o.skeleton.update();const pos=o.geometry.attributes.position,out=new Float32Array(pos.count*3);
   for(let i=0;i<pos.count;i++){v.fromBufferAttribute(pos,i);o.applyBoneTransform(i,v);v.applyMatrix4(o.matrixWorld);out.set([v.x,v.y,v.z],i*3);}
@@ -89,7 +90,7 @@ function addBindPositions(scene){
  * Rest-pose head vertices that sit on the body mesh (the neck seam, tools/human/rocketbox/01_convert.py): flat
  * metres. A face-shape change must leave them where they are.
  */
-function neckSeam(scene){
+export function neckSeam(scene){
  const key=(a,i)=>a.slice(i*3,i*3+3).map(v=>Math.round(v*1e4)).join(),body=new Set(),seam=[];
  scene.traverse(o=>{if(o.isSkinnedMesh&&o.material.name==='body'){const a=o.geometry.attributes.kitBind.array;for(let i=0;i<a.length/3;i++)body.add(key(a,i));}});
  scene.traverse(o=>{if(o.isSkinnedMesh&&o.material.name==='head'){const a=o.geometry.attributes.kitBind.array;for(let i=0;i<a.length/3;i++)if(body.has(key(a,i)))seam.push(a[i*3],a[i*3+1],a[i*3+2]);}});
@@ -160,8 +161,10 @@ export function humanLook(profile={},number=10,avatars=DEFAULT_AVATARS){
  const target=new THREE.Color(profile.skin||defaultSkins[number%6]),ids=Object.keys(avatars),football=ids.filter(id=>!avatars[id].transplant);
  const dark=football.find(id=>id.endsWith('03'))||football.at(-1),light=football.find(id=>id.endsWith('02'))||football[0];
  const photo=cleanFace(profile.face).enabled&&!!profile.faceTexture;
- const id=Object.hasOwn(avatars,profile.faceBase||'')?profile.faceBase:profile.hairStyle==='crest'?dark:photo&&avatars[EAST_ASIAN_HEAD]&&eastAsianTone(profile.skin)?EAST_ASIAN_HEAD:
-  lum(target)<lum(new THREE.Color(avatars[dark].skin))*1.05?dark:light;
+ // A scanned face (src/face-scan.js) was fitted to one particular head: that head, whatever else the profile says.
+ const scanned=cleanFace(profile.face).enabled&&typeof profile.faceScan?.avatar==='string'&&Object.hasOwn(avatars,profile.faceScan.avatar)?profile.faceScan.avatar:null;
+ const id=scanned||(Object.hasOwn(avatars,profile.faceBase||'')?profile.faceBase:profile.hairStyle==='crest'?dark:photo&&avatars[EAST_ASIAN_HEAD]&&eastAsianTone(profile.skin)?EAST_ASIAN_HEAD:
+  lum(target)<lum(new THREE.Color(avatars[dark].skin))*1.05?dark:light);
  // Mostly a brightness change, half of the hue difference: per-channel ratios alone turn light skin grey-green.
  // The reference is a median that includes shadowed skin, so the change is softened (power .6).
  const ratio=(want,have)=>{const l=(lum(want)/Math.max(lum(have),.005))**.6;return new THREE.Color(...['r','g','b'].map(k=>clamp(l*(1+((want[k]/Math.max(have[k],.005))/(lum(want)/Math.max(lum(have),.005))-1)*.45),.25,1.8)));};
@@ -218,7 +221,7 @@ function restMap(geometry){
  const out=error<5e-4?{map,inverse:map.clone().invert()}:null;restMaps.set(geometry,out);return out;
 }
 /** Eyeball, teeth and tongue pieces of a head (islands textured only from the head texture's eye corner). */
-function rigidPieces(geometry,eyes){
+export function rigidPieces(geometry,eyes){
  const uv=geometry.attributes.uv,index=geometry.index,count=geometry.attributes.position.count,parent=Int32Array.from({length:count},(_,i)=>i);
  const find=i=>{while(parent[i]!==i)i=parent[i]=parent[parent[i]];return i;};
  if(index)for(let t=0;t<index.count;t+=3){const a=find(index.getX(t));for(const k of [1,2]){const b=find(index.getX(t+k));if(a!==b)parent[b]=a;}}
@@ -232,25 +235,51 @@ function rigidPieces(geometry,eyes){
  * change. Returns null when nothing would move.
  */
 function shapedGeometry(mesh,field,eyes,isHead){
- const g=mesh.geometry,map=g.attributes.kitBind&&restMap(g);if(!map)return null;
+ const g=mesh.geometry;if(!g.attributes.kitBind||!restMap(g))return null;
  // Offsets depend only on the shared geometry and the field: every rig of the same player reuses them.
  const cache=field.meshes??=new WeakMap();if(!cache.has(g))cache.set(g,meshOffsets(field,g.attributes.kitBind.array,isHead?rigidPieces(g,eyes):[]));
- const {offsets,jacobians}=cache.get(g);
+ const {offsets,jacobians}=cache.get(g);return offsetGeometry(g,offsets,jacobians);
+}
+/**
+ * A copy of geometry `g` with each vertex moved by `offsets` (metres, rest space, the geometry's own vertex order).
+ * Normals turn with the local change: by the field's Jacobians when given (small, smooth changes), otherwise
+ * they are recomputed from the moved surface -- averaged over vertices that share a rest position, so UV seams
+ * stay invisible -- and blended in over the first 2 mm of movement (a scanned face). Null when nothing moves.
+ */
+function offsetGeometry(g,offsets,jacobians=null){
+ const map=g.attributes.kitBind&&restMap(g);if(!map||offsets.length!==g.attributes.position.count*3)return null;
  let largest=0;for(let i=0;i<offsets.length;i+=3)largest=Math.max(largest,Math.hypot(offsets[i],offsets[i+1],offsets[i+2]));
  if(largest<1e-4)return null;
  const out=new THREE.BufferGeometry(),pos=new THREE.BufferAttribute(new Float32Array(g.attributes.position.count*3),3),linear=new THREE.Matrix3().setFromMatrix4(map.inverse);
  const toRest=new THREE.Matrix3().setFromMatrix4(map.map),normalIn=toRest.clone().invert().transpose(),normalOut=toRest.clone().transpose(),v=new THREE.Vector3(),n=new THREE.Vector3(),m=new THREE.Vector3();
  const normal=g.attributes.normal&&new THREE.BufferAttribute(new Float32Array(g.attributes.normal.count*3),3);
+ const fresh=normal&&!jacobians?movedNormals(g,offsets):null;
  for(let i=0;i<pos.count;i++){
   v.fromBufferAttribute(g.attributes.position,i).add(n.set(offsets[i*3],offsets[i*3+1],offsets[i*3+2]).applyMatrix3(linear));pos.setXYZ(i,v.x,v.y,v.z);
-  if(normal){// rest-space normal n -> n - J^T n (first order of (I+J)^-T), back to geometry space
-   n.fromBufferAttribute(g.attributes.normal,i).applyMatrix3(normalIn).normalize();const J=jacobians.subarray(i*9,i*9+9);
-   m.set(n.x-(J[0]*n.x+J[3]*n.y+J[6]*n.z),n.y-(J[1]*n.x+J[4]*n.y+J[7]*n.z),n.z-(J[2]*n.x+J[5]*n.y+J[8]*n.z)).applyMatrix3(normalOut).normalize();normal.setXYZ(i,m.x,m.y,m.z);}
+  if(!normal)continue;
+  n.fromBufferAttribute(g.attributes.normal,i).applyMatrix3(normalIn).normalize();
+  if(jacobians){// rest-space normal n -> n - J^T n (first order of (I+J)^-T)
+   const J=jacobians.subarray(i*9,i*9+9);m.set(n.x-(J[0]*n.x+J[3]*n.y+J[6]*n.z),n.y-(J[1]*n.x+J[4]*n.y+J[7]*n.z),n.z-(J[2]*n.x+J[5]*n.y+J[8]*n.z));
+  }else{const w=Math.min(1,Math.hypot(offsets[i*3],offsets[i*3+1],offsets[i*3+2])/.002);m.set(fresh[i*3],fresh[i*3+1],fresh[i*3+2]);m.lengthSq()>0?m.lerp(n,1-w):m.copy(n);}
+  m.applyMatrix3(normalOut).normalize();normal.setXYZ(i,m.x,m.y,m.z);
  }
  for(const [name,attribute] of Object.entries(g.attributes))out.setAttribute(name,attribute);
  out.setAttribute('position',pos);if(normal)out.setAttribute('normal',normal);
  out.setIndex(g.index);out.morphAttributes=g.morphAttributes;out.morphTargetsRelative=g.morphTargetsRelative;for(const group of g.groups)out.addGroup(group.start,group.count,group.materialIndex);
  out.userData.faceShape={largest};out.userData.own=['position',...(normal?['normal']:[])];return out;
+}
+/** Area-weighted vertex normals of the moved rest surface, shared by vertices at the same rest position. */
+function movedNormals(g,offsets){
+ const rest=g.attributes.kitBind.array,count=rest.length/3,p=new Float32Array(count*3),acc=new Float64Array(count*3),index=g.index;
+ for(let i=0;i<p.length;i++)p[i]=rest[i]+offsets[i];
+ if(index)for(let t=0;t<index.count;t+=3){const a=index.getX(t),b=index.getX(t+1),c=index.getX(t+2);
+  const ux=p[b*3]-p[a*3],uy=p[b*3+1]-p[a*3+1],uz=p[b*3+2]-p[a*3+2],wx=p[c*3]-p[a*3],wy=p[c*3+1]-p[a*3+1],wz=p[c*3+2]-p[a*3+2];
+  const nx=uy*wz-uz*wy,ny=uz*wx-ux*wz,nz=ux*wy-uy*wx;for(const k of [a,b,c]){acc[k*3]+=nx;acc[k*3+1]+=ny;acc[k*3+2]+=nz;}}
+ const key=i=>`${Math.round(rest[i*3]*1e4)},${Math.round(rest[i*3+1]*1e4)},${Math.round(rest[i*3+2]*1e4)}`,shared=new Map();
+ for(let i=0;i<count;i++){const k=key(i),s=shared.get(k)||[0,0,0];for(let j=0;j<3;j++)s[j]+=acc[i*3+j];shared.set(k,s);}
+ const out=new Float32Array(count*3);
+ for(let i=0;i<count;i++){const s=shared.get(key(i)),l=Math.hypot(...s)||1;for(let j=0;j<3;j++)out[i*3+j]=s[j]/l;}
+ return out;
 }
 /** Frees only the attributes a shaped copy owns: the rest are shared with the model every rig clones. */
 function releaseShaped(g){for(const name of Object.keys(g.attributes))if(!g.userData.own.includes(name))g.deleteAttribute(name);g.setIndex(null);g.morphAttributes={};g.dispose();}
@@ -298,11 +327,11 @@ export function faceShape(profile={},number=10){
  const face=cleanFace(profile.face),infl=(key,v)=>{const [,min,max]=FACE_SHAPE[key];return v>=1?(v-1)/(max-1):-(1-v)/(1-min);};
  // With a 3D face shape (src/face-shape3d.js) the head already has the photo's proportions: the sliders only add
  // what the person changed after the analysis (their values over `fitShape`, the analysis's own values).
- const shape3d=face.enabled&&!!validFaceShape(profile.faceShape3d),base=shape3d?face.fitShape||face.shape:null;
+ const scanned=face.enabled&&!!profile.faceScan,shape3d=face.enabled&&!!validFaceShape(profile.faceShape3d)||scanned,base=shape3d?face.fitShape||face.shape:null;
  const f=base?Object.fromEntries(Object.keys(face.shape).map(k=>[k,face.shape[k]/base[k]])):face.shape,v=key=>infl(key,clamp(f[key],FACE_SHAPE[key][1],FACE_SHAPE[key][2]));
  const out={face_width:v('width'),face_jaw:v('jaw'),face_chin:clamp(v('chin')+.6*v('length'),-1,1),face_cheek:v('cheek'),face_nose:v('nose'),
   face_noseWidth:v('noseWidth'),face_mouth:v('mouth'),face_lips:v('lips'),face_brow:v('brow'),face_depth:v('depth')};
- const hasPhoto=face.enabled&&!!profile.faceTexture;
+ const hasPhoto=face.enabled&&(!!profile.faceTexture||scanned);
  if(!hasPhoto&&Object.values(f).every(v=>v===1)){const r=seeded(profile.uid??profile.name??number);for(const k of Object.keys(out))out[k]=(r()*2-1)*.7;}
  return out;
 }
@@ -472,13 +501,18 @@ function attach(rig,chosen=null){
  const shape=bodyShape(m),worldScale=m.height/shapedHeight(bind,shape),toModel=m.scale/worldScale;root.scale.setScalar(1/toModel);
  const hipsLift=applyBodyShape(bones,meshes,shape,bind,faceShape(look.profile,look.number));
  // A photo's 3D face shape (src/face-shape3d.js) moves this player's own copy of the head and its hair cards.
- const shape3d=cleanFace(look.profile.face).enabled&&validFaceShape(look.profile.faceShape3d),field=shape3d&&assets.canonicalFace?faceField(id,shape3d):null,shaped=[];
+ // A scanned face (src/face-scan.js): its head's vertices move by the pack's offsets and its texture replaces the
+ // head's; otherwise a photo's 3D face shape (src/face-shape3d.js) moves this player's own copy of the head and hair.
+ const scan=cleanFace(look.profile.face).enabled?cleanFaceScan(look.profile.faceScan):null,shaped=[];let scanned=false;
+ if(scan&&scan.avatar===id)for(const mesh of meshes){const part=mesh.material===materials.head?scan.head:mesh.material===materials.hair?scan.hair:null;
+  if(!part||part.count!==mesh.geometry.attributes.position.count)continue;const g=offsetGeometry(mesh.geometry,decodeOffsets(part.offsets,part.count));if(g){mesh.geometry=g;shaped.push(g);scanned||=part===scan.head;}}
+ const shape3d=!scanned&&cleanFace(look.profile.face).enabled&&validFaceShape(look.profile.faceShape3d),field=shape3d&&assets.canonicalFace?faceField(id,shape3d):null;
  if(field)for(const mesh of meshes)if(mesh.material===materials.head||mesh.material===materials.hair){const g=shapedGeometry(mesh,field,assets.layout.eyes,mesh.material===materials.head);if(g){mesh.geometry=g;shaped.push(g);}}
  // Hide the old body (its bones keep updating) but keep the blob shadow.
  rig.hips.visible=false;for(const c of rig.root.children)if(c.isMesh&&c.geometry?.type!=='CircleGeometry')c.visible=false;
  rig.details=[];rig.lod=[];rig.root.add(root);
  const skeletons=new Set(meshes.map(mesh=>mesh.skeleton)),expr={values:{}},seed=[...String(look.profile.uid??look.profile.name??look.number)].reduce((h,c)=>(h*31+c.charCodeAt(0))%9973,look.number*7);
- rig.human={root,bones,meshes,materials,decals,decalCanvas,avatar:id,faceShape:field?{largest:field.largest,moved:shaped.length}:null,
+ rig.human={root,bones,meshes,materials,decals,decalCanvas,avatar:id,faceShape:field?{largest:field.largest,moved:shaped.length}:null,faceScan:scanned?{avatar:id,moved:shaped.length}:null,
   /** Eye centre in world space (portrait cameras). */
   eye(target){root.updateMatrixWorld(true);return target.copy(bind.eye).applyMatrix4(bones.Head.matrixWorld);},sync(){
   retarget(rig,bones,bind);
@@ -495,6 +529,9 @@ function attach(rig,chosen=null){
   poseHands(root,bones,bind,{speed:rig.animationSpeed||0,keeper:look.keeper,state:rig.motionState,camera:rig.motionState==='celebrate'?celebrationHands(p,rig.animationTime||0):null});
  },dispose(){live.delete(rig);root.removeFromParent();for(const mat of Object.values(materials))mat?.dispose();decals.dispose();rig.human.photoTexture?.dispose();for(const s of skeletons)s.dispose();for(const g of shaped)releaseShaped(g);}};
  decalsFor(rig);live.add(rig);rig.human.sync();
+ // A scanned face's texture already is a whole head texture for this head.
+ if(scanned){const image=new Image();image.onload=()=>{if(rig.disposed||!rig.human)return;const t=new THREE.Texture(image);t.flipY=false;t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;t.wrapS=THREE.RepeatWrapping;t.needsUpdate=true;
+  materials.head.map=t;materials.head.needsUpdate=true;rig.human.photoTexture=t;};image.src=scan.texture;return;}
  // A saved photo face replaces the painted face (the texture is per player).
  const face=cleanFace(look.profile.face);
  if(face.enabled&&look.profile.faceTexture){const image=new Image();image.onload=()=>{if(rig.disposed||!rig.human)return;

@@ -27,3 +27,13 @@ export function faceCheckLine({asset,fit}){
   rows.push([`${id} ${style}`,{name:'HAIR',number:10,skin:'#d9b08c',hair:'#15110e',hairStyle:style,beard:'none',height:1.8,faceBase:id}]);
  return rows;
 }
+
+/**
+ * player-gallery.html?scan=<face pack URL>: the same head without and with a face pack (src/face-scan.js) made by
+ * tools/human/scan from the made-up test scan (tools/human/scan/make_test_scan.py). Nothing is saved.
+ */
+export async function scanCheckLine(url){
+ const {cleanFacePack}=await import('../face-scan.js'),pack=cleanFacePack(await (await fetch(url)).text());
+ const base={name:'SCAN',number:9,skin:pack.skin,hair:'#2a1c12',hairStyle:'short',beard:'none',height:1.8,faceBase:pack.avatar};
+ return [[`${pack.avatar} 기본`,{...base,face:{enabled:true}}],[`${pack.avatar} + 3D 스캔`,{...base,face:{enabled:true,mode:'scan'},faceScan:pack}]];
+}
