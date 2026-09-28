@@ -1,5 +1,7 @@
 # 웹·친구 대전 배포
 
+최신 2026-09-28: 초록색 메뉴·구단 명단·스로인·손 접촉·골키퍼·예약 입력 수정. Vercel CLI와 Pages 및 Cloudflare 서버 게시 완료. 최신 버전과 검증 기록: [TOUCHLINE-SEPT28.md](TOUCHLINE-SEPT28.md). 아래는 이전 배포 기록.
+
 2026-09-24: 신체 상세 편집, 수신자 추적 패스와 중간 골키퍼 조정, 이동·물리·파울·오프사이드 개선 및 공통 경기 설정.
 
 - 게임: https://project-touchline-three.vercel.app/

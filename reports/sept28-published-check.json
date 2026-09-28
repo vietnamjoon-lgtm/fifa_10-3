@@ -1,0 +1,56 @@
+{
+  "checkedAt": "2026-09-28T02:20:18.273Z",
+  "commit": "f2199c8",
+  "results": [
+    {
+      "base": "https://vietnamjoon-lgtm.github.io/fifa_10-3/",
+      "files": [
+        {
+          "file": "index.html",
+          "status": 200,
+          "match": true
+        },
+        {
+          "file": "src/match.js",
+          "status": 200,
+          "match": true
+        },
+        {
+          "file": "src/keeper-tuning.js",
+          "status": 200,
+          "match": true
+        },
+        {
+          "file": "src/kleague-rosters.js",
+          "status": 200,
+          "match": true
+        }
+      ]
+    },
+    {
+      "base": "https://project-touchline-three.vercel.app/",
+      "files": [
+        {
+          "file": "index.html",
+          "status": 200,
+          "match": true
+        },
+        {
+          "file": "src/match.js",
+          "status": 200,
+          "match": true
+        },
+        {
+          "file": "src/keeper-tuning.js",
+          "status": 200,
+          "match": true
+        },
+        {
+          "file": "src/kleague-rosters.js",
+          "status": 200,
+          "match": true
+        }
+      ]
+    }
+  ]
+}
