@@ -1,5 +1,7 @@
 # Project Touchline / fifa_10-3
 
+User deployment preference (2026-09-28): when the user asks to deploy, update both GitHub Pages and the existing Vercel project using Vercel CLI. A GitHub upload alone does not update Vercel. Shared simulation changes also require the existing Cloudflare room server release. This explicit deployment request overrides the default contributor instruction not to deploy production; do not create extra hosting projects. Commit author requested by the user: 안재윤1020.
+
 Read README.md, COLLABORATION.md and the assigned collaboration/01-players.md through 05-ui-online.md before editing. The five work branches have distinct file owners listed in collaboration/ownership.json. Keep changes within the assigned part; coordinate cross-owner contracts before changing shared files. The map is a workflow convention, not access control.
 
 Use the full checkout to run the game. Work on your assigned work/ branch, commit and push changed files, then submit a PR to main. Do not manually replace the whole project, force-push, delete another person's changes or deploy production. Person 05 integrates PRs; person 04 owns match.js and duel.js, person 05 owns main.js and shared HTML/CSS, person 01 owns player.js and squads.js.

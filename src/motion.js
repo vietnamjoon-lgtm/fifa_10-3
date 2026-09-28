@@ -60,7 +60,8 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  if(!p.action&&p.receiveUntil>time){pose.state='receive';pose.hipY-=.035;pose.legs[sideIndex(p.foot)].lower[0]+=.2;}
  const action=p.action;
  if(action){const t=action.elapsed||0;
-  if(action.type==='feint'){pose.state='feint';const wave=Math.sin(clamp(t/.28,0,1)*Math.PI*2);pose.hips[2]=wave*.16;pose.torso[2]=-wave*.28;pose.legs[1].upper[2]=wave*.35;if(action.skill==='drag-back'){pose.legs[1].upper[0]=-.4+wave*.35;pose.legs[1].lower[0]=.7;pose.torso[0]=-.12;}pose.arms[0].upper[2]=.55;}
+  if(action.type==='throw'){const t=clamp((action.elapsed||0)/.46,0,1),follow=clamp(((action.elapsed||0)-.46)/.38,0,1);pose.state='throw';pose.torso[0]=-.12+.3*t;for(let i=0;i<2;i++){pose.arms[i].upper=[-2.7+follow*1.25,0,i===0?-.25:.25];pose.arms[i].lower[0]=-.85*(1-t)-.2;pose.contacts[i]=1;}}
+  else if(action.type==='feint'){pose.state='feint';const wave=Math.sin(clamp(t/.28,0,1)*Math.PI*2);pose.hips[2]=wave*.16;pose.torso[2]=-wave*.28;pose.legs[1].upper[2]=wave*.35;if(action.skill==='drag-back'){pose.legs[1].upper[0]=-.4+wave*.35;pose.legs[1].lower[0]=.7;pose.torso[0]=-.12;}pose.arms[0].upper[2]=.55;}
   else if(action.type==='slide'){pose.state='slide';const enter=smooth(t/.17),recover=smooth((t-.53)/.32),weight=enter*(1-recover);pose.hipY=lerp(pose.hipY,.29,weight);pose.rootRoll=-.36*weight;pose.torso[0]=-.35*weight;pose.legs[1].upper[0]=lerp(pose.legs[1].upper[0],-1.25,weight);pose.legs[1].lower[0]=.12;pose.legs[0].upper[0]=-.6;pose.legs[0].lower[0]=1.5;pose.arms[0].upper=[.4,0,.7];pose.arms[1].upper=[-.25,0,-.6];}
   else if(action.type==='tackle'){pose.state='tackle';const weight=Math.sin(clamp(t/.55,0,1)*Math.PI);pose.hipY-=weight*.12;pose.torso[0]=weight*.26;pose.legs[1].upper[0]=-weight*.95;pose.legs[1].lower[0]=.16;pose.arms[0].upper[2]=.55;}
   else if(action.aerial){pose.state=(ball?.y||1.5)>1.2?'header':'volley';const u=clamp(t/.7,0,1),jump=Math.sin(u*Math.PI);pose.rootY=jump*.27;pose.torso[0]=-.22+smooth((u-.2)/.4)*.65;pose.head[0]=smooth((u-.25)/.35)*.22;pose.legs[0].lower[0]=.6*jump;pose.legs[1].lower[0]=.9*jump;pose.arms[0].upper=[-.3,0,.8];pose.arms[1].upper=[-.3,0,-.8];if(pose.state==='volley')pose.legs[1].upper[0]=-1.2*jump;}
@@ -80,7 +81,7 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
    else{pose.arms[0].upper=[-.45*strength,0,.55*(1-follow)];pose.arms[1].upper=[.5*strength,0,-.4*(1-follow)];}
   }
  }
- if(p.dive>0){pose.state='dive';const u=clamp(1-p.dive/(p.diveDuration||KEEPER.diveDuration),0,1),weight=Math.sin(u*Math.PI),sign=p.diveDirection||1;pose.rootRoll=sign*weight*1.15;pose.hipY=.85-weight*.33;pose.rootY=weight*.15;pose.arms[0].upper=[-.35,0,2.8];pose.arms[1].upper=[-.35,0,-2.8];pose.arms[0].lower[0]=pose.arms[1].lower[0]=-.18;pose.legs[0].lower[0]=weight*.9;pose.legs[1].lower[0]=weight*.6;}
+ if(p.dive>0){pose.state='dive';const u=clamp(1-p.dive/(p.diveDuration||KEEPER.diveDuration),0,1),weight=Math.sin(u*Math.PI),sign=(p.diveDirection||1)*(Math.sin(yaw)>=0?1:-1);pose.rootRoll=sign*weight*1.15;pose.hipY=.85-weight*.33;pose.rootY=weight*.15;pose.arms[0].upper=[-.35,0,2.8];pose.arms[1].upper=[-.35,0,-2.8];pose.arms[0].lower[0]=pose.arms[1].lower[0]=-.18;pose.legs[0].lower[0]=weight*.9;pose.legs[1].lower[0]=weight*.6;}
  if(p.down>0){pose.state=p.down<.3?'recover':'fall';const weight=smooth(p.down/.3);pose.rootRoll=weight*1.15*(p.interaction?.side||1);pose.hipY=lerp(.87,.28,weight);pose.torso[0]=weight*.25;pose.legs[0].lower[0]=weight*1.4;pose.legs[1].lower[0]=weight*.8;pose.arms[0].upper=[-.5,0,1.1];pose.arms[1].upper=[-.5,0,-.5];}
  if(celebrate&&!p.down&&!action){pose.state='celebrate';pose.arms[0].upper=[-.2,0,2.5];pose.arms[1].upper=[-.2,0,-2.5];pose.rootY=Math.max(0,Math.sin(time*5+p.id))*.12;}
  for(const arm of pose.arms)arm.upper[2]*=-1;
@@ -156,4 +157,4 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
  if(HELD_STATES.has(pose.state)&&HELD_STATES.has(kinematics.state)&&pose.state!==kinematics.state&&(kinematics.stateAge??1)<.15)pose.state=kinematics.state;
  return pose;
 }
-export const ARM_CLEARANCE=.2;
+export const ARM_CLEARANCE=.28;
