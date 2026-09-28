@@ -135,14 +135,17 @@
         "tools/assist-check.mjs",
         "tools/check-balance.mjs",
         "tools/check-keeper-v2.mjs",
-        "src/crossing.js"
+        "src/crossing.js",
+        "src/shot-styles.js",
+        "tools/shot-lab.mjs"
       ],
       "tests": [
         "tests/assists.test.mjs",
         "tests/balance-and-ratings.test.mjs",
         "tests/control-assist.test.mjs",
         "tests/guided-pass.test.mjs",
-        "tests/reception-and-contact.test.mjs"
+        "tests/reception-and-contact.test.mjs",
+        "tests/shot-styles.test.mjs"
       ]
     },
     {

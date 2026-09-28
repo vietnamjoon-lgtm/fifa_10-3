@@ -10,7 +10,7 @@ const seatFields=['controlled','input','charging','charge','chargeOptions','rece
 const seat=(p)=>({controlled:p,input:emptyInput(),charging:false,charge:0,chargeOptions:{},receiving:null,pressEnergy:1,pressExhausted:false,pressHelpers:[],defence:'basic',assistance:{...assistanceDefaults},manualSwitchUntil:0,controlLockUntil:0,carryInput:null});
 export const ACTIONS=new Set(['switch','charge','shoot','lowShot','pass','through','lob','crossType','fake','cancel','tackle','slide','run','support','knock','skill','keeperPass','keeperKick','keeperDrop','setpieceStyle']);
 const inputFlags=['autoDefend','sprint','defend','shield','closeControl','teamPress','press','keeperRush','curve','chip','low'];
-const optionFlags=['automatic','curve','chip','low','driven','oneTwo','flair','lob','early','bounce','ground'];
+const optionFlags=['automatic','curve','chip','low','driven','oneTwo','flair','lob','early','bounce','ground','powerShot','curveLate'];
 export function cleanInput(raw={}){
  const number=x=>typeof x==='number'&&Number.isFinite(x)?clamp(x,-1,1):0;
  const axis={x:number(raw.axis?.x),z:number(raw.axis?.z)},n=Math.hypot(axis.x,axis.z);if(n>1){axis.x/=n;axis.z/=n;}
