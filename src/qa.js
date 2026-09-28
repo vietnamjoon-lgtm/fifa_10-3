@@ -2,6 +2,8 @@ export function installQA(match,ui){
  if(!new URLSearchParams(location.search).has('qa'))return;
  // Developer-only handle for scripted scene captures; production builds replace this file.
  window.touchlineQA={match};
+ // ?qa=1&bench=1: on-device GPU benchmark (src/bench.js), e.g. on a MacBook where the GPU is real.
+ if(new URLSearchParams(location.search).has('bench'))import('./bench.js').then(m=>m.runBench());
  const panel=document.createElement('div');panel.id='qa-panel';panel.style.cssText='position:fixed;right:18px;top:100px;background:#091c15ed;border:1px solid #c6ff5d77;padding:12px;z-index:25;display:flex;flex-direction:column;gap:6px;font:10px Arial;width:155px';panel.innerHTML='<strong style="color:#c6ff5d">DEVELOPER SCENARIOS</strong>';
  const add=(name,run)=>{const b=document.createElement('button');b.textContent=name;b.style.cssText='background:#24402f;padding:7px;font-size:10px';b.onclick=run;panel.append(b);};
  let scenarioTimer;
