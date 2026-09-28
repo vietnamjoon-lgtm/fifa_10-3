@@ -20,9 +20,10 @@ const pitch=new THREE.Mesh(new THREE.PlaneGeometry(60,30),new THREE.MeshStandard
 
 await loadHumanBodies(renderer);
 // ?face=1: the fictional reference face on every head, before and after the 3D face shape (src/human-lab/face-check.js).
-const faceCheck=new URLSearchParams(location.search).get('face')==='1'?await import('./face-check.js'):null,faceResult=faceCheck&&await faceCheck.fictionalFace();
+const query=new URLSearchParams(location.search),scanURL=query.get('scan');
+const faceCheck=query.get('face')==='1'||scanURL?await import('./face-check.js'):null,faceResult=faceCheck&&!scanURL&&await faceCheck.fictionalFace();
 // [home club, away club, team index, keeper, profile]
-const LINE=faceCheck?faceCheck.faceCheckLine(faceResult).map(([label,profile])=>['bucheon','seoul',0,false,{...profile,label}]):[
+const LINE=faceCheck?(scanURL?await faceCheck.scanCheckLine(scanURL):faceCheck.faceCheckLine(faceResult)).map(([label,profile])=>['bucheon','seoul',0,false,{...profile,label}]):[
  ['bucheon','seoul',0,false,{name:'J. KANG',number:10,skin:'#c89572',hairStyle:'short',beard:'stubble',height:1.81}],
  ['bucheon','seoul',1,false,{name:'M. PARK',number:7,skin:'#976143',hairStyle:'crest',height:1.92,weight:84,body:{legLength:106}}],
  ['daejeon','pohang',0,false,{name:'S. LEE',number:9,skin:'#deb18a',hairStyle:'short',beard:'none',height:1.70,weight:63,body:{muscle:30,softness:15,shoulders:94,chest:92,waist:88,upperArm:88,thigh:90}}],
@@ -56,5 +57,5 @@ window.galleryPlayers=players; // for checks from the browser console
 // Face close-up of player i, turned by `angle` degrees (0 front, 45, 90 the player's left side), for screenshots.
 window.faceShot=(i,angle=0,distance=.62)=>{view='shot';focus=i;step(1/30);const p=players[i].rig,eye=new THREE.Vector3();p.human.eye(eye);const a=angle*Math.PI/180;
  camera.position.set(eye.x+Math.sin(a)*distance,eye.y-.03,eye.z+Math.cos(a)*distance);camera.lookAt(eye.x,eye.y-.045,eye.z);$('info').textContent=LINE[i][4].label||LINE[i][4].name;renderer.render(scene,camera);};
-window.faceCheck=faceResult&&{side:faceResult.side,shape3d:!!faceResult.asset.shape3d,avatars:players.map(p=>p.rig.human?.avatar),shapes:players.map(p=>p.rig.human?.faceShape)};
+window.faceCheck=scanURL?{scans:players.map(p=>p.rig.human?.faceScan)}:faceResult&&{side:faceResult.side,shape3d:!!faceResult.asset.shape3d,avatars:players.map(p=>p.rig.human?.avatar),shapes:players.map(p=>p.rig.human?.faceShape)};
 place();requestAnimationFrame(loop);

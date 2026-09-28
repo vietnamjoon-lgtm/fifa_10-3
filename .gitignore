@@ -13,3 +13,13 @@ Thumbs.db
 .DS_Store
 tools/human/rocketbox/.cache/
 .vercel
+# Face scans and face packs are personal data: never committed (docs/FACE-SCAN.md).
+*.tlface
+/scans/
+tools/human/scan/.cache/
+*.obj
+!vendor/mediapipe/canonical_face_model.obj
+*.mtl
+*.ply
+*.usdz
+.playwright-mcp/
