@@ -1,0 +1,35 @@
+{
+  "server": "https://project-touchline-arena.project-touchline.workers.dev",
+  "origin": "https://project-touchline-three.vercel.app",
+  "room": "E52H89VB",
+  "clients": 2,
+  "identicalAuthoritativeState": true,
+  "autoDefenceHoldAndRelease": true,
+  "customSquadsShared": true,
+  "hostGameplaySettingsShared": true,
+  "gameplay": {
+    "acceleration": 112,
+    "braking": 108,
+    "turnResponse": 104,
+    "ballRoll": 96,
+    "ballBounce": 92,
+    "firstTouch": 116,
+    "referee": "strict"
+  },
+  "photoFeatureIdentityShared": true,
+  "bodyProportionsShared": true,
+  "allElevenFaceTexturesShared": true,
+  "unsharedFacesAbsent": true,
+  "photosAbsentFromSnapshots": true,
+  "faceTextureCharacters": 15447,
+  "snapshots": [
+    61,
+    61
+  ],
+  "reconnectPassed": true,
+  "lastScore": [
+    0,
+    0
+  ],
+  "checkedAt": "2026-09-28T02:21:50.780Z"
+}

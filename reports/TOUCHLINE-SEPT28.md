@@ -27,3 +27,9 @@
 각 구단의 공식 출처 URL·조회일은 `src/kleague-rosters.js`의 ROSTER_SOURCES에 기록. 예: https://www.kleague.com/club/club.do?teamId=K26 (2026.09.28 현재). `tools/update-kleague.mjs`로 명단 재수집 가능. 포지션은 현역 필터 페이지와 구단 명단 ID를 대조.
 
 손·몸 관통이 모든 자세에서 없어졌거나 FIFA와 동일하다는 의미가 아님. 모션 전환, 키퍼의 근거리 구석 방어와 배급 모션은 추가 개선 여지 있음. 사람 두 명의 긴 온라인 경기와 새 모델의 5분 성능 비교는 미실시. 온라인 서버 배포 여부와 실서버 검사 결과는 별도로 기록.
+
+## 게시 확인
+
+2026-09-28: PR #49 통합 커밋 f2199c8. Vercel CLI 생산 배포 dpl_AazVopKch6XP85xfGFh83oWDg9P4, 기존 project-touchline-three.vercel.app 연결 완료. Cloudflare 버전 f3f3c06f-db7e-473f-8f6a-e61941b23549. 두 사이트의 index.html, match.js, keeper-tuning.js, kleague-rosters.js가 로컬 검증본과 일치함을 확인(sept28-published-check.json).
+
+실서버 2클라이언트 검사: Vercel 각 61프레임, Pages 각 59프레임 수신. 같은 프레임의 상태 일치, 자동 수비 유지/해제, 커스텀 팀·체형·가상 얼굴 전달, 재접속 통과. 결과 online-sept28-vercel.json, online-sept28-pages.json. 테스트 방 종료. 최초 검사는 새 수동 킥오프에서 패스를 누르지 않아 D 수비가 활성화되지 않았음. 검사 도구가 킥오프 상태를 받은 뒤 패스 입력을 한 번 전송하고 제한 시간 내 수비 상태를 기다리도록 고쳤으며 기존 검증 조건은 유지함.
