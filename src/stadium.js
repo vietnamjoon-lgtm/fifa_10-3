@@ -74,6 +74,8 @@ export function pitchMaterial(anisotropy=8){
  material.customProgramCacheKey=()=>'touchline-pitch';
  return material;
 }
+// LED boards: one scrolling strip for play, a second one for goals.
+function goalBoardTexture(){return canvasTexture(2048,128,(c,w,h)=>{c.fillStyle='#0c261c';c.fillRect(0,0,w,h);c.font='900 italic 74px Arial';c.textBaseline='middle';for(let x=20;x<w;x+=340){c.fillStyle=(x/340|0)%2?'#c6ff5d':'#ffffff';c.fillText('GOAL!',x,68);}});}
 function adTexture(){return canvasTexture(2048,128,(c,w,h)=>{c.fillStyle='#c6ff5d';c.fillRect(0,0,w,h);c.fillStyle='#0c261c';c.font='900 italic 58px Arial';c.textBaseline='middle';for(let x=25;x<w;x+=500)c.fillText(x%1000<500?'TOUCHLINE /':'OWN THE MOMENT',x,67);});}
 // Spectator sprites: 4 people x 2 poses (seated / arms up) drawn once into a canvas atlas, plus a
 // shirt mask so each seat's shirt takes a club colour. Lambert-lit so day and night presets apply.
@@ -160,7 +162,11 @@ export function buildStadium(scene,{anisotropy=8}={}){
   goal.userData.net={geometry:geom,rest:Float32Array.from(geom.attributes.position.array),side:s,age:2};
   for(const z of [-34,34]){beam(stadium,[s*52.5,0,z],[s*52.5,1.55,z],.025,white);const flag=new THREE.Mesh(new THREE.PlaneGeometry(.5,.33),new THREE.MeshStandardMaterial({color:0xc6ff5d,side:THREE.DoubleSide}));flag.position.set(s*52.5+.24,1.37,z);stadium.add(flag);}
  }
- const adMat=new THREE.MeshStandardMaterial({map:adTexture(),emissive:0xffffff,emissiveMap:adTexture(),emissiveIntensity:.28,roughness:.5});
+ const adStrip=adTexture(),goalStrip=goalBoardTexture();for(const t of [adStrip,goalStrip])t.wrapS=THREE.RepeatWrapping;
+ const adMat=new THREE.MeshStandardMaterial({map:adStrip,emissive:0xffffff,emissiveMap:adStrip,emissiveIntensity:.28,roughness:.5});
+ // Boards scroll slowly in play; on a goal they switch to the GOAL strip, run fast and pulse.
+ const ads={base:.28,update(dt,time,goal){const strip=goal?goalStrip:adStrip;if(adMat.map!==strip){adMat.map=adMat.emissiveMap=strip;}
+  strip.offset.x=(strip.offset.x+dt*(goal?.3:.012))%1;adMat.emissiveIntensity=goal?this.base+.5+.35*Math.max(0,Math.sin(time*12)):this.base;}};
  for(const s of [-1,1]){const m=box(stadium,0,.55,s*38,112,1.1,.16,adMat);box(stadium,s*58,.55,0,.16,1.1,76,adMat);}
  const crowdGroup=new THREE.Group();stadium.add(crowdGroup);
  const positions=[];for(const s of [-1,1]){
@@ -182,7 +188,7 @@ export function buildStadium(scene,{anisotropy=8}={}){
  // Large north-stand arena identity.
  const sign=canvasTexture(2048,256,(c,w,h)=>{c.fillStyle='#112721';c.fillRect(0,0,w,h);c.fillStyle='#c6ff5d';c.font='900 italic 140px Arial';c.textAlign='center';c.fillText('TOUCHLINE ARENA',w/2,177);});const signMesh=new THREE.Mesh(new THREE.PlaneGeometry(44,5.5),new THREE.MeshBasicMaterial({map:sign}));signMesh.position.set(0,14,-58);stadium.add(signMesh);
  mergeMeshes(stadium,true);
- return {stadium,field,grass,crowdGroup,crowd,sun,rim,fill,hemi,goals,glows,lampMaterial,netMaterial};
+ return {stadium,field,grass,crowdGroup,crowd,ads,sun,rim,fill,hemi,goals,glows,lampMaterial,netMaterial};
 }
 export function createBall(){
  const tex=canvasTexture(1024,512,(c,w,h)=>{c.fillStyle='#f5f4df';c.fillRect(0,0,w,h);c.lineWidth=2;c.strokeStyle='#8a9990';for(let y=0;y<7;y++)for(let x=0;x<13;x++){const cx=x*85+(y%2?42:0),cy=y*85;c.beginPath();for(let a=0;a<6;a++){const t=a*Math.PI/3;c.lineTo(cx+47*Math.cos(t),cy+47*Math.sin(t))}c.closePath();c.stroke();if((x+y*2)%4===0){c.fillStyle='#152e23';c.fill();}else if((x+y)%5===0){c.fillStyle='#a4cf48';c.fill();}}});
@@ -232,7 +238,7 @@ export function applyLighting(scene,stadium,renderer,preset='night',quality='hig
  // PCF with a wider radius on the tight, player-fitted frustum gives a soft penumbra without VSM bleeding.
  // Medium uses the 9-tap bilinear PCF (about half the samples of 17-tap PCF) for weaker GPUs.
  renderer.shadowMap.type=quality==='high'?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;stadium.sun.shadow.radius=3;
- stadium.preset=preset;stadium.towerShadows=L.towerShadows;
+ stadium.preset=preset;stadium.towerShadows=L.towerShadows;if(stadium.ads)stadium.ads.base=preset==='day'?.28:.62;
 }
 // Fit the key light's orthographic shadow frustum around the given points (players and ball in
 // view). Size is quantised to 4 m steps and only shrinks slowly; the centre snaps to whole texels,
