@@ -111,6 +111,12 @@ export class MatchCamera{
   if(cut){c.position.copy(this.position);this.target.copy(this.look);}
   else{c.position.lerp(this.position,1-Math.exp(-step*4));this.target.lerp(this.look,1-Math.exp(-step*9));}
   this.setFov(shot?36:40,step,cut);c.lookAt(this.target);c.getWorldDirection(this.direction);this.turnSpeed=0;this.lastState='replay';return cut;}
+ // After a goal, before the replay: a close, slowly orbiting shot of the scorer (cut in, like TV).
+ celebrationShot(p,elapsed,dt){const c=this.camera,step=Math.min(Math.max(dt,0),.1),a=-.35+elapsed*.18,dist=6.2;
+  this.position.set(clamp(p.x+Math.sin(a)*dist,-57,57),1.9,clamp(p.z+Math.cos(a)*dist,-37,37));this.look.set(p.x,1.25,p.z);
+  const cut=this.replayIndex!=='celebrate';this.replayIndex='celebrate';
+  if(cut){c.position.copy(this.position);this.target.copy(this.look);}else{c.position.lerp(this.position,1-Math.exp(-step*3));this.target.lerp(this.look,1-Math.exp(-step*6));}
+  this.setFov(32,step,cut);c.lookAt(this.target);c.getWorldDirection(this.direction);this.turnSpeed=0;this.lastState='replay';return cut;}
  endReplay(){this.replayIndex=undefined;}
  setFov(target,step,immediate=false){const c=this.camera,z=this.zoom;
   if(immediate){z.fov=target;z.fovV=0;}else smoothDamp(z,'fov',target,BROADCAST.fovTime,step,BROADCAST.fovMaxRate);
