@@ -8,11 +8,22 @@
 #  - rocketbox.json      decal rectangles (glTF UV, 0-1, origin top-left) and file list.
 # Baked Rocketbox logos, sponsor, crest and numbers are removed; the game draws club ones in the same places.
 #   python tools/human/rocketbox/02_textures.py <Rocketbox checkout> Sports_Male_02 Sports_Male_03
+# Head transplants (01_convert.py --head): the body avatar's kit texture with its skin shifted by the donor's
+# face colour, the donor's head, normal map, hair cards and hair mask. Only these files are written and their
+# entries merged into rocketbox.json (the kit mask and the other avatars are left as they are):
+#   python tools/human/rocketbox/02_textures.py <checkout> Sports_Male_02 Sports_Male_03 --transplant asian_01=Sports_Male_02+Business_Male_02
 import sys, os, json, glob
 import numpy as np
 from PIL import Image, ImageDraw
 
-SRC, AVATARS = sys.argv[1], sys.argv[2:]
+args = sys.argv[1:]
+TRANSPLANTS = {}
+while '--transplant' in args:
+    i = args.index('--transplant')
+    name, spec = args[i + 1].split('=')
+    TRANSPLANTS[name] = tuple(spec.split('+'))  # (body avatar, head donor)
+    del args[i:i + 2]
+SRC, AVATARS = args[0], args[1:]
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 CACHE = os.path.join(HERE, '.cache')
@@ -32,7 +43,7 @@ EYES = (0, 600, 372, 1024)  # eyeball, teeth and tongue corner of the head textu
 
 
 def tex(avatar, kind, mode='RGB'):
-    path = glob.glob(os.path.join(SRC, 'Assets', 'Avatars', 'Professions', avatar, 'Textures', f'*_{kind}.tga'))
+    path = glob.glob(os.path.join(SRC, 'Assets', 'Avatars', '*', avatar, 'Textures', f'*_{kind}.tga'))
     return Image.open(path[0]).convert(mode).resize((N, N), Image.LANCZOS) if path else None
 
 
@@ -180,12 +191,23 @@ spec = tex(AVATARS[0], 'body_specular', 'L')
 mask = np.stack([part * 40, np.where(trim & (part > 0), 255, 0), np.where(skin, 255, 0),
                  np.asarray(spec) if spec else np.full((N, N), 60)], -1).astype(np.uint8)
 mask = pad_nearest(mask, covered)
-Image.fromarray(mask, 'RGBA').save(os.path.join(OUT, 'kit-mask.png'), optimize=True)
+if not TRANSPLANTS:
+    Image.fromarray(mask, 'RGBA').save(os.path.join(OUT, 'kit-mask.png'), optimize=True)
 
 # --- Per avatar ----------------------------------------------------------------------------------------------
+def face_colour(avatar):
+    # Median face colour (cheeks and nose, the same UV box on every Rocketbox head).
+    a = np.asarray(tex(avatar, 'head_color')).astype(float) / 255
+    return np.median(a[int(N * .27):int(N * .36), int(N * .40):int(N * .60)].reshape(-1, 3), 0)
+
+
 files = {}
-for avatar in AVATARS:
+for (avatar, head_avatar), out_name in ([((b, h), n) for n, (b, h) in TRANSPLANTS.items()] or [((a, a), None) for a in AVATARS]):
     rgb = np.asarray(tex(avatar, 'body_color')).astype(float) / 255
+    if head_avatar != avatar:
+        # Skin of a transplanted head's body: shifted per channel by the donor face over the body avatar's own
+        # face, so arms and hands keep the same relation to the face they had on the original avatar.
+        rgb = np.where(skin[..., None], np.clip(rgb * (face_colour(head_avatar) / face_colour(avatar)), 0, 1), rgb)
     L = rgb @ [0.2126, 0.7152, 0.0722]
     kit = (part > 0) & (part < 6)
     shade = np.ones((N, N))
@@ -225,9 +247,9 @@ for avatar in AVATARS:
     grey = np.clip(shade * 0.5, 0, 1)
     out = np.where(kit[..., None], grey[..., None].repeat(3, -1), rgb)
     out = pad(out, covered)
-    name = avatar.lower().replace('sports_', '')
+    name = out_name or avatar.lower().replace('sports_', '')
     Image.fromarray((out * 255).astype(np.uint8)).save(os.path.join(OUT, f'{name}-body.jpg'), quality=88)
-    head = tex(avatar, 'head_color')
+    head = tex(head_avatar, 'head_color')
     # Dark brown irises (most of the league's players); the painted iris keeps its brightness pattern.
     ha = np.asarray(head).astype(float) / 255
     box = ha[880:1010, 190:370]
@@ -283,13 +305,18 @@ for avatar in AVATARS:
     beard = blur(np.asarray(bimg).astype(float) / 255, 9) * (~keep)
     mask2 = np.stack([blur(hair.astype(float), 1.0), blur(keep.astype(float), 1.0), np.clip(beard, 0, 1)], -1)
     Image.fromarray((mask2 * 255).astype(np.uint8)).save(os.path.join(OUT, f'{name}-hairmask.png'), optimize=True)
-    for kind in ('body', 'head'):
-        nm = tex(avatar, kind + '_normal')
-        if nm:
+    # A transplant shares its body avatar's body normal map (same file, not a copy).
+    body_name = avatar.lower().replace('sports_', '')
+    for kind, owner in (('body', avatar), ('head', head_avatar)):
+        nm = tex(owner, kind + '_normal')
+        if nm and not (kind == 'body' and out_name):
             nm.save(os.path.join(OUT, f'{name}-{kind}-normal.jpg'), quality=90)
-    entry = {'body': f'{name}-body.jpg', 'head': f'{name}-head.jpg', 'bodyNormal': f'{name}-body-normal.jpg', 'headNormal': f'{name}-head-normal.jpg', 'model': f'{name}.glb', 'hairMask': f'{name}-hairmask.png'}
+    entry = {'body': f'{name}-body.jpg', 'head': f'{name}-head.jpg', 'bodyNormal': f'{body_name if out_name else name}-body-normal.jpg', 'headNormal': f'{name}-head-normal.jpg', 'model': f'{name}.glb', 'hairMask': f'{name}-hairmask.png'}
+    if out_name:
+        # Loaded only when a player needs it (src/human-body.js loadHumanBodies).
+        entry['transplant'] = {'body': avatar, 'head': head_avatar}
     entry['hairColor'] = '#%02x%02x%02x' % tuple(int(c * 255) for c in np.median(hrgb[hair], 0))
-    op = tex(avatar, 'opacity_color', 'RGBA')
+    op = tex(head_avatar, 'opacity_color', 'RGBA')
     if op:
         op.resize((512, 512), Image.LANCZOS).save(os.path.join(OUT, f'{name}-hair.png'), optimize=True)
         entry['hair'] = f'{name}-hair.png'
@@ -299,6 +326,12 @@ for avatar in AVATARS:
     files[name] = entry
 
 uvrect = lambda r: [r[0] / N, r[1] / N, r[2] / N, r[3] / N]  # glTF UV: origin top-left
+if TRANSPLANTS:
+    layout = json.load(open(os.path.join(OUT, 'rocketbox.json')))
+    layout['avatars'].update(files)
+    json.dump(layout, open(os.path.join(OUT, 'rocketbox.json'), 'w'), indent=1)
+    print(json.dumps(files))
+    raise SystemExit
 json.dump({'source': 'Microsoft Rocketbox (MIT)', 'size': N, 'eyes': uvrect(EYES),
            'decals': {k: uvrect(RECTS[k]) for k in DECALS}, 'flipped': ['backNumber', 'backName'],
            'parts': ['keep', 'shirt', 'sleeve', 'shorts', 'socks', 'boots', 'hands'], 'avatars': files},

@@ -20,6 +20,16 @@ mesh.data.shape_keys.key_blocks['Basis'].value = 1.0
 for k in mesh.data.shape_keys.key_blocks[1:]:
     k.value = 0.0
 
+# Hair cards are left out of the render: untextured they would show as white shapes over the forehead and
+# move the detected hairline (04_raycast_uv.py lets its rays pass through them too).
+import bmesh
+bm = bmesh.new()
+bm.from_mesh(mesh.data)
+hair_slots = {i for i, s in enumerate(mesh.material_slots) if s.material and s.material.name == 'hair'}
+bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.material_index in hair_slots], context='FACES_ONLY')
+bm.to_mesh(mesh.data)
+bm.free()
+
 # Head material gets its painted texture (the export kept materials but not images).
 head_mat = next(s.material for s in mesh.material_slots if s.material.name == 'head')
 head_mat.use_nodes = True

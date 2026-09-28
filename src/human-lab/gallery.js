@@ -19,8 +19,10 @@ const fill=new THREE.DirectionalLight(0x9acbff,1.1);fill.position.set(20,18,-26)
 const pitch=new THREE.Mesh(new THREE.PlaneGeometry(60,30),new THREE.MeshStandardMaterial({color:0x2f6b2c,roughness:.95}));pitch.rotation.x=-Math.PI/2;pitch.receiveShadow=true;scene.add(pitch);
 
 await loadHumanBodies(renderer);
+// ?face=1: the fictional reference face on every head, before and after the 3D face shape (src/human-lab/face-check.js).
+const faceCheck=new URLSearchParams(location.search).get('face')==='1'?await import('./face-check.js'):null,faceResult=faceCheck&&await faceCheck.fictionalFace();
 // [home club, away club, team index, keeper, profile]
-const LINE=[
+const LINE=faceCheck?faceCheck.faceCheckLine(faceResult).map(([label,profile])=>['bucheon','seoul',0,false,{...profile,label}]):[
  ['bucheon','seoul',0,false,{name:'J. KANG',number:10,skin:'#c89572',hairStyle:'short',beard:'stubble',height:1.81}],
  ['bucheon','seoul',1,false,{name:'M. PARK',number:7,skin:'#976143',hairStyle:'crest',height:1.92,weight:84,body:{legLength:106}}],
  ['daejeon','pohang',0,false,{name:'S. LEE',number:9,skin:'#deb18a',hairStyle:'short',beard:'none',height:1.70,weight:63,body:{muscle:30,softness:15,shoulders:94,chest:92,waist:88,upperArm:88,thigh:90}}],
@@ -33,10 +35,12 @@ const LINE=[
 ];
 const players=LINE.map(([home,away,team,keeper,profile],i)=>{
  applyClubs(home,away);const rig=createPlayer(team,profile.number,keeper,{...profile,role:keeper?'GK':'MF'});
- attachHumanBody(rig);rig.root.position.set((i-(LINE.length-1)/2)*1.05,0,0);scene.add(rig.root);return {rig,profile};
+ const ready=attachHumanBody(rig);rig.root.position.set((i-(LINE.length-1)/2)*1.05,0,0);scene.add(rig.root);return {rig,profile,ready};
 });
+await Promise.all(players.map(p=>p.ready));
 let view='front',running=false,time=0,focus=0;
 function place(){
+ if(view==='shot')return;
  if(view==='face'){const p=players[focus].rig,head=new THREE.Vector3();p.human?.bones.Head.getWorldPosition(head);camera.position.set(head.x+.35,head.y+.02,head.z+1.25);camera.lookAt(head.x,head.y-.02,head.z);$('info').textContent=`얼굴 · ${LINE[focus][4].name}`;return;}
  const d=9.2,a=view==='front'?0:view==='back'?Math.PI:Math.PI/2;camera.position.set(Math.sin(a)*d,1.25,Math.cos(a)*d);camera.lookAt(0,.95,0);
  $('info').textContent=`${view==='front'?'앞':view==='back'?'뒤':'옆'} · ${running?'달리기':'서 있기'} · 구단 유니폼과 체형(키 1.66~1.94 m, 마름·근육·통통, 다리 길이)`;}
@@ -49,4 +53,8 @@ let last=performance.now();function loop(now){requestAnimationFrame(loop);const 
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 window.setView=(v,r=running,i=focus,m=mood,frames=1)=>{view=v;running=r;focus=i;mood=m;for(let k=0;k<frames;k++)step(1/30);place();renderer.render(scene,camera);};
 window.galleryPlayers=players; // for checks from the browser console
+// Face close-up of player i, turned by `angle` degrees (0 front, 45, 90 the player's left side), for screenshots.
+window.faceShot=(i,angle=0,distance=.62)=>{view='shot';focus=i;step(1/30);const p=players[i].rig,eye=new THREE.Vector3();p.human.eye(eye);const a=angle*Math.PI/180;
+ camera.position.set(eye.x+Math.sin(a)*distance,eye.y-.03,eye.z+Math.cos(a)*distance);camera.lookAt(eye.x,eye.y-.045,eye.z);$('info').textContent=LINE[i][4].label||LINE[i][4].name;renderer.render(scene,camera);};
+window.faceCheck=faceResult&&{side:faceResult.side,shape3d:!!faceResult.asset.shape3d,avatars:players.map(p=>p.rig.human?.avatar),shapes:players.map(p=>p.rig.human?.faceShape)};
 place();requestAnimationFrame(loop);
