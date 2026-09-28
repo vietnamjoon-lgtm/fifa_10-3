@@ -26,18 +26,22 @@ export function skillImpulse(p,a,stage){
   // would otherwise send every cut straight back into the defender.
   const steered=n>.3&&(!a.exit||(stick.x*a.exit.x+stick.z*a.exit.z)/n<.87);
   const aim=last&&a.exitToStick&&steered?{x:stick.x/n,z:stick.z/n}:{x:f.x*forward+s.x*k,z:f.z*forward+s.z*k};const m=Math.hypot(aim.x,aim.z)||1;
-  return {aim:{x:aim.x/m,z:aim.z/m},speed:keepClose(p,speed,lift,last),lift};}
+  // A stopping touch (no direction, no pace) cannot stop the ball dead under a running player, who needs a stride or two to stop:
+  // it takes the ball's pace down to under half the run instead, so the player pulls up on it.
+  if(!forward&&!side&&!speed)return {aim:f,speed:Math.hypot(p.vx||0,p.vz||0)*.4,lift:0};
+  return {aim:{x:aim.x/m,z:aim.z/m},speed:keepClose(p,speed,lift,last,{x:aim.x/m,z:aim.z/m}),lift};}
 const f={x:Math.sin(p.yaw),z:Math.cos(p.yaw)},s={x:f.z,z:-f.x},sign=footSign(a.foot),last=stage===1;let forward=.55,side=sign*(last?-.8:.8),speed=last?3.5:1.7,lift=.015;
  if(a.skill==='drag-back'||a.skill==='drag-to-heel'){forward=last?.4:-1;side=last?sign*.6:0;speed=last?3.1:1.35;}
  if(a.skill==='ball-roll'){forward=.05;side=sign;speed=last?2.7:1.6;}
  if(a.skill==='nutmeg'){forward=last?1:.4;side=last?0:sign*.2;speed=last?5.2:1.0;}
  if(a.skill==='heel-flick'){forward=last?1:-.35;side=0;speed=last?4.2:1.1;lift=last?.65:.015;}
  if(a.skill==='step-over'){forward=.4;side=last?-sign:.1*sign;speed=last?3.8:.7;}
- const aim=last&&a.exit?a.exit:{x:f.x*forward+s.x*side,z:f.z*forward+s.z*side};return {aim,speed:keepClose(p,speed,lift,last),lift};
+ const aim=last&&a.exit?a.exit:{x:f.x*forward+s.x*side,z:f.z*forward+s.z*side};return {aim,speed:keepClose(p,speed,lift,last,aim),lift};
 }
-// A move's exit touch, or a flick over a defender, is played at most a couple of metres a second faster than the player is running, so
-// from a standstill the ball stays within a stride or two instead of running away from him.
-function keepClose(p,speed,lift,last){const run=Math.hypot(p.vx||0,p.vz||0);if(lift>.3&&speed>1.2)return Math.min(speed,Math.max(2.4,run+2));return last?Math.min(speed,Math.max(speed*.7,run+2.2)):speed;}
+// A move's exit touch, or a flick over a defender, is played at most a couple of metres a second faster than the player already moves
+// that way, so from a standstill, or cutting across his run, the ball stays within a stride or two instead of running away from him.
+function keepClose(p,speed,lift,last,aim){const run=Math.hypot(p.vx||0,p.vz||0),n=Math.hypot(aim?.x||0,aim?.z||0)||1,along=aim?Math.max(0,((p.vx||0)*aim.x+(p.vz||0)*aim.z)/n):run;
+ if(lift>.3&&speed>1.2)return Math.min(speed,Math.max(2.4,along+2));return last?Math.min(speed,Math.max(speed*.5,along+2.2)):speed;}
 /** A skill move played with the ball at the feet sells its fake: each AI defender within 4.5 m in front of the dribbler may be wrong-footed.
  * He checks his run and steps toward the side opposite the move's exit touch and cannot tackle until a moment after that touch, longer for harder moves. The
  * chance grows with the dribbler's skill-move stars (63% at one star, 95% at five), and the same defender is not fooled twice within 1.5 s. */
