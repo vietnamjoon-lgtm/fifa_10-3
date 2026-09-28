@@ -4,6 +4,7 @@
 // club and player shares the same textures and one shader program.
 import * as THREE from 'three';
 import {warpTriangles,boxBlur1ch} from './face-uv.js';
+import {unfoldedTriangles} from './face-calibration.js';
 
 // Where each decal is drawn in the per-player canvas (x, y, w, h in pixels of a 512 x 512 canvas).
 const CELLS={backNumber:[0,256,200,256],backName:[0,0,512,128],sponsor:[0,128,256,128],crest:[256,128,128,128],shortsNumber:[384,128,128,128]};
@@ -234,29 +235,32 @@ function buildFaceMask(N,dst){
 /**
  * Triangle-warped photo face (src/face-uv.js): the front photo's faceUV bake (canonical MediaPipe UV space,
  * src/face-assets.js bakeFaceUV) is warped triangle by triangle onto this avatar's calibrated head UV
- * positions (assets/human/rocketbox/face-landmarks-uv.json, tools/human/rocketbox/04_raycast_uv.py), over a
- * background already built the legacy way (composePhotoHeadLegacy) so any gap at a skipped triangle or a
- * clip seam shows a nearby photo-informed pixel instead of raw painted skin. Blended over the painted head
- * inside buildFaceMask's oval with the same per-channel skin colour match as the legacy atlas path (compared
- * against the head's own original pixels, not the legacy composite, so the match target is the same either
- * way). Every landmark keeps its own place regardless of the photo's face proportions, unlike headToAtlas's
- * row/column bands.
+ * positions (assets/human/rocketbox/face-landmarks-uv.json, tools/human/rocketbox/04_raycast_uv.py, repaired by
+ * src/face-calibration.js when loaded), skipping the folded triangles along the face outline. Blended over the
+ * painted head inside buildFaceMask's oval with a per-channel skin colour match (compared against the head's own
+ * original pixels). Where no triangle landed (a dropped or skipped one, a clip seam) the legacy composite
+ * (composePhotoHeadLegacy) shows instead, as it is: it already carries its own colour match, so the triangles'
+ * match is not applied to it a second time -- that double match used to turn every hole into a hard-edged patch
+ * of a different colour. Every landmark keeps its own place regardless of the photo's face proportions, unlike
+ * headToAtlas's row/column bands.
  */
 function composePhotoHeadTriangulated(headImage,atlasImage,faceUVImage,calibrationUV,canonical){
  const N=headImage.width||1024;
  const c=document.createElement('canvas');c.width=c.height=N;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(headImage,0,0,N,N);
  const original=g.getImageData(0,0,N,N).data.slice();
  const dst=calibrationUV.map(([u,v])=>[u*N,v*N]);
+ const legacy=composePhotoHeadLegacy(headImage,atlasImage).getContext('2d',{willReadFrequently:true}).getImageData(0,0,N,N).data;
+ // The triangles alone, on a clear canvas: its alpha is how much of each pixel they cover.
  const warpCanvas=document.createElement('canvas');warpCanvas.width=warpCanvas.height=N;const wg=warpCanvas.getContext('2d',{willReadFrequently:true});
- wg.drawImage(composePhotoHeadLegacy(headImage,atlasImage),0,0,N,N); // already photo-informed, so any gap reads close instead of raw painted skin
  const uvN=faceUVImage.width||512,src=canonical.uv.map(([u,v])=>[u*uvN,v*uvN]);
- warpTriangles(wg,faceUVImage,src,dst,canonical.triangles,N*.12); // drops the face-to-eyeball-swatch slivers (src/face-uv.js)
+ warpTriangles(wg,faceUVImage,src,dst,unfoldedTriangles(canonical.triangles,src,dst,N),N*.12); // maxEdge drops the face-to-eyeball-swatch slivers (src/face-uv.js)
  const warped=wg.getImageData(0,0,N,N).data;
  const mask=buildFaceMask(N,dst);
  const img=g.getImageData(0,0,N,N),d=img.data,base=[0,0,0],photo=[0,0,0];let counted=0;
- for(let y=0;y<N;y+=2)for(let x=0;x<N;x+=2){const p=y*N+x,i=p*4,w=mask[p]/255;if(w<.15||w>.5)continue;for(let k=0;k<3;k++){base[k]+=original[i+k];photo[k]+=warped[i+k];}counted++;}
+ for(let y=0;y<N;y+=2)for(let x=0;x<N;x+=2){const p=y*N+x,i=p*4,w=mask[p]/255;if(w<.15||w>.5||warped[i+3]<250)continue;for(let k=0;k<3;k++){base[k]+=original[i+k];photo[k]+=warped[i+k];}counted++;}
  const gain=counted?base.map((b,k)=>photo[k]>0?Math.min(1.6,Math.max(.6,b/photo[k])):1):[1,1,1];
- for(let p=0;p<mask.length;p++){const w=mask[p]/255;if(w<=0)continue;const i=p*4;for(let k=0;k<3;k++)d[i+k]=original[i+k]*(1-w)+Math.min(255,warped[i+k]*gain[k])*w;}
+ for(let p=0;p<mask.length;p++){const w=mask[p]/255;if(w<=0)continue;const i=p*4,cover=warped[i+3]/255;
+  for(let k=0;k<3;k++)d[i+k]=original[i+k]*(1-w)+(Math.min(255,warped[i+k]*gain[k])*cover+legacy[i+k]*(1-cover))*w;}
  g.putImageData(img,0,0);return c;
 }
 /**
