@@ -5,6 +5,7 @@ import {validFaceShape} from './face-shape3d.js';
 import {cleanFaceScan,SCAN_ONLINE_MAX} from './face-scan.js';
 import {variedFace} from './face-variation.js';
 import {roster,clamp} from './config.js';
+import {profileTraits,cleanTraits} from './traits.js';
 export const STAT_FIELDS={pace:['최고 속도 · m/s',5,10,.01],acceleration:['가속',8,20,.1],agility:['민첩성',.2,1,.01],balance:['균형',.2,1,.01],control:['볼 컨트롤',.2,1,.01],passing:['짧은 패스',.2,1,.01],longPass:['긴 패스',.2,1,.01],shooting:['슛 정확도',.2,1,.01],power:['슛 파워',.2,1,.01],tackling:['태클',.2,1,.01],strength:['몸싸움',.2,1,.01],reflexes:['골키퍼 반응',.2,1,.01],reach:['골키퍼 도달 거리 · m',1.2,2.1,.01],weakFoot:['약한 발',.2,1,.01],skillMoves:['개인기 · 별',1,5,1]};
 const text=(v,f,n)=>typeof v==='string'?v.replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,n)||f:f;
 const numeric=(v,f,a,b)=>typeof v==='number'&&Number.isFinite(v)?clamp(v,a,b):f;
@@ -21,6 +22,8 @@ export function cleanProfile(raw={},fallback=roster(0)[9]){raw=raw&&typeof raw==
  p.face=cleanFace(variedFace(raw.face,p.uid||p.name));p.faceTexture=p.face.enabled?validFaceTexture(raw.faceTexture):null;p.faceUV=p.face.enabled?validFaceTexture(raw.faceUV):null;p.faceShape3d=p.face.enabled?validFaceShape(raw.faceShape3d):null;p.faceScan=p.face.enabled?cleanFaceScan(raw.faceScan):null;
  // The head the player is drawn with (src/face-settings.js FACE_BASES); 'auto' lets the game pick.
  p.faceBase=Object.hasOwn(FACE_BASES,raw.faceBase||'')?raw.faceBase:'auto';
+ // Traits (at most 5 known ids) and attack/defence work rates; players saved before them get position defaults (src/traits.js).
+ Object.assign(p,profileTraits(raw,p,fallback));
  return p;
 }
 export function defaultSquads(){const players=[...roster(0),...roster(1)].map(p=>cleanProfile({...p,uid:`default-${p.id}`,skin:['#bf8561','#976143','#deb18a','#74482f','#c89572','#e1ad88'][p.number%6],hairStyle:p.number%3===0?'crest':'short'}));return {version:1,players,lineups:[players.slice(0,11).map(p=>p.uid),players.slice(11).map(p=>p.uid)]};}
@@ -42,7 +45,7 @@ export const SQUAD_KEY='touchline-player-library-v1';
 export function loadSquads(storage=globalThis.localStorage){try{return cleanLibrary(JSON.parse(storage.getItem(SQUAD_KEY)));}catch{return defaultSquads();}}
 export function saveSquads(data,storage=globalThis.localStorage){const clean=cleanLibrary(data);storage.setItem(SQUAD_KEY,JSON.stringify(clean));return clean;}
 export function lineupProfiles(data,team){return data.lineups[team].map(uid=>({...data.players.find(p=>p.uid===uid)}));}
-export function cleanLineup(raw,team=0,network=false){const defaults=roster(team);const result=defaults.map((base,i)=>({...base,...cleanProfile(Array.isArray(raw)&&raw.length===11?raw[i]:base,base),role:i===0?'GK':(raw?.[i]?.role==='GK'?base.role:cleanProfile(raw?.[i]||base,base).role)}));if(network)for(const p of result){p.face.assetId=null;p.faceTexture=validFaceTexture(p.faceTexture,32000);p.faceUV=validFaceTexture(p.faceUV,28000);p.faceShape3d=validFaceShape(p.faceShape3d);p.faceScan=cleanFaceScan(p.faceScan,SCAN_ONLINE_MAX);}return result;}
+export function cleanLineup(raw,team=0,network=false){const defaults=roster(team);const result=defaults.map((base,i)=>({...base,...cleanProfile(Array.isArray(raw)&&raw.length===11?raw[i]:base,base),role:i===0?'GK':(raw?.[i]?.role==='GK'?base.role:cleanProfile(raw?.[i]||base,base).role)}));for(const p of result)p.traits=cleanTraits(p.traits,p.role);if(network)for(const p of result){p.face.assetId=null;p.faceTexture=validFaceTexture(p.faceTexture,32000);p.faceUV=validFaceTexture(p.faceUV,28000);p.faceShape3d=validFaceShape(p.faceShape3d);p.faceScan=cleanFaceScan(p.faceScan,SCAN_ONLINE_MAX);}return result;}
 export function applyLineups(match,lineups){for(let team=0;team<2;team++)for(const profile of cleanLineup(lineups?.[team],team))Object.assign(match.players[profile.id],profile);}
 // The room server refuses requests over 400,000 characters (server/worker.js). Eleven shared faces with both
 // photo textures could pass that, so the landmark-warp textures (faceUV) are dropped from the last players
