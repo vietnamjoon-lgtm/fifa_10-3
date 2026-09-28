@@ -275,3 +275,9 @@
 
 /* Keep the fixture tile above the menu player at laptop heights. */
 #menu .match-card{top:14vh;padding:12px 18px}#menu .match-card .versus{padding:8px 0}#menu .match-card .versus svg{width:42px;height:42px}
+
+/* Replay camera cut: a quick diagonal club-colour wipe across the picture. */
+#replay-wipe{position:fixed;inset:0;pointer-events:none;z-index:4;transform:translateX(-120%) skewX(-18deg);background:linear-gradient(90deg,transparent 0,#c6ff5d 18%,#173c2a 55%,transparent 100%);opacity:0}
+#replay-wipe.run{animation:replay-wipe .42s ease-in-out}
+@keyframes replay-wipe{0%{transform:translateX(-120%) skewX(-18deg);opacity:.95}100%{transform:translateX(120%) skewX(-18deg);opacity:.95}}
+@media (prefers-reduced-motion:reduce){#replay-wipe.run{animation:none}}

@@ -12,6 +12,8 @@ export function smoothDamp(state,key,target,smoothTime,dt,maxSpeed=Infinity){
 }
 const smoothstep=(a,b,v)=>{const t=clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
 // Tuning for the broadcast (mode 0) view. Measured with tools/camera-metrics.mjs.
+// Replay seconds (wall clock) before the cut from the reverse angle to the behind-goal camera.
+export const REPLAY_CUT=2.6;
 export const CAMERA_VIEW_DEFAULT={zoom:5,height:5};
 export const BROADCAST={
  // Follow the ball slightly late, like a human operator; control switches re-frame twice as fast.
@@ -55,8 +57,8 @@ export class MatchCamera{
  else if(mode===2){this.position.set(x-3,9+extra,z+13+extra);this.look.set(x,0,z);}
  else {broadcast=true;fov=this.broadcastFraming(b,p,v,step);}
  this.broadcast=broadcast;
- // Coming from the menu is a cut, as in a real broadcast: no long swoop across the stadium.
- if(this.lastState==='menu'){this.lastState=match.state;c.position.copy(this.position);this.target.copy(this.look);this.setFov(fov,step,true);c.lookAt(this.target);c.getWorldDirection(this.direction);this.turnSpeed=0;return;}
+ // Coming from the menu or a replay is a cut, as in a real broadcast: no long swoop across the stadium.
+ if(this.lastState==='menu'||this.lastState==='replay'){this.lastState=match.state;c.position.copy(this.position);this.target.copy(this.look);this.setFov(fov,step,true);c.lookAt(this.target);c.getWorldDirection(this.direction);this.turnSpeed=0;return;}
  this.lastState=match.state;
  // Broadcast targets are already spring-smoothed, so follow them closely; other views
  // keep their original exponential tracking. Large jumps stay speed-limited.
@@ -98,6 +100,18 @@ export class MatchCamera{
   this.position.set(f.x*B.dolly,height+f.pull*.7,f.z*.82+back+f.pull*.8);this.look.set(f.x,.4,f.z-1);
   return fov;}
  setView(zoom,height){this.view=broadcastView(zoom,height);}
+ // Goal replay as a broadcast would cut it: first a low reverse angle from the far touchline following
+ // the build-up, then a hard cut to a low camera behind the goal for the finish. Positions sit in front
+ // of the stands (reverse z=-39 above the ad boards, behind-goal x=+-59.5 between board and stand).
+ // Returns true on a cut so the HUD can play its wipe.
+ replayShot(ball,elapsed,goalX,dt){const c=this.camera,side=Math.sign(goalX)||1,step=Math.min(Math.max(dt,0),.1),shot=elapsed<REPLAY_CUT?0:1;
+  if(shot===0){this.position.set(clamp(ball.x-side*8,-50,50),7,-39);this.look.set(ball.x+side*4,.6,ball.z*.6);}
+  else{this.position.set(side*59.5,2.8,clamp(ball.z*.35,-5,5));this.look.set(ball.x,Math.max(.5,ball.y*.8),ball.z*.9);}
+  const cut=this.replayIndex!==shot;this.replayIndex=shot;
+  if(cut){c.position.copy(this.position);this.target.copy(this.look);}
+  else{c.position.lerp(this.position,1-Math.exp(-step*4));this.target.lerp(this.look,1-Math.exp(-step*9));}
+  this.setFov(shot?36:40,step,cut);c.lookAt(this.target);c.getWorldDirection(this.direction);this.turnSpeed=0;this.lastState='replay';return cut;}
+ endReplay(){this.replayIndex=undefined;}
  setFov(target,step,immediate=false){const c=this.camera,z=this.zoom;
   if(immediate){z.fov=target;z.fovV=0;}else smoothDamp(z,'fov',target,BROADCAST.fovTime,step,BROADCAST.fovMaxRate);
   if(Math.abs(c.fov-z.fov)>1e-4){c.fov=z.fov;c.updateProjectionMatrix();}}

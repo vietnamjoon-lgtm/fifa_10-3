@@ -77,3 +77,16 @@ test('closest broadcast zoom still keeps the ball framed with the controlled pla
   for(let i=0;i<400;i++)director.update(match,0,1/60,i/60);camera.updateMatrixWorld();
   const ball=new THREE.Vector3(-6,.1,9).project(camera);assert.ok(Math.abs(ball.x)<.95&&Math.abs(ball.y)<.95,JSON.stringify({zoom,ball}));}
 });
+test('goal replay cuts between a reverse angle and a behind-goal camera, then cuts back to the broadcast view',async()=>{
+ const {REPLAY_CUT}=await import('../src/camera.js');
+ for(const side of [-1,1]){const camera=new THREE.PerspectiveCamera(43,16/9,.08,250),director=new MatchCamera(camera),ball={x:side*40,y:.4,z:2};
+  assert.equal(director.replayShot(ball,0,side*52.5,1/30),true);assert.equal(director.replayShot(ball,.5,side*52.5,1/30),false);
+  // Reverse angle stays in front of the far stand (z > -42) and above the boards.
+  assert.ok(camera.position.z>-42&&camera.position.y>3,JSON.stringify(camera.position));
+  assert.equal(director.replayShot({x:side*52,y:.5,z:1},REPLAY_CUT+.1,side*52.5,1/30),true);
+  // Behind-goal camera sits between the ad board (|x|=58) and the end stand (|x|=62), behind the net.
+  assert.ok(Math.abs(camera.position.x)>58&&Math.abs(camera.position.x)<62&&Math.sign(camera.position.x)===side,JSON.stringify(camera.position));
+  camera.updateMatrixWorld();const p=new THREE.Vector3(side*52,.5,1).project(camera);assert.ok(Math.abs(p.x)<1&&Math.abs(p.y)<1);
+  director.endReplay();const match={state:'kickoff',controlled:{id:1,x:0,z:0},physics:{ball:{position:{x:0,y:.1,z:0},velocity:{x:0,z:0}}}};
+  director.update(match,0,1/60,0);assert.ok(camera.position.distanceTo(director.position)<1e-6,'first broadcast frame after a replay is a cut');}
+});
