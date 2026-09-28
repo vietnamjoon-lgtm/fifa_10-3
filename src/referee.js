@@ -1,6 +1,7 @@
 import {FIELD,clamp,distance} from './config.js';
 import {sweepCircle} from './collision-math.js';
 import {foulThreshold} from './gameplay-settings.js';
+import {tackleReach,foulTolerance} from './trait-play.js';
 
 export function inPenaltyArea(match,position,defendingTeam){
  const x=position.x*match.direction(defendingTeam);
@@ -45,7 +46,8 @@ export function foul(match,offender,victim,{slide=false,relativeSpeed=0,ballAtte
  const dogso=controlled&&goingForward&&goalDistance>0&&goalDistance<25&&Math.abs(victim.z)<14&&covering.length===0;
  const behind=(offender.x-victim.x)*Math.sin(victim.yaw)+(offender.z-victim.z)*Math.cos(victim.yaw)<-.2;
  const threshold=foulThreshold(match),serious=slide&&relativeSpeed>9||(slide&&behind&&relativeSpeed>7.5)||!ballAttempt&&relativeSpeed>11;
- let card=serious?'red':relativeSpeed>(slide?4.2:5.8)*threshold?'yellow':null;
+ // A sliding tackler (src/trait-play.js) is booked at lower contact speeds.
+ let card=serious?'red':relativeSpeed>(slide?4.2:5.8)*threshold*foulTolerance(offender,slide)?'yellow':null;
  if(dogso)card=penalty&&ballAttempt&&!serious?'yellow':'red';
  const restart={kind:penalty?'penalty':'free',team:victim.team,x:clamp(victim.x,-52,52),z:clamp(victim.z,-33.5,33.5),label:(penalty?'페널티킥':'프리킥')+' · '+reason};
  match.stats.fouls[offender.team]++;tackleFall(match,victim,{slide,relativeSpeed,trip:slide});
@@ -68,7 +70,7 @@ export function updateAdvantage(match){
 
 export function closingSpeed(a,b){const dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz)||1;return Math.max(0,((a.vx-b.vx)*dx+(a.vz-b.vz)*dz)/d);}
 export function resolveTackle(match,p,action){
- const b=match.physics.ball.position,slide=action.type==='slide',range=(slide?1.7:1.25)*(.8+.24*(p.tackling??.8));
+ const b=match.physics.ball.position,slide=action.type==='slide',range=(slide?1.7:1.25)*(.8+.24*(p.tackling??.8))*tackleReach(p,slide);
  const dx=b.x-p.x,dz=b.z-p.z,d=Math.hypot(dx,dz),f={x:Math.sin(p.yaw),z:Math.cos(p.yaw)};
  const alignment=d?((dx*f.x+dz*f.z)/d):1;
  const end={x:p.x+f.x*range,z:p.z+f.z*range},ballHit=b.y<.7?sweepCircle(p,end,b,slide?.25:.23):null;
@@ -81,7 +83,7 @@ export function resolveTackle(match,p,action){
  // A tackle straight through the body counts when the players close on each other or the victim is (nearly) standing; a
  // runner pulling away from a tackler behind him is out of reach, so that swing meets nothing.
  const escaping=victim?Math.hypot(victim.vx,victim.vz)>1.2&&relativeSpeed<(slide?.4:.8):false;
- const meaningful=!!victim&&(side<(slide?.25:.18)&&!escaping||relativeSpeed>(slide?2:3)*foulThreshold(match));
+ const meaningful=!!victim&&(side<(slide?.25:.18)&&!escaping||relativeSpeed>(slide?2:3)*foulThreshold(match)*foulTolerance(p,slide));
  const dangerous=victim&&slide&&relativeSpeed>9;
  const bodyFirst=meaningful&&contact.t<(ballHit??Infinity)-.06;
  const ballFirst=ballHit!==null&&d<range+.11&&alignment>.15&&!bodyFirst&&!match.heldBy;
