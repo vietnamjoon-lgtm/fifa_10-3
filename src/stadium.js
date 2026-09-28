@@ -75,6 +75,54 @@ export function pitchMaterial(anisotropy=8){
  return material;
 }
 function adTexture(){return canvasTexture(2048,128,(c,w,h)=>{c.fillStyle='#c6ff5d';c.fillRect(0,0,w,h);c.fillStyle='#0c261c';c.font='900 italic 58px Arial';c.textBaseline='middle';for(let x=25;x<w;x+=500)c.fillText(x%1000<500?'TOUCHLINE /':'OWN THE MOMENT',x,67);});}
+// Spectator sprites: 4 people x 2 poses (seated / arms up) drawn once into a canvas atlas, plus a
+// shirt mask so each seat's shirt takes a club colour. Lambert-lit so day and night presets apply.
+function crowdAtlas(){const w=256,h=256,atlas=document.createElement('canvas'),mask=document.createElement('canvas');atlas.width=mask.width=w;atlas.height=mask.height=h;
+ const a=atlas.getContext('2d'),m=mask.getContext('2d');m.fillStyle='#000';m.fillRect(0,0,w,h);
+ const skins=['#f1c7a3','#c98e62','#8d5a3b','#e0ac85'],hairs=['#1c140f','#4a2e1a','#0d0d0d','#8a6a3a'];
+ for(let v=0;v<4;v++)for(let pose=0;pose<2;pose++){const x0=v*64,y0=(1-pose)*128,cx=x0+32;
+  const person=(g,shirt,skin,hair)=>{
+   // Arms: down along the body when seated, raised in a V when standing.
+   g.strokeStyle=shirt;g.lineWidth=11;g.lineCap='round';g.beginPath();
+   if(pose){g.moveTo(cx-13,y0+62);g.lineTo(cx-24,y0+22);g.moveTo(cx+13,y0+62);g.lineTo(cx+24,y0+22);}else{g.moveTo(cx-15,y0+64);g.lineTo(cx-18,y0+100);g.moveTo(cx+15,y0+64);g.lineTo(cx+18,y0+100);}g.stroke();
+   if(skin){g.fillStyle=skin;g.beginPath();if(pose){g.arc(cx-24,y0+19,5,0,7);g.arc(cx+24,y0+19,5,0,7);}g.fill();}
+   g.fillStyle=shirt;g.beginPath();g.moveTo(cx-17,y0+58);g.lineTo(cx+17,y0+58);g.lineTo(cx+19,y0+108);g.lineTo(cx-19,y0+108);g.closePath();g.fill();
+   if(skin){g.fillStyle='#2b2f36';g.fillRect(cx-19,y0+106,38,20);g.fillStyle=skin;g.beginPath();g.ellipse(cx,y0+44,11,13,0,0,7);g.fill();g.fillStyle=hair;g.beginPath();g.ellipse(cx,y0+37,11,7,0,Math.PI,0);g.fill();}};
+  person(a,'#e8e8e8',skins[v],hairs[v]);person(m,'#fff',null,null);
+  // Soft fold shading on the white shirt so a coloured shirt is not a flat block.
+  a.globalCompositeOperation='source-atop';const g=a.createLinearGradient(cx-19,0,cx+19,0);g.addColorStop(0,'rgba(0,0,0,.25)');g.addColorStop(.5,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.3)');a.fillStyle=g;a.fillRect(x0,y0,64,128);a.globalCompositeOperation='source-over';}
+ const t=new THREE.CanvasTexture(atlas),k=new THREE.CanvasTexture(mask);t.colorSpace=THREE.SRGBColorSpace;for(const x of [t,k]){x.anisotropy=4;x.generateMipmaps=true;}return {map:t,mask:k};}
+export class Crowd{
+ constructor(group,seats){
+  const {map,mask}=crowdAtlas();this.uniforms={crowdMask:{value:mask},crowdTime:{value:0},crowdExcite:{value:.15}};
+  const material=new THREE.MeshLambertMaterial({map,alphaTest:.45,side:THREE.DoubleSide});material.userData.uniforms=this.uniforms;
+  material.onBeforeCompile=shader=>{Object.assign(shader.uniforms,this.uniforms);
+   shader.vertexShader='attribute vec2 crowdSeat;uniform float crowdTime,crowdExcite;varying vec2 vCrowdUv;\n'+shader.vertexShader
+    .replace('#include <uv_vertex>','#include <uv_vertex>\n float crowdStand=step(fract(crowdSeat.y*7.31),crowdExcite-.45);\n vCrowdUv=vec2((uv.x+crowdSeat.x)*.25,(uv.y+crowdStand)*.5);\n#ifdef USE_MAP\n vMapUv=vCrowdUv;\n#endif')
+    .replace('#include <begin_vertex>','#include <begin_vertex>\n float crowdBeat=crowdTime*(5.+3.*fract(crowdSeat.y*3.7))+crowdSeat.y*6.2831;\n transformed.y+=.012*sin(crowdTime*1.3+crowdSeat.y*40.)+crowdExcite*crowdExcite*.16*max(0.,sin(crowdBeat));');
+   shader.fragmentShader='uniform sampler2D crowdMask;varying vec2 vCrowdUv;\n'+shader.fragmentShader
+    .replace('#include <color_fragment>','#if defined( USE_COLOR ) || defined( USE_INSTANCING_COLOR )\n diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vColor.rgb,texture2D(crowdMask,vCrowdUv).r);\n#endif');};
+  material.customProgramCacheKey=()=>'touchline-crowd';
+  const geometry=new THREE.PlaneGeometry(.62,1.24).translate(0,.1,0),dummy=new THREE.Object3D();
+  const stands=Array.from({length:4},()=>[]);for(const p of seats)stands[Math.abs(p[0])>61?(p[0]<0?0:1):(p[2]<0?2:3)].push(p);
+  let seed=7;const rand=()=>((seed=(seed*16807)%2147483647)/2147483647);
+  this.meshes=stands.map((stand,index)=>{
+   const mesh=new THREE.InstancedMesh(geometry,material,stand.length),seat=new Float32Array(stand.length*2);
+   stand.forEach(([x,y,z,angle],i)=>{const jitter=(rand()-.5)*.18;dummy.position.set(x+(Math.abs(x)>61?0:jitter),y-.05,z+(Math.abs(x)>61?jitter:0));dummy.rotation.set(0,angle,0);const size=.9+rand()*.2;dummy.scale.set(size,size,size);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);seat[i*2]=Math.floor(rand()*4);seat[i*2+1]=rand();mesh.setColorAt(i,new THREE.Color(1,1,1));});
+   // The x>0 end is the away end.
+   mesh.userData={away:index===1};
+   mesh.geometry=geometry.clone();mesh.geometry.setAttribute('crowdSeat',new THREE.InstancedBufferAttribute(seat,2));
+   mesh.computeBoundingSphere();group.add(mesh);return mesh;});
+  this.setTeams('#c8102e','#e6e6e6');
+ }
+ // Shirts: home stands mostly in the home colour, the away end mostly in the away colour, some neutral.
+ setTeams(home,away){const colour=new THREE.Color(),h=new THREE.Color(home),a=new THREE.Color(away),neutral=[0x2d3440,0x5b6470,0xd8d8d0,0x1f2a38];let n=0;
+  for(const mesh of this.meshes){for(let i=0;i<mesh.count;i++){const r=((n++*2654435761)>>>0)/4294967296,base=mesh.userData.away?a:h,other=mesh.userData.away?h:a;
+    if(r<.68)colour.copy(base).multiplyScalar(.82+.3*((n*7919%97)/97));else if(r<.78)colour.copy(other);else colour.setHex(neutral[n%4]);mesh.setColorAt(i,colour);}
+   mesh.instanceColor.needsUpdate=true;}}
+ // excite 0..1: calm ~.15, attack in the final third ~.4, goal 1.
+ update(time,excite,dt=1/60){const u=this.uniforms;u.crowdTime.value=time;u.crowdExcite.value+=(excite-u.crowdExcite.value)*(1-Math.exp(-dt*(excite>u.crowdExcite.value?6:.8)));}
+}
 // Goal net as a textured grid (back, roof, two sides) with slight sag: mipmapped alpha-blended
 // meshes stay soft at distance where 1-px line segments shimmered. Vertex spacing (~.19 m) matches the
 // old line net, so animateNets' ripple keeps the same resolution.
@@ -123,15 +171,9 @@ export function buildStadium(scene,{anisotropy=8}={}){
   // Upper fascia and illuminated architectural ribbon.
   box(stadium,0,11.4,s*54.5,128,1,.15,dark);box(stadium,0,11.05,s*54.35,128,.09,.08,new THREE.MeshBasicMaterial({color:0x789fa7}));
  }
- // At match distance each spectator spans only a few pixels. Keep every seat,
- // but use compact silhouettes and one cullable batch per stand.
- const bodyGeo=new THREE.SphereGeometry(1,4,3),headGeo=new THREE.SphereGeometry(.11,4,3),dummy=new THREE.Object3D(),color=new THREE.Color();
- const stands=Array.from({length:4},()=>[]);for(const p of positions)stands[Math.abs(p[0])>61?(p[0]<0?0:1):(p[2]<0?2:3)].push(p);
- let seat=0;for(const stand of stands){
-  const bodies=new THREE.InstancedMesh(bodyGeo,mat(0xffffff),stand.length),heads=new THREE.InstancedMesh(headGeo,mat(0xc29375),stand.length);
-  stand.forEach(([x,y,z,angle],i)=>{dummy.position.set(x,y,z);dummy.rotation.set(0,angle,0);dummy.scale.set(.2,.31,.13);dummy.updateMatrix();bodies.setMatrixAt(i,dummy.matrix);color.set([0x374859,0x567472,0x8c9382,0x8e4638,0xb3c89a,0x263b4c,0x647476][(seat++*13)%7]);bodies.setColorAt(i,color);dummy.position.y=y+.37;dummy.scale.setScalar(1);dummy.updateMatrix();heads.setMatrixAt(i,dummy.matrix);});
-  bodies.computeBoundingSphere();heads.computeBoundingSphere();crowdGroup.add(bodies,heads);
- }
+ // At match distance each spectator spans only a few pixels: one textured quad per seat (2 triangles
+ // instead of two 16-triangle spheres), club-coloured shirts and a cheap vertex-shader bounce.
+ const crowd=new Crowd(crowdGroup,positions);
  // Four real light gantries, emissive light housings and restrained glow sprites.
  const glowTexture=canvasTexture(64,64,(c)=>{const g=c.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'#e6f6ff');g.addColorStop(.15,'#a6dbff88');g.addColorStop(1,'#9ccaff00');c.fillStyle=g;c.fillRect(0,0,64,64)});
  const lampMaterial=new THREE.MeshBasicMaterial({color:0xe3f0ff}),glows=[];
@@ -140,7 +182,7 @@ export function buildStadium(scene,{anisotropy=8}={}){
  // Large north-stand arena identity.
  const sign=canvasTexture(2048,256,(c,w,h)=>{c.fillStyle='#112721';c.fillRect(0,0,w,h);c.fillStyle='#c6ff5d';c.font='900 italic 140px Arial';c.textAlign='center';c.fillText('TOUCHLINE ARENA',w/2,177);});const signMesh=new THREE.Mesh(new THREE.PlaneGeometry(44,5.5),new THREE.MeshBasicMaterial({map:sign}));signMesh.position.set(0,14,-58);stadium.add(signMesh);
  mergeMeshes(stadium,true);
- return {stadium,field,grass,crowdGroup,sun,rim,fill,hemi,goals,glows,lampMaterial,netMaterial};
+ return {stadium,field,grass,crowdGroup,crowd,sun,rim,fill,hemi,goals,glows,lampMaterial,netMaterial};
 }
 export function createBall(){
  const tex=canvasTexture(1024,512,(c,w,h)=>{c.fillStyle='#f5f4df';c.fillRect(0,0,w,h);c.lineWidth=2;c.strokeStyle='#8a9990';for(let y=0;y<7;y++)for(let x=0;x<13;x++){const cx=x*85+(y%2?42:0),cy=y*85;c.beginPath();for(let a=0;a<6;a++){const t=a*Math.PI/3;c.lineTo(cx+47*Math.cos(t),cy+47*Math.sin(t))}c.closePath();c.stroke();if((x+y*2)%4===0){c.fillStyle='#152e23';c.fill();}else if((x+y)%5===0){c.fillStyle='#a4cf48';c.fill();}}});
@@ -188,7 +230,8 @@ export function applyLighting(scene,stadium,renderer,preset='night',quality='hig
  renderer.toneMapping=THREE.NeutralToneMapping;renderer.toneMappingExposure=L.exposure;
  scene.environment=quality==='low'?null:stadiumEnvironment(renderer,preset);scene.environmentIntensity=L.environment*(quality==='high'?1:.8);
  // PCF with a wider radius on the tight, player-fitted frustum gives a soft penumbra without VSM bleeding.
- renderer.shadowMap.type=THREE.PCFShadowMap;stadium.sun.shadow.radius=quality==='high'?3:2;
+ // Medium uses the 9-tap bilinear PCF (about half the samples of 17-tap PCF) for weaker GPUs.
+ renderer.shadowMap.type=quality==='high'?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;stadium.sun.shadow.radius=3;
  stadium.preset=preset;stadium.towerShadows=L.towerShadows;
 }
 // Fit the key light's orthographic shadow frustum around the given points (players and ball in

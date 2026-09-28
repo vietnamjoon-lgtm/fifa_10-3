@@ -2,17 +2,19 @@
 // Requires a local server (node server.mjs) and Playwright's Chromium (not a repo dependency).
 // Time is virtual: requestAnimationFrame/performance.now are driven by the script and
 // Math.random is seeded, so two builds replay the identical AI match frame for frame.
-// Usage: node tools/broadcast-capture.mjs <baseUrl> <outDir> [shots|video|fps] [--night] [--quality high] [--only kickoff,box] [--size 1280x720]
+// Usage: node tools/broadcast-capture.mjs <baseUrl> <outDir> [shots|video|fps] [--night] [--quality high] [--only kickoff,box] [--size 1280x720] [--gpu]
 import fs from 'node:fs';
 import path from 'node:path';
-const playwrightPath=process.env.PLAYWRIGHT_MODULE||'/opt/node22/lib/node_modules/playwright/index.mjs';
+const playwrightPath=process.env.PLAYWRIGHT_MODULE||'/opt/node22/lib/node_modules/playwright/index.mjs'; // on a Mac: PLAYWRIGHT_MODULE=playwright after `npm i -D playwright`
 const {chromium}=await import(playwrightPath);
 const positional=process.argv.slice(2).filter((a,i,all)=>!a.startsWith('--')&&!['--quality','--only','--size'].includes(all[i-1]));
 const [base='http://127.0.0.1:4173',out='captures',mode='shots']=positional;
 const si=process.argv.indexOf('--size'),[width,height]=si>0?process.argv[si+1].split('x').map(Number):[1280,720];
 const night=process.argv.includes('--night'),qi=process.argv.indexOf('--quality'),quality=qi>0?process.argv[qi+1]:'high',oi=process.argv.indexOf('--only'),only=oi>0?process.argv[oi+1].split(','):null,want=name=>!only||only.includes(name);
 fs.mkdirSync(out,{recursive:true});
-const browser=await chromium.launch({args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
+// --gpu: use the machine's real GPU (e.g. Apple Silicon/Metal) in a visible window instead of SwiftShader.
+const gpu=process.argv.includes('--gpu');
+const browser=await chromium.launch(gpu?{headless:false,args:['--ignore-gpu-blocklist','--enable-gpu-rasterization']}:{args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
 const page=await browser.newPage({viewport:{width,height}});page.setDefaultTimeout(180000);
 page.on('pageerror',e=>console.error('pageerror',e.message));
 const settings={quality,adaptiveQuality:false,timeOfDay:night?'night':'day',halfSeconds:600,sound:false};
