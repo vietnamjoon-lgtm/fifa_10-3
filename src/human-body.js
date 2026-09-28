@@ -11,7 +11,8 @@ import {kitHooks} from './player.js';
 import {kitColours,kitMaterial,setKitColours,headMaterial,hairCardMaterial,drawDecals,composePhotoHead,HAIR_STYLES,BEARDS} from './human-kit.js';
 import {cleanFace,FACE_SHAPE} from './face-settings.js';
 import {celebrationHands} from './celebrations.js';
-import {decodeFaceShape,faceShapeField,meshOffsets,validFaceShape} from './face-shape3d.js';
+import {decodeFaceShape,faceShapeField,meshOffsets,mirrorPairs,validFaceShape} from './face-shape3d.js';
+import {repairCalibrationUV} from './face-calibration.js';
 import {cleanFaceScan,decodeOffsets} from './face-scan.js';
 
 // Old joint -> new bones, from tools/human/maps/game13.json (index 0 is the player's right side).
@@ -127,6 +128,9 @@ export function loadHumanBodies(renderer){
   const avatars={},pending={};
   for(const [id,a] of Object.entries(layout.avatars))if(!a.transplant)avatars[id]=await loadAvatar(a);
   const ensure=id=>avatars[id]?Promise.resolve(true):layout.avatars[id]?pending[id]??=loadAvatar(layout.avatars[id]).then(a=>{avatars[id]=a;return true;},error=>{console.warn(`Player head ${id} unavailable:`,error);return false;}):Promise.resolve(false);
+  // Rays that missed the head or grazed onto the ear take their partner's UV mirrored (src/face-calibration.js).
+  const pairs=canonicalFace?.vertices?mirrorPairs(canonicalFace.vertices):null;
+  if(pairs)for(const [id,table] of Object.entries(faceLandmarksUV))if(Array.isArray(table)&&faceHeads?.[id]?.points)faceLandmarksUV[id]=repairCalibrationUV(table,faceHeads[id].points,pairs).uv;
   assets={layout,mask,maskSmooth,avatars,faceLandmarksUV,canonicalFace,faceHeads,ensure};return true;
  };
  assetsPromise=load().catch(error=>{console.warn('New player model unavailable, keeping the old one:',error);return false;});
