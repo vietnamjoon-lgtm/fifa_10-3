@@ -47,7 +47,12 @@
         "player-gallery.html",
         "vendor/three-addons/",
         "reports/human-v2/",
-        "docs/ROADMAP-motion.md"
+        "docs/ROADMAP-motion.md",
+        "src/club-squads.js",
+        "src/kleague-rosters.js",
+        "tools/update-kleague.mjs",
+        "tools/normalize-kleague.mjs",
+        "tests/club-squads.test.mjs"
       ],
       "tests": [
         "tests/body-customization.test.mjs",

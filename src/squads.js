@@ -21,11 +21,18 @@ export function cleanProfile(raw={},fallback=roster(0)[9]){raw=raw&&typeof raw==
 }
 export function defaultSquads(){const players=[...roster(0),...roster(1)].map(p=>cleanProfile({...p,uid:`default-${p.id}`,skin:['#bf8561','#976143','#deb18a','#74482f','#c89572','#e1ad88'][p.number%6],hairStyle:p.number%3===0?'crest':'short'}));return {version:1,players,lineups:[players.slice(0,11).map(p=>p.uid),players.slice(11).map(p=>p.uid)]};}
 export function cleanLibrary(data){
- if(data?.version!==1||!Array.isArray(data.players)||data.players.length<11||data.players.length>200||!Array.isArray(data.lineups)||data.lineups.length!==2)throw Error('선수 파일 형식을 확인해 주세요.');
+ if(data?.version!==1||!Array.isArray(data.players)||data.players.length<11||data.players.length>1000||!Array.isArray(data.lineups)||data.lineups.length!==2)throw Error('선수 파일 형식을 확인해 주세요.');
  const players=data.players.map(p=>{const clean=cleanProfile(p);delete clean.faceTexture;delete clean.faceUV;return clean;}),ids=new Set(players.map(p=>p.uid));if(ids.size!==players.length)throw Error('선수 식별자가 중복됐습니다.');
  const lineups=data.lineups.map(list=>{if(!Array.isArray(list)||list.length!==11||new Set(list).size!==11||list.some(id=>!ids.has(id)))throw Error('각 팀에는 서로 다른 선수 11명이 필요합니다.');return [...list];});
  for(const list of lineups)if(players.find(p=>p.uid===list[0]).role!=='GK'||list.slice(1).some(id=>players.find(p=>p.uid===id).role==='GK'))throw Error('첫 번째 자리는 골키퍼, 나머지는 필드 선수로 구성해 주세요.');
- return {version:1,players,lineups};
+ const extra={};
+ if(data.clubLineups&&typeof data.clubLineups==='object'){
+  const valid=list=>Array.isArray(list)&&list.length===11&&new Set(list).size===11&&list.every(id=>ids.has(id))&&players.find(p=>p.uid===list[0])?.role==='GK'&&list.slice(1).every(id=>players.find(p=>p.uid===id)?.role!=='GK');
+  extra.clubLineups=Object.fromEntries(Object.entries(data.clubLineups).filter(([k,v])=>/^[a-z]+$/.test(k)&&valid(v)).map(([k,v])=>[k,[...v]]));
+  extra.customLineups=Array.isArray(data.customLineups)&&data.customLineups.length===2&&data.customLineups.every(valid)?data.customLineups.map(l=>[...l]):lineups.map(l=>[...l]);
+  extra.activeClubs=Array.isArray(data.activeClubs)&&data.activeClubs.length===2&&data.activeClubs.every(id=>extra.clubLineups[id])?[...data.activeClubs]:null;
+ }
+ return {version:1,players,lineups,...extra};
 }
 export const SQUAD_KEY='touchline-player-library-v1';
 export function loadSquads(storage=globalThis.localStorage){try{return cleanLibrary(JSON.parse(storage.getItem(SQUAD_KEY)));}catch{return defaultSquads();}}

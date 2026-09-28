@@ -25,7 +25,8 @@ export class MotionPreview{
   if(kick&&actionTime>=0&&actionTime<contact+.36)p.action={type:['chip','finesse','low','setpiece'].includes(kind)?'shoot':kind,chip:kind==='chip',curve:kind==='finesse'?18:0,low:kind==='low',foot:this.foot,contactTarget:{x:footSign(this.foot)*.11,y:.11,z:25.14},elapsed:actionTime,contactAt:contact,hit:actionTime>=contact,power:.8};
   if(['slide','tackle','feint'].includes(kind)&&actionTime>=0&&actionTime<(kind==='slide'?.85:kind==='tackle'?.55:.28))p.action={type:kind,elapsed:actionTime};
   if(kind==='header'&&actionTime>=0&&actionTime<.7)p.action={type:'shoot',aerial:true,elapsed:actionTime};
-  if(kind==='dive'&&actionTime>=0&&actionTime<KEEPER.diveDuration){p.dive=KEEPER.diveDuration-actionTime;p.diveDuration=KEEPER.diveDuration;p.diveDirection=1;}
+  if(kind==='dive'&&actionTime>=0&&actionTime<KEEPER.diveDuration){p.role='GK';p.dive=KEEPER.diveDuration-actionTime;p.diveDuration=KEEPER.diveDuration;p.diveDirection=1;}
+  if(kind==='throw'&&actionTime>=0&&actionTime<.84)p.action={type:'throw',elapsed:actionTime,contactAt:.46,hit:actionTime>=.46};
   if(['start','stop','turn','backpedal','receive','jockey'].includes(kind)){p.vz=kind==='backpedal'?-3:kind==='receive'?0:kind==='jockey'?0:4;p.vx=kind==='jockey'?3:0;p.motionAcceleration=kind==='start'?7:kind==='stop'?-7:0;p.motionTurn=kind==='turn'?4:0;p.defending=kind==='jockey';p.receiveUntil=kind==='receive'?t+.1:0;}
   if(['receive-inside','receive-instep','receive-thigh','receive-chest','intercept'].includes(kind)){if(t<.65)p.receivePrep={kind:kind.replace('receive-',''),foot:this.foot,start:0,until:.65,eta:.65-t,weight:Math.min(1,t/.4)};else p.receive={kind:kind.replace('receive-',''),foot:this.foot,start:.52,duration:.46};}
   if(['turn90','turn135','turn180'].includes(kind)){p.turnPlan={start:.55,duration:.6,angle:Number(kind.slice(4))*Math.PI/180,foot:this.foot};p.vz=2;}
@@ -36,6 +37,11 @@ export class MotionPreview{
   if(kind==='fall'||kind==='recover')p.down=kind==='fall'?.7:.2;
   this.hero.root.position.set(0,0,24.6);this.hero.root.rotation.y=0;this.hero.motionPhaseOverride=t*locomotionCadence(Math.hypot(p.vx,p.vz),p.motionStyle,p);
   const after=kick?Math.max(0,actionTime-contact):0;ball.position.set(footSign(this.foot)*.11,kind==='header'?1.65:.11+Math.max(0,Math.sin(after*3))*.55,25.14+after*10);ball.rotation.x=t*8;
+  if(kind==='throw'){
+   const u=Math.max(0,Math.min(1,actionTime/.46)),flight=Math.max(0,actionTime-.46),height=this.hero.look?.profile?.height||1.81;
+   ball.position.set(0,height+.16+Math.sin(u*Math.PI)*.12+flight*2.6-4.905*flight*flight,24.6-.16+.55*u*u+flight*9);
+   if(actionTime<.46)p.keeperMotion={kind:'throw',until:t+.1,target:{x:ball.position.x,y:ball.position.y,z:ball.position.z}};
+  }else if(p.keeperMotion)ball.position.copy(p.keeperMotion.target);
   animatePlayer(this.hero,Math.hypot(p.vx,p.vz),Math.max(dt,.016),t,kind==='celebrate'||kind.startsWith('celebration:'),p,ball.position);
   camera.position.set(Math.sin(this.angle)*3.7,1.6,24.6+Math.cos(this.angle)*3.7);camera.lookAt(0,1.02,24.6);
   document.getElementById('motion-state').textContent=this.hero.motionState.toUpperCase();if(this.playing)document.getElementById('motion-frame').value=String(t/this.duration);

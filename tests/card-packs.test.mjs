@@ -62,7 +62,7 @@ test('duplicate pulls of the same player become separate cards',()=>{
 test('a full library refuses new cards instead of dropping saved players',()=>{
  const library=defaultSquads();
  library.players=Array.from({length:LIBRARY_LIMIT},(_,i)=>({...library.players[0],uid:`full-${i}`}));
- assert.throws(()=>withPicks(library,openPack('bronze',seeded(1))),/최대 200명/);
+ assert.throws(()=>withPicks(library,openPack('bronze',seeded(1))),new RegExp(`최대 ${LIBRARY_LIMIT}명`));
 });
 test('card ratings stay consistent between the pool and the saved profile',()=>{
  for(const card of CARD_POOL)assert.equal(overallRating(cardProfile(card,'x')),cardOverall(card));
