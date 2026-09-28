@@ -96,20 +96,23 @@ function crowdAtlas(){const w=256,h=256,atlas=document.createElement('canvas'),m
  const t=new THREE.CanvasTexture(atlas),k=new THREE.CanvasTexture(mask);t.colorSpace=THREE.SRGBColorSpace;for(const x of [t,k]){x.anisotropy=4;x.generateMipmaps=true;}return {map:t,mask:k};}
 export class Crowd{
  constructor(group,seats){
-  const {map,mask}=crowdAtlas();this.uniforms={crowdMask:{value:mask},crowdTime:{value:0},crowdExcite:{value:.15}};
-  const material=new THREE.MeshLambertMaterial({map,alphaTest:.45,side:THREE.DoubleSide});material.userData.uniforms=this.uniforms;
-  material.onBeforeCompile=shader=>{Object.assign(shader.uniforms,this.uniforms);
+  const {map,mask}=crowdAtlas(),time={value:0};
+  // Home stands and the away end get their own excitement so only the scoring side celebrates.
+  this.home={crowdMask:{value:mask},crowdTime:time,crowdExcite:{value:.15}};this.away={crowdMask:{value:mask},crowdTime:time,crowdExcite:{value:.15}};this.uniforms=this.home;
+  const makeMaterial=uniforms=>{const material=new THREE.MeshLambertMaterial({map,alphaTest:.45,side:THREE.DoubleSide});material.userData.uniforms=uniforms;
+  material.onBeforeCompile=shader=>{Object.assign(shader.uniforms,uniforms);
    shader.vertexShader='attribute vec2 crowdSeat;uniform float crowdTime,crowdExcite;varying vec2 vCrowdUv;\n'+shader.vertexShader
     .replace('#include <uv_vertex>','#include <uv_vertex>\n float crowdStand=step(fract(crowdSeat.y*7.31),crowdExcite-.45);\n vCrowdUv=vec2((uv.x+crowdSeat.x)*.25,(uv.y+crowdStand)*.5);\n#ifdef USE_MAP\n vMapUv=vCrowdUv;\n#endif')
     .replace('#include <begin_vertex>','#include <begin_vertex>\n float crowdBeat=crowdTime*(5.+3.*fract(crowdSeat.y*3.7))+crowdSeat.y*6.2831;\n transformed.y+=.012*sin(crowdTime*1.3+crowdSeat.y*40.)+crowdExcite*crowdExcite*.16*max(0.,sin(crowdBeat));');
    shader.fragmentShader='uniform sampler2D crowdMask;varying vec2 vCrowdUv;\n'+shader.fragmentShader
     .replace('#include <color_fragment>','#if defined( USE_COLOR ) || defined( USE_INSTANCING_COLOR )\n diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*vColor.rgb,texture2D(crowdMask,vCrowdUv).r);\n#endif');};
-  material.customProgramCacheKey=()=>'touchline-crowd';
+  material.customProgramCacheKey=()=>'touchline-crowd';return material;};
+  const homeMaterial=makeMaterial(this.home),awayMaterial=makeMaterial(this.away);
   const geometry=new THREE.PlaneGeometry(.62,1.24).translate(0,.1,0),dummy=new THREE.Object3D();
   const stands=Array.from({length:4},()=>[]);for(const p of seats)stands[Math.abs(p[0])>61?(p[0]<0?0:1):(p[2]<0?2:3)].push(p);
   let seed=7;const rand=()=>((seed=(seed*16807)%2147483647)/2147483647);
   this.meshes=stands.map((stand,index)=>{
-   const mesh=new THREE.InstancedMesh(geometry,material,stand.length),seat=new Float32Array(stand.length*2);
+   const mesh=new THREE.InstancedMesh(geometry,index===1?awayMaterial:homeMaterial,stand.length),seat=new Float32Array(stand.length*2);
    stand.forEach(([x,y,z,angle],i)=>{const jitter=(rand()-.5)*.18;dummy.position.set(x+(Math.abs(x)>61?0:jitter),y-.05,z+(Math.abs(x)>61?jitter:0));dummy.rotation.set(0,angle,0);const size=.9+rand()*.2;dummy.scale.set(size,size,size);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);seat[i*2]=Math.floor(rand()*4);seat[i*2+1]=rand();mesh.setColorAt(i,new THREE.Color(1,1,1));});
    // The x>0 end is the away end.
    mesh.userData={away:index===1};
@@ -122,8 +125,9 @@ export class Crowd{
   for(const mesh of this.meshes){for(let i=0;i<mesh.count;i++){const r=((n++*2654435761)>>>0)/4294967296,base=mesh.userData.away?a:h,other=mesh.userData.away?h:a;
     if(r<.68)colour.copy(base).multiplyScalar(.82+.3*((n*7919%97)/97));else if(r<.78)colour.copy(other);else colour.setHex(neutral[n%4]);mesh.setColorAt(i,colour);}
    mesh.instanceColor.needsUpdate=true;}}
- // excite 0..1: calm ~.15, attack in the final third ~.4, goal 1.
- update(time,excite,dt=1/60){const u=this.uniforms;u.crowdTime.value=time;u.crowdExcite.value+=(excite-u.crowdExcite.value)*(1-Math.exp(-dt*(excite>u.crowdExcite.value?6:.8)));}
+ // excite 0..1 per side (home stands, away end): calm ~.15, attack in the final third ~.45, own goal 1.
+ update(time,homeExcite,awayExcite=homeExcite,dt=1/60){this.home.crowdTime.value=time;
+  for(const [u,excite] of [[this.home,homeExcite],[this.away,awayExcite]])u.crowdExcite.value+=(excite-u.crowdExcite.value)*(1-Math.exp(-dt*(excite>u.crowdExcite.value?6:.8)));}
 }
 // Goal net as a textured grid (back, roof, two sides) with slight sag: mipmapped alpha-blended
 // meshes stay soft at distance where 1-px line segments shimmered. Vertex spacing (~.19 m) matches the

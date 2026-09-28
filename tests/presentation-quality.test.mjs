@@ -90,3 +90,11 @@ test('goal replay cuts between a reverse angle and a behind-goal camera, then cu
   director.endReplay();const match={state:'kickoff',controlled:{id:1,x:0,z:0},physics:{ball:{position:{x:0,y:.1,z:0},velocity:{x:0,z:0}}}};
   director.update(match,0,1/60,0);assert.ok(camera.position.distanceTo(director.position)<1e-6,'first broadcast frame after a replay is a cut');}
 });
+test('celebration shot cuts to a close view of the scorer and stays inside the stadium bowl',()=>{
+ for(const [x,z] of [[40,5],[-50,33],[52,-33]]){const camera=new THREE.PerspectiveCamera(43,16/9,.08,250),director=new MatchCamera(camera),scorer={x,z,yaw:0};
+  assert.equal(director.celebrationShot(scorer,0,1/30),true);for(let i=1;i<90;i++)assert.equal(director.celebrationShot(scorer,i/30,1/30),false);
+  assert.ok(Math.abs(camera.position.x)<=57&&Math.abs(camera.position.z)<=37&&camera.position.y<3,JSON.stringify(camera.position));
+  camera.updateMatrixWorld();const head=new THREE.Vector3(x,1.6,z).project(camera);assert.ok(Math.abs(head.x)<.6&&Math.abs(head.y)<.8,JSON.stringify(head));
+  // The replay that follows is a new cut, not a continuation.
+  assert.equal(director.replayShot({x,y:.3,z},0,Math.sign(x)*52.5,1/30),true);}
+});
