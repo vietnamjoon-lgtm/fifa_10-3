@@ -12,6 +12,7 @@ export function smoothDamp(state,key,target,smoothTime,dt,maxSpeed=Infinity){
 }
 const smoothstep=(a,b,v)=>{const t=clamp((v-a)/(b-a),0,1);return t*t*(3-2*t);};
 // Tuning for the broadcast (mode 0) view. Measured with tools/camera-metrics.mjs.
+export const CAMERA_VIEW_DEFAULT={zoom:5,height:5};
 export const BROADCAST={
  // Follow the ball slightly late, like a human operator; control switches re-frame twice as fast.
  focusTime:.42,focusMaxSpeed:34,depthTime:1,playerWeight:.2,switchTime:.8,switchScale:.5,
@@ -26,10 +27,14 @@ export const BROADCAST={
  // Framing windows: ball/controlled player stay inside 70% of the width; depth limits in metres.
  safeX:.7,ballNear:9,ballFar:14,playerNear:11.5,playerFar:17,depthSpread:20,depthZoom:.45
 };
+// Broadcast view options like FC's custom camera (0..10 each). Zoom moves the gantry closer or
+// further along its sight line; height raises or lowers it at that distance. 5/5 = the tuning above.
+export function broadcastView(zoom=5,height=5){const z=Math.min(10,Math.max(0,Number(zoom)||0)),h=Math.min(10,Math.max(0,Number(height)||0));
+ return {distance:1.3-.06*z,elevation:.7+.06*h};}
 const forward=new THREE.Vector3(),wanted=new THREE.Vector3(),axis=new THREE.Vector3(),rotation=new THREE.Quaternion();
 export class MatchCamera{
  constructor(camera){this.camera=camera;this.baseFov=camera.fov;this.target=new THREE.Vector3();this.position=new THREE.Vector3();this.look=new THREE.Vector3();this.lead=new THREE.Vector2();this.initial=false;
-  this.focus={x:0,z:0,xV:0,zV:0};this.ballVelocity={x:0,z:0,xV:0,zV:0};this.zoom={fov:camera.fov,fovV:0};this.turnSpeed=0;this.direction=new THREE.Vector3(0,-.5,-1).normalize();this.broadcast=false;}
+  this.view=broadcastView(CAMERA_VIEW_DEFAULT.zoom,CAMERA_VIEW_DEFAULT.height);this.focus={x:0,z:0,xV:0,zV:0};this.ballVelocity={x:0,z:0,xV:0,zV:0};this.zoom={fov:camera.fov,fovV:0};this.turnSpeed=0;this.direction=new THREE.Vector3(0,-.5,-1).normalize();this.broadcast=false;}
  update(match,mode,dt,time){const c=this.camera;const step=Math.min(Math.max(dt,0),.1);
  if(match.state==='menu'){this.position.set(3.4+Math.sin(time*.12)*.18,2.15,30.2);this.look.set(-2.75,1.12,24.7);c.position.lerp(this.position,1-Math.exp(-dt*3));this.target.lerp(this.look,1-Math.exp(-dt*3));this.setFov(this.baseFov,step,true);c.lookAt(this.target);c.getWorldDirection(this.direction);this.broadcast=false;this.initial=false;this.lastState='menu';return;}
  const b=match.physics.ball.position,p=match.controlled,dx=b.x-p.x,dz=b.z-p.z,spread=Math.hypot(dx,dz),v=match.physics.ball.velocity;
@@ -62,7 +67,8 @@ export class MatchCamera{
  c.position.lerp(this.position,move);this.target.lerp(this.look,distance>1.5?Math.max(move,alpha*.25):alpha);
  this.setFov(fov,step);this.turnLimited(broadcast?BROADCAST.maxTurn:90,broadcast?BROADCAST.maxTurnAccel:360,step);}
  // Ball-led framing: damped focus, velocity look-ahead, speed/box zoom, controlled player kept in frame.
- broadcastFraming(b,p,v,step){const B=BROADCAST,f=this.focus,bv=this.ballVelocity,aspect=this.camera.aspect||16/9,range=Math.hypot(B.back,B.height);
+ broadcastFraming(b,p,v,step){const B=BROADCAST,f=this.focus,bv=this.ballVelocity,aspect=this.camera.aspect||16/9;
+  const back=B.back*this.view.distance,height=B.height*this.view.distance*this.view.elevation,range=Math.hypot(back,height),near=range/Math.hypot(B.back,B.height);
   if(!this.initial){f.x=b.x;f.z=b.z;f.xV=f.zV=0;this.initial=true;}
   smoothDamp(bv,'x',v.x||0,B.velocityTime,step);smoothDamp(bv,'z',v.z||0,B.velocityTime,step);
   const speed=Math.hypot(bv.x,bv.z);
@@ -75,12 +81,12 @@ export class MatchCamera{
   // The ball always wins; the player constraint is applied first and may be overridden.
   const needed=Math.abs(p.x-b.x)/(2*B.safeX)+2,depth=Math.abs(p.z-b.z);
   if(needed>halfWidth(fov))fov=Math.atan(needed/(aspect*range))*360/Math.PI;
-  if(depth>B.depthSpread)fov+=(depth-B.depthSpread)*B.depthZoom;
+  if(depth>B.depthSpread*near)fov+=(depth-B.depthSpread*near)*B.depthZoom;
   fov=clamp(fov,B.fovMin,B.fovMax);const safe=halfWidth(fov)*B.safeX,widen=fov/B.fov;
   if(p.x>fx+safe)fx=p.x-safe;else if(p.x<fx-safe)fx=p.x+safe;
   if(b.x>fx+safe)fx=b.x-safe;else if(b.x<fx-safe)fx=b.x+safe;
   // Screen bottom is nearer the camera than the top, so the depth window is asymmetric.
-  const keep=(value,near,far)=>{if(value>fz+near*widen)fz=value-near*widen;else if(value<fz-far*widen)fz=value+far*widen;};
+  const keep=(value,nearSide,farSide)=>{const n=nearSide*widen*near,fa=farSide*widen*near;if(value>fz+n)fz=value-n;else if(value<fz-fa)fz=value+fa;};
   keep(p.z,B.playerNear,B.playerFar);keep(b.z,B.ballNear,B.ballFar);
   fx=clamp(fx,-44,44);fz=clamp(fz,-24,24);
   // A control switch re-frames faster for a moment so the new player appears promptly.
@@ -89,8 +95,9 @@ export class MatchCamera{
   smoothDamp(f,'x',fx,B.focusTime*quick,step,B.focusMaxSpeed);smoothDamp(f,'z',fz,B.focusTime*B.depthTime*quick,step,B.focusMaxSpeed*.6);
   // Wide ball-to-player spreads also crane the camera up and back (as the old view did).
   f.pull=f.pull||0;smoothDamp(f,'pull',clamp((Math.hypot(p.x-b.x,p.z-b.z)-B.pullFrom)*B.pullRate,0,B.pullMax),B.focusTime*2,step);
-  this.position.set(f.x*B.dolly,B.height+f.pull*.7,f.z*.82+B.back+f.pull*.8);this.look.set(f.x,.4,f.z-1);
+  this.position.set(f.x*B.dolly,height+f.pull*.7,f.z*.82+back+f.pull*.8);this.look.set(f.x,.4,f.z-1);
   return fov;}
+ setView(zoom,height){this.view=broadcastView(zoom,height);}
  setFov(target,step,immediate=false){const c=this.camera,z=this.zoom;
   if(immediate){z.fov=target;z.fovV=0;}else smoothDamp(z,'fov',target,BROADCAST.fovTime,step,BROADCAST.fovMaxRate);
   if(Math.abs(c.fov-z.fov)>1e-4){c.fov=z.fov;c.updateProjectionMatrix();}}
