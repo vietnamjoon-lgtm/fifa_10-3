@@ -281,3 +281,21 @@
 #replay-wipe.run{animation:replay-wipe .42s ease-in-out}
 @keyframes replay-wipe{0%{transform:translateX(-120%) skewX(-18deg);opacity:.95}100%{transform:translateX(120%) skewX(-18deg);opacity:.95}}
 @media (prefers-reduced-motion:reduce){#replay-wipe.run{animation:none}}
+/* Player traits and work rates (src/trait-picker.js) */
+.trait-picker{margin:18px 0;padding:18px 20px;background:#203327;border:1px solid #bded7350;border-radius:8px}
+.trait-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.trait-head h3{font-size:17px;margin:7px 0;flex:1}.trait-count{color:#c6ff5d;font-weight:800}
+.work-rates{display:grid;grid-template-columns:repeat(2,minmax(100px,1fr));gap:12px;margin:8px 0}
+.work-rates label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:#b5c3b7}
+.work-rates select{width:100%;box-sizing:border-box;background:#10241d;border:1px solid #47604d;color:#edf1e8;border-radius:4px;padding:9px;min-height:38px}
+.trait-note{font-size:12px;color:#b5c3b7;margin:6px 0 10px}
+.trait-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.trait-option{display:flex;gap:9px;align-items:flex-start;padding:9px 10px;background:#10241d;border:1px solid #47604d;border-radius:5px;cursor:pointer}
+.trait-option[hidden]{display:none}.trait-option:has(input:checked){border-color:#c6ff5d;background:#233f2a}.trait-option:has(input:disabled:not(:checked)){opacity:.5;cursor:not-allowed}
+.trait-option input{margin-top:3px;accent-color:#c6ff5d}.trait-option span{display:grid;gap:2px;min-width:0}.trait-option b{font-size:13px;color:#edf1e8}
+.trait-option small{font-size:11.5px;color:#b5c3b7;line-height:1.4}.trait-kind{font-style:normal;font-size:10px;color:#c6ff5d;opacity:.8}
+.trait-chips,.card-traits,.side-traits{display:flex;flex-wrap:wrap;gap:4px}
+#rating-traits{padding:0 0 10px}#rating-traits .rating-work{flex-basis:100%;color:#b5c3b7;font-size:11px;margin-top:3px}
+.trait-chip{font-size:11px;padding:3px 7px;border-radius:999px;background:#c6ff5d22;border:1px solid #c6ff5d66;color:#e8ffc0}
+.card-traits{margin-top:8px;justify-content:center}.card-traits .trait-chip{font-size:9px;padding:2px 6px;background:#221c0c1f;border-color:#221c0c40;color:#221c0c}
+.side-traits{margin-top:10px;justify-content:center;max-width:180px}
+@media(max-width:600px){.trait-list,.work-rates{grid-template-columns:1fr}.trait-picker{padding:14px}}

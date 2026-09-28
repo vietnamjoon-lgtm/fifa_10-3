@@ -3,6 +3,7 @@ import {TIERS,leagueOf,flagUrl} from './card-data.js';
 import {loadWallet,spendCoins,addCoins} from './wallet.js';
 import {CardReveal} from './card-reveal.js';
 import {CardPortrait} from './card-portrait.js';
+import {traitChips} from './trait-picker.js';
 const $=id=>document.getElementById(id);
 const el=(tag,text,className)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;};
 const STAT_ROWS=[['pac','PAC'],['sho','SHO'],['pas','PAS'],['dri','DRI'],['def','DEF'],['phy','PHY']];
@@ -108,6 +109,7 @@ export class CardPackUI{
   const rows=pick.card.role==='GK'?GK_ROWS:STAT_ROWS;
   const left=el('div',undefined,'reveal-side left'),right=el('div',undefined,'reveal-side right');
   left.append(el('b','0','side-ovr'),el('small',pick.card.role,'side-role'));
+  if(pick.profile?.traits?.length)left.append(traitChips(pick.profile,'side-traits'));
   right.append(el('b','0','side-ovr'));
   const grid=el('div',undefined,'side-stats');
   for(const [key,label] of rows){const cell=el('div');cell.append(el('b',String(pick.card[key]??'-')),el('span',label));grid.append(cell);}
@@ -144,6 +146,8 @@ export class CardPackUI{
    const cell=el('div');cell.append(el('span',label),el('b',String(pick.card[key]??'-')));stats.append(cell);
   }
   card.append(head,art,name,meta,stats);
+  // 선수 특성(src/traits.js)을 카드 아래에 작은 이름표로 보여 줍니다.
+  if(pick.profile?.traits?.length)card.append(traitChips(pick.profile,'card-traits'));
   return card;
  }
  async countUp(nodes,target){
