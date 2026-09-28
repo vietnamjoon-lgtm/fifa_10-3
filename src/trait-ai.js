@@ -7,11 +7,11 @@ import {offsideSnapshot} from './rules.js';
 export const TRAIT_AI={
  decision:{playmaker:.7,teamPlayer:.75},
  longShot:{range:31,width:14,lane:.9,chance:.35,power:.1},
- earlyCross:{from:4,width:12,chance:.5,space:1.6},
- carry:{solo:2.5,soloPressure:1.4,team:-1.5,teamPressure:3.2,teamMinimum:-1,speed:1,speedSpace:6},
+ earlyCross:{from:0,width:9,chance:.6,space:1.6,box:25},
+ carry:{solo:2.5,soloPressure:1.4,team:-1.5,teamPressure:3.2,teamMinimum:-1,speed:2,speedSpace:5},
  playmakerBonus:1.6,
  longPass:{reach:52,perMetre:.08,max:1.8,switchPlay:1,lofted:1.5},
- speedDribble:{sprintSpace:2.5,knock:1.3},
+ speedDribble:{sprintSpace:2,knock:1.35},
  runner:{lineGap:.3,push:3,chance:.22},attackRunChance:.06,
  attackPush:{FWD:2,MID:3,DEF:4},
  defenceDrop:{FWD:4,MID:3},defenceHold:{FWD:2,MID:1.5},
@@ -49,7 +49,7 @@ export function earlyCross(match,p,plan,opponents,space){
  const e=TRAIT_AI.earlyCross,dir=match.direction(p.team);
  if(!aiTrait(match,p,'earlyCross')||p.x*dir<e.from||Math.abs(p.z)<e.width)return false;
  const offside=offsideSnapshot(match,p);let best=null,score=-Infinity;
- for(const q of match.players){if(!q.active||q.team!==p.team||q===p||q.role==='GK'||q.down>0||offside.has(q.id)||q.x*dir<28||Math.abs(q.z)>20)continue;
+ for(const q of match.players){if(!q.active||q.team!==p.team||q===p||q.role==='GK'||q.down>0||offside.has(q.id)||q.x*dir<e.box||Math.abs(q.z)>20)continue;
   const d=distance(p,q);if(d<12||d>55)continue;const value=(q.role==='FWD'?6:0)-Math.abs(q.x*dir-42)*.5-Math.abs(q.z)*.15;if(value>score){score=value;best=q;}}
  if(!best)return false;
  const t=clamp(distance(p,best)/22,.75,2.5),x=clamp(best.x+best.vx*t*.7,-50,50),z=clamp(best.z+best.vz*t*.7,-28,28);
