@@ -64,3 +64,16 @@ test('time-of-day setting is sanitised and pitch textures stay inside the 5 MB b
  const dir=new URL('../src/textures/',import.meta.url),total=fs.readdirSync(dir).reduce((n,f)=>n+fs.statSync(new URL(f,dir)).size,0);
  assert.ok(total<5*1024*1024,String(total));
 });
+test('broadcast camera zoom/height options: 5/5 is the tuned view, steps are clamped and saved sanely',async()=>{
+ const {broadcastView}=await import('../src/camera.js');
+ assert.deepEqual(broadcastView(5,5),{distance:1,elevation:1});
+ assert.deepEqual(broadcastView(-4,99),broadcastView(0,10));assert.ok(broadcastView(10,5).distance<broadcastView(0,5).distance);
+ globalThis.localStorage={getItem:()=>JSON.stringify({cameraZoom:'7.6',cameraHeight:-3}),setItem(){}};
+ const {loadSettings}=await import('../src/settings.js');const s=loadSettings();assert.equal(s.cameraZoom,8);assert.equal(s.cameraHeight,0);delete globalThis.localStorage;
+});
+test('closest broadcast zoom still keeps the ball framed with the controlled player on the far touchline',()=>{
+ for(const zoom of [0,10]){const camera=new THREE.PerspectiveCamera(43,16/9,.08,250),director=new MatchCamera(camera);director.setView(zoom,5);
+  const match={state:'playing',controlled:{id:1,x:-4,z:-26},physics:{ball:{position:{x:-6,y:.1,z:9},velocity:{x:0,z:0}}}};
+  for(let i=0;i<400;i++)director.update(match,0,1/60,i/60);camera.updateMatrixWorld();
+  const ball=new THREE.Vector3(-6,.1,9).project(camera);assert.ok(Math.abs(ball.x)<.95&&Math.abs(ball.y)<.95,JSON.stringify({zoom,ball}));}
+});

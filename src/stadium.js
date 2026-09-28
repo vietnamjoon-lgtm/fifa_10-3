@@ -108,7 +108,7 @@ export class Crowd{
   let seed=7;const rand=()=>((seed=(seed*16807)%2147483647)/2147483647);
   this.meshes=stands.map((stand,index)=>{
    const mesh=new THREE.InstancedMesh(geometry,material,stand.length),seat=new Float32Array(stand.length*2);
-   stand.forEach(([x,y,z,angle],i)=>{dummy.position.set(x,y-.05,z);dummy.rotation.set(0,angle,0);const size=.9+rand()*.2;dummy.scale.set(size,size,size);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);seat[i*2]=Math.floor(rand()*4);seat[i*2+1]=rand();mesh.setColorAt(i,new THREE.Color(1,1,1));});
+   stand.forEach(([x,y,z,angle],i)=>{const jitter=(rand()-.5)*.18;dummy.position.set(x+(Math.abs(x)>61?0:jitter),y-.05,z+(Math.abs(x)>61?jitter:0));dummy.rotation.set(0,angle,0);const size=.9+rand()*.2;dummy.scale.set(size,size,size);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);seat[i*2]=Math.floor(rand()*4);seat[i*2+1]=rand();mesh.setColorAt(i,new THREE.Color(1,1,1));});
    // The x>0 end is the away end.
    mesh.userData={away:index===1};
    mesh.geometry=geometry.clone();mesh.geometry.setAttribute('crowdSeat',new THREE.InstancedBufferAttribute(seat,2));
@@ -230,7 +230,8 @@ export function applyLighting(scene,stadium,renderer,preset='night',quality='hig
  renderer.toneMapping=THREE.NeutralToneMapping;renderer.toneMappingExposure=L.exposure;
  scene.environment=quality==='low'?null:stadiumEnvironment(renderer,preset);scene.environmentIntensity=L.environment*(quality==='high'?1:.8);
  // PCF with a wider radius on the tight, player-fitted frustum gives a soft penumbra without VSM bleeding.
- renderer.shadowMap.type=THREE.PCFShadowMap;stadium.sun.shadow.radius=quality==='high'?3:2;
+ // Medium uses the 9-tap bilinear PCF (about half the samples of 17-tap PCF) for weaker GPUs.
+ renderer.shadowMap.type=quality==='high'?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;stadium.sun.shadow.radius=3;
  stadium.preset=preset;stadium.towerShadows=L.towerShadows;
 }
 // Fit the key light's orthographic shadow frustum around the given points (players and ball in
