@@ -10,6 +10,9 @@ export function movementProfile(p,speed,axis){
  return {acceleration:p.acceleration*fatigue*(.76+.3*agility)*(1-turning*(1-balance)*.45),
   braking:19*(.65+.43*balance),turn:(5+4*agility-speed*.23)*(.85+.15*balance)};
 }
+// Speed with the ball as a share of the same run without it: a sprinting dribbler is a little slower than a sprinting
+// defender (0.90-0.94 by ball control and agility), which is what lets a defender who is goal-side stay with him.
+export function carrySpeed(p,sprinting){return sprinting?.88+.07*(skill(p,'control')*.6+skill(p,'agility')*.4):.96;}
 export function kickSkill(p,a){return skill(p,a.type==='shoot'?'shooting':a.type==='lob'||a.lob?'longPass':'passing');}
 export function kickError(p,a,pressure){
  const ability=kickSkill(p,a),alignment=clamp((Math.sin(p.yaw)*a.aim.x+Math.cos(p.yaw)*a.aim.z+1)/2,0,1);
