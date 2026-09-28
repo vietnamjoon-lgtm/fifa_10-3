@@ -76,6 +76,20 @@ export const MOVE_BY_KEY=Object.fromEntries(MOVES.map(m=>[m.key,m]));
 
 export function skillStars(p){return Math.round(p.skillMoves??defaultSkillMoves(p));}
 
+/** The move a quick F tap plays (쉬운 개인기): a cut to one side, the best one the player's stars allow (★ no-touch feint, ★★ body feint,
+ * ★★★ feint and go, ★★★★ ball roll cut, ★★★★★ elastico). The side is the one the stick leans to, relative to the way the player faces; with
+ * the stick straight, away from the nearest opponent in front, or toward the middle of the pitch when nobody is there. The stick held back
+ * turns instead: a drag back (★★) or a drag back spin (★★★ and up). */
+export function autoMove(p,opponents=[],axis=null){
+ const stars=skillStars(p),f={x:Math.sin(p.yaw),z:Math.cos(p.yaw)},right={x:-f.z,z:f.x},n=Math.hypot(axis?.x||0,axis?.z||0);
+ const stickF=n>.3?(axis.x*f.x+axis.z*f.z)/n:0,stickR=n>.3?(axis.x*right.x+axis.z*right.z)/n:0;let side;
+ if(Math.abs(stickR)>.35)side=Math.sign(stickR);
+ else{const near=opponents.map(q=>({along:(q.x-p.x)*f.x+(q.z-p.z)*f.z,lat:(q.x-p.x)*right.x+(q.z-p.z)*right.z})).filter(o=>o.along>-.5&&Math.hypot(o.along,o.lat)<6).sort((a,b)=>Math.hypot(a.along,a.lat)-Math.hypot(b.along,b.lat))[0];
+  side=near&&Math.abs(near.lat)>.3?-Math.sign(near.lat):(p.z||0)*right.z>0?-1:1;}
+ const turn=stickF<-.5?[stars>=3?'drag-back-spin':'drag-back']:[],order=[...turn,'elastico','ball-roll-cut','feint-exit','body-feint','no-touch-feint'];
+ for(const id of order){const m=MOVE_BY_KEY['fco-'+id+':'+(side>0?'right':'left')]||MOVE_BY_KEY['fco-'+id];if(m&&m.stars<=stars)return m;}
+ return null;}
+
 /** Screen arrow direction (x right, z down) to the relative code for a team attacking along +x (d=1) or -x (d=-1). */
 export function relativeDir(x,z,d){const f=Math.sign(x*d),r=Math.sign(z*d);if(!f&&!r)return null;return (f>0?'F':f<0?'B':'')+(r>0?'R':r<0?'L':'')||null;}
 const codeOf=d=>({F:'F',B:'B',L:'L',R:'R',FR:'FR',FL:'FL',BR:'BR',BL:'BL'})[d.length===2?d:d]||d;

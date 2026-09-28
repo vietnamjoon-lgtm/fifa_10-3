@@ -56,7 +56,8 @@ export class Input{
   if(context.keeperHolding){if(code==='KeyS')this.emit('keeperPass',{driven:this.keys.has('KeyZ')});if(code==='KeyA'||code==='KeyD')this.emit('keeperKick');if(code==='KeyW')this.emit('keeperDrop');return;}
   if(attack){
    if(context.setPiece==='free'&&/^Digit[1-7]$/.test(code)&&!this.keys.has('ShiftLeft')&&!this.keys.has('ShiftRight')){this.emit('setpieceStyle',{style:Object.keys(SETPIECE_STYLES)[Number(code.slice(5))-1]});return;}
-   if(/^Digit[1-7]$/.test(code)&&(this.keys.has('ShiftLeft')||this.keys.has('ShiftRight'))){this.emit('skill',{skill:Object.keys(SKILLS)[Number(code.slice(5))-1]});return;}
+   // Numbered skills: 1~7 alone in open play (the digits pick a free-kick style at a free kick), or Shift + 1~7.
+   if(/^Digit[1-7]$/.test(code)){this.emit('skill',{skill:Object.keys(SKILLS)[Number(code.slice(5))-1]});return;}
    if(code==='KeyD')this.startShot();if(code==='KeyS')this.passCommand();if(code==='KeyA')this.lobCommand();
    if(code==='KeyW')this.emit('through',{lob:this.keys.has('KeyQ'),driven:this.keys.has('KeyZ')});
    this.skillKeyDown(code);
@@ -102,7 +103,9 @@ export class Input{
  finishGesture(t,again=false){
   const g=this.gesture;this.gesture=null;
   if(g&&g.events.length&&this.enabled&&this.getContext().attack)this.emit('skill',{gesture:{events:g.events,end:t-g.start},mods:g.mods});
-  if(again){this.gestureKeys=new Set();this.gesture={start:t,events:[],mods:{q:this.keys.has('KeyQ'),c:this.keys.has('KeyC'),z:this.keys.has('KeyZ'),e:this.keys.has('KeyE')}};}else {this.shiftAxis=null;this.gestureKeys=null;}
+  // F tapped on its own, with no arrow pressed while it was down, plays a skill picked for the player (쉬운 개인기).
+  else if(g&&!again&&!g.chained&&t-g.start<.3&&this.enabled&&this.getContext().attack)this.emit('skill',{special:'auto'});
+  if(again){this.gestureKeys=new Set();this.gesture={start:t,chained:true,events:[],mods:{q:this.keys.has('KeyQ'),c:this.keys.has('KeyC'),z:this.keys.has('KeyZ'),e:this.keys.has('KeyE')}};}else {this.shiftAxis=null;this.gestureKeys=null;}
  }
  keyUp(code){this.keys.delete(code);this.skillKeyUp(code);this.refresh();if(code===(this.legacy?'KeyK':'KeyD')&&this.charging){this.charging=false;this.lastShot=this.now();if(this.enabled)this.emit('shoot',this.shotOptions);}}
  poll(){

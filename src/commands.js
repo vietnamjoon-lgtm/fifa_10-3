@@ -2,7 +2,7 @@ import {safeAutoTackle} from './auto-defence.js';
 import {createPassFlight} from './guided-pass.js';
 import {SETPIECE_STYLES} from './setpiece-styles.js';
 import {skillAction} from './skills.js';
-import {resolveGesture,relativeDir} from './skill-moves.js';
+import {resolveGesture,relativeDir,autoMove} from './skill-moves.js';
 import {runTarget} from './control-assist.js';
 import {clamp,distance} from './config.js';
 import {choosePass} from './ai.js';
@@ -65,6 +65,11 @@ export function executeCommand(m,action,options={}){
   return;
  }
  // FC Online skill-move inputs (skill-input gestures, Z + direction, C + Z, Q taps, the ` key) resolved for this player.
+ // A quick F tap: the move is picked for the player (see autoMove).
+ if(action==='skill'&&options.special==='auto'){
+  const move=m.owner===p&&!p.action&&p.cooldown<=0&&distance(p,m.physics.ball.position)<1.12?autoMove(p,m.players.filter(q=>q.active&&q.team!==p.team&&q.role!=='GK'),m.input.axis):null;
+  if(move)startMove(m,p,move);return;
+ }
  if(action==='skill'&&(options.gesture||options.special||options.plain)){
   const move=m.owner===p&&!p.action&&p.cooldown<=0&&distance(p,m.physics.ball.position)<(options.special==='q-tap'?9:1.12)?gestureMove(m,p,options):null;
   if(move){startMove(m,p,move);return;}

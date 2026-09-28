@@ -1,6 +1,6 @@
 import {footSign} from './contact-model.js';
 import {sideIndex} from './sides.js';
-import {MOVE_BY_KEY} from './skill-moves.js';
+import {MOVE_BY_KEY,skillStars} from './skill-moves.js';
 export const SKILLS={
  'elastico':{name:'엘라스티코',duration:.42,events:[.08,.22]},
  'drag-back':{name:'드래그 백',duration:.56,events:[.10,.34]},
@@ -22,16 +22,32 @@ export function skillImpulse(p,a,stage){
  // last touch of a move that exits goes where the stick points when it is played.
  const spec=a.events?.[stage]?.spec;
  if(spec){const [,forward,side,speed,lift]=spec,f={x:Math.sin(p.yaw),z:Math.cos(p.yaw)},s={x:-f.z,z:f.x},k=side*a.side,last=stage===a.events.length-1,stick=a.liveAxis,n=Math.hypot(stick?.x||0,stick?.z||0);
-  const aim=last&&a.exitToStick&&n>.3?{x:stick.x/n,z:stick.z/n}:{x:f.x*forward+s.x*k,z:f.z*forward+s.z*k};const m=Math.hypot(aim.x,aim.z)||1;
-  return {aim:{x:aim.x/m,z:aim.z/m},speed,lift};}
+  // The stick counts only once it has been turned away from where it pointed when the move began: a stick still held along the old run
+  // would otherwise send every cut straight back into the defender.
+  const steered=n>.3&&(!a.exit||(stick.x*a.exit.x+stick.z*a.exit.z)/n<.87);
+  const aim=last&&a.exitToStick&&steered?{x:stick.x/n,z:stick.z/n}:{x:f.x*forward+s.x*k,z:f.z*forward+s.z*k};const m=Math.hypot(aim.x,aim.z)||1;
+  return {aim:{x:aim.x/m,z:aim.z/m},speed:keepClose(p,speed,lift,last),lift};}
 const f={x:Math.sin(p.yaw),z:Math.cos(p.yaw)},s={x:f.z,z:-f.x},sign=footSign(a.foot),last=stage===1;let forward=.55,side=sign*(last?-.8:.8),speed=last?3.5:1.7,lift=.015;
  if(a.skill==='drag-back'||a.skill==='drag-to-heel'){forward=last?.4:-1;side=last?sign*.6:0;speed=last?3.1:1.35;}
  if(a.skill==='ball-roll'){forward=.05;side=sign;speed=last?2.7:1.6;}
  if(a.skill==='nutmeg'){forward=last?1:.4;side=last?0:sign*.2;speed=last?5.2:1.0;}
  if(a.skill==='heel-flick'){forward=last?1:-.35;side=0;speed=last?4.2:1.1;lift=last?.65:.015;}
  if(a.skill==='step-over'){forward=.4;side=last?-sign:.1*sign;speed=last?3.8:.7;}
- const aim=last&&a.exit?a.exit:{x:f.x*forward+s.x*side,z:f.z*forward+s.z*side};return {aim,speed,lift};
+ const aim=last&&a.exit?a.exit:{x:f.x*forward+s.x*side,z:f.z*forward+s.z*side};return {aim,speed:keepClose(p,speed,lift,last),lift};
 }
+// A move's exit touch, or a flick over a defender, is played at most a couple of metres a second faster than the player is running, so
+// from a standstill the ball stays within a stride or two instead of running away from him.
+function keepClose(p,speed,lift,last){const run=Math.hypot(p.vx||0,p.vz||0);if(lift>.3&&speed>1.2)return Math.min(speed,Math.max(2.4,run+2));return last?Math.min(speed,Math.max(speed*.7,run+2.2)):speed;}
+/** A skill move played with the ball at the feet sells its fake: each AI defender within 4.5 m in front of the dribbler may be wrong-footed.
+ * He checks his run and steps toward the side opposite the move's exit touch and cannot tackle until a moment after that touch, longer for harder moves. The
+ * chance grows with the dribbler's skill-move stars (63% at one star, 95% at five), and the same defender is not fooled twice within 1.5 s. */
+export function wrongFoot(match,p,a){const b=match.physics.ball.position;if(Math.hypot(b.x-p.x,b.z-p.z)>1.2||b.y>.6)return 0;
+ const f={x:Math.sin(p.yaw),z:Math.cos(p.yaw)},right={x:-f.z,z:f.x},n=a.events?.length||0,exit=n?skillImpulse(p,a,n-1).aim:f,lateral=exit.x*right.x+exit.z*right.z;
+ const toward=Math.abs(lateral)>.2?-Math.sign(lateral):match.random()<.5?1:-1,dir={x:right.x*toward,z:right.z*toward};
+ const level=MOVE_BY_KEY[a.move]?.stars??3,chance=.55+.08*skillStars(p),until=match.time+(n?a.events[n-1].at:(a.duration||.4)*.5)+.3+.05*level;let fooled=0;
+ for(const q of match.players){if(!q.active||q.team===p.team||q.role==='GK'||q.down>0||match.isHumanControlled(q))continue;const dx=q.x-p.x,dz=q.z-p.z;
+  if(Math.hypot(dx,dz)>4.5||dx*f.x+dz*f.z<-.5||match.time-(q.beatenAt??-9)<1.5||match.random()>=chance)continue;q.beaten={until,dir};q.beatenAt=match.time;q.vx*=.4;q.vz*=.4;fooled++;}
+ return fooled;}
 // Poses for table moves, by kind (legs[0] is on the player's right, so a move to the right uses it); `u` runs 0..1 over the move and every weight rises from and returns to 0, so the move
 // eases in and out of the stride.
 const smooth=t=>{t=Math.min(1,Math.max(0,t));return t*t*(3-2*t);};
