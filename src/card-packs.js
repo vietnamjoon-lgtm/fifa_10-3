@@ -5,7 +5,7 @@ export const PACKS={
  gold:{id:'gold',name:'골드 팩',price:180,cards:1,note:'골드 중심, 스페셜 10%',odds:{bronze:0,silver:.30,gold:.60,special:.10}}
 };
 export const PACK_ORDER=['bronze','silver','gold'];
-export const LIBRARY_LIMIT=200;
+export const LIBRARY_LIMIT=1000;
 let grouped=null;
 export function poolByTier(){
  if(!grouped){grouped={bronze:[],silver:[],gold:[],special:[]};for(const card of CARD_POOL)grouped[cardTier(card)].push(card);}

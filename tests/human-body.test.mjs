@@ -107,6 +107,18 @@ test('ankle IK puts the model ankles on the old rig ankles',()=>{
  }
 });
 
+test('visible wrists reach the contact rig after retargeting both human models',()=>{
+ for(const model of MODELS)for(const height of [1.65,1.81,1.98]){
+  const {scene,bones}=glbSkeleton(model),rig=fixture({height}),data=bindData(scene);
+  scene.scale.setScalar(height/1.82/rig.bodyMetrics.scale);rig.root.add(scene);
+  for(const arm of rig.arms){arm.upper.rotation.x=-1.2;arm.lower.rotation.x=-.8;}
+  rig.root.updateMatrixWorld(true);retarget(rig,bones,data);
+  const errors=()=>rig.arms.map((a,i)=>bones[(i===0?'Right':'Left')+'Hand'].getWorldPosition(new THREE.Vector3()).distanceTo(a.lower.localToWorld(new THREE.Vector3(0,-rig.bodyMetrics.handReach+.07,0))));
+  const before=errors();hands.reachContactHands(rig,scene,bones);const after=errors();
+  for(let i=0;i<2;i++)assert.ok(after[i]<.025&&after[i]<before[i],`${model} ${height} side ${i}: ${before[i]} -> ${after[i]}`);
+ }
+});
+
 test('photo faces land on the head texture landmarks and stay inside the face oval',()=>{
  const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-6,`${a} vs ${b}`);
  // Eyes, nose, mouth and chin of the head texture read the same landmarks of the editor atlas.

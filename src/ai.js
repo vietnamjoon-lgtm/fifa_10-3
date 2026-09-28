@@ -17,6 +17,7 @@ export function choosePass(match,p,aim,type='pass'){
 export function updateTeamAI(match){
  if(match.setPiece)return;
  const b=match.physics.ball.position,owner=match.owner;
+ if(owner){if(Math.hypot(owner.vx,owner.vz)>.45||owner.action)owner.stationarySince=match.time;else owner.stationarySince??=match.time;}
  for(const team of [0,1]){teamPlan(match,team);
  const dir=match.direction(team),flight=activePass(match),hasBall=owner?.team===team||flight?.team===team;
  const assistance=match.assistanceForTeam?.(team)||match.settings;
@@ -58,7 +59,9 @@ export function keeperTarget(match,p){const b=match.physics.ball.position,v=matc
   const read=p.keeperRead;tz=clamp(read.z,-3.45,3.45);p.intercept={x:p.x,z:read.z};
   if(read.at-match.time<KEEPER.diveTriggerTime&&Math.abs(tz-p.z)>KEEPER.diveTriggerDistance&&p.dive<=0&&p.cooldown<=0){p.dive=p.diveDuration=KEEPER.diveDuration;p.diveDirection=Math.sign(tz-p.z);p.diveHeight=read.height;p.cooldown=KEEPER.diveCooldown;p.aiState='DIVE';}
  }
- if(p.dive>0){tx=p.x;tz=p.z;}p.target={x:tx,z:tz};p.sprinting=false;
+ if(p.dive>0){tx=p.x;tz=p.z;
+  if(p.keeperRead&&!match.heldBy&&(!p.keeperMotion||p.keeperMotion.until<match.time||p.keeperMotion.kind==='reach'))p.keeperMotion={kind:'reach',until:match.time+.12,target:{x:p.x+dir*.35,y:p.keeperRead.height,z:p.z+clamp(p.keeperRead.z-p.z,-.7,.7)}};
+ }p.target={x:tx,z:tz};p.sprinting=false;
 }
 // Attacking plans. Each possession an AI team picks one, so attacks do not all run straight through the middle:
 // direct (runs in behind and through balls), wing (carry wide and cross) or build (short, safe passing).
@@ -135,6 +138,9 @@ export function supportShape(match,p,owner){
   if(plan.kind==='build'){x=progress-4+offset.x;z=owner.z+(side||(p.index%2?1:-1))*8;}
   if(plan.kind==='direct'&&!wide)x=Math.min(progress+4,line-.8);
  }
+ // Offer a new passing angle while the carrier waits, without dragging the back line out.
+ const still=match.time-(owner.stationarySince??match.time)>1.2;
+ if(still){const phase=match.time*.65+p.id*1.7;x=Math.min(x+Math.sin(phase)*1.8,line-.8);z+=Math.cos(phase)*2.4;}
  return {x:clamp(x,-49,49)*dir,z:clamp(z,-30,30)};
 }
 // ---- Defending ----------------------------------------------------------------------------------------------------
@@ -163,7 +169,7 @@ export function jockeyPoint(match,team,owner,gap){
 }
 export function goalSide(match,team,p,owner){const dir=match.direction(team),gx=-dir*52.5-owner.x,gz=-owner.z,n=Math.hypot(gx,gz)||1;return ((p.x-owner.x)*gx+(p.z-owner.z)*gz)/n;}
 export function defenceRoles(match,team,owner,candidates){
- const plan=defencePlan(match,team),dir=match.direction(team),carrierU=owner.x*dir,block=DEFENCE_BLOCKS[plan.mode],engaging=carrierU<block.engage;
+ const plan=defencePlan(match,team),dir=match.direction(team),carrierU=owner.x*dir,block=DEFENCE_BLOCKS[plan.mode],engaging=carrierU<block.engage||match.time-(owner.stationarySince??match.time)>2.2;
  const pool=candidates.filter(p=>p.down<=0);
  // The presser is whoever can get goal-side of the carrier soonest; a player behind the ball must first run round it.
  const cost=p=>{const jp=jockeyPoint(match,team,owner,2);return distance(p,jp)+(goalSide(match,team,p,owner)<.3?5:0);};

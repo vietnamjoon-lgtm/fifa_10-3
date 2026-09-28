@@ -231,6 +231,22 @@ export function reachAnkles(rig,root,bones,m,bind,worldScale){
   low.getWorldQuaternion(ik.qp);foot.quaternion.copy(ik.qp.invert().multiply(ik.foot));foot.updateMatrixWorld(true);
  });
 }
+/** Match visible wrists to the solved contact arms. Retargeted rotations alone cannot
+ * preserve a catch target because the two skeletons have different shoulder/arm lengths. */
+export function reachContactHands(rig,root,bones){
+ root.updateMatrixWorld(true);rig.root.updateMatrixWorld(true);
+ for(let i=0;i<2;i++){
+  const side=i===0?'Right':'Left',arm=bones[side+'Arm'],fore=bones[side+'ForeArm'],hand=bones[side+'Hand'];
+  const target=rig.arms[i].lower.localToWorld(new THREE.Vector3(0,-(rig.bodyMetrics?.handReach||.27)+.07,0));
+  const shoulder=arm.getWorldPosition(new THREE.Vector3()),elbow=fore.getWorldPosition(new THREE.Vector3()),wrist=hand.getWorldPosition(new THREE.Vector3());
+  const a=shoulder.distanceTo(elbow),b=elbow.distanceTo(wrist),direction=target.clone().sub(shoulder),d=clamp(direction.length(),Math.abs(a-b)+.001,a+b-.001);direction.normalize();
+  const pole=rig.arms[i].lower.getWorldPosition(new THREE.Vector3()).sub(shoulder);pole.addScaledVector(direction,-pole.dot(direction));
+  if(pole.lengthSq()<1e-8)pole.set(i===0?-1:1,0,0).applyQuaternion(rig.root.quaternion);pole.normalize();
+  const x=(a*a-b*b+d*d)/(2*d),y=Math.sqrt(Math.max(0,a*a-x*x));
+  const joint=shoulder.clone().addScaledVector(direction,x).addScaledVector(pole,y),end=shoulder.clone().addScaledVector(direction,d);
+  aim(arm,elbow,joint);hand.getWorldPosition(wrist);aim(fore,wrist,end);
+ }
+}
 // Hands. Finger poses are curl amounts per finger (thumb ... little finger, 0 straight, 1 closed) plus `l`,
 // the thumb opened square to the index finger. Segment angles (radians) at curl 1:
 const CURL=[[.45,.6,.8],[1.35,1.55,1.05],[1.4,1.6,1.1],[1.4,1.6,1.1],[1.35,1.55,1.05]];
@@ -357,6 +373,7 @@ function attach(rig){
   bones.Hips.position.set(bind.hips.x+rig.hips.position.x*toModel,bind.hips.y+hipsLift+(rig.hips.position.y-m.hipY)*toModel,bind.hips.z+rig.hips.position.z*toModel);
   reachAnkles(rig,root,bones,m,bind,worldScale);
   const p=rig.animationPlayer||{};
+  if(p.keeperMotion&&(rig.animationTime||0)<=p.keeperMotion.until)reachContactHands(rig,root,bones);
   poseHands(root,bones,bind,{speed:rig.animationSpeed||0,keeper:look.keeper,state:rig.motionState,camera:rig.motionState==='celebrate'?celebrationHands(p,rig.animationTime||0):null});
  },dispose(){live.delete(rig);root.removeFromParent();for(const mat of Object.values(materials))mat?.dispose();decals.dispose();rig.human.photoTexture?.dispose();for(const s of skeletons)s.dispose();}};
  decalsFor(rig);live.add(rig);rig.human.sync();

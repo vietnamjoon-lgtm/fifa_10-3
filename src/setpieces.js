@@ -1,7 +1,7 @@
 import {FIELD,clamp,distance} from './config.js';
 import {solveAirKick} from './air-flight.js';
 export const RESTART_DISTANCE=9.15;
-const place=(p,x,z,yaw)=>{Object.assign(p,{x,z,vx:0,vz:0,yaw,action:null,intent:null,dive:0,down:0,keeperRead:null,touchCooldown:0,target:{x,z}});};
+const place=(p,x,z,yaw)=>{Object.assign(p,{x,z,vx:0,vz:0,yaw,action:null,intent:null,pendingKick:null,keeperMotion:null,dive:0,down:0,keeperRead:null,touchCooldown:0,target:{x,z}});};
 const PENALTY_AREA={depth:16.5,halfWidth:20.16};
 // Restart shapes. The play stops for a set piece, so both teams are placed in a shape for it instead of freezing where
 // they stood (a goal kick used to leave attackers inside the kicking team's penalty area). Positions are in the
@@ -80,6 +80,7 @@ export function arrangeSetPiece(m,s){
  s.positions=m.players.filter(q=>q.active).map(q=>({id:q.id,x:q.x,z:q.z,yaw:q.yaw}));
 }
 export function updateSetPiece(m,dt){const s=m.setPiece;if(!s)return;
+ if(s.kind==='throw'&&!s.taker.action){const p=s.taker,b=m.physics.ball.position;p.yaw=Math.atan2(0,-Math.sign(p.z||1));b.set(p.x,p.height+.16,p.z);m.physics.ball.velocity.setZero();p.keeperMotion={kind:'throw-ready',until:m.time+.12,target:{x:b.x,y:b.y,z:b.z}};}
  if(['free','penalty'].includes(s.kind)&&!s.taker.action){const a=m.inputForTeam(s.team).axis||{};s.aimZ=clamp((s.aimZ||0)+(a.x||0)*m.direction(s.team)*2.4*dt,-4.5,4.5);s.aimHeight=clamp((s.aimHeight||.85)-(a.z||0)*1.4*dt,.18,3.1);}
 }
 export function restartShotTarget(m,p){const s=m.setPiece;if(s?.taker!==p||!['free','penalty'].includes(s.kind))return null;return {x:m.direction(p.team)*(FIELD.halfLength+.2),z:s.aimZ||0,y:s.aimHeight??.85};}

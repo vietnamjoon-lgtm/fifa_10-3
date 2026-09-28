@@ -34,7 +34,7 @@ export function executeCommand(m,action,options={}){
  if(action==='switch'){m.switchPlayer();return;}
  if(action.startsWith('keeper')){keeperRelease(m,action,options);return;}
  if(action==='cancel'||action==='fake'){
-  m.charging=false;m.charge=0;p.intent=null;
+  m.charging=false;m.charge=0;p.intent=null;p.pendingKick=null;
   if(p.action?.hit||p.action?.commitTime)return;
   // A shot or pass fake with a direction is a scoop turn, heel chop or rabona fake when the player has the stars for it.
   if(action==='fake'&&m.owner===p&&!p.action){const move=gestureMove(m,p,{special:'fake',mods:options.mods});if(move){startMove(m,p,move);return;}}
@@ -81,9 +81,17 @@ export function executeCommand(m,action,options={}){
 }
 
 export function throwIn(m,type,options={}){
- const p=m.setPiece?.taker;if(!p)return;
- const pass=choosePass(m,p,m.input.axis,type==='lob'?'lob':'pass'),dir=m.direction(p.team);
- const aim=pass?{x:pass.x-p.x,z:pass.z-p.z}:{x:dir*.5,z:-Math.sign(p.z||1)};
+ const p=m.setPiece?.taker;if(!p||p.action)return;
+ const pass=choosePass(m,p,m.inputForTeam(p.team).axis,type==='lob'?'lob':'pass');
+ const aim=pass?{x:pass.x-p.x,z:pass.z-p.z}:{x:m.direction(p.team)*.5,z:-Math.sign(p.z||1)};
+ if(aim.z*Math.sign(p.z)>0)aim.z=-aim.z;
+ p.yaw=Math.atan2(aim.x,aim.z);p.vx=p.vz=0;
+ p.action={id:++m.actionId,type:'throw',elapsed:0,contactAt:.46,hit:false,throwType:type,throwTarget:pass?.player?.id,throwAim:aim};
+ m.charging=false;m.charge=0;
+}
+export function releaseThrowIn(m,p,a){
+ if(m.setPiece?.kind!=='throw'||m.setPiece.taker!==p){p.action=null;return;}
+ const type=a.throwType,receiver=m.players.find(q=>q.id===a.throwTarget),pass=receiver?{player:receiver}:null,aim=a.throwAim;
  // A throw must travel into the field; keep its vertical component physical.
  if(aim.z*Math.sign(p.z)>0)aim.z=-aim.z;
  m.physics.kick(aim,type==='lob'?16:9,type==='lob'?5:2.6);m.owner=null;m.setPiece=null;m.offside.clear();
