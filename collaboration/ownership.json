@@ -56,7 +56,9 @@
         "src/kleague-rosters.js",
         "tools/update-kleague.mjs",
         "tools/normalize-kleague.mjs",
-        "tests/club-squads.test.mjs"
+        "tests/club-squads.test.mjs",
+        "src/traits.js",
+        "src/trait-picker.js"
       ],
       "tests": [
         "tests/body-customization.test.mjs",
@@ -137,14 +139,19 @@
         "tools/assist-check.mjs",
         "tools/check-balance.mjs",
         "tools/check-keeper-v2.mjs",
-        "src/crossing.js"
+        "src/crossing.js",
+        "src/trait-ai.js",
+        "src/trait-keeper.js",
+        "tools/trait-measure.mjs",
+        "tools/trait-report.mjs"
       ],
       "tests": [
         "tests/assists.test.mjs",
         "tests/balance-and-ratings.test.mjs",
         "tests/control-assist.test.mjs",
         "tests/guided-pass.test.mjs",
-        "tests/reception-and-contact.test.mjs"
+        "tests/reception-and-contact.test.mjs",
+        "tests/player-traits.test.mjs"
       ]
     },
     {
@@ -166,7 +173,8 @@
         "src/rules.js",
         "tools/soak.mjs",
         "src/air-flight.js",
-        "src/setpieces.js"
+        "src/setpieces.js",
+        "src/trait-play.js"
       ],
       "tests": [
         "tests/engine-improvements.test.mjs",
