@@ -172,7 +172,9 @@ export function possessionRadius(match,p){return match.lastTouch===p?ASSIST.knoc
 export function kickStartDistance(p){return ASSIST.kickStart+ASSIST.sprintKickStart*(p.sprinting?clamp((Math.hypot(p.vx,p.vz)-jogSpeed(p))/ASSIST.sprintKnockSpeed,0,1):0);}
 /** Whether a kick's windup can start now: the ball, where it and the player will be a moment later, is within reach.
  * A knocked ball that runs away as fast as the player waits until the player has closed on it. */
-export function kickInReach(p,ball,v){const t=ASSIST.kickLook,x=ball.x+v.x*t-p.x-p.vx*t,z=ball.z+v.z*t-p.z-p.vz*t;return Math.max(distance(p,ball),Math.hypot(x,z))<=kickStartDistance(p);}
+/** `extra` widens the start distance: a human's kick starts up to that much sooner on a ball running ahead, and the
+ * set-up touch before contact (match.js KICK_SETUP) brings the ball onto the foot. */
+export function kickInReach(p,ball,v,extra=0){const t=ASSIST.kickLook,x=ball.x+v.x*t-p.x-p.vx*t,z=ball.z+v.z*t-p.z-p.vz*t;return Math.max(distance(p,ball),Math.hypot(x,z))<=kickStartDistance(p)+extra;}
 export function controlReach(p,relative){return (.5+.3*(p.control||.8))*clamp(1.25-relative/24,.45,1);}
 
 export function cushionFirstTouch(match,p){
