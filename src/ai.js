@@ -112,10 +112,11 @@ export function bestPassOption(match,p,opponents){const dir=match.direction(p.te
  return best;}
 function shootAt(match,p,opponents){const dir=match.direction(p.team),gk=opponents.find(q=>q.role==='GK'),far=-(Math.sign((gk?.z||0)-p.z*.08)||(match.random()<.5?1:-1)),r=match.random();
  // Mostly the far side of the keeper, sometimes the near post or low and central: never the same exact corner.
- const z=r<.6?far*(1.3+match.random()*1.5):r<.85?-far*(1.1+match.random()*1.3):(match.random()-.5)*1.8;
+ // Corners are aimed close to the post (2.0-3.3 m from the centre of a 3.66 m half-goal), so shot error sends some wide.
+ const z=r<.6?far*(2+match.random()*1.3):r<.85?-far*(1.7+match.random()*1.3):(match.random()-.5)*1.8;
  // A finesse finisher curls the far-post shot; a long-shot taker hits a distant one harder.
  const curl=r<.6&&aiTrait(match,p,'finesse')?{curve:true}:{};
- match.queueKick(p,'shoot',.5+match.random()*.35+longShotPower(match,p,52.5-p.x*dir),{x:dir*52.5-p.x,z:clamp(z,-2.9,2.9)-p.z},null,curl);}
+ match.queueKick(p,'shoot',.5+match.random()*.35+longShotPower(match,p,52.5-p.x*dir),{x:dir*52.5-p.x,z:clamp(z,-3.3,3.3)-p.z},null,curl);}
 // The AI carrier compares carrying on with shooting, crossing and its best pass, instead of passing on a timer.
 export function carrierDecision(match,p){
  const team=p.team,dir=match.direction(team),plan=teamPlan(match,team),opponents=match.players.filter(q=>q.active&&q.team!==team),pressure=spaceAt(opponents,p.x,p.z);

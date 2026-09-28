@@ -22,11 +22,16 @@ export function kickError(p,a,pressure){
  const fatigue=1+(1-(p.stamina??1))*.6;
  // Shots keep their tuning. Passes had the same tiny base (about +-0.5 degrees for a 76-rated passer), so every ball
  // arrived on the receiver's feet like a 99 stat; they now miss by roughly a degree at 20 m and more for long balls.
- if(a.type==='shoot')return (.003+(1-ability)*.065)*posture*weak*stress*fatigue;
+ // Shots: the old base (+-0.5 degrees for an 80 finisher) put four in five shots on target. SHOT_ERROR gives an 80 finisher
+ // about +-1.6 degrees, more for a weak foot, pressure, fatigue, an unbalanced body and a shot struck past the sweet spot.
+ if(a.type==='shoot')return (SHOT_ERROR.base+(1-ability)*SHOT_ERROR.skill)*(1+Math.max(0,(a.power??.5)-SHOT_ERROR.sweet)*SHOT_ERROR.power)*posture*weak*stress*fatigue;
  return (PASS_ERROR.base+(1-ability)*PASS_ERROR.skill)*(1+(a.distance||0)/PASS_ERROR.distance)*(a.type==='through'?PASS_ERROR.through:1)*posture*weak*stress*fatigue;
 }
 // Pass error in radians (full range): (base + (1 - skill) * skill) * (1 + distance / distance) * through * posture...
 // `pace` scales the same error into an under- or over-hit weight.
+// Shot error in radians (full range) and the vertical spread of the launch (m/s): `lift` random spread scaled down by
+// finishing, `overLift` added per unit of charge above `sweet` (an over-hit shot rises over the bar).
+export const SHOT_ERROR={base:.04,skill:.18,sweet:.78,power:1.8,lift:1.3,overLift:9};
 export const PASS_ERROR={base:.018,skill:.11,distance:30,through:1.15,pace:2.2};
 export function keeperProfile(p){const reflex=skill(p,'reflexes'),reach=clamp(p.reach||1.7,1.3,2.2);
  return {reaction:KEEPER.reactionBase+(1-reflex)*KEEPER.reactionSpread,catchSpeed:KEEPER.catchBase+reflex*KEEPER.catchReflex,range:reach*(p.dive>0?KEEPER.diveRange:KEEPER.standingRange),height:Math.min(p.height||1.81,reach)+KEEPER.heightPadding};}

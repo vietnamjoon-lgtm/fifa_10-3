@@ -13,7 +13,7 @@ import {collectionMovement,activePass} from './ball-assistance.js';
 import {prepareReception} from './receive-control.js';
 import {keeperContact} from './keeper-balance.js';
 import {planKick,locomotionCadence,receivePlan} from './motion-planner.js';
-import {movementProfile,kickSkill,kickError,keeperProfile,seededRandom,PASS_ERROR,carrySpeed} from './attributes.js';
+import {movementProfile,kickSkill,kickError,keeperProfile,seededRandom,PASS_ERROR,SHOT_ERROR,carrySpeed} from './attributes.js';
 import {chooseKickFoot,footSign,predictContact} from './contact-model.js';
 import {createPhysics,curveDrift,detectGoal} from './physics.js';
 import {resolveBodyContacts} from './contacts.js';
@@ -123,6 +123,7 @@ export class Match{
   if(style){speed=style.speed;lift=style.lift;curve=style.curve;errorScale=style.error;if(style.knuckle)flightStyle='knuckle';}}
  // Player traits (src/trait-play.js): a power header is struck harder and truer, a finesse far-post shot bends more and misses less.
  const traitKick=setFlight?null:kickTraits(this,p,a,b);if(traitKick){speed*=traitKick.speed;curve*=traitKick.curve;}
+ if(a.type==='shoot'&&!setFlight&&!a.aerial&&!a.chip){const skill=kickSkill(p,a);lift+=(this.random()-.5)*SHOT_ERROR.lift*(1.3-.6*skill)+(a.powerShot||a.curve||a.low?0:Math.max(0,a.power-SHOT_ERROR.sweet)*SHOT_ERROR.overLift);}
  if(a.aerial){speed*=b.y>1.2?.72:.92;lift=a.low?-1:Math.min(lift,2);}
  const assistKey=a.type==='lob'?'crossAssist':a.type==='through'?'throughAssist':'passAssist',assisted=a.type!=='shoot'&&a.receiver&&(this.settings[assistKey]||'auto')!=='manual';const error=a.type!=='shoot'&&a.receiver&&followPassEnabled(this,p.team)?0:kickError(p,a,pressure)*errorScale*(assisted?((this.settings[assistKey]||'auto')==='auto'?.75:.9):1)*(traitKick?traitKick.error:1);// Start curled kicks outside the target so the Magnus bend brings them back.
  let aim=a.aim;if(solved){const c=Math.cos(solved.aimOffset),s=Math.sin(solved.aimOffset);aim={x:aim.x*c-aim.z*s,z:aim.x*s+aim.z*c};}if(!solved&&curve&&flightStyle!=='knuckle'&&lift>1&&a.distance>1){const n=Math.hypot(aim.x,aim.z)||1,x=aim.x/n,z=aim.z/n,k=Math.sign(curve)*curveDrift(speed,curve,a.distance)/a.distance;aim={x:x-k*z,z:z+k*x};}

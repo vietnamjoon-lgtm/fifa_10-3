@@ -15,7 +15,8 @@ export function shotTarget(match,p,axis={x:0,z:0}){
  // A deliberate backwards shot retains its input direction.
  if(forward<-.25)return null;
  const keeper=match.players.find(q=>q.active&&q.team!==p.team&&q.role==='GK');
- const corner=Math.abs(axis.z||0)>.2?clamp(axis.z,-1,1)*2.65:
+ // A keyboard diagonal (|z| = 0.71) aims at the corner like a full up or down press.
+ const corner=Math.abs(axis.z||0)>.2?Math.sign(axis.z)*2.65*clamp(Math.abs(axis.z)/.7,0,1):
   keeper&&Math.abs(keeper.z)>.35?-Math.sign(keeper.z)*2.35:Math.abs(p.z)>.6?-Math.sign(p.z)*2.35:p.foot==='left'?-2.35:2.35;
  return {x:dir*(FIELD.halfLength+.25),z:corner};
 }
