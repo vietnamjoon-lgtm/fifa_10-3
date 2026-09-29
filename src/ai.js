@@ -124,9 +124,7 @@ export function bestPassOption(match,p,opponents){const dir=match.direction(p.te
   // so a lob is only played over a ground path that is cut out, or beyond 40 m.
   if(margin<0&&d>16||d>40){const lob=passTarget(match,p,q,'lob'),m=passMargin(match,p,lob,'lob',all)-r.loftRisk;if(m>margin||d>40){type='lob';target=lob;margin=m;}}
   if(margin<r.minimum)continue;
-  // Progress counts for more than a free man: a backward pass costs more per metre than a forward one gains (with an
-  // even weighting 41% of AI passes went backwards and box entries halved).
-  const lofted=type==="lob",value=Math.min(open,8)*.6+(forward>0?forward*.4:forward*.75)+Math.min(ahead,10)*.35-(lofted?3:0)-Math.max(0,r.safe-margin)*r.penalty-d*.05+(q.x*dir>28?1.5:0)+(type==='through'?1:0)+passBonus(match,p,q,d,lofted);
+  const lofted=type==="lob",value=Math.min(open,8)*.9+forward*.36+Math.min(ahead,10)*.35-(lofted?3:0)-Math.max(0,r.safe-margin)*r.penalty-d*.05+(q.x*dir>28?1.5:0)+(type==='through'?1:0)+passBonus(match,p,q,d,lofted);
   if(!best||value>best.value)best={player:q,value,type,target,margin};}
  return best;}
 function shootAt(match,p,opponents){const dir=match.direction(p.team),gk=opponents.find(q=>q.role==='GK'),far=-(Math.sign((gk?.z||0)-p.z*.08)||(match.random()<.5?1:-1)),r=match.random();
@@ -153,7 +151,7 @@ export function carrierDecision(match,p){
  const hx=lane.target.x-p.x,hz=lane.target.z-p.z,hn=Math.hypot(hx,hz)||1,front=Math.min(20,...opponents.filter(q=>((q.x-p.x)*hx+(q.z-p.z)*hz)/hn>distance(p,q)*CARRY_GUARD.cone).map(q=>distance(p,q)));
  p.sprinting=lane.space>carrySprintSpace(match,p)&&front>CARRY_GUARD.sprint;
  const inRange=52.5-p.x*dir<25&&Math.abs(p.z)<15;
- if(!p.action&&!inRange&&front<CARRY_GUARD.release&&match.time>p.nextDecision-.35){const option=bestPassOption(match,p,opponents);if(option&&option.margin>CARRY_GUARD.margin&&((option.player.x-p.x)*dir>-4||p.x*dir<-20)){p.nextDecision=match.time+.4;match.queueKick(p,option.type,.5,{x:option.target.x-p.x,z:option.target.z-p.z},option.player);return;}}
+ if(!p.action&&!inRange&&front<CARRY_GUARD.release&&match.time>p.nextDecision-.35){const option=bestPassOption(match,p,opponents);if(option&&option.margin>CARRY_GUARD.margin){p.nextDecision=match.time+.4;match.queueKick(p,option.type,.5,{x:option.target.x-p.x,z:option.target.z-p.z},option.player);return;}}
  if(p.cutUntil>match.time){p.target=p.cutTarget;p.sprinting=true;p.aiState='BEAT';return;}
  if(!p.action&&p.cooldown<=0&&front<CARRY_GUARD.release&&distance(p,match.physics.ball.position)<1.12&&match.random()<aiLevel(match,team).beat&&beatDefender(match,p,opponents))return;
  if(match.time<=p.nextDecision||p.action)return;
