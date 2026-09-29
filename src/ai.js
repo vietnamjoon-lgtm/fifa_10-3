@@ -2,11 +2,14 @@ import {KEEPER} from './keeper-tuning.js';
 import {activePass,interceptPoint} from './ball-assistance.js';
 import {keeperProfile} from './attributes.js';
 import {clamp,distance,TUNING} from './config.js';
-import {passTarget} from './assists.js';
+import {passTarget,groundPassSpeed} from './assists.js';
 import {offsideSnapshot} from './rules.js';
 import {safeAutoTackle} from './auto-defence.js';
 import {chooseCross,inCrossingZone} from './crossing.js';
 import {keeperTraitTarget} from './trait-keeper.js';
+import {aiLevel} from './difficulty.js';
+import {autoMove} from './skill-moves.js';
+import {skillAction} from './skills.js';
 import {decisionScale,takesLongShot,longShotPower,passLean,carrySprintSpace,passReach,passBonus,earlyCross,traitRuns,attackPush,onsideGap,runnerPush,defenceShift,recoverDistance,presserCost,slideLunge,aiTrait} from './trait-ai.js';
 export function laneClear(a,b,opponents){const dx=b.x-a.x,dz=b.z-a.z,l=dx*dx+dz*dz;let danger=0;for(const p of opponents){const t=clamp(((p.x-a.x)*dx+(p.z-a.z)*dz)/l,0,1);if(t>.05&&t<.95){const d=Math.hypot(p.x-a.x-t*dx,p.z-a.z-t*dz);danger+=Math.max(0,3.3-d);}}return danger;}
 export function choosePass(match,p,aim,type='pass'){
@@ -57,9 +60,9 @@ export function keeperTarget(match,p){const b=match.physics.ball.position,v=matc
  p.aiState='KEEPER SET';let tx=goalX+dir*1.3,tz=clamp(b.z*.115,-2.75,2.75);
  if(b.x*dir<-32&&Math.abs(b.z)<18){tx=goalX+dir*clamp((52.5+b.x*dir)*.19,1,5);tz=clamp(b.z*.25,-3.3,3.3);}
  const toward=v.x*dir<-.5,arrival=(goalX-b.x)/(v.x||.001);
- const keeper=keeperProfile(p);
+ const keeper=keeperProfile(p),reaction=keeper.reaction+aiLevel(match,p.team).keeperReaction;
  if(!toward||arrival<=0||match.lastTouchTeam===p.team)p.keeperRead=null;
- if(toward&&arrival>0&&arrival<1.5&&match.lastTouchTeam!==p.team&&match.time-match.lastKickTime>keeper.reaction){
+ if(toward&&arrival>0&&arrival<1.5&&match.lastTouchTeam!==p.team&&match.time-match.lastKickTime>reaction){
   // Commit to the observed shot instead of tracking its future destination perfectly.
   // Read where the ball crosses the keeper's own line, not the goal line: an angled shot moves sideways in between.
   if(!p.keeperRead||p.keeperRead.kickTime!==match.lastKickTime){const travel=Math.max(.01,(p.x-b.x)/(v.x||.001)),error=(match.random()-.5)*(KEEPER.readError+(1-p.reflexes)*KEEPER.readErrorReflex);p.keeperRead={kickTime:match.lastKickTime,at:match.time+travel,z:b.z+v.z*travel+error,height:clamp(b.y+v.y*travel-4.905*travel*travel,.18,2.25)};}
@@ -99,16 +102,32 @@ export function carryLane(match,p,plan,opponents){const dir=match.direction(p.te
   const value=Math.min(space,9)+progress*.45+bonus-(Math.abs(z)>28?3:0);
   if(!best||value>best.value)best={angle,value,space,progress,target:{x:clamp(p.x+hx*14,-51,51),z:clamp(p.z+hz*14,-31,31)}};}
  p.carryAngle=best.angle;return best;}
-// The best pass the AI can see. A receiver who is marked or behind a defender in the passing lane is skipped; the old AI
-// still passed there and lost the ball.
-export function bestPassOption(match,p,opponents){const dir=match.direction(p.team),offside=offsideSnapshot(match,p),reach=passReach(match,p);let best=null;
+// The best pass the AI can see. Each option is judged by a race: the pass is safe by `margin` seconds when the ball
+// reaches every point of its path (a ground pass) or its landing spot (a lofted one) that much before any opponent can
+// get there. The older lane-width score missed defenders who were not in the lane yet but would run into it, and lobs
+// were intercepted 27% of the time.
+export const PASS_RACE={reaction:.25,runSpeed:7.2,reach:.9,loftReach:1.4,loftRisk:.5,safe:.35,penalty:4.5,minimum:-.05};
+function groundArrival(d,type,ballRoll){const v0=groundPassSpeed(d,type,ballRoll),v1=type==='through'?9.5:8;return s=>s*d/((2*v0-(v0-v1)*s)/2);}
+export function passMargin(match,p,target,type,opponents){
+ const d=distance(p,target),r=PASS_RACE,race=(o,x,z,reach,t)=>Math.max(0,Math.hypot(o.x-x,o.z-z)-reach)/r.runSpeed+r.reaction-t;let margin=Infinity;
+ if(type==='lob'){const flight=d/(clamp(9+d*.46,11,30)*.8);for(const o of opponents)margin=Math.min(margin,race(o,target.x,target.z,r.loftReach,flight));return margin;}
+ const arrive=groundArrival(d,type,match.gameplay?.ballRoll);
+ for(let s=.15;s<1.001;s+=.085){const x=p.x+(target.x-p.x)*s,z=p.z+(target.z-p.z)*s,t=arrive(s);for(const o of opponents)margin=Math.min(margin,race(o,x,z,r.reach,t));}
+ return margin;}
+export function bestPassOption(match,p,opponents){const dir=match.direction(p.team),offside=offsideSnapshot(match,p),reach=passReach(match,p),all=match.players.filter(q=>q.active&&q.team!==p.team),r=PASS_RACE;let best=null;
  for(const q of match.players){if(q===p||!q.active||q.down>0||q.team!==p.team||q.role==='GK'||offside.has(q.id))continue;const d=distance(p,q);if(d<5||d>reach)continue;
-  const open=Math.min(12,spaceAt(opponents,q.x,q.z)),lane=laneClear(p,q,opponents),lofted=d>22&&lane>1.4||d>40;
-  if(open<(lofted?4:2)||lane>(lofted?4:1.4))continue;
-  const forward=(q.x-p.x)*dir,ahead=spaceAt(opponents,q.x+dir*6,q.z),running=q.runUntil>match.time;
-  const through=!lofted&&(running&&forward>2||forward>6&&ahead>8&&q.role!=='DEF');
-  const value=Math.min(open,8)*.9+forward*.3+Math.min(ahead,10)*.35-(lofted?3:lane*2.5)-d*.06+(q.x*dir>28?1.5:0)+(through?1:0)+passBonus(match,p,q,d,lofted);
-  if(!best||value>best.value){const type=lofted?'lob':through?'through':'pass';best={player:q,value,type,target:passTarget(match,p,q,type)};}}
+  const open=Math.min(12,spaceAt(opponents,q.x,q.z)),forward=(q.x-p.x)*dir,ahead=spaceAt(opponents,q.x+dir*6,q.z),running=q.runUntil>match.time;
+  const through=running&&forward>2||forward>6&&ahead>8&&q.role!=='DEF';
+  // Race the ground option first; a lofted ball is the alternative when the ground path is cut out or the pass is long.
+  let type=through?'through':'pass',target=passTarget(match,p,q,type),margin=passMargin(match,p,target,type,all);
+  // Measured: ground passes won their race by 0.3 s arrive 97-100% of the time, lobs at best 74% (landing error, headers),
+  // so a lob is only played over a ground path that is cut out, or beyond 40 m.
+  if(margin<0&&d>16||d>40){const lob=passTarget(match,p,q,'lob'),m=passMargin(match,p,lob,'lob',all)-r.loftRisk;if(m>margin||d>40){type='lob';target=lob;margin=m;}}
+  if(margin<r.minimum)continue;
+  // Progress counts for more than a free man: a backward pass costs more per metre than a forward one gains (with an
+  // even weighting 41% of AI passes went backwards and box entries halved).
+  const lofted=type==="lob",value=Math.min(open,8)*.6+(forward>0?forward*.4:forward*.75)+Math.min(ahead,10)*.35-(lofted?3:0)-Math.max(0,r.safe-margin)*r.penalty-d*.05+(q.x*dir>28?1.5:0)+(type==='through'?1:0)+passBonus(match,p,q,d,lofted);
+  if(!best||value>best.value)best={player:q,value,type,target,margin};}
  return best;}
 function shootAt(match,p,opponents){const dir=match.direction(p.team),gk=opponents.find(q=>q.role==='GK'),far=-(Math.sign((gk?.z||0)-p.z*.08)||(match.random()<.5?1:-1)),r=match.random();
  // Mostly the far side of the keeper, sometimes the near post or low and central: never the same exact corner.
@@ -117,14 +136,30 @@ function shootAt(match,p,opponents){const dir=match.direction(p.team),gk=opponen
  // A finesse finisher curls the far-post shot; a long-shot taker hits a distant one harder.
  const curl=r<.6&&aiTrait(match,p,'finesse')?{curve:true}:{};
  match.queueKick(p,'shoot',.5+match.random()*.35+longShotPower(match,p,52.5-p.x*dir),{x:dir*52.5-p.x,z:clamp(z,-3.3,3.3)-p.z},null,curl);}
+export const CARRY_GUARD={cone:.34,sprint:4.5,release:2.2,margin:.1};
+// A carrier held up by a defender tries to get past him: a skill move he has the stars for (skill-moves.js autoMove),
+// otherwise a sharp cut of about 70 degrees away from the defender's side at a burst, for 0.6 s.
+export function beatDefender(match,p,opponents){
+ const move=autoMove(p,opponents,null);if(move){const f={x:Math.sin(p.yaw),z:Math.cos(p.yaw)};p.action=skillAction(p,f,++match.actionId,move.key);p.cooldown=p.action.duration+.12;p.nextDecision=match.time+p.action.duration;p.aiState='SKILL';return true;}
+ const q=opponents.slice().sort((a,c)=>distance(a,p)-distance(c,p))[0];if(!q)return false;const dir=match.direction(p.team),hx=Math.sin(p.yaw),hz=Math.cos(p.yaw),side=Math.sign((q.x-p.x)*hz-(q.z-p.z)*hx)||1,a=-side*1.2,cx=hx*Math.cos(a)-hz*Math.sin(a),cz=hx*Math.sin(a)+hz*Math.cos(a);
+ const t={x:clamp(p.x+(cx+dir*.25)*6,-51,51),z:clamp(p.z+cz*6,-32,32)};p.cutTarget=t;p.cutUntil=match.time+.6;p.target=t;p.sprinting=true;p.nextDecision=match.time+.6;p.aiState='BEAT';return true;}
 // The AI carrier compares carrying on with shooting, crossing and its best pass, instead of passing on a timer.
 export function carrierDecision(match,p){
  const team=p.team,dir=match.direction(team),plan=teamPlan(match,team),opponents=match.players.filter(q=>q.active&&q.team!==team),pressure=spaceAt(opponents,p.x,p.z);
- const lane=carryLane(match,p,plan,opponents);p.aiState='CARRY';p.target=lane.target;p.sprinting=lane.space>carrySprintSpace(match,p);
+ const lane=carryLane(match,p,plan,opponents);p.aiState='CARRY';p.target=lane.target;
+ // An opponent close in front of the run: the carrier stops knocking the ball on (a sprint knock put it nearer the
+ // defender than the dribbler, and 33 of 34 AI dribbling losses were sprinting carriers), and passes at once when
+ // there is a safe pass, instead of waiting for the next decision.
+ const hx=lane.target.x-p.x,hz=lane.target.z-p.z,hn=Math.hypot(hx,hz)||1,front=Math.min(20,...opponents.filter(q=>((q.x-p.x)*hx+(q.z-p.z)*hz)/hn>distance(p,q)*CARRY_GUARD.cone).map(q=>distance(p,q)));
+ p.sprinting=lane.space>carrySprintSpace(match,p)&&front>CARRY_GUARD.sprint;
+ const inRange=52.5-p.x*dir<25&&Math.abs(p.z)<15;
+ if(!p.action&&!inRange&&front<CARRY_GUARD.release&&match.time>p.nextDecision-.35){const option=bestPassOption(match,p,opponents);if(option&&option.margin>CARRY_GUARD.margin&&((option.player.x-p.x)*dir>-4||p.x*dir<-20)){p.nextDecision=match.time+.4;match.queueKick(p,option.type,.5,{x:option.target.x-p.x,z:option.target.z-p.z},option.player);return;}}
+ if(p.cutUntil>match.time){p.target=p.cutTarget;p.sprinting=true;p.aiState='BEAT';return;}
+ if(!p.action&&p.cooldown<=0&&front<CARRY_GUARD.release&&distance(p,match.physics.ball.position)<1.12&&match.random()<aiLevel(match,team).beat&&beatDefender(match,p,opponents))return;
  if(match.time<=p.nextDecision||p.action)return;
- const base=match.settings.difficulty==='hard'?.45:match.settings.difficulty==='easy'?.95:.65;p.nextDecision=match.time+base*(pressure<3?.6:1)*(.85+match.random()*.3)*decisionScale(match,p,pressure);
+ const level=aiLevel(match,team),base=level.decision;p.nextDecision=match.time+base*(pressure<3?.6:1)*(.85+match.random()*.3)*decisionScale(match,p,pressure);
  const goalDistance=52.5-p.x*dir,shotLane=laneClear(p,{x:dir*52.5,z:clamp(p.z*.2,-3,3)},opponents.filter(q=>q.role!=='GK'));
- if(goalDistance<17&&Math.abs(p.z)<12||goalDistance<25&&Math.abs(p.z)<15&&(shotLane<1.2||pressure<2.2)&&(lane.space<4||match.random()<.5)||goalDistance<30&&Math.abs(p.z)<10&&shotLane<.4&&match.random()<.2||takesLongShot(match,p,goalDistance,shotLane)){shootAt(match,p,opponents);return;}
+ if(goalDistance<19&&Math.abs(p.z)<13||goalDistance<26&&Math.abs(p.z)<15&&(shotLane<1.2||pressure<2.2)&&(lane.space<4||match.random()<.65)||goalDistance<30&&Math.abs(p.z)<10&&shotLane<.4&&match.random()<.2||takesLongShot(match,p,goalDistance,shotLane)){shootAt(match,p,opponents);return;}
  if(inCrossingZone(match,p)&&p.x*dir>28){const cross=chooseCross(match,p,null);if(cross?.player&&spaceAt(opponents,cross.x,cross.z)>1.6&&(plan.kind==='wing'||lane.space<4||p.x*dir>40||match.random()<.35)){match.queueKick(p,'lob',.5,{x:cross.x-p.x,z:cross.z-p.z},cross.player);return;}}
  if(earlyCross(match,p,plan,opponents,spaceAt))return;
  // On a direct plan a forward on the offside line makes a run for the carrier to find.
@@ -195,7 +230,6 @@ export function defenceRoles(match,team,owner,candidates){
   if(receiver){laneTarget={x:owner.x+(receiver.x-owner.x)*.45,z:owner.z+(receiver.z-owner.z)*.45};lane=pool.filter(p=>p!==presser&&p!==cover&&p.role!=='DEF'&&presserCost(p)<=0).sort((a,c)=>distance(a,laneTarget)-distance(c,laneTarget))[0]||null;}}
  return {plan,block,engaging,presser,cover,lane,laneTarget,owner};
 }
-const TACKLE_RATE={easy:.3,normal:.45,hard:.6};
 export function engageCarrier(match,p,owner,roles){
  const team=p.team,carrierSpeed=Math.hypot(owner.vx,owner.vz),d=distance(p,owner),side=goalSide(match,team,p,owner),b=match.physics.ball.position;
  // Outside the block's trigger zone the presser only screens from a distance; inside it he closes to arm's length.
@@ -210,7 +244,7 @@ export function engageCarrier(match,p,owner,roles){
  if(p.action||p.cooldown>0)return;
  // Tackle only when it can be won: a ball that has run away from the carrier's feet, or a slow carrier shielding
  // poorly at close range (a chance per decision scaled by tackling skill and difficulty).
- const ballGap=distance(owner,b),exposed=ballGap>.62||distance(p,b)<ballGap+.25,steal=match.random()<(TACKLE_RATE[match.settings.difficulty]||TACKLE_RATE.normal)*(p.tackling??.8)/.8;
+ const ballGap=distance(owner,b),exposed=ballGap>.62||distance(p,b)<ballGap+.25,steal=match.random()<aiLevel(match,team).tackle*(p.tackling??.8)/.8;
  if((exposed||roles.engaging&&steal)&&safeAutoTackle(match,p))match.tackle(p);
 }
 export function coverPresser(match,p,owner,roles){

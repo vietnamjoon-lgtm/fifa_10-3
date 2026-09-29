@@ -25,6 +25,7 @@ import {resetReferee,resolveTackle,flushCards,updateAdvantage,inPenaltyArea} fro
 import {executeCommand,controlContext,throwIn,releaseThrowIn} from './commands.js';
 import {selectControlled,updateAutoControl,runTarget} from './control-assist.js';
 import {kickTraits,staminaDrain} from './trait-play.js';
+import {aiLevel} from './difficulty.js';
 // Planted kick: a kick turned wider than `turn` (rad) from a run faster than `minSpeed` (m/s) brakes by up to `brake` of the run speed before contact.
 export const KICK_PLANT={turn:.5,minSpeed:2.5,brake:.62,deceleration:16};
 // Set-up touch before a kick: `window` seconds before contact a ground ball that would miss the kicking foot by more than
@@ -125,7 +126,7 @@ export class Match{
  const traitKick=setFlight?null:kickTraits(this,p,a,b);if(traitKick){speed*=traitKick.speed;curve*=traitKick.curve;}
  if(a.type==='shoot'&&!setFlight&&!a.aerial&&!a.chip){const skill=kickSkill(p,a);lift+=(this.random()-.5)*SHOT_ERROR.lift*(1.3-.6*skill)+(a.powerShot||a.curve||a.low?0:Math.max(0,a.power-SHOT_ERROR.sweet)*SHOT_ERROR.overLift);}
  if(a.aerial){speed*=b.y>1.2?.72:.92;lift=a.low?-1:Math.min(lift,2);}
- const assistKey=a.type==='lob'?'crossAssist':a.type==='through'?'throughAssist':'passAssist',assisted=a.type!=='shoot'&&a.receiver&&(this.settings[assistKey]||'auto')!=='manual';const error=a.type!=='shoot'&&a.receiver&&followPassEnabled(this,p.team)?0:kickError(p,a,pressure)*errorScale*(assisted?((this.settings[assistKey]||'auto')==='auto'?.75:.9):1)*(traitKick?traitKick.error:1);// Start curled kicks outside the target so the Magnus bend brings them back.
+ const assistKey=a.type==='lob'?'crossAssist':a.type==='through'?'throughAssist':'passAssist',assisted=a.type!=='shoot'&&a.receiver&&(this.settings[assistKey]||'auto')!=='manual';const error=a.type!=='shoot'&&a.receiver&&followPassEnabled(this,p.team)?0:kickError(p,a,pressure)*errorScale*(assisted?((this.settings[assistKey]||'auto')==='auto'?.75:.9):1)*(traitKick?traitKick.error:1)*(a.type==='shoot'?aiLevel(this,p.team).shotError:aiLevel(this,p.team).passError);// Start curled kicks outside the target so the Magnus bend brings them back.
  let aim=a.aim;if(solved){const c=Math.cos(solved.aimOffset),s=Math.sin(solved.aimOffset);aim={x:aim.x*c-aim.z*s,z:aim.x*s+aim.z*c};}if(!solved&&curve&&flightStyle!=='knuckle'&&lift>1&&a.distance>1){const n=Math.hypot(aim.x,aim.z)||1,x=aim.x/n,z=aim.z/n,k=Math.sign(curve)*curveDrift(speed,curve,a.distance)/a.distance;aim={x:x-k*z,z:z+k*x};}
  const angle=(this.random()-.5)*error;/* A pass may be under-hit, but a negative speed must never reverse its launch direction. */if(a.type!=='shoot')speed*=Math.max(0,1+(this.random()-.5)*error*PASS_ERROR.pace);const dx=aim.x*Math.cos(angle)-aim.z*Math.sin(angle),dz=aim.x*Math.sin(angle)+aim.z*Math.cos(angle);
  const restart=this.setPiece?.taker===p?this.setPiece.kind:null;

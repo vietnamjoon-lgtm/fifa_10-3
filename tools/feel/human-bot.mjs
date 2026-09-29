@@ -13,12 +13,14 @@ const arg=(k,d)=>{const i=process.argv.indexOf('--'+k);return i<0?d:process.argv
 const ARROWS={x:['ArrowLeft',null,'ArrowRight'],z:['ArrowUp',null,'ArrowDown']};
 export function playHuman(seed,{half=180,difficulty='normal',settings={},react=.12}={}){
  let clock=0;const log=[];
- const st={seed,goals:[0,0],shots:0,onTarget:0,passes:0,completed:0,intercepted:0,presses:{},ignored:{},interrupted:{},latency:{},dispossessed:0,carried:0,wins:0,switches:0,missed:0,defendTime:0,attackTime:0,chaseTime:0};
+ const st={seed,goals:[0,0],shots:0,onTarget:0,passes:0,completed:0,intercepted:0,presses:{},ignored:{},interrupted:{},latency:{},dispossessed:0,carried:0,oppShots:0,oppPasses:0,oppCompleted:0,wins:0,switches:0,missed:0,defendTime:0,attackTime:0,chaseTime:0};
  let m;const input=new Input({...defaults,...settings},(action,options)=>{m.input=input;m.action(action,options);},()=>m?m.controlContext():{attack:true},{now:()=>clock*1000,target:null,getPads:()=>[]});
- const pending=[];let pass=null,lastShot=null;
+ const pending=[];let pass=null,lastShot=null,oppPass=null;
  m=new Match({...defaults,...settings,halfSeconds:half,seed,difficulty},(type,d)=>{
+  if(type==='kick'&&d?.player&&d.player.team!==m.settings.userTeam&&!d.player.action?.restartKind){if(d.type==='shoot')st.oppShots++;else if(d.player.action?.aim){st.oppPasses++;oppPass={from:d.player.id,time:m.time};}}
   if(type==='kick'&&d?.player?.team===m.settings.userTeam){const p=d.player;const k=pending.findIndex(q=>q.player===p.id&&q.kind===(d.type==='shoot'?'shoot':'pass'));if(k>=0){const q=pending.splice(k,1)[0];(st.latency[q.key]||=[]).push(clock-q.at);}
    if(!p.action?.restartKind){if(d.type==='shoot'){st.shots++;lastShot=m.time;}else{st.passes++;pass={from:p.id,time:m.time};}}}
+  if(type==='control'&&d?.player&&oppPass&&m.time-oppPass.time<6){if(d.player.team!==m.settings.userTeam&&d.player.id!==oppPass.from)st.oppCompleted++;oppPass=null;}
   if(type==='control'&&d?.player){if(pass&&m.time-pass.time<6){if(d.player.team===m.settings.userTeam&&d.player.id!==pass.from)st.completed++;else if(d.player.team!==m.settings.userTeam)st.intercepted++;pass=null;}}
   if(type==='save'&&d?.player?.team!==m.settings.userTeam&&lastShot&&m.time-lastShot<3){st.onTarget++;lastShot=null;}
   if(type==='goal'){st.goals[d.team]++;if(d.team===m.settings.userTeam&&lastShot&&m.time-lastShot<4)st.onTarget++;lastShot=null;pass=null;}
@@ -74,7 +76,7 @@ export function summarize(runs){const sum=k=>runs.reduce((a,r)=>a+(typeof k==='f
  const q=(a,p)=>{const s=[...a].sort((x,y)=>x-y);return +(s[Math.floor((s.length-1)*p)]??NaN).toFixed(3);};
  return {matches:runs.length,score:runs.map(r=>r.goals.join('-')).join(' '),goalsFor:sum(r=>r.goals[0]),goalsAgainst:sum(r=>r.goals[1]),shots:sum('shots'),onTarget:sum('onTarget'),
   passes:sum('passes'),passCompletion:+(sum('completed')/Math.max(1,sum('passes'))).toFixed(3),interceptedShare:+(sum('intercepted')/Math.max(1,sum('passes'))).toFixed(3),
-  carries:sum('carried'),dispossessedPerCarry:+(sum('dispossessed')/Math.max(1,sum('carried'))).toFixed(3),ballWins:sum('wins'),switches:sum('switches'),missedKicks:sum('missed'),
+  oppShots:sum('oppShots'),oppPassCompletion:+(sum('oppCompleted')/Math.max(1,sum('oppPasses'))).toFixed(3),carries:sum('carried'),dispossessedPerCarry:+(sum('dispossessed')/Math.max(1,sum('carried'))).toFixed(3),ballWins:sum('wins'),switches:sum('switches'),missedKicks:sum('missed'),
   possessionShare:+(sum(r=>r.possession[0])/Math.max(1,sum(r=>r.possession[0]+r.possession[1]))).toFixed(3),
   latency:Object.fromEntries(Object.entries(lat).map(([k,v])=>[k,{n:v.length,p50:q(v,.5),p90:q(v,.9)}])),ignored:Object.fromEntries(Object.entries(press).map(([k,v])=>[k,`${ign[k]||0}/${v}`])),interruptedByOpponent:Object.fromEntries(Object.entries(press).map(([k,v])=>[k,`${intr[k]||0}/${v}`]))};}
 if(import.meta.url===`file://${process.argv[1]}`){const seeds=Number(arg('seeds',6)),half=Number(arg('half',180)),difficulty=arg('difficulty','normal'),runs=[];
