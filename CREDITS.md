@@ -91,3 +91,14 @@ asset page URL and download date to the table above. The pitch shader divides th
 KTX2/Basis compression was not used for these maps: `vendor/three-addons/` (KTX2Loader, Basis
 transcoder) belongs to another part and was outside this change's scope; the maps are already
 within the 5 MB budget as PNG.
+
+## UI fonts
+
+Self-hosted in `vendor/fonts/` and loaded from `index.html`; the full license text is in `licenses/FONTS-OFL.txt`.
+
+| Font | Files | Author | License |
+|---|---|---|---|
+| Pretendard Variable (dynamic subsets) | `vendor/fonts/pretendard/` | Kil Hyung-jin (orioncactus/pretendard) | SIL Open Font License 1.1 |
+| Barlow Condensed 500/600/700/800, 800 italic (latin) | `vendor/fonts/barlow-condensed/` | Jeremy Tribby (Barlow Project) | SIL Open Font License 1.1 |
+
+The UI theme itself is `src/ui/theme.css`, loaded after `style.css`; it restyles existing ids and classes only.
