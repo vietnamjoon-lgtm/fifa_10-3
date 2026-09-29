@@ -47,8 +47,12 @@ export function dribbleFoot(p,foot){const f=logicalFoot(p,foot),k=ASSIST.dribble
  * around the body that a swivel and the inside or sole of the foot can reach. */
 export function footCanPlay(p,b,turning=false){
  const foot=Math.min(distance(dribbleFoot(p,'left'),b),distance(dribbleFoot(p,'right'),b));
- return foot<=(turning?ASSIST.stretchReach:ASSIST.footReach)||distance(p,b)<=(turning?ASSIST.turnReach:ASSIST.underfootReach);
+ // A turn at a run is played with a longer last stride: +TURN_STRETCH m of reach per m/s above 5 m/s (a sprinting
+ // dribbler's 90-degree turn took 1.6 s because the knocked ball rolled on while he braked to reach it).
+ const extra=turning?TURN_STRETCH*Math.max(0,Math.hypot(p.vx||0,p.vz||0)-5):0;
+ return foot<=(turning?ASSIST.stretchReach+extra:ASSIST.footReach)||distance(p,b)<=(turning?ASSIST.turnReach+extra:ASSIST.underfootReach);
 }
+export const TURN_STRETCH=.07;
 
 /** How far a sprint knock plays the ball ahead: about 1 m, at most 1.2 m, for the reference player (pace 8.3, control 0.8); a faster
  * player knocks it further, a better ball controller a little shorter. */
