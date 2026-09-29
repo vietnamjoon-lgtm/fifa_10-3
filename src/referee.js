@@ -68,6 +68,8 @@ export function updateAdvantage(match){
  if(match.time>=a.expires){match.advantage=null;}
 }
 
+/** Chance that a standing tackle which reaches the ball first keeps it for the tackler. */
+export function standingTackleWin(p,carrier){if(!carrier)return .8;const hold=((carrier.control??.8)*.6+(carrier.strength??.75)*.4);return clamp(.55+((p.tackling??.8)-hold)*1.1,.3,.85);}
 export function closingSpeed(a,b){const dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz)||1;return Math.max(0,((a.vx-b.vx)*dx+(a.vz-b.vz)*dz)/d);}
 export function resolveTackle(match,p,action){
  const b=match.physics.ball.position,slide=action.type==='slide',range=(slide?1.7:1.25)*(.8+.24*(p.tackling??.8))*tackleReach(p,slide);
@@ -89,7 +91,16 @@ export function resolveTackle(match,p,action){
  const ballFirst=ballHit!==null&&d<range+.11&&alignment>.15&&!bodyFirst&&!match.heldBy;
  if(dangerous){foul(match,p,victim,{slide,relativeSpeed,ballAttempt:ballHit!==null,reason:'과도한 힘의 슬라이딩'});return;}
  if(ballFirst){
-  match.physics.kick(f,slide?5.2:3.8,.15);match.owner=null;match.lastTouch=p;match.lastTouchTeam=p.team;match.lastTouchKind='tackle';match.offside.clear();match.restartOrigin=null;match.lock=.10;p.touchCooldown=.12;match.emit('tackle');
+  const carrier=match.owner&&match.owner.team!==p.team?match.owner:null;match.lastTouch=p;match.lastTouchTeam=p.team;match.lastTouchKind='tackle';match.offside.clear();match.restartOrigin=null;
+  // A standing tackle that gets to the ball first usually comes away with it (FC Online style): the ball stays at the
+  // tackler's feet, the beaten carrier is off balance for a moment. Otherwise it is poked loose to one side, a 50-50.
+  // The odds compare the tackle rating with the carrier's ball control and strength.
+  const clean=!slide&&match.random()<standingTackleWin(p,carrier);
+  if(clean){const speed=Math.hypot(p.vx,p.vz),hx=speed>.5?p.vx/speed:f.x,hz=speed>.5?p.vz/speed:f.z;match.physics.kick({x:hx,z:hz},Math.max(1.2,speed),.02);match.owner=p;p.possessedAt=match.time;match.lock=0;p.touchCooldown=.12;action.won=true;}
+  else if(slide){match.physics.kick(f,5.2,.15);match.owner=null;match.lock=.10;p.touchCooldown=.12;}
+  else{const side=match.random()<.5?1:-1,dir={x:f.x*.35+f.z*side,z:f.z*.35-f.x*side};match.physics.kick(dir,3.2,.12);match.owner=null;match.lock=.10;p.touchCooldown=.12;}
+  if(carrier){carrier.touchCooldown=Math.max(carrier.touchCooldown||0,clean?.45:.2);carrier.action=carrier.action?.type==='feint'?null:carrier.action;}
+  match.emit('tackle',{player:p,won:clean});
   if(meaningful)tackleFall(match,victim,{slide,relativeSpeed});
  }else if(meaningful){
   foul(match,p,victim,{slide,relativeSpeed,ballAttempt:ballHit!==null,reason:bodyFirst?'공보다 몸에 먼저 접촉':'늦은 태클'});

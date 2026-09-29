@@ -1,4 +1,4 @@
-import {safeAutoTackle} from './auto-defence.js';
+import {safeAutoTackle,CONTAIN} from './auto-defence.js';
 import {createPassFlight} from './guided-pass.js';
 import {SETPIECE_STYLES} from './setpiece-styles.js';
 import {skillAction} from './skills.js';
@@ -53,7 +53,8 @@ export function executeCommand(m,action,options={}){
   m.requestKick(p,action,.5,options);return;
  }
  if(action==='tackle'||action==='slide'){
-  if(options.automatic&&!safeAutoTackle(m,p))return;
+  // A D tap lunges into a standing tackle when the ball is within a stride and a half (CONTAIN.tapReach); further away it only starts containing.
+  if(options.automatic&&!safeAutoTackle(m,p,CONTAIN.tapReach))return;
   const b=m.physics.ball.position;
   if(action==='tackle'&&b.y>.65&&distance(p,b)<1.1)m.queueKick(p,'shoot',.65,{x:m.direction(p.team)*25,z:0},null,{clearance:true});
   else m.tackle(p,action==='slide');return;
