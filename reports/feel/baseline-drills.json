@@ -1,0 +1,144 @@
+{
+ "sprint.free.t90": {
+  "t90": 0.58,
+  "top": 8.27,
+  "reached": 7.52,
+  "ballAhead": null,
+  "lostFrames": 0
+ },
+ "sprint.ball.t90": {
+  "t90": 0.58,
+  "top": 8.27,
+  "reached": 7.47,
+  "ballAhead": 1.23,
+  "lostFrames": 0
+ },
+ "turn.jog.45": {
+  "time": 0.18,
+  "v0": 5.56,
+  "maxBallGap": 0.69,
+  "lost": false
+ },
+ "turn.jog.90": {
+  "time": 0.46,
+  "v0": 5.56,
+  "maxBallGap": 0.75,
+  "lost": false
+ },
+ "turn.jog.135": {
+  "time": 0.56,
+  "v0": 5.56,
+  "maxBallGap": 0.73,
+  "lost": false
+ },
+ "turn.jog.180": {
+  "time": 0.61,
+  "v0": 5.56,
+  "maxBallGap": 0.73,
+  "lost": false
+ },
+ "turn.sprint.45": {
+  "time": 0.99,
+  "v0": 7.67,
+  "maxBallGap": 1.66,
+  "lost": false
+ },
+ "turn.sprint.90": {
+  "time": 1.65,
+  "v0": 7.67,
+  "maxBallGap": 1.28,
+  "lost": false
+ },
+ "turn.sprint.135": {
+  "time": 1.56,
+  "v0": 7.67,
+  "maxBallGap": 1.54,
+  "lost": false
+ },
+ "turn.sprint.180": {
+  "time": 1.92,
+  "v0": 7.67,
+  "maxBallGap": 2.06,
+  "lost": false
+ },
+ "dribble.jog.gap": {
+  "mean": 0.64,
+  "max": 0.67,
+  "speed": 5.56
+ },
+ "dribble.sprint.gap": {
+  "mean": 1.03,
+  "max": 1.26,
+  "speed": 7.41
+ },
+ "latency.pass.stand": {
+  "p50": 0.18,
+  "max": 0.18,
+  "fails": 0
+ },
+ "latency.shoot.stand": {
+  "p50": 0.54,
+  "max": 0.54,
+  "fails": 0
+ },
+ "latency.pass.run": {
+  "p50": 0.17,
+  "max": 0.17,
+  "fails": 0
+ },
+ "latency.shoot.run": {
+  "p50": 0.54,
+  "max": 0.54,
+  "fails": 0
+ },
+ "receive.20m.flightToControl": {
+  "p50": 1.06,
+  "max": 1.07,
+  "touchGapAfter600ms": 0.32
+ },
+ "defend.1v1.D": {
+  "won": 0,
+  "beaten": 20,
+  "fouls": 0,
+  "other": 0,
+  "meanWinTime": 0
+ },
+ "defend.1v1.D+E": {
+  "won": 0,
+  "beaten": 20,
+  "fouls": 0,
+  "other": 0,
+  "meanWinTime": 0
+ },
+ "defend.1v1.chase": {
+  "won": 0,
+  "beaten": 20,
+  "fouls": 0,
+  "other": 0,
+  "meanWinTime": 0
+ },
+ "keeper.11m": {
+  "goals": 22,
+  "saves": 8,
+  "wide": 0,
+  "saveShareOnTarget": 0.27
+ },
+ "keeper.16m": {
+  "goals": 15,
+  "saves": 15,
+  "wide": 0,
+  "saveShareOnTarget": 0.5
+ },
+ "keeper.22m": {
+  "goals": 5,
+  "saves": 24,
+  "wide": 1,
+  "saveShareOnTarget": 0.83
+ },
+ "keeper.28m": {
+  "goals": 3,
+  "saves": 26,
+  "wide": 1,
+  "saveShareOnTarget": 0.9
+ }
+}

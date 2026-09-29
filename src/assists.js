@@ -15,7 +15,8 @@ export function shotTarget(match,p,axis={x:0,z:0}){
  // A deliberate backwards shot retains its input direction.
  if(forward<-.25)return null;
  const keeper=match.players.find(q=>q.active&&q.team!==p.team&&q.role==='GK');
- const corner=Math.abs(axis.z||0)>.2?clamp(axis.z,-1,1)*2.65:
+ // A keyboard diagonal (|z| = 0.71) aims at the corner like a full up or down press.
+ const corner=Math.abs(axis.z||0)>.2?Math.sign(axis.z)*2.65*clamp(Math.abs(axis.z)/.7,0,1):
   keeper&&Math.abs(keeper.z)>.35?-Math.sign(keeper.z)*2.35:Math.abs(p.z)>.6?-Math.sign(p.z)*2.35:p.foot==='left'?-2.35:2.35;
  return {x:dir*(FIELD.halfLength+.25),z:corner};
 }
@@ -46,8 +47,12 @@ export function dribbleFoot(p,foot){const f=logicalFoot(p,foot),k=ASSIST.dribble
  * around the body that a swivel and the inside or sole of the foot can reach. */
 export function footCanPlay(p,b,turning=false){
  const foot=Math.min(distance(dribbleFoot(p,'left'),b),distance(dribbleFoot(p,'right'),b));
- return foot<=(turning?ASSIST.stretchReach:ASSIST.footReach)||distance(p,b)<=(turning?ASSIST.turnReach:ASSIST.underfootReach);
+ // A turn at a run is played with a longer last stride: +TURN_STRETCH m of reach per m/s above 5 m/s (a sprinting
+ // dribbler's 90-degree turn took 1.6 s because the knocked ball rolled on while he braked to reach it).
+ const extra=turning?TURN_STRETCH*Math.max(0,Math.hypot(p.vx||0,p.vz||0)-5):0;
+ return foot<=(turning?ASSIST.stretchReach+extra:ASSIST.footReach)||distance(p,b)<=(turning?ASSIST.turnReach+extra:ASSIST.underfootReach);
 }
+export const TURN_STRETCH=.07;
 
 /** How far a sprint knock plays the ball ahead: about 1 m, at most 1.2 m, for the reference player (pace 8.3, control 0.8); a faster
  * player knocks it further, a better ball controller a little shorter. */
@@ -172,7 +177,9 @@ export function possessionRadius(match,p){return match.lastTouch===p?ASSIST.knoc
 export function kickStartDistance(p){return ASSIST.kickStart+ASSIST.sprintKickStart*(p.sprinting?clamp((Math.hypot(p.vx,p.vz)-jogSpeed(p))/ASSIST.sprintKnockSpeed,0,1):0);}
 /** Whether a kick's windup can start now: the ball, where it and the player will be a moment later, is within reach.
  * A knocked ball that runs away as fast as the player waits until the player has closed on it. */
-export function kickInReach(p,ball,v){const t=ASSIST.kickLook,x=ball.x+v.x*t-p.x-p.vx*t,z=ball.z+v.z*t-p.z-p.vz*t;return Math.max(distance(p,ball),Math.hypot(x,z))<=kickStartDistance(p);}
+/** `extra` widens the start distance: a human's kick starts up to that much sooner on a ball running ahead, and the
+ * set-up touch before contact (match.js KICK_SETUP) brings the ball onto the foot. */
+export function kickInReach(p,ball,v,extra=0){const t=ASSIST.kickLook,x=ball.x+v.x*t-p.x-p.vx*t,z=ball.z+v.z*t-p.z-p.vz*t;return Math.max(distance(p,ball),Math.hypot(x,z))<=kickStartDistance(p)+extra;}
 export function controlReach(p,relative){return (.5+.3*(p.control||.8))*clamp(1.25-relative/24,.45,1);}
 
 export function cushionFirstTouch(match,p){

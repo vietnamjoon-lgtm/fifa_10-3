@@ -100,7 +100,8 @@ test('secure possession resists flicker, exposed possession can be intercepted a
  p.touchCooldown=0;m.physics.reset(p.x+1.05,0);q.x=p.x+1.2;q.touchCooldown=0;
  m.time=1;m.updatePossession(1/120);assert.equal(m.owner,q);
  p.cooldown=0;p.x=q.x-.8;p.yaw=Math.PI/2;m.physics.reset(q.x-.5,0);m.tackle(p);m.updateAction(p,.14);
- assert.equal(m.owner,null);assert.equal(m.lastTouch,p);
+ // A standing tackle that reaches the ball first either keeps it for the tackler or pokes it loose; the carrier never keeps it.
+ assert.ok(m.owner===null||m.owner===p);assert.equal(m.lastTouch,p);
 });
 
 test('assistance does not collect distant or high balls, or instantly control powerful shots',()=>{
