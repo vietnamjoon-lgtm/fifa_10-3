@@ -33,7 +33,9 @@ export function solveFoot(rig,index,target,soft=0){
  return {error:v.setFromMatrixPosition(leg.foot.matrixWorld).distanceTo(target),clamped:requested>r+.005};
 }
 export function stabilizeFeet(rig,p,pose,dt){
- if(pose.gaitTargets&&!p.action&&!p.down&&!p.dive){stabilizeGait(rig,p,pose,dt);return;}
+ // A skill move keeps the running feet's contact machine (its release curves and early lift), with the boots that
+ // play the ball then placed on their goals: the plain contact branch below re-planted feet in one step mid-move.
+ if(pose.gaitTargets&&(!p.action||p.action.type==='feint'&&p.action.events)&&!p.down&&!p.dive){stabilizeGait(rig,p,pose,dt);placeSkillBoots(rig,pose,dt);return;}
  // Distant non-contact limbs use the phase-matched capture. Keep exact IK for every kick.
  if(rig.distant&&!rig.contactDetail&&!p.action){rig.plantState=null;rig.plantLocks=0;rig.plantError=0;return;}
  rig.root.updateWorldMatrix(true,false);const speed=Math.hypot(p.vx||0,p.vz||0),state=rig.plantState||(rig.plantState={feet:[null,null],root:null,time:0});
@@ -78,6 +80,18 @@ export function stabilizeFeet(rig,p,pose,dt){
  }
  rig.plantError=error;rig.plantLocks=locks;
 }
+
+// A skill move's boot goals (skill-choreo.js): each leg is solved onto its goal and blended in by the goal's weight,
+// faded out when the goal lies beyond the leg's reach. The weight moves by at most 1/0.1 s either way, so a boot that
+// is far from the ball when a move starts (in its back swing) comes to it over a tenth of a second instead of one
+// frame, and a goal that ends with the move is let go on the same curve.
+function placeSkillBoots(rig,pose,dt){const size=rig.root.scale.y,sole=.075*size,boots=rig.skillBoots||(rig.skillBoots=[{weight:0,target:null},{weight:0,target:null}]),rate=Math.max(dt,.001)/.1;
+ for(let i=0;i<2;i++){const g=pose.skillGoals?.find(x=>x.i===i),boot=boots[i],leg=rig.legs[i],hip=leg.upper.getWorldPosition(new THREE.Vector3()),reach=(rig.bodyMetrics.upperLeg+rig.bodyMetrics.lowerLeg)*size;
+  if(g)boot.target=new THREE.Vector3(g.x,Math.max(sole,g.y),g.z);if(!boot.target)continue;
+  const wanted=g?g.weight*clamp((reach*1.08-hip.distanceTo(boot.target))/(.12*size),0,1):0;
+  boot.weight=wanted>boot.weight?Math.min(wanted,boot.weight+rate):Math.max(wanted,boot.weight-rate);if(boot.weight<=0){boot.target=null;continue;}
+  const before=[leg.upper.quaternion.clone(),leg.lower.quaternion.clone(),leg.foot.quaternion.clone()];solveFoot(rig,i,boot.target,.03*size);
+  for(const [index,bone]of [leg.upper,leg.lower,leg.foot].entries())bone.quaternion.slerp(before[index],1-boot.weight);}}
 
 // Contact state machine. A landing starts at the current swing position, and a
 // lift-off starts at the planted position. Neither event switches to an unrelated
@@ -170,6 +184,8 @@ export function inertializeFeet(rig,p,pose,dt){
   if(switched||candidate.distanceTo(f.out)/dt>footLimit){f.offset=carried.sub(raw);f.offsetVelocity=f.vel.clone().sub(rawVelocity).clampLength(0,footLimit);f.age=0;correction=f.offset.clone();}
   // The kicking boot converges on the contact target: the offset fades out on the same curve that
   // raises the contact IK (-0.13 s to +0.16 s), so it is zero at impact and nothing is dropped in one step.
+  // The same for a boot on a skill move's goal, faded by that goal's weight.
+  const boot=rig.skillBoots?.[i];if(correction&&boot?.weight)correction.multiplyScalar(1-boot.weight);
   if(correction&&kicking&&i===kickIndex){const age=action.elapsed-action.contactAt,u=clamp(age<0?(age+.13)/.13:1-age/.16,0,1),exact=age>-.13&&age<.16?u*u*(3-2*u):0;correction.multiplyScalar(1-exact);}
   let drawn=raw;
   if(correction&&correction.lengthSq()>4e-6){
@@ -181,4 +197,10 @@ export function inertializeFeet(rig,p,pose,dt){
    solveFoot(rig,i,footGoal);drawn=rig.legs[i].foot.getWorldPosition(new THREE.Vector3());}
   f.vel=drawn.clone().sub(f.out).multiplyScalar(1/dt);f.out=drawn.clone();f.raw=raw;
  }
+ // During a skill move, and for a quarter second after it, no leg joint turns faster than 24 rad/s (0.4 rad a frame
+ // at 60 fps; a sprinting stride peaks at 0.42): a spin's support foot letting go of the ground, or a boot sent to a
+ // ball that just moved, otherwise bent the knee up to 45 degrees in one frame.
+ const bones=rig.legs.flatMap(l=>[l.upper,l.lower,l.foot]);rig.skillLimit=action?.type==='feint'?.25:Math.max(0,(rig.skillLimit||0)-dt);
+ if(rig.skillLimit>0&&rig.legPrevious){const max=24*dt;bones.forEach((b,k)=>{const prev=rig.legPrevious[k],angle=prev.angleTo(b.quaternion);if(angle>max)b.quaternion.copy(prev.clone().slerp(b.quaternion,max/angle));});}
+ rig.legPrevious=bones.map(b=>b.quaternion.clone());
 }

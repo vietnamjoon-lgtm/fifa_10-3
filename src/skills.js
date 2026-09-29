@@ -85,7 +85,11 @@ function blendMovePose(pose,a,apply=tablePose,side=a.side>0?'right':'left'){cons
  // The leg that does not work the ball is the planted support leg (slightly bent) rather than a running stride, whose
  // targets fall out of reach when the move slows the body and snapped the knee straight for a frame.
  const support=pose.legs[1-sideIndex(side)];support.upper=[-.1,support.upper[1]*.3,support.upper[2]*.5];support.lower=[.32,0,0];
- apply(pose,a);const mix=(from,to)=>to.map((v,k)=>from[k]+(v-from[k])*env);
+ apply(pose,a);
+ // A dribbler playing a skill sits lower over the ball: knees bent, chest and eyes over the ball, arms out wide for
+ // balance.
+ pose.hipY-=.045;pose.torso[0]+=.12;pose.head[0]+=.1;pose.arms[0].upper[2]-=.22;pose.arms[1].upper[2]+=.22;for(const arm of pose.arms)arm.lower[0]-=.15;
+ const mix=(from,to)=>to.map((v,k)=>from[k]+(v-from[k])*env);
  pose.hipY=base.hipY+(pose.hipY-base.hipY)*env;for(const k of JOINTS)pose[k]=mix(base[k],pose[k]);
  for(const key of ['legs','arms'])pose[key].forEach((l,i)=>{l.upper=mix(base[key][i].upper,l.upper);l.lower=mix(base[key][i].lower,l.lower);});
  pose.feet=pose.feet.map((f,i)=>mix(base.feet[i],f));}

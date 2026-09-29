@@ -2,6 +2,7 @@ import {sideIndex,RIGHT} from './sides.js';
 import {KEEPER} from './keeper-tuning.js';
 import {gaitTargets} from './gait.js';
 import {applySkillPose} from './skills.js';
+import {skillFootGoals} from './skill-choreo.js';
 import {applyCelebration} from './celebrations.js';
 import {Quaternion,Euler} from '../vendor/three.module.js';
 import {mocap} from './mocap-data.js';
@@ -140,7 +141,8 @@ export function sampleMotion(p={},phase=0,time=0,ball=null,celebrate=false,kinem
   const gait=gaitTargets(p,phase),m=gait.metrics;pose.hipY=Math.min(pose.hipY,gait.hipY);pose.contacts=gait.contacts;pose.gaitTargets=gait.feet;
   for(let i=0;i<2;i++){const target=gait.feet[i],leg=solveLeg(target.z,target.y,pose.hipY+m.hipOffset,m.upperLeg,m.lowerLeg);pose.legs[i].upper[0]=leg[0];pose.legs[i].lower[0]=leg[1];pose.legs[i].upper[2]=-Math.atan2(target.x-(i===0?-1:1)*m.hipX,Math.max(.3,pose.hipY+m.hipOffset-.075-target.y));pose.feet[i]=[-pose.hips[0]-leg[0]-leg[1],0,-pose.legs[i].upper[2]];}
  }
- if(action?.type==='feint')applySkillPose(pose,action);
+ // A skill move's boots are then placed on the ball (skill-choreo.js); a boot with a goal is not planted.
+ if(action?.type==='feint'){applySkillPose(pose,action);pose.skillGoals=skillFootGoals(p,action,ball);for(const g of pose.skillGoals)if(g.weight>.2&&pose.contacts)pose.contacts[g.i]=0;}
  if(!action&&!p.down&&!p.dive&&!celebrate){
   if(p.turnPlan&&time<p.turnPlan.start+p.turnPlan.duration){const u=clamp((time-p.turnPlan.start)/p.turnPlan.duration,0,1);blendUpperCapture(pose,'turn',u*mocap.turn.duration,.22*Math.sin(u*Math.PI)**2,p.turnPlan.angle<0);}
   else if((kinematics.acceleration||0)<-2)blendUpperCapture(pose,'stop',mocap.stop.duration-clamp(speed/8,0,1)*.7,.20*smooth((-(kinematics.acceleration||0)-2)/6));
