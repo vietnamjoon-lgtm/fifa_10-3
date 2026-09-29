@@ -145,7 +145,8 @@
         "src/trait-ai.js",
         "src/trait-keeper.js",
         "tools/trait-measure.mjs",
-        "tools/trait-report.mjs"
+        "tools/trait-report.mjs",
+        "src/difficulty.js"
       ],
       "tests": [
         "tests/assists.test.mjs",
@@ -240,7 +241,10 @@
         "tools/broadcast-capture.mjs",
         "CREDITS.md",
         "src/bench.js",
-        "docs/MAC-BENCH.md"
+        "docs/MAC-BENCH.md",
+        "tools/feel/",
+        "docs/GAME-FEEL-PLAN.md",
+        "reports/feel/"
       ],
       "tests": [
         "tests/online-room.test.mjs",

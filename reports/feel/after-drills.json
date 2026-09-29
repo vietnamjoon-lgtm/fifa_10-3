@@ -1,0 +1,237 @@
+{
+ "sprint.free.t90": {
+  "t90": 0.58,
+  "top": 8.27,
+  "reached": 7.37,
+  "ballAhead": null,
+  "lostFrames": 0
+ },
+ "sprint.ball.t90": {
+  "t90": 0.58,
+  "top": 8.27,
+  "reached": 7.33,
+  "ballAhead": 1.23,
+  "lostFrames": 0
+ },
+ "turn.ball.jog.45": {
+  "time": 0.18,
+  "v0": 5.56,
+  "maxBallGap": 0.69,
+  "lost": false
+ },
+ "turn.ball.jog.90": {
+  "time": 0.46,
+  "v0": 5.56,
+  "maxBallGap": 0.75,
+  "lost": false
+ },
+ "turn.ball.jog.135": {
+  "time": 0.56,
+  "v0": 5.56,
+  "maxBallGap": 0.73,
+  "lost": false
+ },
+ "turn.ball.jog.180": {
+  "time": 0.61,
+  "v0": 5.56,
+  "maxBallGap": 0.73,
+  "lost": false
+ },
+ "turn.ball.sprint.45": {
+  "time": 0.3,
+  "v0": 7.52,
+  "maxBallGap": 1.49,
+  "lost": false
+ },
+ "turn.ball.sprint.90": {
+  "time": 1,
+  "v0": 7.52,
+  "maxBallGap": 1.26,
+  "lost": false
+ },
+ "turn.ball.sprint.135": {
+  "time": 0.84,
+  "v0": 7.52,
+  "maxBallGap": 1.5,
+  "lost": false
+ },
+ "turn.ball.sprint.180": {
+  "time": 1.03,
+  "v0": 7.52,
+  "maxBallGap": 1.83,
+  "lost": false
+ },
+ "turn.free.jog.45": {
+  "time": 0.19,
+  "v0": 5.79,
+  "maxBallGap": 0,
+  "lost": false
+ },
+ "turn.free.jog.90": {
+  "time": 0.48,
+  "v0": 5.79,
+  "maxBallGap": 0,
+  "lost": false
+ },
+ "turn.free.jog.135": {
+  "time": 0.58,
+  "v0": 5.79,
+  "maxBallGap": 0,
+  "lost": false
+ },
+ "turn.free.jog.180": {
+  "time": 0.63,
+  "v0": 5.79,
+  "maxBallGap": 0,
+  "lost": false
+ },
+ "turn.free.sprint.45": {
+  "time": 0.28,
+  "v0": 7.99,
+  "maxBallGap": 0,
+  "lost": false
+ },
+ "turn.free.sprint.90": {
+  "time": 0.68,
+  "v0": 7.99,
+  "maxBallGap": 0,
+  "lost": false
+ },
+ "turn.free.sprint.135": {
+  "time": 0.82,
+  "v0": 7.99,
+  "maxBallGap": 0,
+  "lost": false
+ },
+ "turn.free.sprint.180": {
+  "time": 0.87,
+  "v0": 7.99,
+  "maxBallGap": 0,
+  "lost": false
+ },
+ "dribble.jog.gap": {
+  "mean": 0.64,
+  "max": 0.67,
+  "speed": 5.56
+ },
+ "dribble.sprint.gap": {
+  "mean": 1.03,
+  "max": 1.26,
+  "speed": 7.26
+ },
+ "latency.pass.stand": {
+  "p50": 0.18,
+  "p90": 0.18,
+  "fails": 0
+ },
+ "latency.shoot.stand": {
+  "p50": 0.54,
+  "p90": 0.54,
+  "fails": 0
+ },
+ "latency.pass.jog": {
+  "p50": 0.17,
+  "p90": 0.17,
+  "fails": 0
+ },
+ "latency.shoot.jog": {
+  "p50": 0.54,
+  "p90": 0.54,
+  "fails": 0
+ },
+ "latency.pass.sprint": {
+  "p50": 0.17,
+  "p90": 0.17,
+  "fails": 0
+ },
+ "latency.shoot.sprint": {
+  "p50": 0.54,
+  "p90": 0.54,
+  "fails": 0
+ },
+ "receive.20m.flightToControl": {
+  "p50": 1.06,
+  "max": 1.07,
+  "touchGapAfter600ms": 0.32
+ },
+ "defend.1v1.D.half1": {
+  "won": 18,
+  "beaten": 0,
+  "fouls": 0,
+  "other": 2,
+  "meanWinTime": 3.14
+ },
+ "defend.1v1.D.half2": {
+  "won": 20,
+  "beaten": 0,
+  "fouls": 0,
+  "other": 0,
+  "meanWinTime": 3.25
+ },
+ "defend.1v1.near D.half1": {
+  "won": 18,
+  "beaten": 0,
+  "fouls": 0,
+  "other": 2,
+  "meanWinTime": 3.48
+ },
+ "defend.1v1.near D.half2": {
+  "won": 19,
+  "beaten": 0,
+  "fouls": 0,
+  "other": 1,
+  "meanWinTime": 3.49
+ },
+ "defend.1v1.D+E.half1": {
+  "won": 17,
+  "beaten": 0,
+  "fouls": 0,
+  "other": 3,
+  "meanWinTime": 3.43
+ },
+ "defend.1v1.D+E.half2": {
+  "won": 17,
+  "beaten": 1,
+  "fouls": 0,
+  "other": 2,
+  "meanWinTime": 3.3
+ },
+ "defend.1v1.chase.half1": {
+  "won": 0,
+  "beaten": 20,
+  "fouls": 0,
+  "other": 0,
+  "meanWinTime": 0
+ },
+ "defend.1v1.chase.half2": {
+  "won": 0,
+  "beaten": 20,
+  "fouls": 0,
+  "other": 0,
+  "meanWinTime": 0
+ },
+ "keeper.11m": {
+  "goals": 19,
+  "saves": 11,
+  "wide": 0,
+  "saveShareOnTarget": 0.37
+ },
+ "keeper.16m": {
+  "goals": 10,
+  "saves": 20,
+  "wide": 0,
+  "saveShareOnTarget": 0.67
+ },
+ "keeper.22m": {
+  "goals": 3,
+  "saves": 21,
+  "wide": 6,
+  "saveShareOnTarget": 0.88
+ },
+ "keeper.28m": {
+  "goals": 3,
+  "saves": 25,
+  "wide": 2,
+  "saveShareOnTarget": 0.89
+ }
+}
